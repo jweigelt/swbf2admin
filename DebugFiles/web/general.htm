@@ -1,0 +1,69 @@
+<div class="default">    
+  <h2>General Settings</h2>
+  <div style="width: 50%;" class="general">
+
+    <div class="item">
+      <span>Save changes</span>      
+      <div class="text">
+        <a href="#" id="general_btn_save" class="button"><i class="material-icons">save</i><span>Save</span></a>
+        <span id="general_text_status" class="online">Settings saved.</span>
+      </div>
+    </div>
+  
+    <div class="item">
+      <span>Server</span>
+      <table class="status embedded">
+        <tr><th>Session name</th><td><input type="text"></td></tr>
+        <tr><th>Password</th><td><input type="text"></td></tr>
+        <tr><th>Admin Password</th><td><input type="text"></td></tr>
+        <tr><th>Max. Players</th><td><input type="number" min="1" max="64"></td></tr>  
+        <tr><th>Min. Players</th><td><input type="number" min="0" max="64"></td></tr>                 
+        <tr><th>TPS</th><td><input type="number" min="15" max="30" step="5"></td></tr> 
+      </table>   
+    </div>
+    
+    <div class="item">
+      <span>Network</span>
+      <table class="status embedded">
+        <tr>
+          <th>Bind Address</th>
+          <td><select><option>192.168.188.123</option></select></td>
+        </tr>
+        
+        <tr>
+          <th>Game Port</th>
+          <td><input type="number" min="0" max="65535"></td>
+        </tr>  
+        
+        <tr>
+          <th>Rcon Port</th>
+          <td><input type="number" min="0" max="65535"></td>
+        </tr>  
+                       
+        <tr>
+          <th>Network</th>
+          <td>
+            <select>
+              <option>WAN</option>
+              <option>LAN</option>
+            </select>
+          </td>
+        </tr> 
+        
+        <tr>
+          <th>Max. Bandwidth</th>
+          <td>
+            <select>
+              <option>6 Mbit/s</option>
+              <option>3 Mbit/s</option>
+              <option>2 Mbit/s</option>
+              <option>1 Mbit/s</option>              
+              <option>512 Kbit/s</option> 
+            </select>
+          </td>
+        </tr> 
+      </table>   
+    </div>
+    
+  </div>
+</div>

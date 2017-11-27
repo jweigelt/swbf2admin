@@ -1,0 +1,42 @@
+﻿using System.Net;
+using SWBF2Admin.Gameserver;
+using SWBF2Admin.Structures;
+
+namespace SWBF2Admin.Web.Pages
+{
+    class DashboardPage : AjaxPage
+    {
+        class DashboardApiParams : ApiRequestParams
+        {
+            public int NewStatusId { get; set; }
+        }
+
+        public DashboardPage(AdminCore core) : base(core, Constants.WEB_URL_DASHBOARD, Constants.WEB_FILE_DASHBOARD) { }
+
+        public override void HandleGet(HttpListenerContext ctx, WebUser user)
+        {
+            ReturnTemplate(ctx);
+        }
+
+        public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
+        {
+            DashboardApiParams p = null;
+            if ((p = TryJsonParse<DashboardApiParams>(ctx, postData)) == null) return;
+
+            if (p.Action == Constants.WEB_ACTION_DASHBOARD_STATUS_SET)
+            {
+                if(p.NewStatusId == (int)ServerStatus.Online)
+                {
+                    Core.Server.Start();
+                }
+                else if (p.NewStatusId == (int)ServerStatus.Offline)
+                {
+                    Core.Server.Stop();
+                }
+            }
+
+            ServerInfo info = Core.Server.Info;
+            WebAdmin.SendHtml(ctx, ToJson(info));
+        }
+    }
+}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <!--meow :3-->
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">   
+    <link rel="stylesheet" href="/res/style.css" />
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
+    <script src="/res/ajax.js"></script>
+  </head>
+  
+  <body>
+    <table>
+      <tr>
+        <td id="logo"><h2>SWBF2 WebAdmin</h2></td>
+     
+        <td id="account">
+          {account:username}  
+          <i class="material-icons large">account_box</i>       
+        </td>
+      </tr>
+      
+      <tr>
+        <td id="navigation">  
+          <span>Live Status</span>
+          <a href="/live/dashboard" class="active"><i id="status" class="material-icons">dns</i>Dashboard</a>
+          <a href="/live/players"><i class="material-icons">face</i>Players</a>  
+          <a href="/live/chat"><i class="material-icons">chat</i>Chat</a>
+           <a href="/live/bans"><i class="material-icons">gavel</i>Bans</a>  
+                    
+          <span>Settings</span>
+          <a href="/settings/general"><i class="material-icons">dns</i>General</a>  
+          <a href="/settings/game"><i class="material-icons">videogame_asset</i>Game</a>   
+          <a href="/settings/maps"><i class="material-icons">map</i>Map Rotation</a>               
+          <a href="/settings/groups"><i class="material-icons">group</i>Groups</a> 
+
+          <span>WebAdmin</span>
+          <a href="/web/groups"><i class="material-icons">person</i>Users</a>                
+          <a href="/web/about"><i class="material-icons">info</i>About</a>       
+        </td>
+        
+        <td id="content"></td>
+      </table>
+  </body>
+</html>

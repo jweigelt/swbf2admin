@@ -1,0 +1,414 @@
+/*
+ *  AdminHelper WebAdmin style
+ */   
+
+/**
+ *  Frame
+ **/
+
+html {
+  font-size:100%;
+  height: 100%;
+}
+          
+body {
+  margin: 0;
+  font-family: calibri;
+  height: 100%;
+}
+
+body > table {
+  width: 100%;
+  height: 100%;
+  background: #3a4049; 
+  border-collapse: collapse;
+}
+
+td#account {
+  text-align: right;
+}
+
+td#account table {
+  margin-right: 2rem;  
+  float: right; 
+}
+
+td#account table th {
+  font-weight: normal;
+  text-align: left;
+}
+
+td#account table td {
+  color: #00cbff;
+  text-align: left;
+}
+
+td#logo, td#account {
+  height: 6em;
+  color: #a8a8a8;
+}
+
+td#logo, td#navigation {
+  width: 13em; padding: 0 1em 0 1em;
+}
+
+td#logo {
+  background-image: url("/res/logo.png");
+  background-size:  4.5em 4.5em;
+  background-repeat: no-repeat;
+  background-position: 1em 1em;
+  padding-left: 6em;  
+}
+
+td#navigation, td#content {
+  vertical-align: top;
+}
+
+td#navigation span {
+  display: block;
+  color: #5b5b5b;
+  height: 3em;
+  line-height: 3em;
+  margin-bottom: 5px;  
+  border-bottom: 1px solid  #5b5b5b;
+}
+
+td#navigation a {
+  display: block;
+  color: #a8a8a8;
+  text-decoration: none;
+  height: 2em;
+  line-height: 2em;
+  padding-left: .5em;
+  border-left: 3px solid transparent;
+}
+
+td#navigation a.active {
+  border-left: 3px solid #00cbff;
+}
+
+td#navigation a:hover {
+  background: #00cbff;
+  color: #ffffff;
+}
+
+td#content {
+  background: #f0f0f0;
+  padding: 1em;
+}
+      
+div.default {
+  width: 100%;
+  height: 100%;  
+}
+
+div.default h2 {
+  height: 2rem;
+  margin-top: 0;
+  width: 100%;
+  border-bottom: 1px solid #d1d1d1;
+}
+            
+div.item > span, div.dialog > span {
+  display: block;
+  height: 3rem;
+  line-height: 3rem;
+  padding-left: 1em;
+  background: #3a4049;
+  color: #a8a8a8;                 
+}
+
+div.item, div.error {
+  border: 1px solid #d1d1d1;
+  margin-bottom: 1.5em;
+}
+div.error > span {
+  background: #f4a742;
+  color: #3a4049;
+}
+
+div.error {
+
+  word-wrap:break-word;
+}
+
+div.dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("shader.png");
+}
+
+div.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);      
+  border: 1px solid #d1d1d1; 
+  background: #f0f0f0;  
+}
+
+div.dialog > span a {
+  color: #f0f0f0;
+  text-decoration: none;
+  float: right;
+  margin-left: 10em;
+  display: inline-block; 
+
+}
+
+a.dialog-close:hover i {
+  background: #ff5e42;
+  color: #ffffff;
+}
+
+div.dialog-buttons {
+  width: 100%;
+  border-top: 1px solid #d1d1d1; 
+  text-align: right;
+}
+div.dialog-buttons a {
+  margin: .25em;
+  text-align: left;
+}
+
+table.embedded {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table.embedded tr:hover {
+  background: #dbdbdb;
+}
+
+table.embedded td {
+  white-space: nowrap;
+}
+
+table.embedded th {
+  text-align: left;
+  white-space: nowrap;
+}
+
+/**
+ *  Icons
+ **/
+
+i.large {
+  font-size: 3.5em;
+}
+
+i {
+  vertical-align: middle;
+  margin-right: .5em;
+}
+
+/**
+ *  Disabled controls
+ **/
+.disabled {
+  opacity: 0.6;
+  background: #a3a3a3;
+}
+
+.disabled tr:hover {
+  background-color: transparent !important;
+}
+
+.disabled a {
+   pointer-events: none;
+   cursor: default;
+}
+
+
+/**
+ *  Fake-Button
+ **/
+a.button {
+  height: 2.35rem;
+  line-height: 2.35em;
+  width: 5em;
+  text-decoration: none;
+  display: inline-block;
+  color: #a8a8a8;
+  background: #3a4049;
+  margin-left: .5em;
+  padding: 0 .5em 0 .5em;  
+}
+
+a.button:hover {
+  background: #00cbff;
+  color: #ffffff;
+}
+
+
+/**
+ *  Status Tab
+ **/
+
+table.status th {
+  height: 2em;
+  line-height: 2em; 
+  padding-right: 2em;
+  padding-left: 1em;
+  width: 50%;
+}
+
+span#statusText {
+  margin-left: 1em; 
+}
+
+span.online, span.offline, span.loading {
+  font-weight: bold;
+  padding-left: 1em;
+}
+
+span.online { color: #7fd173; }
+span.offline { color: #ff5e42; }
+
+span.loading {
+  background-image: url("/res/ajax-loader.gif");
+  background-repeat: no-repeat;
+  padding-left: 20px;
+  background-position: 0 center; 
+  color: #f4a742;
+  font-weight: bold;  
+}
+
+/**
+ *  Players Tab
+ **/
+
+table.players th, table.maprot th {
+  height: 3em;
+  line-height: 3em;
+  padding-left: 1.5em;  
+  background: #3a4049;
+  color: #a8a8a8;  
+}
+
+table.players td {
+  height: 3rem;
+  line-height: 3rem;  
+  padding-left: 1.5em;  
+
+}
+
+table.players tr:hover {
+  background: #dbdbdb;
+}
+
+.contextmenu a {
+  padding-left: .5em;
+  display: block;
+  height: 2em;
+  line-height: 2em;
+  color: #000000;
+  text-decoration: none;  
+}
+
+.contextmenu a:hover {
+  background: #00cbff;
+  color: #ffffff;
+}
+
+.contextmenu   {
+  display: block;
+  position: absolute;
+  z-index: 10;
+  width: 10em;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #a8a8a8; 
+  border-top: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.contextmenu li {
+  border-top: 1px solid #a8a8a8;
+}
+
+/**
+ *  Chat Tab
+ **/
+#chat_tbl_chat td {
+  padding-left: 1em;
+}  
+
+div.chat-container {
+  overflow-y: scroll;  
+  height: 25rem;
+}
+
+div.input-container {
+  border-top: 1px solid #a8a8a8;
+  line-height: 3em;
+  height: 3em;
+  padding: 0 .5em 0 .5em;
+}
+
+div.input-container input {
+  height: 2rem;
+  width: 60%; 
+}
+
+div.input-container i {
+  line-height: 2.35rem;
+}
+
+div#chat_div_chat {
+}
+
+/**
+ *  Bans Tab
+ **/
+ 
+tr.expired {
+  background: #b5ffaa;
+}
+
+div.legend span{
+  display: inline-block;
+  line-height: 22px;
+}
+
+div.legend i {
+  margin: 0;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #a8a8a8;
+}
+
+/**
+ *  General Settings Tab
+ **/
+.general input, .general select {
+  width: 20em;
+} 
+ 
+/**
+ *  Map Rotation Tab
+ **/
+table.maps td {
+  padding-left: 1em;
+} 
+
+table.map-container {
+  width: 100%;
+}
+
+table.map-container td {
+  vertical-align: top;
+  width: 50%;
+} 
+ 
+/**
+ *  About Tab
+ **/
+div.text {
+  padding: 1em;
+}

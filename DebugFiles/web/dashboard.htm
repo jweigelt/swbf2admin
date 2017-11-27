@@ -1,0 +1,43 @@
+<div class="default">
+  <h2>Dashboard</h2>
+  <div style="width: 50%;">
+    
+    <div class="item">
+      <span>Server control</span>      
+      <div class="text">
+        <a href="#" id="dash_btn_startstop" class="button"><i class="material-icons">play_arrow</i><span>Start</span></a>
+        <span id="dash_txt_status" class="loading">Updating...</span>
+      </div>
+    </div>
+    
+    <div class="item" id="dash_div_server_status">
+      <span>Server status</span>
+      <table class="status embedded">
+        <tr><th>IP-Endpoint</th><td id="dash_txt_ipep">-</td></tr>
+        <tr><th>Session name</th><td id="dash_txt_session_name">-</td></tr>  
+        <tr><th>Server Version</th><td id="dash_txt_server_version">-</td></tr>                 
+      </table>   
+    </div>
+          
+    <div class="item" id="dash_div_game_setup">       
+      <span>Game setup</span>
+      <table class="status embedded">
+        <tr><th>Current Map</th><td id="dash_txt_current_map">-</td></tr>  
+        <tr><th>Next Map</th><td id="dash_txt_next_map">-</td></tr> 
+        <tr><th>Gamemode</th><td id="dash_txt_gamemode">-</td></tr>                  
+        <tr><th>Friendly Fire</th><td id="dash_txt_ff">-</td></tr>  
+        <tr><th>Heroes</th><td id="dash_txt_heroes">-</td></tr>  
+      </table>   
+    </div>
+          
+    <div class="item" id="dash_div_game_status">
+      <span>Game status</span>
+      <table class="status embedded">
+        <tr><th>Max. Players</th><td id="dash_txt_players_max">-</td></tr>  
+        <tr><th>Players online</th><td id="dash_txt_players_online">-</td></tr> 
+        <tr><th>Scores</th><td id="dash_txt_scores">-</td></tr>                  
+        <tr><th>Tickets</th><td id="dash_txt_tickets">-</td></tr>       
+      </table>   
+    </div>
+</div>
+<script type="text/javascript" src="/res/dashboard.js"></script>

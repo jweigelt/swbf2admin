@@ -1,0 +1,62 @@
+<div class="default">    
+  <h2>Bans</h2>
+
+  <div class="item" id="bans_div_bans">
+    <table class="embedded players">
+      <tr>
+        <th>Player</th>
+        <th>Admin</th>
+        <th>Reason</th>  
+        <th>Date</th>              
+        <th>Show expired</th>  
+        <th>Type</th>
+      </tr>
+      <tr>
+      <td><input type="text" id="bans_input_player" class="bans_autorf"><i class="material-icons">youtube_searched_for</i></td>
+      <td><input type="text" id="bans_input_admin" class="bans_autorf"><i class="material-icons">youtube_searched_for</i></td>
+      <td><input type="text" id="bans_input_reason" class="bans_autorf"><i class="material-icons">youtube_searched_for</i></td>
+      <td><input type="date" id="bans_input_date" class="bans_autorf"></td>
+      <td><input type="checkbox" id="bans_input_expired"></td>
+      <td><select id="bans_select_type"><option value="-1">All</option><option value="0">Keyhash</option><option value="1">IP-Address</option></select></td>
+      </tr>      
+    </table>
+  </div>
+  
+  <div class="item" id="bans_div_bans">
+    <table class="players embedded" id="bans_tbl_bans">
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>Player</th>
+        <th>Admin</th>  
+        <th>Reason</th>  
+        <th>Date</th>              
+        <th>Duration</th>  
+        <th>Keyhash</th>  
+        <th>IP-Address</th>  
+        <th>Type</th> 
+      </tr>
+      <tr>
+        <td colspan="9" id="bans_td_nobans"><i class="material-icons">sentiment_satisfied</i>No bans found.</th>
+      </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+                                            
+  <div class="legend" id="bans_div_legend">
+    <i style="background: #b5ffaa"></i>
+    <span>Expired</span>
+  </div>
+</div>
+
+
+
+<ul id="bans_ul_admin" class="contextmenu">
+  <li><a href="#"><i class="material-icons">delete</i>Delete ban</a></li>
+  <li><a href="#"><i class="material-icons">create</i>Edit ban</a></li>
+</ul>                                                                    
+                  
+<script type="text/javascript" src="/res/bans.js"></script>
+                                                                  
