@@ -62,7 +62,7 @@ namespace SWBF2Admin
             foreach (ComponentBase h in Components)
             {
                 h.Configure(Config);
-                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.OnUpdate, h.UpdateInterval);
+                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Update, h.UpdateInterval);
                 h.OnInit();
             }
 

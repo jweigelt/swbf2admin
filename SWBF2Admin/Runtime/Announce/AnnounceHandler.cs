@@ -16,24 +16,24 @@ namespace SWBF2Admin.Runtime.Announce
         {
             this.config = Core.Files.ReadConfig<AnnounceConfiguration>();
         }
+
         public override void OnServerStart()
         {
             EnableUpdates();
         }
+
         public override void OnServerStop()
         {
             DisableUpdates();
         }
 
-        public void Update()
+        public override void OnUpdate()
         {
             if ((DateTime.Now - lastAnnounce).TotalSeconds > config.Interval)
             {
                 lastAnnounce = DateTime.Now;
-                if (OnAnnounce != null)
-                {
-                    InvokeEvent(OnAnnounce, this, new AnnounceEventArgs(config.AnnounceList[currentIdx++]));
-                }
+                InvokeEvent(OnAnnounce, this, new AnnounceEventArgs(config.AnnounceList[currentIdx++]));
+                if (currentIdx == config.AnnounceList.Count) currentIdx = 0;
             }
         }
 
