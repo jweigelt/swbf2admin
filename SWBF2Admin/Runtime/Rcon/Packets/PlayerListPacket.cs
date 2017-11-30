@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using SWBF2Admin.Utility;
 using SWBF2Admin.Structures;
 
-namespace SWBF2Admin.Rcon.Packets
+namespace SWBF2Admin.Runtime.Rcon.Packets
 {
     class PlayerListPacket : RconPacket
     {

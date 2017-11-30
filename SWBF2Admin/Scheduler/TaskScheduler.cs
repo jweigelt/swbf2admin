@@ -6,6 +6,13 @@ namespace SWBF2Admin.Scheduler
 {
     public class TaskScheduler
     {
+        public bool IsSync
+        {
+            get
+            {
+                return ((workThread != null) && workThread.ManagedThreadId == Thread.CurrentThread.ManagedThreadId);
+            }
+        }
         public int TickDelay { get; set; } = 10;
         private ConcurrentQueue<SchedulerTask> taskQueue;
         private List<RepeatingSchedulerTask> repeatingTasks;
@@ -41,9 +48,18 @@ namespace SWBF2Admin.Scheduler
             taskQueue.Enqueue(task);
         }
 
+        public void PushTask(SchedulerTask.TaskDelegate d)
+        {
+            taskQueue.Enqueue(new SchedulerTask(d));
+        }
+
         public void PushRepeatingTask(RepeatingSchedulerTask task)
         {
             repeatingTasks.Add(task);
+        }
+        public void PushRepeatingTask(SchedulerTask.TaskDelegate d, int interval)
+        {
+            repeatingTasks.Add(new RepeatingSchedulerTask(d, interval));
         }
 
         public void ClearRepeatingTasks()

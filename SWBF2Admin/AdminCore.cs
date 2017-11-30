@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using SWBF2Admin.Utility;
 using SWBF2Admin.Config;
@@ -6,71 +7,66 @@ using SWBF2Admin.Web;
 using SWBF2Admin.Database;
 using SWBF2Admin.Gameserver;
 using SWBF2Admin.Scheduler;
-using SWBF2Admin.Rcon;
-using SWBF2Admin.Admin;
+
+using SWBF2Admin.Runtime.Rcon;
+using SWBF2Admin.Runtime;
 
 namespace SWBF2Admin
 {
     class AdminCore
     {
-        public CoreConfiguration Config { get; }
-        public FileHandler Files { get; }
+        private CoreConfiguration config;
+        public CoreConfiguration Config { get { return config; } }
+        public FileHandler Files { get; } = new FileHandler();
+        public TaskScheduler Scheduler { get; } = new TaskScheduler();
+
         public WebServer WebAdmin { get; }
         public SQLHandler Database { get; }
         public ServerManager Server { get; }
-        public TaskScheduler Scheduler { get; }
         public RconClient Rcon { get; }
         public PlayerHandler Players { get; }
 
+        private List<ComponentBase> Components { get; }
+
         public AdminCore()
         {
-            Logger.Log(LogLevel.Info, Log.CORE_START, Constants.PRODUCT_NAME, Constants.PRODUCT_VERSION, Constants.PRODUCT_AUTHOR);
+            Database = new SQLHandler(this);
+            Server = new ServerManager(this);
+            WebAdmin = new WebServer(this);
+            Rcon = new RconClient(this);
+            Players = new PlayerHandler(this);
 
+            Components = new List<ComponentBase>();
+            Components.Add(Database);
+            Components.Add(Server);
+            Components.Add(WebAdmin);
+            Components.Add(Rcon);
+            Components.Add(Players);
+        }
+        public void Run()
+        {
+            Logger.Log(LogLevel.Info, Log.CORE_START, Constants.PRODUCT_NAME, Constants.PRODUCT_VERSION, Constants.PRODUCT_AUTHOR);
             Logger.Log(LogLevel.Verbose, Log.CORE_READ_CONFIG);
-            Files = new FileHandler();
-#if DEBUG
-            Config = new CoreConfiguration();
-#else
-            Config = Files.ReadConfig<CoreConfiguration>();
-#endif
+            config = Files.ReadConfig<CoreConfiguration>();
             Logger.Log(LogLevel.Info, Log.CORE_READ_CONFIG_OK);
 
-            Database = new SQLHandler();
-            Database.SQLEngine = Config.SQLEngine;
-            Database.SQLiteFileName = Config.SQLiteFileName;
-            Database.MySQLHost = Config.MySQLHostname;
-            Database.MySQLDatabase = Config.MySQLDatabaseName;
-            Database.MySQLUser = Config.MySQLUsername;
-            Database.MySQLPassword = Config.MySQLPassword;
+            Scheduler.TickDelay = Config.TickDelay;
 
-            Rcon = new RconClient();
-            Rcon.ServerPassword = Config.RconPassword;
-            Rcon.ServerIPEP = Config.GetRconIPEP;
-            Rcon.RconDisconnected += new EventHandler(Rcon_Disconnected);
-            Rcon.RconChat += new EventHandler(Rcon_Chat);
+            Rcon.Disconnected += new EventHandler(Rcon_Disconnected);
+            Rcon.ChatInput += new EventHandler(Rcon_Chat);
 
-            Server = new ServerManager(this, Config.ServerPath);
             Server.ServerStarted += new EventHandler(Server_Started);
             Server.ServerStopped += new EventHandler(Server_Stopped);
             Server.ServerCrashed += new EventHandler(Server_Crashed);
 
-            WebAdmin = new WebServer(this, Config.WebAdminPrefix);
+            foreach (ComponentBase h in Components)
+            {
+                h.Configure(Config);
+                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.OnUpdate, h.UpdateInterval);
+                h.OnInit();
+            }
 
-            Players = new PlayerHandler(this);
-            Scheduler = new TaskScheduler();
-        }
-        public void Run()
-        {
             Scheduler.Start();
-            Scheduler.PushTask(new SchedulerTask(_Run));
-            Console.ReadLine();
-        }
-        private void _Run()
-        {
-            Database.Open();
-            if (Config.WebAdminEnable) WebAdmin.Start();
-
-            Server.Open();
 
             if (Config.ManageServer)
             {
@@ -80,62 +76,45 @@ namespace SWBF2Admin
             else
             {
                 Logger.Log(LogLevel.Info, "Acting as client");
-                Scheduler.PushTask(new SchedulerTask(OnServerStart));
+                //Scheduler.PushTask(new SchedulerTask(OnServerStart));
             }
+
+            Console.ReadLine();
+
+            Scheduler.Stop();
+            foreach (ComponentBase h in Components) h.OnDeInit();
         }
 
+        #region "Events"
         private void Server_Started(object sender, EventArgs e)
         {
-            Scheduler.PushTask(new SchedulerTask(OnServerStart));
-        }
-        private void Server_Crashed(object sender, EventArgs e)
-        {
-            if (Config.AutoRestartServer)
-            {
-                Scheduler.PushTask(new SchedulerTask(Server.Start));
-            }
+            Logger.Log(LogLevel.Verbose, "Starting runtime management...");
+            foreach (ComponentBase h in Components) h.OnServerStart();
         }
         private void Server_Stopped(object sender, EventArgs e)
         {
+            Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
+            foreach (ComponentBase h in Components) h.OnServerStop();
 
         }
+        private void Server_Crashed(object sender, EventArgs e)
+        {
+            Server_Stopped(sender, e);
+            if (Config.AutoRestartServer)
+            {
+                Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restart server...");
+                Server.Start();
+            }
+        }
+
         private void Rcon_Disconnected(object sender, EventArgs e)
         {
-            Scheduler.PushTask(new SchedulerTask(OnServerStop));
+
         }
         private void Rcon_Chat(object sender, EventArgs e)
         {
-            Scheduler.PushTask(new SchedulerTask(() => OnChat((RconChatEventArgs)e)));
-        }
-
-        private void OnChat(RconChatEventArgs e)
-        {
 
         }
-
-        private void OnServerStart()
-        {
-            Logger.Log(LogLevel.Verbose, "Starting runtime management...");
-            System.Threading.Thread.Sleep(2000);
-            try
-            {
-                Rcon.ServerPassword = Server.Settings.AdminPw;
-                Rcon.Start();
-            }
-            catch
-            {
-                Logger.Log(LogLevel.Error, "Aborting...");
-                return;
-            }
-
-            Scheduler.PushRepeatingTask(new RepeatingSchedulerTask(Players.Update, 10000));
-
-        }
-        private void OnServerStop()
-        {
-            Scheduler.ClearRepeatingTasks();
-            Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
-            Rcon.Stop();
-        }
+        #endregion
     }
 }

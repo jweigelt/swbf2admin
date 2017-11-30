@@ -1,4 +1,4 @@
-﻿namespace SWBF2Admin.Rcon.Packets
+﻿namespace SWBF2Admin.Runtime.Rcon.Packets
 {
     class RconPacket
     {

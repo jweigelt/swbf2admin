@@ -1,5 +1,5 @@
 ﻿using System;
-namespace SWBF2Admin.Rcon
+namespace SWBF2Admin.Runtime.Rcon
 {
     class RconException : Exception
     {

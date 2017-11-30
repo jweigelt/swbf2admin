@@ -23,7 +23,5 @@ namespace SWBF2Admin.Utility
             for (int i = 0; i < hash.Length; i++) b.Append(hash[i].ToString("X2"));
             return b.ToString().ToLower();
         }
-
-
     }
 }

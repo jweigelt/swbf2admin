@@ -64,6 +64,10 @@
       <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.10.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.10.4\lib\net452\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -90,9 +94,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminCore.cs" />
-    <Compile Include="Admin\PlayerHandler.cs" />
-    <Compile Include="Rcon\Packets\PlayerListPacket.cs" />
-    <Compile Include="Rcon\RconChatEventArgs.cs" />
+    <Compile Include="Runtime\Announce\Announce.cs" />
+    <Compile Include="Runtime\Announce\AnnounceConfiguration.cs" />
+    <Compile Include="Runtime\Announce\AnnounceEventArgs.cs" />
+    <Compile Include="Runtime\Announce\AnnounceHandler.cs" />
+    <Compile Include="Runtime\Players\PlayerHandler.cs" />
+    <Compile Include="ComponentBase.cs" />
+    <Compile Include="Runtime\Rcon\Packets\PlayerListPacket.cs" />
+    <Compile Include="Runtime\Rcon\RconChatEventArgs.cs" />
     <Compile Include="Scheduler\RepeatingSchedulerTask.cs" />
     <Compile Include="Scheduler\SchedulerTask.cs" />
     <Compile Include="Scheduler\TaskScheduler.cs" />
@@ -101,10 +110,10 @@
     <Compile Include="Gameserver\ServerManager.cs" />
     <Compile Include="Config\CoreConfiguration.cs" />
     <Compile Include="Config\FileHandler.cs" />
-    <Compile Include="Rcon\Packets\RconPacket.cs" />
-    <Compile Include="Rcon\RconClient.cs" />
-    <Compile Include="Rcon\RconNotAuthorizedException.cs" />
-    <Compile Include="Rcon\RconException.cs" />
+    <Compile Include="Runtime\Rcon\Packets\RconPacket.cs" />
+    <Compile Include="Runtime\Rcon\RconClient.cs" />
+    <Compile Include="Runtime\Rcon\RconNotAuthorizedException.cs" />
+    <Compile Include="Runtime\Rcon\RconException.cs" />
     <Compile Include="Structures\ChatMessage.cs" />
     <Compile Include="Structures\ServerMap.cs" />
     <Compile Include="Structures\Player.cs" />
@@ -137,7 +146,6 @@
     <None Include="packages.config" />
     <None Include="Resources\template\ServerSettings.cfg" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Resources\cfg\core.xml" />
   </ItemGroup>

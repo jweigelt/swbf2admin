@@ -7,27 +7,28 @@ using System.Collections.Generic;
 
 using SWBF2Admin.Utility;
 using SWBF2Admin.Web.Pages;
+using SWBF2Admin.Config;
 
 namespace SWBF2Admin.Web
 {
-    class WebServer
+    class WebServer : ComponentBase
     {
 
-        private AdminCore core;
-
-        private List<WebPage> webpages;
-        private string prefix;
+        private List<WebPage> webpages = new List<WebPage>();
+        private string prefix = "http://localhost:8080/";
         private Thread workThread;
         private HttpListener listener;
         private bool running = false;
+        private bool enabled = false;
 
-        public WebServer(AdminCore core, string prefix)
+        public WebServer(AdminCore core) : base(core) { }
+        public override void Configure(CoreConfiguration config)
         {
-            this.core = core;
-            this.prefix = prefix;
-
-            webpages = new List<WebPage>();
-
+            prefix = config.WebAdminPrefix;
+            enabled = config.WebAdminEnable;
+        }
+        public override void OnInit()
+        {
             RegisterPage<ResourcesPage>();
             RegisterPage<DefaultPage>();
 
@@ -39,10 +40,12 @@ namespace SWBF2Admin.Web
             RegisterPage<GeneralSettingsPage>();
             RegisterPage<MapSettingsPage>();
 
-            RegisterPage<AboutPage>();  
+            RegisterPage<AboutPage>();
+
+            if (enabled) Start();
         }
 
-        public void Start()
+        private void Start()
         {
             running = true;
             workThread = new Thread(WorkThread_Run);
@@ -110,7 +113,7 @@ namespace SWBF2Admin.Web
         private WebUser CheckAuth(HttpListenerContext ctx)
         {
             HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)ctx.User.Identity;
-            return core.Database.GetWebUser(identity.Name, identity.Password);
+            return Core.Database.GetWebUser(identity.Name, identity.Password);
         }
 
         public void SendHttpStatus(HttpListenerContext ctx, HttpStatusCode code)
@@ -137,17 +140,17 @@ namespace SWBF2Admin.Web
 
         private void RegisterPage<T>()
         {
-            webpages.Add((WebPage)Activator.CreateInstance(typeof(T), core));
+            webpages.Add((WebPage)Activator.CreateInstance(typeof(T), Core));
         }
 
         public string LoadTemplate(string fileName)
         {
-            return core.Files.ReadFileText(Constants.WEB_DIR_ROOT + "/" + fileName);
+            return Core.Files.ReadFileText(Constants.WEB_DIR_ROOT + "/" + fileName);
         }
 
         public byte[] LoadBinary(string fileName)
         {
-            return core.Files.ReadFileBytes(Constants.WEB_DIR_ROOT + "/" + fileName);
+            return Core.Files.ReadFileBytes(Constants.WEB_DIR_ROOT + "/" + fileName);
         }
     }
 }

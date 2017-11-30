@@ -5,14 +5,31 @@ using System.Threading;
 using System.IO;
 
 using SWBF2Admin.Utility;
-using SWBF2Admin.Rcon.Packets;
+using SWBF2Admin.Runtime.Rcon.Packets;
+using SWBF2Admin.Config;
 
-namespace SWBF2Admin.Rcon
+namespace SWBF2Admin.Runtime.Rcon
 {
-    class RconClient
+    class RconClient : ComponentBase
     {
-        public event EventHandler RconDisconnected;
-        public event EventHandler RconChat;
+        public RconClient(AdminCore core) : base(core) { }
+        public override void OnServerStart()
+        {
+            ServerPassword = Core.Server.Settings.AdminPw;
+            Start();
+        }
+        public override void OnServerStop()
+        {
+            Stop();
+        }
+        public override void Configure(CoreConfiguration config)
+        {
+            ServerPassword = config.RconPassword;
+            ServerIPEP = config.GetRconIPEP;
+        }
+
+        public event EventHandler Disconnected;
+        public event EventHandler ChatInput;
 
         public IPEndPoint ServerIPEP { get; set; }
         public string ServerPassword { get; set; }
@@ -26,7 +43,30 @@ namespace SWBF2Admin.Rcon
 
         private string lastMessage = null;
 
-        public void Start()
+        public void SendPacket(RconPacket packet)
+        {
+            try
+            {
+                Logger.Log(LogLevel.Verbose, "Sending command: '{0}'", packet.Command);
+                Send(packet.Command);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, "SendPacket failed. ({0})", e.ToString());
+                return;
+            }
+
+            lastMessage = null;
+            while (lastMessage == null) Thread.Sleep(Constants.RCON_SLEEP);
+            packet.HandleResponse(lastMessage);
+            lastMessage = null;
+        }
+        public void Say(string message)
+        {
+            Send("/say " + message);
+        }
+
+        private void Start()
         {
             if (running) return;
 
@@ -66,33 +106,10 @@ namespace SWBF2Admin.Rcon
             workThread = new Thread(WorkThread_Run);
             workThread.Start();
         }
-        public void Stop()
+        private void Stop()
         {
             running = false;
             if (workThread != null) workThread.Join();
-        }
-        public void SendPacket(RconPacket packet)
-        {
-            try
-            {
-                Logger.Log(LogLevel.Verbose, "Sending command: '{0}'", packet.Command);
-                Send(packet.Command);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogLevel.Error, "SendPacket failed. ({0})", e.ToString());
-                return;
-            }
-
-            lastMessage = null;
-            while (lastMessage == null) Thread.Sleep(Constants.RCON_SLEEP);
-            packet.HandleResponse(lastMessage);
-            lastMessage = null;
-        }
-
-        public void Say(string message)
-        {
-            Send("/say " + message);
         }
 
         private void Login()
@@ -148,14 +165,15 @@ namespace SWBF2Admin.Rcon
             {
                 Logger.Log(LogLevel.Error, "Rcon disconnected. {0}", e.ToString());
             }
-            if (RconDisconnected != null) RconDisconnected.Invoke(this, new EventArgs());
             reader.Close();
             writer.Close();
             client.Close();
+            running = false;
+
+            InvokeEvent(Disconnected, this, new EventArgs());
         }
         private void ProcessMessage(string message)
         {
-            if (message.Length == 0) return;
             if (HandleChat(message)) return;
             if (HandleStatusMessage(message)) return;
 
@@ -174,7 +192,7 @@ namespace SWBF2Admin.Rcon
             else
             {
                 Logger.Log(LogLevel.Info, "#{0}:{1}", cc[1], cc[2]);
-                if (RconChat != null) RconChat.Invoke(this, new RconChatEventArgs(cc[1], cc[2]));
+                InvokeEvent(ChatInput, this, new RconChatEventArgs(cc[1], cc[2]));
             }
             return true;
         }

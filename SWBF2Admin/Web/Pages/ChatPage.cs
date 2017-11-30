@@ -5,7 +5,7 @@ using System.Threading;
 
 using Newtonsoft.Json;
 
-using SWBF2Admin.Rcon;
+using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Utility;
 using SWBF2Admin.Structures;
 
@@ -15,6 +15,8 @@ namespace SWBF2Admin.Web.Pages
     class ChatPage : AjaxPage
     {
         private List<ChatSession> chatSessions = new List<ChatSession>();
+
+        //Webserver is running async to main thread -> mutex is required
         private Mutex mtx = new Mutex();
 
         class ChatApiParams : ApiRequestParams
@@ -39,7 +41,7 @@ namespace SWBF2Admin.Web.Pages
 
         public ChatPage(AdminCore core) : base(core, Constants.WEB_URL_CHAT, Constants.WEB_FILE_CHAT)
         {
-            Core.Rcon.RconChat += new EventHandler(Rcon_Chat);
+            Core.Rcon.ChatInput += new EventHandler(Rcon_Chat);
         }
 
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)

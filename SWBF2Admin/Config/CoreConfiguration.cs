@@ -44,7 +44,7 @@ namespace SWBF2Admin.Config
         /**
          *  Database backend
          **/
-        public DatabaseEngine SQLEngine { get; set; } = DatabaseEngine.SQLite;
+        public DbType SQLType { get; set; } = DbType.SQLite;
         public string SQLiteFileName { get; set; } = "./SWBF2Admin.sqlite";
         public string MySQLDatabaseName { get; set; } = "swbf2";
         public string MySQLHostname { get; set; } = "localhost:3306";
@@ -62,5 +62,8 @@ namespace SWBF2Admin.Config
         public LogLevel LogMinimumLevel { get; set; } = LogLevel.VerboseSQL;
         public bool LogToFile { get; set; } = false;
         public string LogFileName { get; set; } = "./log.txt";
+
+        public int TickDelay { get; set; } = 10;
+
     }
 }
