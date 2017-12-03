@@ -5,6 +5,7 @@ function Dialog(container, title, buttons) {
   this.container.wrap('<div class="dialog-overlay"></div>');
   this.container.prepend('<span>'+title+'<a href="#" class="dialog-close"><i class="material-icons">close</i></a></span>');
   this.container.append('<div class="dialog-buttons"></div>');
+  this.container.addClass('dialog');
   this.overlay = this.container.parent();
   this.buttons = this.container.find(".dialog-buttons");
   this.tag = null;
@@ -20,11 +21,13 @@ function Dialog(container, title, buttons) {
     }
           
     this.buttons.append(a);
+    a.data("callback", b.Callback);
+    
     a.click(function(e) {
       e.preventDefault();
       base.close();
-      if(base.tag != null) b.Callback(base.tag);
-      else b.Callback();
+      if(base.tag != null) $(this).data("callback")(base.tag);
+      else $(this).data("callback")();
       base.tag = null; 
     });
   }

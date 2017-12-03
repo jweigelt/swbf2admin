@@ -9,6 +9,7 @@ function Maps() {
   var base = this;
   this.dialog = null;
   this.mapList = [];
+  this.events = new EventDisplay("#maps_div_error");
 
   this.onInit = function() {       
     base.updateInstalledMaps();
@@ -49,11 +50,9 @@ function Maps() {
       if(r.Ok) {
         $("#maps_txt_status").attr("class", "online");
         $("#maps_txt_status").html("Maps saved");
-        $("#maps_div_error").hide();
         return;
       }else{
-        $("#maps_div_error div").html(r.Error);        
-        $("#maps_div_error").show();
+        base.events.ShowError(r.Error);        
       }
     }
     $("#maps_txt_status").attr("class", "offline");
@@ -150,11 +149,8 @@ function Maps() {
   };
 
   this.setMapRotation = function(r) {
-    if(r.Ok) {
-      $("#maps_div_error").hide();
-    }else{
-      $("#maps_div_error").show();
-      $("#maps_div_error div").html(r.Error);
+    if(!r.Ok) {
+      base.events.ShowError(r.Error);
       return;
     }    
     

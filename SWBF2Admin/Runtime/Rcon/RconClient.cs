@@ -27,6 +27,10 @@ namespace SWBF2Admin.Runtime.Rcon
             ServerPassword = config.RconPassword;
             ServerIPEP = config.GetRconIPEP;
         }
+        public override void OnDeInit()
+        {
+            Stop();
+        }
 
         public event EventHandler Disconnected;
         public event EventHandler ChatInput;
@@ -124,6 +128,7 @@ namespace SWBF2Admin.Runtime.Rcon
         private void Stop()
         {
             running = false;
+            if (client != null) client.Dispose();
             if (workThread != null) workThread.Join();
         }
 
@@ -178,7 +183,7 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "Rcon disconnected. {0}", e.ToString());
+                if(running) Logger.Log(LogLevel.Warning, "Rcon disconnected. {0}", e.ToString());
             }
             reader.Close();
             writer.Close();

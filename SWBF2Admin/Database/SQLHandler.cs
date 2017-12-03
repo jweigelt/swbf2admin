@@ -78,9 +78,9 @@ namespace SWBF2Admin.Database
         {
             if (connection != null)
             {
-                Logger.Log(LogLevel.Info, "[SQL] Closing Database...");
                 connection.Close();
                 connection = null;
+                Logger.Log(LogLevel.Info, "[SQL] Database closed.");
             }
         }
         DbDataReader Query(string query, params string[] parameters)
@@ -281,6 +281,13 @@ namespace SWBF2Admin.Database
                 }
             }
             return bans;
+        }
+        public void DeleteBan(int id)
+        {
+            string sql =
+                "DELETE FROM prefix_bans " +
+                "WHERE id = @id";
+            NonQuery(sql, "@id", id.ToString());
         }
 
         public void ImportMaps(List<ServerMap> maps, bool truncate = true)

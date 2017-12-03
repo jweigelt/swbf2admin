@@ -24,6 +24,7 @@ namespace SWBF2Admin.Web.Pages
             public string AdminNameExp { get; set; }
             public string ReasonExp { get; set; }
             public string StartDateStr { get; set; }
+            public int DatabaseId { get; set; }
 
             [JsonIgnore]
             public virtual DateTime StartDate
@@ -42,6 +43,15 @@ namespace SWBF2Admin.Web.Pages
             public QuickBanAction QuickBan { get; set; }
         }
 
+        class BanAdminResponse
+        {
+            public bool Ok { get; }
+            public BanAdminResponse(bool ok)
+            {
+                Ok = ok;
+            }
+        }
+
         public BansPage(AdminCore core) : base(core, Constants.WEB_URL_BANS, Constants.WEB_FILE_BANS) { }
 
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
@@ -49,12 +59,18 @@ namespace SWBF2Admin.Web.Pages
             BanApiParams p = null;
             if ((p = TryJsonParse<BanApiParams>(ctx, postData)) == null) return;
 
-            if (p.Action == Constants.WEB_ACTION_BANS_UPDATE)
+            switch (p.Action)
             {
-                List<PlayerBan> banList = Core.Database.GetBans(p.PlayerNameExp, p.AdminNameExp, p.ReasonExp, p.Expired, p.Type, p.StartDate, 25);
-                WebAdmin.SendHtml(ctx, ToJson(banList));
+                case Constants.WEB_ACTION_BANS_UPDATE:
+                    List<PlayerBan> banList = Core.Database.GetBans(p.PlayerNameExp, p.AdminNameExp, p.ReasonExp, p.Expired, p.Type, p.StartDate, 25);
+                    WebAdmin.SendHtml(ctx, ToJson(banList));
+                    break;
+
+                case Constants.WEB_ACTION_BANS_DELETE:
+                    Core.Database.DeleteBan(p.BanId);
+                    WebAdmin.SendHtml(ctx, ToJson(new BanAdminResponse(true)));
+                    break;
             }
         }
-
     }
 }

@@ -13,7 +13,6 @@ namespace SWBF2Admin.Web
 {
     class WebServer : ComponentBase
     {
-
         private List<WebPage> webpages = new List<WebPage>();
         private string prefix = "http://localhost:8080/";
         private Thread workThread;
@@ -38,6 +37,7 @@ namespace SWBF2Admin.Web
             RegisterPage<BansPage>();
 
             RegisterPage<GeneralSettingsPage>();
+            RegisterPage<GameSettingsPage>();
             RegisterPage<MapSettingsPage>();
 
             RegisterPage<AboutPage>();
@@ -45,13 +45,22 @@ namespace SWBF2Admin.Web
             if (enabled) Start();
         }
 
+        public override void OnDeInit()
+        {
+            Stop();
+        }
         private void Start()
         {
             running = true;
             workThread = new Thread(WorkThread_Run);
             workThread.Start();
         }
-
+        private void Stop()
+        {
+            running = false;
+            listener.Stop();
+            workThread.Join();
+        }
         private void WorkThread_Run()
         {
             listener = new HttpListener();
@@ -61,9 +70,17 @@ namespace SWBF2Admin.Web
 
             Logger.Log(LogLevel.Info, Log.WEB_START, prefix);
 
-            while (running) HandleContext(listener.GetContext());
+            try
+            {
+                while (running) HandleContext(listener.GetContext());
+            }
+            catch (Exception e)
+            {
+                //catches exception when listener.Stop() is called
+                if (running) throw e;
+            }
 
-            Logger.Log(LogLevel.Verbose, Log.WEB_STOP, prefix);
+            Logger.Log(LogLevel.Info, Log.WEB_STOP, prefix);
             listener.Stop();
         }
 
@@ -125,6 +142,7 @@ namespace SWBF2Admin.Web
         public void SendBuffer(HttpListenerContext ctx, byte[] buffer)
         {
             ctx.Response.ContentLength64 = buffer.Length;
+            ctx.Response.Headers.Add("Server", "");
 
             using (Stream stream = ctx.Response.OutputStream)
             {

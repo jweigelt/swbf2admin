@@ -1,13 +1,17 @@
-
 var BansUrl = "/live/bans";
 var BansFilterTimeout = 300;
 
 function Bans() {
   var base = this;
+  this.quickAdminId = null;
 
   this.onInit = function() {    
     $(window).blur(base.hideQuickAdmin);
     $(document).click(base.hideQuickAdmin);
+    
+    base.deleteDialog = new Dialog("#bans_div_delete", "Delete ban", [{Text: "Yes", Callback : base.deleteDialogOK, Icon : "check"}, {Text: "No", Callback : function(){}, Icon : "clear"}]);  
+    
+    base.events = new EventDisplay("#bans_div_event");
     
     $(".bans_autorf").on('input', function() {  
       clearTimeout($(this).data('timer'));    
@@ -30,8 +34,18 @@ function Bans() {
     $("#bans_input_date").change(function(e) {
         base.updateBans();        
     });   
-     
-    base.updateBans();     
+    
+    $("#bans_a_delete").click(function(e) {
+      e.preventDefault();
+      base.deleteDialog.show(base.quickAdminId);
+    });
+       
+    $("#bans_a_edit").click(function(e) {
+      e.preventDefault();
+      console.log("edit ban");
+    }); 
+
+    base.updateBans();  
   }; 
   
   this.onStatusChange = function(online) {
@@ -50,7 +64,7 @@ function Bans() {
     for (var x in r) {
       var b = r[x];
       tb +=
-      "<tr"+(b.Expired?' class="expired"':"")+">" + 
+      "<tr"+(b.Expired?' class="expired"':"")+' data-id="'+b.DatabaseId+'">' + 
       "<td>"+b.DatabaseId+"</td>" + 
       "<td>"+b.PlayerName+"</td>" + 
       "<td>"+b.AdminName+"</td>" +
@@ -82,6 +96,7 @@ function Bans() {
     $("#bans_tbl_bans tbody tr").each(function(i,e) {
       $(e).contextmenu(function(e) {
         e.preventDefault();
+        base.quickAdminId = $(this).closest("tr").data("id"); 
         $("#bans_ul_admin").css("left",e.clientX);
         $("#bans_ul_admin").css("top",e.clientY);
         $("#bans_ul_admin").css("display","block");
@@ -103,13 +118,30 @@ function Bans() {
       url: BansUrl,
       data: JSON.stringify(filter),
     }).done(function(res) {
-      base.setBans(jQuery.parseJSON(res));
+      base.setBans(JSON.parse(res));
     });
   };
   
   this.hideQuickAdmin = function() {
-    $("#bans_ul_admin").css("display","none");
-  } 
+    $("#bans_ul_admin").css("display", "none");
+  };
+  
+  this.banDeleted = function (res) {
+    if(res.Ok) {
+      base.updateBans();
+      base.events.ShowInfo("Ban removed.");
+    }
+  };
+  
+  this.deleteDialogOK = function(tag) {
+    var rq = { Action : "bans_delete", DatabaseId : tag};  
+    $.post({
+      url: BansUrl,
+      data: JSON.stringify(rq),
+    }).done(function(res) {
+      base.banDeleted(JSON.parse(res));
+    });
+  };
 }
 
 mainFrame.setActivePage(new Bans());

@@ -27,7 +27,7 @@ namespace SWBF2Admin
         public ServerManager Server { get; }
         public RconClient Rcon { get; }
         public PlayerHandler Players { get; }
-        public AnnounceHandler Announce { get;}
+        public AnnounceHandler Announce { get; }
         public GameHandler Game { get; }
 
         private List<ComponentBase> Components { get; }
@@ -67,11 +67,13 @@ namespace SWBF2Admin
             Server.ServerStopped += new EventHandler(Server_Stopped);
             Server.ServerCrashed += new EventHandler(Server_Crashed);
 
+            Announce.Broadcast += new EventHandler(Announce_Broadcast);
+
             foreach (ComponentBase h in Components)
             {
                 h.Configure(Config);
                 h.OnInit();
-                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Update, h.UpdateInterval);              
+                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Update, h.UpdateInterval);
             }
 
             Scheduler.Start();
@@ -79,7 +81,7 @@ namespace SWBF2Admin
             if (Config.ManageServer)
             {
                 Logger.Log(LogLevel.Info, "Acting as server manager");
-                if (Config.AutoLaunchServer) Server.Start();
+                if (Config.AutoLaunchServer) Scheduler.PushTask(Server.Start);
             }
             else
             {
@@ -110,7 +112,7 @@ namespace SWBF2Admin
             Server_Stopped(sender, e);
             if (Config.AutoRestartServer)
             {
-                Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restart server...");
+                Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restarting server...");
                 Server.Start();
             }
         }
@@ -122,6 +124,11 @@ namespace SWBF2Admin
         private void Rcon_Chat(object sender, EventArgs e)
         {
 
+        }
+
+        private void Announce_Broadcast(object sender, EventArgs e)
+        {
+            Rcon.Say(((AnnounceEventArgs)e).GetMessage());
         }
         #endregion
     }

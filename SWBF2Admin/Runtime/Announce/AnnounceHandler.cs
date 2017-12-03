@@ -5,9 +5,8 @@ namespace SWBF2Admin.Runtime.Announce
 {
     class AnnounceHandler : ComponentBase
     {
-        public event EventHandler OnAnnounce = null;
+        public event EventHandler Broadcast = null;
         private AnnounceHandlerConfiguration config;
-        private DateTime lastAnnounce = DateTime.Now;
         private int currentIdx = 0;
 
         public AnnounceHandler(AdminCore core) : base(core) { }
@@ -15,6 +14,7 @@ namespace SWBF2Admin.Runtime.Announce
         public override void Configure(CoreConfiguration config)
         {
             this.config = Core.Files.ReadConfig<AnnounceHandlerConfiguration>();
+            if (this.config.Enable) UpdateInterval = this.config.Interval * 1000;
         }
 
         public override void OnServerStart()
@@ -29,12 +29,8 @@ namespace SWBF2Admin.Runtime.Announce
 
         public override void OnUpdate()
         {
-            if ((DateTime.Now - lastAnnounce).TotalSeconds > config.Interval)
-            {
-                lastAnnounce = DateTime.Now;
-                InvokeEvent(OnAnnounce, this, new AnnounceEventArgs(config.AnnounceList[currentIdx++]));
-                if (currentIdx == config.AnnounceList.Count) currentIdx = 0;
-            }
+            InvokeEvent(Broadcast, this, new AnnounceEventArgs(config.AnnounceList[currentIdx++]));
+            if (currentIdx == config.AnnounceList.Count) currentIdx = 0;
         }
 
     }

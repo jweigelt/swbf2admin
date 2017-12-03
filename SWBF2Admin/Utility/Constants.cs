@@ -44,6 +44,9 @@
         public const string WEB_URL_SETTINGS_GENERAL = "/settings/general";
         public const string WEB_FILE_SETTINGS_GENERAL = "general.htm";
 
+        public const string WEB_URL_SETTINGS_GAME = "/settings/game";
+        public const string WEB_FILE_SETTINGS_GAME = "game.htm";
+
         public const string WEB_URL_SETTINGS_MAPS = "/settings/maps";
         public const string WEB_FILE_SETTINGS_MAPS = "maps.htm";
 
@@ -60,6 +63,7 @@
 
         public const string WEB_ACTION_PLAYERS_UPDATE = "players_update";
         public const string WEB_ACTION_BANS_UPDATE = "bans_update";
+        public const string WEB_ACTION_BANS_DELETE = "bans_delete";
 
         public const string WEB_ACTION_CHAT_UPDATE = "chat_update";
         public const string WEB_ACTION_CHAT_SEND = "chat_send";
@@ -67,6 +71,8 @@
         public const string WEB_COOKIE_CHAT = "chat_session";
         public const int WEB_COOKIE_TIMEOUT = 3600;
         public const int WEB_SESSION_LIMIT = 500;
+
+
         #endregion
     }
 }

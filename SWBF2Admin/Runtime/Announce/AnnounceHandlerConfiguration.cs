@@ -13,7 +13,7 @@ namespace SWBF2Admin.Runtime.Announce
         
 
         public bool Enable { get; set; } = false;
-        public uint Interval { get; set; } = 360;
+        public int Interval { get; set; } = 360;
         public List<Announce> AnnounceList = new List<Announce>();
     }
 }

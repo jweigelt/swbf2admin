@@ -122,13 +122,18 @@ div.item, div.error {
   border: 1px solid #d1d1d1;
   margin-bottom: 1.5em;
 }
+
 div.error > span {
   background: #f4a742;
   color: #3a4049;
 }
 
-div.error {
+div.info > span {
+  background: #00cbff;
+  color: #3a4049;  
+}
 
+div.error {
   word-wrap:break-word;
 }
 
@@ -148,6 +153,10 @@ div.dialog {
   transform: translate(-50%, -50%);      
   border: 1px solid #d1d1d1; 
   background: #f0f0f0;  
+}
+
+div.dialog p {
+  margin: 1em;
 }
 
 div.dialog > span a {

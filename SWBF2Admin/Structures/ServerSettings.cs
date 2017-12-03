@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
+using SWBF2Admin.Structures.Attributes;
 using SWBF2Admin.Utility;
 namespace SWBF2Admin.Structures
 {
@@ -8,47 +9,130 @@ namespace SWBF2Admin.Structures
     {
         private const string FILE_NAME = "/settings/ServerSettings.cfg";
 
+        [ConfigSection(ConfigSection.GENERAL)]
         public string GameName { get; set; } = "New Server";
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public string Password { get; set; } = "";
+
+        [ConfigSection(ConfigSection.GENERAL, true, false)]
         public string AdminPw { get; set; } = "";
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public string IP { get; set; } = "127.0.0.1";
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public ushort GamePort { get; set; } = 3658;
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public ushort RconPort { get; set; } = 4658;
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public ushort Tps { get; set; } = 30;
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public ushort PlayerLimit { get; set; } = 20;
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public ushort PlayerCount { get; set; } = 1;
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public bool Lan { get; set; } = false;
+
+        [ConfigSection(ConfigSection.GENERAL, true, false)]
         public ushort Bandwidth { get; set; } = 6144;
+
+        [ConfigSection(ConfigSection.GENERAL_KEEPDEFAULT)]
         public ushort VoiceMode { get; set; } = 3;
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public string NetRegion { get; set; } = "EU";
+
+        [ConfigSection(ConfigSection.GENERAL_KEEPDEFAULT)]
         public string VideoStd { get; set; } = "NTSC";
+
+        [ConfigSection(ConfigSection.GAME)]
         public bool Heroes { get; set; } = false;
+
+        [ConfigSection(ConfigSection.GAME)]
         public bool Awards { get; set; } = true;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort HrUnlock { get; set; } = 3;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort HrUnlockValue { get; set; } = 10;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort HrPlayer { get; set; } = 8;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort HrTeam { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort HrRespawn { get; set; } = 90;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort ConTimeLimit { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort CTFTimeLimit { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort HunTimeLimit { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort CTFScoreLimit { get; set; } = 5;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort AssScoreLimit { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort HuntScoreLimit { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort ConReinforcements { get; set; } = 100;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort AssReinforcements { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public bool TeamDamage { get; set; } = true;
+
+        [ConfigSection(ConfigSection.GAME)]
         public bool AutoAssignTeams { get; set; } = false;
+
+        [ConfigSection(ConfigSection.GENERAL)]
         public bool Shownames { get; set; } = true;
+
+        [ConfigSection(ConfigSection.MAPS)]
         public bool Randomize { get; set; } = false;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort Difficulty { get; set; } = 3;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort Spawn { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort PreGameTime { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort KickVoteThreshold { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort TeamVoteThreshold { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort ConAiperTeam { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort CTFAiPerTeam { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public ushort AssAiPerTeam { get; set; } = 0;
+
+        [ConfigSection(ConfigSection.GAME)]
         public bool AimAssist { get; set; } = false;
 
         //Attention: messy code ahead
@@ -84,14 +168,14 @@ namespace SWBF2Admin.Structures
 
                 bool found = false;
                 string settingName = dat[0].Replace("/", "").ToLower();
-              
+
 
                 foreach (PropertyInfo p in props)
                 {
-                  
+
                     if (p.Name.ToLower().Equals(settingName))
                     {
-                       
+
                         found = true;
                         if (p.PropertyType.IsEquivalentTo(typeof(bool)))
                             p.SetValue(settings, (dat[1].Equals("1")));
@@ -123,7 +207,7 @@ namespace SWBF2Admin.Structures
                             {
                                 val = dat[1];
                             }
-                          
+
                             p.SetValue(settings, val);
                         }
                     }
@@ -166,6 +250,19 @@ namespace SWBF2Admin.Structures
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, "Failed to write to file {0} ({1]})", fileName, e.ToString());
+            }
+        }
+
+        public void UpdateFrom(ServerSettings s, int type)
+        {
+            PropertyInfo[] props = typeof(ServerSettings).GetProperties();
+            foreach (PropertyInfo p in props)
+            {
+                ConfigSection[] attr = (ConfigSection[])p.GetCustomAttributes(typeof(ConfigSection), false);
+                if (attr.Length > 0)
+                {
+                    if ((attr[0].Type & type) > 0) p.SetValue(this, p.GetValue(s));
+                }
             }
         }
     }

@@ -21,6 +21,8 @@
       </tr>      
     </table>
   </div>
+ 
+  <div id="bans_div_event"></div>
   
   <div class="item" id="bans_div_bans">
     <table class="players embedded" id="bans_tbl_bans">
@@ -51,12 +53,16 @@
   </div>
 </div>
 
-
+<div id="bans_div_delete">
+  <p>Are you sure?</p>
+</div>
 
 <ul id="bans_ul_admin" class="contextmenu">
-  <li><a href="#"><i class="material-icons">delete</i>Delete ban</a></li>
-  <li><a href="#"><i class="material-icons">create</i>Edit ban</a></li>
+  <li><a href="#" id="bans_a_delete"><i class="material-icons">delete</i>Delete ban</a></li>
+  <li><a href="#" id="bans_a_edit"><i class="material-icons">create</i>Edit ban</a></li>
 </ul>                                                                    
-                  
+
+<script type="text/javascript" src="/res/event.js"></script>  
+<script type="text/javascript" src="/res/dialog.js"></script>                  
 <script type="text/javascript" src="/res/bans.js"></script>
                                                                   

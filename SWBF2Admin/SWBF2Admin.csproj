@@ -108,6 +108,7 @@
     <Compile Include="Scheduler\RepeatingSchedulerTask.cs" />
     <Compile Include="Scheduler\SchedulerTask.cs" />
     <Compile Include="Scheduler\TaskScheduler.cs" />
+    <Compile Include="Structures\Attributes\ConfigSection.cs" />
     <Compile Include="Structures\ServerSettings.cs" />
     <Compile Include="Structures\ServerInfo.cs" />
     <Compile Include="Gameserver\ServerManager.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Web\Pages\AboutPage.cs" />
     <Compile Include="Web\Pages\ChatPage.cs" />
     <Compile Include="Web\Pages\BansPage.cs" />
+    <Compile Include="Web\Pages\GameSettingsPage.cs" />
     <Compile Include="Web\Pages\MapSettingsPage.cs" />
     <Compile Include="Web\Pages\GeneralSettingsPage.cs" />
     <Compile Include="Web\WebPage.cs" />
@@ -161,7 +163,7 @@
     <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.106.0\build\net46\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.106.0\build\net46\System.Data.SQLite.Core.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(SolutionDir)DebugFiles" "$(TargetDir)" /S /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(SolutionDir)DebugFiles" "$(TargetDir)" /S /D</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

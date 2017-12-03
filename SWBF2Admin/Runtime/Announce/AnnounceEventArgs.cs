@@ -17,6 +17,7 @@ namespace SWBF2Admin.Runtime.Announce
             }
             else
             {
+                //TODO: parse stuff
                 return announce.Message;
             }
         }
