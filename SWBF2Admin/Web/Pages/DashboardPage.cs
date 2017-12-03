@@ -23,19 +23,24 @@ namespace SWBF2Admin.Web.Pages
             DashboardApiParams p = null;
             if ((p = TryJsonParse<DashboardApiParams>(ctx, postData)) == null) return;
 
-            if (p.Action == Constants.WEB_ACTION_DASHBOARD_STATUS_SET)
+
+            switch (p.Action)
             {
-                if(p.NewStatusId == (int)ServerStatus.Online)
-                {
-                    Core.Server.Start();
-                }
-                else if (p.NewStatusId == (int)ServerStatus.Offline)
-                {
-                    Core.Server.Stop();
-                }
+                case Constants.WEB_ACTION_DASHBOARD_STATUS_SET:
+                    if (p.NewStatusId == (int)ServerStatus.Online)
+                    {
+                        Core.Server.Start();
+                    }
+                    else if (p.NewStatusId == (int)ServerStatus.Offline)
+                    {
+                        Core.Server.Stop();
+                    }
+                    break;
             }
 
-            ServerInfo info = Core.Server.Info;
+            ServerInfo info = Core.Game.LatestInfo;
+            if (info == null) info = new ServerInfo(); //Send default if no info recieved yet
+            info.Status = Core.Server.Status;
             WebAdmin.SendHtml(ctx, ToJson(info));
         }
     }

@@ -95,12 +95,15 @@
   <ItemGroup>
     <Compile Include="AdminCore.cs" />
     <Compile Include="Runtime\Announce\Announce.cs" />
-    <Compile Include="Runtime\Announce\AnnounceConfiguration.cs" />
+    <Compile Include="Runtime\Announce\AnnounceHandlerConfiguration.cs" />
     <Compile Include="Runtime\Announce\AnnounceEventArgs.cs" />
     <Compile Include="Runtime\Announce\AnnounceHandler.cs" />
+    <Compile Include="Runtime\Game\GameHandler.cs" />
+    <Compile Include="Runtime\Game\GameHandlerConfiguration.cs" />
     <Compile Include="Runtime\Players\PlayerHandler.cs" />
     <Compile Include="ComponentBase.cs" />
     <Compile Include="Runtime\Rcon\Packets\PlayerListPacket.cs" />
+    <Compile Include="Runtime\Rcon\Packets\StatusPacket.cs" />
     <Compile Include="Runtime\Rcon\RconChatEventArgs.cs" />
     <Compile Include="Scheduler\RepeatingSchedulerTask.cs" />
     <Compile Include="Scheduler\SchedulerTask.cs" />

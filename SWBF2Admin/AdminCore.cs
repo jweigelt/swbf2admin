@@ -8,8 +8,10 @@ using SWBF2Admin.Database;
 using SWBF2Admin.Gameserver;
 using SWBF2Admin.Scheduler;
 
-using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Runtime;
+using SWBF2Admin.Runtime.Rcon;
+using SWBF2Admin.Runtime.Game;
+using SWBF2Admin.Runtime.Announce;
 
 namespace SWBF2Admin
 {
@@ -25,6 +27,8 @@ namespace SWBF2Admin
         public ServerManager Server { get; }
         public RconClient Rcon { get; }
         public PlayerHandler Players { get; }
+        public AnnounceHandler Announce { get;}
+        public GameHandler Game { get; }
 
         private List<ComponentBase> Components { get; }
 
@@ -35,6 +39,8 @@ namespace SWBF2Admin
             WebAdmin = new WebServer(this);
             Rcon = new RconClient(this);
             Players = new PlayerHandler(this);
+            Announce = new AnnounceHandler(this);
+            Game = new GameHandler(this);
 
             Components = new List<ComponentBase>();
             Components.Add(Database);
@@ -42,6 +48,8 @@ namespace SWBF2Admin
             Components.Add(WebAdmin);
             Components.Add(Rcon);
             Components.Add(Players);
+            Components.Add(Announce);
+            Components.Add(Game);
         }
         public void Run()
         {
@@ -62,8 +70,8 @@ namespace SWBF2Admin
             foreach (ComponentBase h in Components)
             {
                 h.Configure(Config);
-                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Update, h.UpdateInterval);
                 h.OnInit();
+                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Update, h.UpdateInterval);              
             }
 
             Scheduler.Start();

@@ -6,7 +6,7 @@ namespace SWBF2Admin.Runtime.Announce
     class AnnounceHandler : ComponentBase
     {
         public event EventHandler OnAnnounce = null;
-        private AnnounceConfiguration config;
+        private AnnounceHandlerConfiguration config;
         private DateTime lastAnnounce = DateTime.Now;
         private int currentIdx = 0;
 
@@ -14,7 +14,7 @@ namespace SWBF2Admin.Runtime.Announce
 
         public override void Configure(CoreConfiguration config)
         {
-            this.config = Core.Files.ReadConfig<AnnounceConfiguration>();
+            this.config = Core.Files.ReadConfig<AnnounceHandlerConfiguration>();
         }
 
         public override void OnServerStart()

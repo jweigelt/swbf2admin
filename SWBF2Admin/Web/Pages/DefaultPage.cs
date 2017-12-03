@@ -26,8 +26,8 @@ namespace SWBF2Admin.Web.Pages
 
             if (p.Action == Constants.WEB_ACTION_DEFAULT_STATUS_SET)
             {
-                WebAdmin.SendHtml(ctx, ToJson(new DefaultApiResponse(Core.Server.Info.Status == ServerStatus.Online)));
-            }          
+                WebAdmin.SendHtml(ctx, ToJson(new DefaultApiResponse(Core.Server.Status == ServerStatus.Online)));
+            }
         }
 
     }

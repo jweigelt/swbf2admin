@@ -31,7 +31,7 @@ namespace SWBF2Admin.Database
         public override void Configure(CoreConfiguration config)
         {
             SQLType = config.SQLType;
-            SQLiteFileName = config.SQLiteFileName;
+            SQLiteFileName = Core.Files.ParseFileName(config.SQLiteFileName);
             MySQLHost = config.MySQLHostname;
             MySQLDatabase = config.MySQLDatabaseName;
             MySQLUser = config.MySQLUsername;
@@ -119,6 +119,7 @@ namespace SWBF2Admin.Database
         }
         private DbCommand BuildCommand(string query, params string[] parameters)
         {
+            query = query.Replace("prefix_", SQLTablePrefix);
             DbCommand command;
             if (SQLType == DbType.SQLite)
                 command = new SQLiteCommand(query, (SQLiteConnection)connection);

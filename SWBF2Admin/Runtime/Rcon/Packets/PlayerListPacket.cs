@@ -16,6 +16,7 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
         public override void HandleResponse(string response)
         {
             PlayerList = new List<Player>();
+            if (response.Length == 0) return; //no players
 
             string[] rows = response.Split('\n');
 
@@ -27,7 +28,7 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
                     if (!IPAddress.TryParse(r.Substring(42, 15).TrimEnd(), out ip))
                     {
                         //NOTE: GoG's Battlefront returns weird ips
-                        ip = IPAddress.Parse("127.0.0.1"); 
+                        ip = IPAddress.Parse("127.0.0.1");
                     }
 
                     string name = r.Substring(3, 17).TrimEnd();

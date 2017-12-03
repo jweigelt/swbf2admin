@@ -30,9 +30,11 @@ namespace SWBF2Admin.Runtime.Rcon
 
         public event EventHandler Disconnected;
         public event EventHandler ChatInput;
+        public event EventHandler GameEnded;
 
         public IPEndPoint ServerIPEP { get; set; }
         public string ServerPassword { get; set; }
+        public int PacketTimeout { get; set; } = 500;
 
         private bool running = false;
         private Thread workThread;
@@ -52,12 +54,25 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Error, "SendPacket failed. ({0})", e.ToString());
+                Logger.Log(LogLevel.Warning, "SendPacket failed. ({0})", e.ToString());
                 return;
             }
 
             lastMessage = null;
-            while (lastMessage == null) Thread.Sleep(Constants.RCON_SLEEP);
+            DateTime start = DateTime.Now;
+            while (lastMessage == null)
+            {
+                if ((DateTime.Now - start).TotalMilliseconds < PacketTimeout)
+                {
+                    Thread.Sleep(Constants.RCON_SLEEP);
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Warning, "Rcon packet timeout. (running {0})", packet.Command);
+                    return;
+                }
+            }
+
             packet.HandleResponse(lastMessage);
             lastMessage = null;
         }
@@ -146,16 +161,16 @@ namespace SWBF2Admin.Runtime.Rcon
                     {
                         rowLen = reader.ReadByte();
                         while (bytesRead < rowLen) bytesRead += (byte)reader.Read(buffer, bytesRead, (rowLen - bytesRead));
+
                         message += Util.BytesToStr(buffer, rowLen);
-                    }
-
-                    if (message.Length > 0)
-                    {
-                        //Removing zero-termination
                         message = message.Substring(0, message.Length - 1);
+                        if (i + 1 < rows) message = message + "\n";
 
-                        ProcessMessage(message);
+                        bytesRead = 0;
                     }
+
+                    ProcessMessage(message);
+
                     bytesRead = 0;
                     message = string.Empty;
                 }
@@ -163,7 +178,7 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Error, "Rcon disconnected. {0}", e.ToString());
+                Logger.Log(LogLevel.Warning, "Rcon disconnected. {0}", e.ToString());
             }
             reader.Close();
             writer.Close();
@@ -174,11 +189,27 @@ namespace SWBF2Admin.Runtime.Rcon
         }
         private void ProcessMessage(string message)
         {
-            if (HandleChat(message)) return;
-            if (HandleStatusMessage(message)) return;
+            if (message.Length > 0)
+            {
+                if (HandleChat(message)) return;
+                if (HandleStatusMessage(message)) return;
+            }
 
             lastMessage = message;
-            while (lastMessage != null) Thread.Sleep(1);
+
+            DateTime start = DateTime.Now;
+            while (lastMessage != null)
+            {
+                if ((DateTime.Now - start).TotalMilliseconds < PacketTimeout)
+                {
+                    Thread.Sleep(Constants.RCON_SLEEP);
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Warning, "Rcon response was not processed in time, dropping it.");
+                    return;
+                }
+            }
         }
         private bool HandleChat(string message)
         {
@@ -201,6 +232,7 @@ namespace SWBF2Admin.Runtime.Rcon
             switch (message)
             {
                 case Constants.RCON_STATUS_MESSAGE_GAME_HAS_ENDED:
+                    InvokeEvent(GameEnded, this, null);
                     return true;
                 default:
                     return false;

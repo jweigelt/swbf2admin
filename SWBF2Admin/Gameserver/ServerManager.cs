@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Diagnostics;
 
 using SWBF2Admin.Utility;
@@ -26,14 +27,13 @@ namespace SWBF2Admin.Gameserver
 
         private Process serverProcess = null;
         private AdminCore core;
-        public ServerInfo Info { get; }
+        private ServerStatus status = ServerStatus.Offline;
+        public ServerStatus Status { get { return status; } }
         public ServerSettings Settings { get; set; }
 
         public ServerManager(AdminCore core) : base(core)
         {
             this.core = core;
-            Info = new ServerInfo();
-            Info.Status = ServerStatus.Offline;
         }
 
         public override void Configure(CoreConfiguration config)
@@ -50,14 +50,15 @@ namespace SWBF2Admin.Gameserver
         {  
             foreach (Process p in Process.GetProcessesByName("BattlefrontII"))
             {
-                if (p.MainModule.FileName.ToLower().Equals((ServerPath + "/BattlefrontII.exe").ToLower()))
+            
+                if (Path.GetFullPath(p.MainModule.FileName).Equals(Path.GetFullPath(ServerPath + "\\BattlefrontII.exe")))
                 {
                     Logger.Log(LogLevel.Info, "Found running server process '{0}' ({1}), re-attaching...", p.MainWindowTitle, p.Id.ToString());
                     serverProcess = p;
                     p.EnableRaisingEvents = true;
                     serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                    Info.Status = ServerStatus.Online;
-                    if (ServerStarted != null) ServerStarted.Invoke(this, new EventArgs());
+                    status = ServerStatus.Online;
+                    InvokeEvent(ServerStarted, this, null);
                     break;
                 }
             }
@@ -69,7 +70,7 @@ namespace SWBF2Admin.Gameserver
             if (serverProcess == null)
             {
                 Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ServerArgs);
-                Info.Status = ServerStatus.Starting;
+                status = ServerStatus.Starting;
 
                 ProcessStartInfo startInfo = new ProcessStartInfo(core.Files.ParseFileName(ServerPath + "/BattlefrontII.exe"), ServerArgs);
                 startInfo.WorkingDirectory = core.Files.ParseFileName(ServerPath);
@@ -77,7 +78,7 @@ namespace SWBF2Admin.Gameserver
 
                 serverProcess.EnableRaisingEvents = true;
                 serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                Info.Status = ServerStatus.Online;
+                status = ServerStatus.Online;
                 InvokeEvent(ServerStarted, this, new EventArgs());
             }
         }
@@ -87,7 +88,7 @@ namespace SWBF2Admin.Gameserver
             if (serverProcess != null)
             {
                 Logger.Log(LogLevel.Info, "Stopping Server...");
-                Info.Status = ServerStatus.Stopping;
+                status = ServerStatus.Stopping;
                 serverProcess.Kill();
             }
         }
@@ -96,16 +97,16 @@ namespace SWBF2Admin.Gameserver
         {
             serverProcess = null;
 
-            if (Info.Status != ServerStatus.Stopping)
+            if (status != ServerStatus.Stopping)
             {
                 Logger.Log(LogLevel.Warning, "Server has crashed.");
-                Info.Status = ServerStatus.Offline;
+                status = ServerStatus.Offline;
                 InvokeEvent(ServerCrashed, this, new EventArgs());
             }
             else
             {
                 Logger.Log(LogLevel.Info, "Server stopped.");
-                Info.Status = ServerStatus.Offline;
+                status = ServerStatus.Offline;
                 InvokeEvent(ServerStopped, this, new EventArgs());
             }
         }

@@ -35,6 +35,7 @@ namespace SWBF2Admin.Config
         }
         private string GetFileName(Type t)
         {
+
             string fileName = (string)t.GetField("FILE_NAME").GetValue(null);
             fileName = ParseFileName(fileName);
             return fileName;
@@ -42,7 +43,8 @@ namespace SWBF2Admin.Config
 
         private string GetResourceName(Type t)
         {
-            return (string)t.GetField("RESOURCE_NAME").GetValue(null);
+            FieldInfo fi = t.GetField("RESOURCE_NAME");
+            return (fi == null ? string.Empty : (string)fi.GetValue(null));
         }
 
         private T ReadXmlFile<T>(string fileName = "")
@@ -114,7 +116,12 @@ namespace SWBF2Admin.Config
         }
         public void UnpackConfigDefault<T>()
         {
-            UnpackResource(GetFileName(typeof(T)), GetResourceName(typeof(T)));
+            string res = GetResourceName(typeof(T));
+            string file = GetFileName(typeof(T));
+            if (res == string.Empty)
+                WriteConfigDefault<T>(file);
+            else
+                UnpackResource(file, res);
         }
 
         public T ReadConfig<T>()
