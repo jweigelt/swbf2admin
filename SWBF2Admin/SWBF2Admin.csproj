@@ -98,6 +98,10 @@
     <Compile Include="Runtime\Announce\AnnounceHandlerConfiguration.cs" />
     <Compile Include="Runtime\Announce\AnnounceEventArgs.cs" />
     <Compile Include="Runtime\Announce\AnnounceHandler.cs" />
+    <Compile Include="Runtime\Commands\Admin\CmdKick.cs" />
+    <Compile Include="Runtime\Commands\Admin\PlayerCommand.cs" />
+    <Compile Include="Runtime\Commands\ChatCommand.cs" />
+    <Compile Include="Runtime\Commands\CommandDispatcher.cs" />
     <Compile Include="Runtime\Game\GameHandler.cs" />
     <Compile Include="Runtime\Game\GameHandlerConfiguration.cs" />
     <Compile Include="Runtime\Players\PlayerHandler.cs" />
@@ -135,6 +139,7 @@
     <Compile Include="Web\Pages\ChatPage.cs" />
     <Compile Include="Web\Pages\BansPage.cs" />
     <Compile Include="Web\Pages\GameSettingsPage.cs" />
+    <Compile Include="Web\Pages\GroupSettingsPage.cs" />
     <Compile Include="Web\Pages\MapSettingsPage.cs" />
     <Compile Include="Web\Pages\GeneralSettingsPage.cs" />
     <Compile Include="Web\WebPage.cs" />

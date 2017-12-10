@@ -6,59 +6,63 @@
       <span>Save changes</span>      
       <div class="text">
         <a href="#" id="general_btn_save" class="button"><i class="material-icons">save</i><span>Save</span></a>
-        <span id="general_text_status" class="online">Settings saved.</span>
+        <span id="general_txt_status" class="online">Settings saved.</span>
       </div>
     </div>
+    
+    <div id="general_div_error"></div>
   
     <div class="item">
       <span>Server</span>
       <table class="status embedded">
-        <tr><th>Session name</th><td><input type="text"></td></tr>
-        <tr><th>Password</th><td><input type="text"></td></tr>
-        <tr><th>Admin Password</th><td><input type="text"></td></tr>
-        <tr><th>Max. Players</th><td><input type="number" min="1" max="64"></td></tr>  
-        <tr><th>Min. Players</th><td><input type="number" min="0" max="64"></td></tr>                 
-        <tr><th>TPS</th><td><input type="number" min="15" max="30" step="5"></td></tr> 
+        <tr class="fixed"><th>Session name</th><td><input id="general_input_session_name" type="text"></td></tr>
+        <tr class="fixed"><th>Password</th><td><input id="general_input_password" type="text"></td></tr>
+        <tr class="runtime"><th>Admin Password</th><td><input id="general_input_admin_password" type="text"></td></tr>
+        <tr class="fixed"><th>Max. Players</th><td><input id="general_input_max_players" type="number" min="1" max="64"></td></tr>  
+        <tr class="fixed"><th>Min. Players</th><td><input id="general_input_min_players" type="number" min="0" max="64"></td></tr>                 
+        <tr class="runtime"><th>TPS</th><td><input id="general_input_tps" type="number" min="15" max="30" step="5"></td></tr> 
       </table>   
     </div>
     
     <div class="item">
       <span>Network</span>
       <table class="status embedded">
-        <tr>
+        <tr class="fixed">
           <th>Bind Address</th>
-          <td><select><option>192.168.188.123</option></select></td>
+          <td><select id="general_select_ipa"></select></td>
         </tr>
         
-        <tr>
+        <tr class="fixed">
           <th>Game Port</th>
-          <td><input type="number" min="0" max="65535"></td>
+          <td><input id="general_input_gameport" type="number" min="0" max="65535"></td>
         </tr>  
         
-        <tr>
+        <tr class="fixed">
           <th>Rcon Port</th>
-          <td><input type="number" min="0" max="65535"></td>
+          <td><input id="general_input_rconport" type="number" min="0" max="65535"></td>
         </tr>  
                        
-        <tr>
+        <tr class="fixed">
           <th>Network</th>
           <td>
-            <select>
-              <option>WAN</option>
-              <option>LAN</option>
+            <select id="general_select_lan">
+              <option value="false">WAN</option>
+              <option value="true">LAN</option>
             </select>
           </td>
         </tr> 
         
-        <tr>
+        <tr class="runtime">
           <th>Max. Bandwidth</th>
           <td>
-            <select>
-              <option>6 Mbit/s</option>
-              <option>3 Mbit/s</option>
-              <option>2 Mbit/s</option>
-              <option>1 Mbit/s</option>              
-              <option>512 Kbit/s</option> 
+            <select id="general_select_bandwidth">
+              <option value="6144">6 Mbit/s</option>
+              <option value="3072">3 Mbit/s</option>
+              <option value="2048">2 Mbit/s</option>
+              <option value="1024">1 Mbit/s</option>              
+              <option value="512">512 Kbit/s</option> 
+              <option value="256">256 Kbit/s</option> 
+              <option value="128">128 Kbit/s</option> 
             </select>
           </td>
         </tr> 
@@ -67,3 +71,4 @@
     
   </div>
 </div>
+<script type="text/javascript" src="/res/general.js"></script>

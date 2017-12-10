@@ -16,11 +16,11 @@ function MainFrame() {
   this.isOnline = function() { return base.online; };
 
   this.loadPage = function(href) {
-    $.get(href, function( data ) {
-      $("td#content").html( data );
+    $.get(href, function(data) {
+      $("td#content").html(data);
     });
   };
-  
+
   this.init = function() {
     $("td#navigation a").each(function(i,e) {
       $(e).click(function(e) {

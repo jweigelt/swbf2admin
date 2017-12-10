@@ -12,6 +12,7 @@ namespace SWBF2Admin.Scheduler
         {
             startTime = new DateTime(1970, 1, 1);
         }
+
         public RepeatingSchedulerTask(TaskDelegate task, int interval)
             : base(task)
         {
@@ -19,6 +20,9 @@ namespace SWBF2Admin.Scheduler
             startTime = new DateTime(1970, 1, 1);
         }
 
+        /// <summary>
+        /// Runs the task if required.
+        /// </summary>
         public void Tick()
         {
             if (Interval == 0)
@@ -33,6 +37,9 @@ namespace SWBF2Admin.Scheduler
             }
         }
 
+        /// <summary>
+        /// Gets millis since object creation
+        /// </summary>
         private Int64 GetMillis()
         {
             return (Int64)((DateTime.Now - startTime).TotalMilliseconds);

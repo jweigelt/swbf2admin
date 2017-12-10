@@ -408,11 +408,12 @@ table.maps td {
 
 table.map-container {
   width: 100%;
+  border-collapse: collapse;
 }
 
 table.map-container td {
-  vertical-align: top;
   width: 50%;
+  vertical-align: top;
 } 
  
 /**
@@ -421,3 +422,42 @@ table.map-container td {
 div.text {
   padding: 1em;
 }
+
+/**
+ *  Groups Tab
+ **/
+table.group-container {
+  border-collapse: collapse;
+  width: 100%;
+}
+table.group-container td {
+  border: 0;
+  padding: 0;
+  vertical-align: top;
+}
+ 
+table.groups td {
+  line-height: 3em;
+  padding-left: 1em;
+}
+
+table.groups td.ico {
+  width: 1em;
+}
+
+div.group {
+  background: #ffffff;
+  border: 0;
+}
+
+div.group span {
+  margin-top: 1px;
+  border-left: 1px solid #d1d1d1;
+}
+
+table.groups tr.active {
+  background: #fff;
+}
+
+
+

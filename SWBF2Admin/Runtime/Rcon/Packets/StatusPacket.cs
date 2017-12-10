@@ -12,7 +12,7 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
         private ServerInfo info;
         public ServerInfo Info { get { return info; } }
 
-        public StatusPacket() : base("/status") { }
+        public StatusPacket() : base("status") { }
 
         /**
          * Server name : LeKeks test

@@ -50,6 +50,10 @@
         public const string WEB_URL_SETTINGS_MAPS = "/settings/maps";
         public const string WEB_FILE_SETTINGS_MAPS = "maps.htm";
 
+        public const string WEB_URL_SETTINGS_GROUP = "/settings/groups";
+        public const string WEB_FILE_SETTINGS_GROUP = "groups.htm";
+
+
         public const string WEB_TAG_USER_NAME = "{account:username}";
         public const string WEB_TAG_USER_LASTVISIT = "{account:lastvisit}";
 

@@ -14,7 +14,7 @@ function EventDisplay(container) {
   this.timeout = null;
   
   this.ShowError = function(message) {
-    base.Show(base.infoIcon, message, "error");
+    base.Show(base.errorIcon, message, "error");
   };
   
   this.ShowInfo = function(message) {

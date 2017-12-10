@@ -42,7 +42,6 @@ function Maps() {
   };
   
   this.onDeinit = function() {
-    if(base.timer != null) clearInterval(base.timer);
   }; 
    
   this.setSaved = function(r) {

@@ -15,48 +15,38 @@ namespace SWBF2Admin
             Core = core;
         }
 
-        /// <summary>
-        /// Called once after reading core configuration
-        /// </summary>
-        /// <param name="config">Core configuration object</param>
+        ///<summary>Called once after reading core configuration</summary>
+        ///<param name="config">Core configuration object</param>
         public virtual void Configure(CoreConfiguration config) { }
 
-        /// <summary>
-        /// Called once during startup
-        /// </summary>
+        ///<summary>Called once during startup</summary>
         public virtual void OnInit() { }
 
-        /// <summary>
-        /// Called once during shutdown
-        /// </summary>
+        ///<summary>Called once during shutdown</summary>
         public virtual void OnDeInit() { }
 
-        /// <summary>
-        /// Called after the gameserver was launched
-        /// </summary>
+        ///<summary>Called after the gameserver was launched</summary>
         public virtual void OnServerStart() { }
 
-        /// <summary>
-        /// Called after the gameserver was either stopped or crashed
-        /// </summary>
+        ///<summary>Called after the gameserver was either stopped or crashed</summary>
         public virtual void OnServerStop() { }
 
-        /// <summary>
-        /// Called in a periodic interval, if UpdateInterval is larger than 0 and EnableUpdates() was called.
-        /// </summary>
+        ///<summary>Called in a periodic interval, if UpdateInterval is greater than 0 and EnableUpdates() was called.</summary>
         public virtual void OnUpdate() { }
 
-        /// <summary>
-        /// Wrapper-function for OnUpdate
-        /// </summary>
+        ///<summary>Wrapper-function for OnUpdate</summary>
         public void Update()
         {
             if (enableUpdate) OnUpdate();
         }
 
-        /// <summary>
-        /// Called in a periodic interval, if UpdateInterval is larger than 0 and EnableUpdates() was called.
-        /// </summary>
+        ///<summary>
+        ///Invokes an EventHandler.
+        ///<para>The EventHandler is always invoked be Core.Scheduler.workThread</para> 
+        ///</summary>
+        ///<param name="evt">Core configuration object</param>
+        ///<param name="sender">sender object for invoking the EventHandler</param>
+        ///<param name="e">EventArgs for invoking the EventHandler</param>
         public void InvokeEvent(EventHandler evt, object sender, EventArgs e)
         {
             if (evt != null)
@@ -73,17 +63,13 @@ namespace SWBF2Admin
 
         }
 
-        /// <summary>
-        /// Enabled periodic calls to OnUpdate(), if UpdateInterval is larger than 0 
-        /// </summary>
+        ///<summary>Enabled periodic calls to OnUpdate(), if UpdateInterval is greater than 0</summary>
         public void EnableUpdates()
         {
             enableUpdate = true;
         }
 
-        /// <summary>
-        /// Disables calls to OnUpdate();
-        /// </summary>
+        ///<summary>Disables calls to OnUpdate();</summary>
         public void DisableUpdates()
         {
             enableUpdate = false;

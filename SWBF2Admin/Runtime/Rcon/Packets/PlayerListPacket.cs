@@ -11,7 +11,7 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
     {
         public List<Player> PlayerList { get; set; }
 
-        public PlayerListPacket() : base("/players") { }
+        public PlayerListPacket() : base("players") { }
 
         public override void HandleResponse(string response)
         {

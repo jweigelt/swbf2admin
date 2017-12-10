@@ -39,6 +39,7 @@ namespace SWBF2Admin.Web
             RegisterPage<GeneralSettingsPage>();
             RegisterPage<GameSettingsPage>();
             RegisterPage<MapSettingsPage>();
+            RegisterPage<GroupSettingsPage>();
 
             RegisterPage<AboutPage>();
 
@@ -124,7 +125,6 @@ namespace SWBF2Admin.Web
                     SendHttpStatus(ctx, HttpStatusCode.InternalServerError);
                 }
             }
-
         }
 
         private WebUser CheckAuth(HttpListenerContext ctx)

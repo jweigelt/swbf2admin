@@ -12,7 +12,8 @@ namespace SWBF2Admin.Runtime.Game
 
         //[XmlIgnore]
         //public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.game.xml";
-       
+
+        /// <summary>Delay between /status requests</summary>
         public int StatusUpdateInterval { get; set; } = 30000;
     }
 }

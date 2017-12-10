@@ -1,0 +1,75 @@
+<div class="default">
+  <h2>Game Settings</h2>
+  <div style="width: 50%;" class="general">
+
+    <div class="item">
+      <span>Save changes</span>      
+      <div class="text">
+        <a href="#" id="game_btn_save" class="button"><i class="material-icons">save</i><span>Save</span></a>
+        <span id="game_txt_status" class="online">Settings saved.</span>
+      </div>
+    </div>
+    
+    <div id="game_div_error"></div>
+  
+    <div class="item">
+      <span>Heroes</span>
+      <table class="status embedded">
+        <tr><th>Enable</th><td><input type="checkbox"></td></tr>
+        
+        <tr><th>Unlock trigger</th><td>
+        <select>
+          <option>reinforcements</option>
+          <option>points</option>
+          <option>kills</option>                  
+          <option>time</option>
+          <option>captures</option>
+        </select>
+        </td></tr>
+        
+        <tr><th>Unlock value</th><td><input type="text"></td></tr>
+        
+        <tr><th>Teams</th><td>
+        <select>
+          <option>one team</option>
+          <option>simultaneous</option>
+          <option>separate</option>                  
+          <option>cycle</option>
+        </select></td></tr>
+        
+        <tr><th>Assign to Player</th><td>
+        <select>
+          <option>most points</option>
+          <option>most kills</option>
+          <option>most deaths</option>                  
+          <option>least points</option>
+          <option>least kills</option>
+          <option>least deaths</option>   
+          <option>random</option>  
+          <option>killed last hero</option>  
+        </select></td></tr>
+        
+        <tr><th>Respawn timeout</th><td><input type="text"></td></tr>
+      </table>   
+    </div>
+    
+    <div class="item">
+      <span>Miscellaneous</span>
+      <table class="status embedded">
+        <tr><th>Enable friendly fire</th><td><input type="text"></td></tr>
+        <tr><th>Teams</th><td><input type="text"></td></tr>
+        <tr><th>Warmup time</th><td><input type="text"></td></tr>
+        <tr><th>Spawn invinciblity time</th><td><input type="text"></td></tr>
+      </table>   
+    </div>
+
+    <div class="item">
+      <span>Votekick</span>
+      <table class="status embedded">
+        <tr><th>Kick player ratio [&#37;]</th><td><input type="text"></td></tr>
+        <tr><th>Kick team player ratio [&#37;]</th><td><input type="text"></td></tr>
+      </table>   
+    </div>    
+  </div>
+</div>
+<script type="text/javascript" src="/res/game.js"></script>

@@ -16,36 +16,45 @@ namespace SWBF2Admin.Gameserver
         Stopping = 3
     }
 
+    ///<summary>class handling the gameserver-process</summary>
     class ServerManager : ComponentBase
     {
+        ///<summary>Called if the server-process exits unexpectedly</summary>
         public event EventHandler ServerCrashed;
+        ///<summary>Called after the server-process was launched</summary>
         public event EventHandler ServerStarted;
+        ///<summary>Called after the server-process exits planned</summary>
         public event EventHandler ServerStopped;
 
+        ///<summary>Relative or absolute path to server installation</summary>
         public string ServerPath { get; set; } = "./server";
+    
+        ///<summary>Command-line args for starting the gameserver</summary>
         public string ServerArgs { get; set; } = "/win /norender /nosound /autonet dedicated /resolution 640 480";
 
         private Process serverProcess = null;
         private AdminCore core;
         private ServerStatus status = ServerStatus.Offline;
+
+        ///<summary>Current gameserver status</summary>
         public ServerStatus Status { get { return status; } }
+        ///<summary>Settings used by the gameserver</summary>
         public ServerSettings Settings { get; set; }
 
         public ServerManager(AdminCore core) : base(core)
         {
             this.core = core;
         }
-
         public override void Configure(CoreConfiguration config)
         {
             ServerPath = Core.Files.ParseFileName(config.ServerPath);
         }
-
         public override void OnInit()
         {
             Open();
         }
 
+        ///<summary>Checks if the server-process is already running and re-attaches if required</summary>
         private void Open()
         {  
             foreach (Process p in Process.GetProcessesByName("BattlefrontII"))
@@ -65,6 +74,7 @@ namespace SWBF2Admin.Gameserver
             Settings = ServerSettings.FromSettingsFile(core, ServerPath);
         }
 
+        ///<summary>Launches the gameserver</summary>
         public void Start()
         {
             if (serverProcess == null)
@@ -83,6 +93,7 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
+        /// <summary>Stops the gameserver</summary>
         public void Stop()
         {
             if (serverProcess != null)
@@ -93,6 +104,7 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
+        ///<summary>Called by EventHandler, when the serverprocess exits</summary>
         private void ServerProcess_Exited(object sender, EventArgs e)
         {
             serverProcess = null;

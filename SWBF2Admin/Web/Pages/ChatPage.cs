@@ -45,16 +45,16 @@ namespace SWBF2Admin.Web.Pages
         }
 
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
-        {   
+        {
             ChatApiParams p = null;
-            if ((p = TryJsonParse<ChatApiParams>(ctx, postData)) == null)  return;
+            if ((p = TryJsonParse<ChatApiParams>(ctx, postData)) == null) return;
 
             if (p.Action == Constants.WEB_ACTION_CHAT_SEND)
             {
                 Logger.Log(LogLevel.Verbose, "Processing webchat input: '{0}'", p.Message);
                 //TODO: Fix me
                 Chat_Input(new ChatMessage(p.Message, "WebAdmin"));
-                Core.Rcon.Say("[WebAdmin] " + p.Message);
+                Core.Rcon.SendCommand("say", "[WebAdmin]", p.Message);
             }
             ChatSession s = GetSession(ctx);
 
@@ -75,7 +75,7 @@ namespace SWBF2Admin.Web.Pages
                 if (c.Name == Constants.WEB_COOKIE_CHAT)
                 {
                     cookie = c;
-            
+
                     foreach (ChatSession s in chatSessions)
                     {
                         if (s.ClientCookie.Equals(c))
@@ -143,7 +143,7 @@ namespace SWBF2Admin.Web.Pages
         {
             RconChatEventArgs re = (RconChatEventArgs)e;
             Chat_Input(new ChatMessage(re.Message, re.Name));
-            
+
         }
 
     }

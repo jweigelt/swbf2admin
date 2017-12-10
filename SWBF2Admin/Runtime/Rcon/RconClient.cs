@@ -7,9 +7,13 @@ using System.IO;
 using SWBF2Admin.Utility;
 using SWBF2Admin.Runtime.Rcon.Packets;
 using SWBF2Admin.Config;
+using SWBF2Admin.Structures;
 
 namespace SWBF2Admin.Runtime.Rcon
 {
+    /// <summary>
+    /// class for connecting to the remote console ("rcon") server
+    /// </summary>
     class RconClient : ComponentBase
     {
         public RconClient(AdminCore core) : base(core) { }
@@ -32,15 +36,31 @@ namespace SWBF2Admin.Runtime.Rcon
             Stop();
         }
 
+        /// <summary>Called when the rcon-connection is lost</summary>
         public event EventHandler Disconnected;
+
+        /// <summary>Called when new chat is received</summary>
         public event EventHandler ChatInput;
+
+        /// <summary>Called when a match ended</summary>
         public event EventHandler GameEnded;
 
+        /// <summary>Rcon-servers IPEndPoint</summary>
         public IPEndPoint ServerIPEP { get; set; }
+
+        /// <summary>server's admin-password</summary>
         public string ServerPassword { get; set; }
+
+        /// <summary>max. time (in ms) before a packet is dropped if the server doesn't respond</summary>
         public int PacketTimeout { get; set; } = 500;
 
         private bool running = false;
+
+        internal void Pm(string message, Player player)
+        {
+            throw new NotImplementedException();
+        }
+
         private Thread workThread;
         private TcpClient client;
 
@@ -49,6 +69,13 @@ namespace SWBF2Admin.Runtime.Rcon
 
         private string lastMessage = null;
 
+        public string FilterString(string cmd)
+        {
+            //Prevent command injection
+            return cmd.Replace('/', '\\');
+        }
+
+        /// <summary>Connects to rcon-server and authenticates</summary>
         public void SendPacket(RconPacket packet)
         {
             try
@@ -80,11 +107,19 @@ namespace SWBF2Admin.Runtime.Rcon
             packet.HandleResponse(lastMessage);
             lastMessage = null;
         }
+
+        /// <summary>Connects to rcon-server and authenticates</summary>
         public void Say(string message)
         {
-            Send("/say " + message);
+            SendCommand("say", message);
         }
 
+        public void SendCommand(string command, params string[] p)
+        {
+            Send(command + " " + string.Join(" ", p));
+        }
+
+        /// <summary>Connects to rcon-server and authenticates</summary>
         private void Start()
         {
             if (running) return;
@@ -125,6 +160,8 @@ namespace SWBF2Admin.Runtime.Rcon
             workThread = new Thread(WorkThread_Run);
             workThread.Start();
         }
+
+        /// <summary>Closes the current connection</summary>
         private void Stop()
         {
             running = false;
@@ -132,6 +169,7 @@ namespace SWBF2Admin.Runtime.Rcon
             if (workThread != null) workThread.Join();
         }
 
+        /// <summary>Sends authentication to server</summary>
         private void Login()
         {
             byte[] buf = Util.StrToBytes(Util.Md5(ServerPassword));
@@ -140,17 +178,22 @@ namespace SWBF2Admin.Runtime.Rcon
             writer.Flush();
             if (reader.ReadByte() != 0x01) throw new RconNotAuthorizedException();
         }
+
+        /// <summary>Sends a raw string to the server</summary>
         private void Send(string command)
         {
-            byte[] buffer = Util.StrToBytes(command);
+            //filter any /'s to prevent command injection
+            byte[] buffer = Util.StrToBytes(FilterString(command));
 
             writer.Write((byte)1);
-            writer.Write((byte)(buffer.Length + 1));
+            writer.Write((byte)(buffer.Length + 2));
+            writer.Write('/');
             writer.Write(buffer);
             writer.Write((byte)0);
             writer.Flush();
         }
 
+        /// <summary>Thread handling inbound data</summary>
         private void WorkThread_Run()
         {
             string message = string.Empty;
@@ -183,7 +226,7 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             catch (Exception e)
             {
-                if(running) Logger.Log(LogLevel.Warning, "Rcon disconnected. {0}", e.ToString());
+                if (running) Logger.Log(LogLevel.Warning, "Rcon disconnected. {0}", e.ToString());
             }
             reader.Close();
             writer.Close();
@@ -192,6 +235,9 @@ namespace SWBF2Admin.Runtime.Rcon
 
             InvokeEvent(Disconnected, this, new EventArgs());
         }
+
+        /// <summary>Processes messages received by the server</summary>
+        /// <param name="message">messaged received from server</param>
         private void ProcessMessage(string message)
         {
             if (message.Length > 0)
@@ -216,6 +262,12 @@ namespace SWBF2Admin.Runtime.Rcon
                 }
             }
         }
+
+        /// <summary>
+        /// Checks if the specified message is a chat-message. If so, the message is processed.
+        /// <para>If the message was processed, true is returned.</para>
+        /// </summary>
+        /// <param name="message">messaged received from server</param>
         private bool HandleChat(string message)
         {
             if (message[0] != '\t') return false;
@@ -232,6 +284,12 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             return true;
         }
+
+        /// <summary>
+        /// Checks if the specified message is a status-message. If so, the message is processed.
+        /// <para>If the message was processed, true is returned.</para>
+        /// </summary>
+        /// <param name="message">messaged received from server</param>
         private bool HandleStatusMessage(string message)
         {
             switch (message)

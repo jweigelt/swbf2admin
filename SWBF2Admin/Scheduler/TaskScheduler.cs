@@ -26,6 +26,9 @@ namespace SWBF2Admin.Scheduler
             repeatingTasks = new List<RepeatingSchedulerTask>(); ;
         }
 
+        /// <summary>
+        /// Starts the scheduler's workthread
+        /// </summary>
         public void Start()
         {
             running = true;
@@ -33,6 +36,9 @@ namespace SWBF2Admin.Scheduler
             workThread.Start();
         }
 
+        /// <summary>
+        /// Stops the scheduler's workthread
+        /// </summary>
         public void Stop()
         {
             running = false;
@@ -43,30 +49,54 @@ namespace SWBF2Admin.Scheduler
             }
         }
 
+        /// <summary>
+        /// Adds a task to the queue
+        /// </summary>
+        /// <param name="task">Task to be executed</param>
         public void PushTask(SchedulerTask task)
         {
             taskQueue.Enqueue(task);
         }
 
+        /// <summary>
+        /// Adds a task to the queue
+        /// </summary>
+        /// <param name="d">Delegate to be executed</param>
         public void PushTask(SchedulerTask.TaskDelegate d)
         {
             taskQueue.Enqueue(new SchedulerTask(d));
         }
 
+        /// <summary>
+        /// Adds a repeating task to the list
+        /// </summary>
+        /// <param name="task">Task to be executed</param>
         public void PushRepeatingTask(RepeatingSchedulerTask task)
         {
             repeatingTasks.Add(task);
         }
+
+        /// <summary>
+        /// Adds a repeating task to the list
+        /// </summary>
+        /// <param name="task">Task to be executed</param>
+        /// <param name="interval">Delay between running the task</param>
         public void PushRepeatingTask(SchedulerTask.TaskDelegate d, int interval)
         {
             repeatingTasks.Add(new RepeatingSchedulerTask(d, interval));
         }
 
+        /// <summary>
+        /// Removes all repeating tasks
+        /// </summary>
         public void ClearRepeatingTasks()
         {
             repeatingTasks.Clear();
         }
 
+        /// <summary>
+        /// Mainthread
+        /// </summary>
         private void DoWork()
         {
             while (running)
