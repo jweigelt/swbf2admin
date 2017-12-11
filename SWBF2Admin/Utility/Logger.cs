@@ -84,5 +84,20 @@ namespace SWBF2Admin.Utility
                 mtx.ReleaseMutex();
             }
         }
+
+        public static void Info(string message, params string[] args)
+        {
+            Logger.Log(LogLevel.Info, message, args);
+        }
+
+        public static void Warn(string message, params string[] args)
+        {
+            Logger.Log(LogLevel.Warning, message, args);
+        }
+
+        public static void Error(string message, params string[] args)
+        {
+            Logger.Log(LogLevel.Error, message, args);
+        }
     }
 }

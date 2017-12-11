@@ -10,6 +10,7 @@ using SWBF2Admin.Utility;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Web;
 using SWBF2Admin.Config;
+using SWBF2Admin.Runtime.Permissions;
 
 namespace SWBF2Admin.Database
 {
@@ -188,7 +189,7 @@ namespace SWBF2Admin.Database
 
             return (HasRows(Query(sql, "@keyhash", player.KeyHash)));
         }
-        public bool HasPermission(Player player, string permission)
+        public bool HasPermission(Player player, Permission permission)
         {
             string sql =
                 "SELECT " +
@@ -199,7 +200,8 @@ namespace SWBF2Admin.Database
                 "INNER JOIN prefix_players_groups ON prefix_permissions.group_id = prefix_players_groups.group_id AND prefix_players_groups.player_id = prefix_players.id " +
                 "WHERE prefix_players.keyhash = @keyhash AND prefix_permissions.permission_name = @permission";
 
-            return (HasRows(Query(sql, "@steam_id", player.KeyHash, "@permission", permission)));
+            // Permission.ToString currently returns Permission.Name, but if we used a simple enum then it would return the enum name
+            return (HasRows(Query(sql, "@steam_id", player.KeyHash, "@permission", permission.ToString())));
         }
         #endregion
         #region Web

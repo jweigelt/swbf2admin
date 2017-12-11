@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Serialization;
+using SWBF2Admin.Runtime.Permissions;
 using SWBF2Admin.Structures;
 
 namespace SWBF2Admin.Runtime.Commands.Admin
@@ -12,7 +13,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         [XmlIgnore]
         public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.cmd.kick.xml";
 
-        public CmdKick() : base("kick", "kick") { }
+        public CmdKick() : base("kick", Permission.Kick) { }
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {

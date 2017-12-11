@@ -2,19 +2,20 @@
 using SWBF2Admin.Structures;
 
 using System.Xml.Serialization;
+using SWBF2Admin.Runtime.Permissions;
 
 namespace SWBF2Admin.Runtime.Commands
 {
     abstract class ChatCommand
     {
         public string Alias { get; }
-        public string Permission { get; }
+        public Permission Permission { get; }
         public string Usage { get; }
 
         [XmlIgnore]
         public AdminCore Core { get; set; }
 
-        public ChatCommand(string alias, string permission, string usage)
+        public ChatCommand(string alias, Permission permission, string usage)
         {
             Alias = alias;
             Permission = permission;
