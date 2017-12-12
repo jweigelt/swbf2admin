@@ -3,7 +3,7 @@ using System;
 
 namespace SWBF2Admin.Structures
 {
-    class ServerInfo
+    public class ServerInfo
     {
         public ServerStatus Status { get; set; }
         public virtual int StatusId { get { return (int)Status; } }

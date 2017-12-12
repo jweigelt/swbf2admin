@@ -5,13 +5,13 @@ using SWBF2Admin.Structures;
 
 namespace SWBF2Admin.Runtime.Commands.Admin
 {
-    class CmdKick : PlayerCommand
+    public class CmdKick : PlayerCommand
     {
         [XmlIgnore]
         public const string FILE_NAME = "./cfg/cmd/kick.xml";
 
-        [XmlIgnore]
-        public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.cmd.kick.xml";
+        //[XmlIgnore]
+        //public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.cmd.kick.xml";
 
         public CmdKick() : base("kick", Permission.Kick) { }
 

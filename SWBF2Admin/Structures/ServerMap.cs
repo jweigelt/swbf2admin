@@ -3,7 +3,7 @@ using SWBF2Admin.Utility;
 using System.Collections.Generic;
 namespace SWBF2Admin.Structures
 {
-    class ServerMap
+    public class ServerMap
     {
         enum MapFlags
         {

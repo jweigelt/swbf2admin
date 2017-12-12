@@ -12,10 +12,11 @@ using SWBF2Admin.Runtime;
 using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Runtime.Game;
 using SWBF2Admin.Runtime.Announce;
+using SWBF2Admin.Runtime.Commands;
 
 namespace SWBF2Admin
 {
-    class AdminCore
+    public class AdminCore
     {
         private CoreConfiguration config;
         public CoreConfiguration Config { get { return config; } }
@@ -29,8 +30,9 @@ namespace SWBF2Admin
         public PlayerHandler Players { get; }
         public AnnounceHandler Announce { get; }
         public GameHandler Game { get; }
+        public CommandDispatcher Commands { get; }
 
-        private List<ComponentBase> Components { get; }
+        private readonly List<ComponentBase> components = new List<ComponentBase>();
 
         public AdminCore()
         {
@@ -41,15 +43,16 @@ namespace SWBF2Admin
             Players = new PlayerHandler(this);
             Announce = new AnnounceHandler(this);
             Game = new GameHandler(this);
+            Commands = new CommandDispatcher(this);
 
-            Components = new List<ComponentBase>();
-            Components.Add(Database);
-            Components.Add(Server);
-            Components.Add(WebAdmin);
-            Components.Add(Rcon);
-            Components.Add(Players);
-            Components.Add(Announce);
-            Components.Add(Game);
+            components.Add(Database);
+            components.Add(Server);
+            components.Add(WebAdmin);
+            components.Add(Rcon);
+            components.Add(Players);
+            components.Add(Announce);
+            components.Add(Game);
+            components.Add(Commands);
         }
         public void Run()
         {
@@ -69,7 +72,7 @@ namespace SWBF2Admin
 
             Announce.Broadcast += new EventHandler(Announce_Broadcast);
 
-            foreach (ComponentBase h in Components)
+            foreach (ComponentBase h in components)
             {
                 h.Configure(Config);
                 h.OnInit();
@@ -92,20 +95,19 @@ namespace SWBF2Admin
             Console.ReadLine();
 
             Scheduler.Stop();
-            foreach (ComponentBase h in Components) h.OnDeInit();
+            foreach (ComponentBase h in components) h.OnDeInit();
         }
 
         #region "Events"
         private void Server_Started(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Starting runtime management...");
-            foreach (ComponentBase h in Components) h.OnServerStart();
+            foreach (ComponentBase h in components) h.OnServerStart();
         }
         private void Server_Stopped(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
-            foreach (ComponentBase h in Components) h.OnServerStop();
-
+            foreach (ComponentBase h in components) h.OnServerStop();
         }
         private void Server_Crashed(object sender, EventArgs e)
         {

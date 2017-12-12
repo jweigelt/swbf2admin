@@ -4,7 +4,7 @@ using SWBF2Admin.Structures;
 using SWBF2Admin.Runtime.Rcon.Packets;
 namespace SWBF2Admin.Runtime.Game
 {
-    class GameHandler : ComponentBase
+    public class GameHandler : ComponentBase
     {
         private ServerInfo latestInfo;
         public ServerInfo LatestInfo { get { return latestInfo; } }
@@ -35,7 +35,7 @@ namespace SWBF2Admin.Runtime.Game
             DisableUpdates();
         }
 
-        public override void OnUpdate()
+        protected override void OnUpdate()
         {
             StatusPacket sp = new StatusPacket();
             Core.Rcon.SendPacket(sp);

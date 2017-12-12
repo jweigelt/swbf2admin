@@ -4,7 +4,7 @@ using SWBF2Admin.Structures;
 
 namespace SWBF2Admin.Runtime
 {
-    class PlayerHandler : ComponentBase
+    public class PlayerHandler : ComponentBase
     {
         /// <summary>List containing all connected players</summary>
         public virtual List<Player> PlayerList { get { return playerList; } }
@@ -25,7 +25,7 @@ namespace SWBF2Admin.Runtime
             DisableUpdates();
         }
 
-        public override void OnUpdate()
+        protected override void OnUpdate()
         {
             PlayerListPacket plp = new PlayerListPacket();
             Core.Rcon.SendPacket(plp);

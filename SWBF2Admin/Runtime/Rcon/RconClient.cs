@@ -14,7 +14,7 @@ namespace SWBF2Admin.Runtime.Rcon
     /// <summary>
     /// class for connecting to the remote console ("rcon") server
     /// </summary>
-    class RconClient : ComponentBase
+    public class RconClient : ComponentBase
     {
         public RconClient(AdminCore core) : base(core) { }
         public override void OnServerStart()

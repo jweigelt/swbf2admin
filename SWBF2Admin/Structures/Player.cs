@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace SWBF2Admin.Structures
 {
-    class Player
+    public class Player
     {
         public byte Slot { get; }
 

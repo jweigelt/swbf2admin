@@ -5,7 +5,7 @@ using SWBF2Admin.Structures.Attributes;
 using SWBF2Admin.Utility;
 namespace SWBF2Admin.Structures
 {
-    class ServerSettings
+    public class ServerSettings
     {
         private const string FILE_NAME = "/settings/ServerSettings.cfg";
 

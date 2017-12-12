@@ -8,9 +8,9 @@ using SWBF2Admin.Utility;
 
 namespace SWBF2Admin.Web.Pages
 {
-    class AjaxPage : WebPage
+    abstract class AjaxPage : WebPage
     {
-        public string Template { get; }
+        protected string Template { get; }
 
         public AjaxPage(AdminCore core, string url, string template) : base(core, url)
         {
@@ -59,7 +59,7 @@ namespace SWBF2Admin.Web.Pages
             WebAdmin.SendHtml(ctx, "Change me.");
         }
 
-        public T TryJsonParse<T>(HttpListenerContext ctx, string json)
+        protected T TryJsonParse<T>(HttpListenerContext ctx, string json)
         {
             T obj = default(T);
             try
@@ -74,7 +74,7 @@ namespace SWBF2Admin.Web.Pages
             return obj;
         }
 
-        public string ToJson<T>(T obj)
+        protected string ToJson<T>(T obj)
         {
             return JsonConvert.SerializeObject(obj);
         }

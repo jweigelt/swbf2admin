@@ -11,7 +11,7 @@ using SWBF2Admin.Config;
 
 namespace SWBF2Admin.Web
 {
-    class WebServer : ComponentBase
+    public class WebServer : ComponentBase
     {
         private List<WebPage> webpages = new List<WebPage>();
         private string prefix = "http://localhost:8080/";

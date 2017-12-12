@@ -15,7 +15,7 @@ using SWBF2Admin.Runtime.Permissions;
 namespace SWBF2Admin.Database
 {
     public enum DbType { SQLite, MySQL }
-    class SQLHandler : ComponentBase
+    public class SQLHandler : ComponentBase
     {
         public DbType SQLType { get; set; } = DbType.SQLite;
 

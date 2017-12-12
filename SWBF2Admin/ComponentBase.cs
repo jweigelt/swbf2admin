@@ -3,9 +3,9 @@ using SWBF2Admin.Scheduler;
 using SWBF2Admin.Config;
 namespace SWBF2Admin
 {
-    class ComponentBase
+    public class ComponentBase
     {
-        public AdminCore Core { get; set; }
+        protected AdminCore Core { get; }
 
         public int UpdateInterval { get; set; } = -1;
         private bool enableUpdate = false;
@@ -32,7 +32,7 @@ namespace SWBF2Admin
         public virtual void OnServerStop() { }
 
         ///<summary>Called in a periodic interval, if UpdateInterval is greater than 0 and EnableUpdates() was called.</summary>
-        public virtual void OnUpdate() { }
+        protected virtual void OnUpdate() { }
 
         ///<summary>Wrapper-function for OnUpdate</summary>
         public void Update()
@@ -64,13 +64,13 @@ namespace SWBF2Admin
         }
 
         ///<summary>Enabled periodic calls to OnUpdate(), if UpdateInterval is greater than 0</summary>
-        public void EnableUpdates()
+        protected void EnableUpdates()
         {
             enableUpdate = true;
         }
 
         ///<summary>Disables calls to OnUpdate();</summary>
-        public void DisableUpdates()
+        protected void DisableUpdates()
         {
             enableUpdate = false;
         }

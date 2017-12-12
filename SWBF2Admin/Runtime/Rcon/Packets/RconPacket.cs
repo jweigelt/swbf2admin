@@ -1,6 +1,6 @@
 ﻿namespace SWBF2Admin.Runtime.Rcon.Packets
 {
-    class RconPacket
+    public class RconPacket
     {
         public string Command { get; }
         public bool PacketOk { get; set; } = false;

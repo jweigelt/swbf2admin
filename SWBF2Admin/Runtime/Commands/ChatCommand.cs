@@ -6,7 +6,7 @@ using SWBF2Admin.Runtime.Permissions;
 
 namespace SWBF2Admin.Runtime.Commands
 {
-    abstract class ChatCommand
+    public abstract class ChatCommand
     {
         public string Alias { get; }
         public Permission Permission { get; }

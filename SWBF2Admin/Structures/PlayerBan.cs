@@ -3,14 +3,14 @@ using Newtonsoft.Json;
 
 namespace SWBF2Admin.Structures
 {
-    enum BanType
+    public enum BanType
     {
         ShowAll = -1,   //only used for webadmin
         Keyhash = 0,
         IPAddress = 1
     }
 
-    class PlayerBan
+    public class PlayerBan
     {
         public long DatabaseId { get; }
 

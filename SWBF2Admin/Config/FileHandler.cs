@@ -9,7 +9,7 @@ namespace SWBF2Admin.Config
     /// <summary>
     /// class handling file I/O
     /// </summary>
-    class FileHandler
+    public class FileHandler
     {
         /// <summary>
         /// Resolves relative filename and returns full path

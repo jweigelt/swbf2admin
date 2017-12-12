@@ -4,7 +4,7 @@ using SWBF2Admin.Runtime.Permissions;
 
 namespace SWBF2Admin.Runtime.Commands.Admin
 {
-    abstract class PlayerCommand : ChatCommand
+    public abstract class PlayerCommand : ChatCommand
     {
         public string OnNoPlayerGiven { get; set; } = "No player specified. Usage: {usage}";
         public string OnNoPlayerFound { get; set; } = "No player matching {playerexp} could be found.";

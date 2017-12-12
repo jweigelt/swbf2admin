@@ -2,7 +2,7 @@
 
 namespace SWBF2Admin.Web
 {
-    class WebUser
+    public class WebUser
     {
         public long Id { get; }
         public string Username { get; }

@@ -3,7 +3,7 @@ using SWBF2Admin.Config;
 
 namespace SWBF2Admin.Runtime.Announce
 {
-    class AnnounceHandler : ComponentBase
+    public class AnnounceHandler : ComponentBase
     {
         /// <summary>Invoked when a announce has to be broadcasted</summary>
         public event EventHandler Broadcast = null;
@@ -28,7 +28,7 @@ namespace SWBF2Admin.Runtime.Announce
         {
             DisableUpdates();
         }
-        public override void OnUpdate()
+        protected override void OnUpdate()
         {
             InvokeEvent(Broadcast, this, new AnnounceEventArgs(config.AnnounceList[currentIdx++]));
             if (currentIdx == config.AnnounceList.Count) currentIdx = 0;

@@ -8,7 +8,7 @@ using SWBF2Admin.Config;
 
 namespace SWBF2Admin.Gameserver
 {
-    enum ServerStatus
+    public enum ServerStatus
     {
         Online = 0,
         Offline = 1,
@@ -17,7 +17,7 @@ namespace SWBF2Admin.Gameserver
     }
 
     ///<summary>class handling the gameserver-process</summary>
-    class ServerManager : ComponentBase
+    public class ServerManager : ComponentBase
     {
         ///<summary>Called if the server-process exits unexpectedly</summary>
         public event EventHandler ServerCrashed;
