@@ -53,16 +53,21 @@ namespace SWBF2Admin.Runtime.Commands
                 if (c.Match(command, parameters))
                 {
                     List<Player> players = Core.Players.GetPlayers(name, false, true);
-                    if (players.Count == 1)
+                    if (players.Count != 1)
                     {
-                        //permissions could be checked here
-
-                        Logger.Log(LogLevel.Verbose, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, name);
-                        c.Run(players[0], command, parameters);
+                        Logger.Log(LogLevel.Verbose,
+                            "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, c.Alias);
+                    }
+                    // TODO Use permissions
+                    else if (!Core.Database.HasPermission(players[0], c.Permission))
+                    {
+                        Logger.Log(LogLevel.Verbose,
+                            "Player \"{0}\" doesnt have permission for \"{1}\"", players[0].Name, c.Alias);
                     }
                     else
                     {
-                        Logger.Log(LogLevel.Verbose, "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, c.Alias);
+                        Logger.Log(LogLevel.Verbose, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, name);
+                        c.Run(players[0], command, parameters);
                     }
                     return;
                 }

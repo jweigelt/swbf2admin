@@ -10,22 +10,26 @@ namespace SWBF2Admin.Runtime.Permissions
      * more complex data than just a name and number value. I dont know if we will actually need this,
      * but its very easy to turn this into a normal enum if we dont.
      */
-    public sealed class Permission
+    public class Permission
     {
-        private static readonly ISet<Permission> Permissions = new HashSet<Permission>();
-        public int Value { get; }
+        private static IDictionary<int, Permission> _permissions = new Dictionary<int, Permission>();
+        private static IDictionary<string, int> _permissionNameToId = new Dictionary<string, int>();
+        public int Id { get; }
         public string Name { get; }
+        public IList<PermissionGroup> Groups { get; }
 
-        public static readonly Permission Kick = new Permission(1, "kick");
-        public static readonly Permission Ban = new Permission(2, "ban");
-        public static readonly Permission SetMap = new Permission(3, "map");
-
-        private Permission(int value, string name)
+        public Permission(int id, string name, IList<PermissionGroup> groups)
         {
-            this.Value = value;
+            this.Id = id;
             this.Name = name;
 
-            Permissions.Add(this);
+            if (groups != null)
+            {
+                this.Groups = groups;
+            }
+
+            _permissions[id] = this;
+            _permissionNameToId[name] = id;
         }
 
         public override string ToString()
@@ -39,12 +43,12 @@ namespace SWBF2Admin.Runtime.Permissions
             {
                 return false;
             }
-            return ((Permission) obj).Value == this.Value;
+            return ((Permission) obj).Id == this.Id;
         }
 
         public override int GetHashCode()
         {
-            return this.Value;
+            return this.Id;
         }
 
         public static bool operator==(Permission a, Permission b)
@@ -55,6 +59,26 @@ namespace SWBF2Admin.Runtime.Permissions
         public static bool operator !=(Permission a, Permission b)
         {
             return !object.Equals(a, b);
+        }
+
+        public static void InitPermissions(IDictionary<int, Permission> permissions)
+        {
+            _permissions = permissions;
+        }
+
+        public static IDictionary<int, Permission> GetPermissions()
+        {
+            return new Dictionary<int, Permission>(_permissions);
+        }
+
+        public static Permission FromId(int id)
+        {
+            return _permissions.TryGetValue(id, out var permission) ? permission : null;
+        }
+
+        public static Permission FromName(string name)
+        {
+            return _permissionNameToId.TryGetValue(name, out var id) ? FromId(id) : null;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         //[XmlIgnore]
         //public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.cmd.kick.xml";
 
-        public CmdKick() : base("kick", Permission.Kick) { }
+        public CmdKick() : base("kick", "kick") { }
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {
