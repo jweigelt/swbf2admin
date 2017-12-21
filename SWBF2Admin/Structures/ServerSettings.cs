@@ -49,13 +49,11 @@ namespace SWBF2Admin.Structures
         public string NetRegion { get; set; } = "EU";
 
         [ConfigSection(ConfigSection.GENERAL_KEEPDEFAULT)]
-        public string VideoStd { get; set; } = "NTSC";
+        public string VideoStd { get; set; } = "NTSC";   
 
+        #region "Heroes"
         [ConfigSection(ConfigSection.GAME)]
         public bool Heroes { get; set; } = false;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public bool Awards { get; set; } = true;
 
         [ConfigSection(ConfigSection.GAME)]
         public ushort HrUnlock { get; set; } = 3;
@@ -64,49 +62,63 @@ namespace SWBF2Admin.Structures
         public ushort HrUnlockValue { get; set; } = 10;
 
         [ConfigSection(ConfigSection.GAME)]
-        public ushort HrPlayer { get; set; } = 8;
+        public ushort HrPlayer { get; set; } = 0;
 
         [ConfigSection(ConfigSection.GAME)]
         public ushort HrTeam { get; set; } = 0;
 
         [ConfigSection(ConfigSection.GAME)]
         public ushort HrRespawn { get; set; } = 90;
+        #endregion
 
+        #region "CON"
         [ConfigSection(ConfigSection.GAME)]
         public ushort ConTimeLimit { get; set; } = 0;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public ushort CTFTimeLimit { get; set; } = 0;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public ushort HunTimeLimit { get; set; } = 0;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public ushort CTFScoreLimit { get; set; } = 5;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public ushort AssScoreLimit { get; set; } = 0;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public ushort HuntScoreLimit { get; set; } = 0;
-
         [ConfigSection(ConfigSection.GAME)]
         public ushort ConReinforcements { get; set; } = 100;
-
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort ConAiperTeam { get; set; } = 0;
+        #endregion
+        #region "CTF"
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort CTFScoreLimit { get; set; } = 5;
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort CTFTimeLimit { get; set; } = 0;
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort CTFAiPerTeam { get; set; } = 0;
+        #endregion
+        #region "HUNT"
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort HuntScoreLimit { get; set; } = 0;
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort HunTimeLimit { get; set; } = 0;
+        #endregion
+        #region "ASS"
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort AssScoreLimit { get; set; } = 0;
         [ConfigSection(ConfigSection.GAME)]
         public ushort AssReinforcements { get; set; } = 0;
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort AssAiPerTeam { get; set; } = 0;
+        #endregion
+        #region "ELI"
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort EliTimeLimit { get; set; } = 0;
+        [ConfigSection(ConfigSection.GAME)]
+        public ushort EliAiPerTeam { get; set; } = 0;
+        #endregion
+
+        [ConfigSection(ConfigSection.GAME)]
+        public bool Shownames { get; set; } = true;
 
         [ConfigSection(ConfigSection.GAME)]
         public bool TeamDamage { get; set; } = true;
 
         [ConfigSection(ConfigSection.GAME)]
+        public bool Awards { get; set; } = true;
+
+        [ConfigSection(ConfigSection.GAME)]
         public bool AutoAssignTeams { get; set; } = false;
-
-        [ConfigSection(ConfigSection.GENERAL)]
-        public bool Shownames { get; set; } = true;
-
-        [ConfigSection(ConfigSection.MAPS)]
-        public bool Randomize { get; set; } = false;
 
         [ConfigSection(ConfigSection.GAME)]
         public ushort Difficulty { get; set; } = 3;
@@ -124,16 +136,10 @@ namespace SWBF2Admin.Structures
         public ushort TeamVoteThreshold { get; set; } = 0;
 
         [ConfigSection(ConfigSection.GAME)]
-        public ushort ConAiperTeam { get; set; } = 0;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public ushort CTFAiPerTeam { get; set; } = 0;
-
-        [ConfigSection(ConfigSection.GAME)]
-        public ushort AssAiPerTeam { get; set; } = 0;
-
-        [ConfigSection(ConfigSection.GAME)]
         public bool AimAssist { get; set; } = false;
+
+        [ConfigSection(ConfigSection.MAPS)]
+        public bool Randomize { get; set; } = false;
 
         //Attention: messy code ahead
         public static ServerSettings FromSettingsFile(AdminCore core, string path)

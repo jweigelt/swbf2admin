@@ -1,6 +1,6 @@
-<div class="default">
+<div class="default" id="game_div_container">
   <h2>Game Settings</h2>
-  <div style="width: 50%;" class="general">
+  <div class="settings autoscale">
 
     <div class="item">
       <span>Save changes</span>      
@@ -13,63 +13,126 @@
     <div id="game_div_error"></div>
   
     <div class="item">
+      <span>
+        Gamemode settings
+        <span id="game_tabs" class="tabs">
+          <a id="game_a_con" href="tab_con" class="active">CON</a>
+          <a id="game_a_ctf" href="tab_ctf">CTF</a>
+          <a id="game_a_ass" href="tab_ass">ASS</a>
+          <a id="game_a_eli" href="tab_eli">ELI</a>
+          <a id="game_a_hunt" href="tab_hunt">HUNT</a>
+        </span>
+      </span>
+      
+      <div id="tab_con">
+        <table class="status embedded">
+          <tr class="runtime"><th>Reinforcements</th><td><input type="number" id="game_input_con_reinforcements" min="0" max="500"></td></tr>
+          <tr class="runtime"><th>Time limit [m]</th><td><input type="number" id="game_input_com_time" min="0" max="90"></td></tr>
+          <tr class="runtime"><th>Bots</th><td><input type="number" id="game_input_con_aiperteam" min="0" max="32"></td></tr>
+        </table>
+      </div>
+        
+      <div id="tab_ctf">
+        <table class="status embedded">
+          <tr class="runtime"><th>Score limit</th><td><input type="number" id="game_input_ctf_score" min="0" max="15"></td></tr>
+          <tr class="runtime"><th>Time limit [m]</th><td><input type="number" id="game_input_ctf_time" min="0" max="90"></td></tr>
+          <tr class="runtime"><th>Bots</th><td><input type="number" id="game_input_ctf_aiperteam" min="0" max="32"></td></tr>
+        </table>
+      </div>
+      
+      <div id="tab_ass">
+        <table class="status embedded">
+          <tr class="runtime"><th>Reinforcements</th><td><input type="number" id="game_input_ass_reinforcements" min="0" max="500"></td></tr>
+          <tr class="runtime"><th>Score limit</th><td><input type="number" id="game_input_ass_score" min="0" max="500"></td></tr>
+          <tr class="runtime"><th>Bots</th><td><input type="number" id="game_input_ass_aiperteam" min="0" max="32"></td></tr>
+        </table>            
+      </div>
+      
+      <!--Not sure if these settings are used at all, but they are ref'd in the exe-->
+      <div id="tab_eli">
+        <table class="status embedded">
+          <tr class="runtime"><th>Time limit</th><td><input type="number" id="game_input_eli_time" min="0" max="90"></td></tr>
+          <tr class="runtime"><th>Bots</th><td><input type="number" id="game_input_eli_aiperteam" min="0" max="32"></td></tr>
+        </table>    
+      </div>
+      
+      <div id="tab_hunt">
+        <table class="status embedded">
+          <tr class="runtime"><th>Score limit</th><td><input type="number" id="game_input_hunt_score" min="0" max="500"></td></tr>
+          <tr class="runtime"><th>Time limit [m]</th><td><input type="number" id="game_input_hunt_time" min="0" max="90"></td></tr>
+        </table>       
+      </div>      
+    </div>
+  
+    <div class="item">
       <span>Heroes</span>
       <table class="status embedded">
-        <tr><th>Enable</th><td><input type="checkbox"></td></tr>
+        <tr class="runtime"><th>Enable</th><td><input type="checkbox" id="game_input_hero_enable"></td></tr>
         
-        <tr><th>Unlock trigger</th><td>
-        <select>
-          <option>reinforcements</option>
-          <option>points</option>
-          <option>kills</option>                  
-          <option>time</option>
-          <option>captures</option>
+        <tr class="runtime"><th>Unlock trigger</th><td>
+        <select id="game_select_hero_unlock_trigger">
+          <option value="0">always</option>
+          <option value="1">captures</option>
+          <option value="2">kills</option>    
+          <option value="3">points</option>
+          <option value="4">reinforcements</option>        
+          <option value="5">time</option>
         </select>
         </td></tr>
         
-        <tr><th>Unlock value</th><td><input type="text"></td></tr>
+        <tr class="runtime"><th>Unlock value</th><td><input type="number" id="game_input_hero_unlock_value" min="0"></td></tr>
         
-        <tr><th>Teams</th><td>
-        <select>
-          <option>one team</option>
-          <option>simultaneous</option>
-          <option>separate</option>                  
-          <option>cycle</option>
+        <tr class="runtime"><th>Teams</th><td>
+        <select id="game_select_hero_team">
+          <option value="0">one team</option>
+          <option value="1">simultaneous</option>
+          <option value="2">separate</option>                  
+          <option value="3">cycle</option>
         </select></td></tr>
         
-        <tr><th>Assign to Player</th><td>
-        <select>
-          <option>most points</option>
-          <option>most kills</option>
-          <option>most deaths</option>                  
-          <option>least points</option>
-          <option>least kills</option>
-          <option>least deaths</option>   
-          <option>random</option>  
-          <option>killed last hero</option>  
+        <tr class="runtime"><th>Assign to player</th><td>
+        <select id="game_select_hero_player">
+          <!--TODO: figure values out-->
+          <option value="1">most points</option>
+          <option value="2">most kills</option>
+          <option value="3">most deaths</option>                  
+          <option value="4">least points</option>
+          <option value="5">least kills</option>
+          <option value="6">least deaths</option>   
+          <option value="7">random</option>  
+          <option value="8">killed last hero</option>  
         </select></td></tr>
         
-        <tr><th>Respawn timeout</th><td><input type="text"></td></tr>
+        <tr class="runtime"><th>Respawn timeout [s]</th><td><input type="number" id="game_input_hero_timeout" min="0"></td></tr>
       </table>   
     </div>
     
     <div class="item">
       <span>Miscellaneous</span>
       <table class="status embedded">
-        <tr><th>Enable friendly fire</th><td><input type="text"></td></tr>
-        <tr><th>Teams</th><td><input type="text"></td></tr>
-        <tr><th>Warmup time</th><td><input type="text"></td></tr>
-        <tr><th>Spawn invinciblity time</th><td><input type="text"></td></tr>
+        <tr class="runtime"><th>Enable friendly fire</th><td><input type="checkbox" id="game_input_ff_enable"></td></tr>
+        <tr class="runtime"><th>Enable awards</th><td><input type="checkbox" id="game_input_awards_enable"></td></tr>
+        <tr class="runtime"><th>Show player names</th><td><input type="checkbox" id="game_input_names_enable"></td></tr>
+        
+        <tr class="runtime"><th>Teams</th><td>
+        <select id="game_select_teams">
+          <option value="true">assign</option>
+          <option value="false">let player choose</option>
+        </select></td></tr>
+        
+        <tr class="runtime"><th>Warmup time [s]</th><td><input type="number" id="game_input_warmup" min="0" max="120"></td></tr>
+        <tr class="runtime"><th>Spawn protection [s]</th><td><input type="number" id="game_input_spawn" min="0" max="10"></td></tr>
       </table>   
     </div>
 
     <div class="item">
       <span>Votekick</span>
       <table class="status embedded">
-        <tr><th>Kick player ratio [&#37;]</th><td><input type="text"></td></tr>
-        <tr><th>Kick team player ratio [&#37;]</th><td><input type="text"></td></tr>
+        <tr class="runtime"><th>Kick player ratio [&#37;]</th><td><input type="number" id="game_input_kick_ratio" min="0" max="100"></td></tr>
+        <tr class="runtime"><th>Kick team player ratio [&#37;]</th><td><input type="number" id="game_input_kick_team_ratio" min="0" max="100"></td></tr>
       </table>   
     </div>    
   </div>
 </div>
+<script type="text/javascript" src="/res/tab.js"></script>
 <script type="text/javascript" src="/res/game.js"></script>

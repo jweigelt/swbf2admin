@@ -24,6 +24,15 @@ body > table {
   border-collapse: collapse;
 }
 
+/**
+ *  Increase relative scaling for content-divs if 4:3 screen is use
+ **/ 
+.autoscale { width: 70%; } 
+@media (max-width: 1280px) { .autoscale { width: 100%; } }                          
+
+/**
+ *  Frame
+ **/
 td#account {
   text-align: right;
 }
@@ -49,7 +58,9 @@ td#logo, td#account {
 }
 
 td#logo, td#navigation {
-  width: 13em; padding: 0 1em 0 1em;
+  min-width: 6em;
+  width: 20%;
+  padding: 0 1em 0 1em;
 }
 
 td#logo {
@@ -127,7 +138,7 @@ div.error > span {
   background: #f4a742;
   color: #3a4049;
 }
-
+   
 div.info > span {
   background: #00cbff;
   color: #3a4049;  
@@ -194,6 +205,7 @@ table.embedded tr:hover {
 
 table.embedded td {
   white-space: nowrap;
+  padding-right: .5em;
 }
 
 table.embedded th {
@@ -252,6 +264,34 @@ a.button:hover {
   color: #ffffff;
 }
 
+
+/**
+ *  Tab-Control
+ **/
+span.tabs {
+  float: right; 
+  padding-right: .5em; 
+}  
+
+span.tabs a {
+  color: inherit;
+  text-decoration: inherit;
+  line-height: 1.5em;
+  padding: .25em;
+  border-radius: .25em;
+  display: inline-block;
+  border: 1px solid #a8a8a8;
+}
+
+span.tabs a:hover {
+  background: #a8a8a8;
+  color: #3a4049;
+}
+
+span.tabs a.active {
+  background: #00cbff;
+  color: #ffffff;
+}
 
 /**
  *  Status Tab
@@ -393,12 +433,26 @@ div.legend i {
 }
 
 /**
- *  General Settings Tab
+ *  Settings Tabs
  **/
-.general input, .general select {
-  width: 20em;
-} 
- 
+.settings input, .settings select {
+  width: 100%;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.settings input[type=checkbox] {
+  width: auto;
+  margin-left: 0;
+}
+
+a#game_a_con.active { }
+a#game_a_ctf.active { background: #f4a742; }
+a#game_a_ass.active { background: #7fd173; }
+a#game_a_eli.active { background: #ff5e42; }
+a#game_a_hunt.active { background: #df6dff; }
+                                                
 /**
  *  Map Rotation Tab
  **/
@@ -458,6 +512,3 @@ div.group span {
 table.groups tr.active {
   background: #fff;
 }
-
-
-

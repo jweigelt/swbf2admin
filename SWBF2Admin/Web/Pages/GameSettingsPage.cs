@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using SWBF2Admin.Structures;
+using SWBF2Admin.Structures.Attributes;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -6,9 +9,63 @@ namespace SWBF2Admin.Web.Pages
     {
         public GameSettingsPage(AdminCore core) : base(core, Constants.WEB_URL_SETTINGS_GAME, Constants.WEB_FILE_SETTINGS_GAME) { }
 
+        class GameSettingsApiParams : ApiRequestParams
+        {
+            public ServerSettings Settings { get; set; }
+        }
+        class GameSettingsResponse
+        {
+            public ServerSettings Settings { get; }
+            public GameSettingsResponse(ServerSettings settings)
+            {
+                Settings = settings;
+            }
+        }
+        class GameSettingsSaveResponse
+        {
+            public bool Ok { get; set; }
+            public string Error { get; set; }
+            public GameSettingsSaveResponse(Exception e)
+            {
+                Ok = false;
+                Error = e.Message;
+            }
+            public GameSettingsSaveResponse()
+            {
+                Ok = true;
+            }
+
+        }
+
+        public override void HandleGet(HttpListenerContext ctx, WebUser user)
+        {
+            ReturnTemplate(ctx);
+        }
+
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
         {
-           
+            GameSettingsApiParams p = null;
+            if ((p = TryJsonParse<GameSettingsApiParams>(ctx, postData)) == null) return;
+
+            switch (p.Action)
+            {
+                case "game_get":
+                    WebAdmin.SendHtml(ctx, ToJson(new GameSettingsResponse(Core.Server.Settings)));
+                    break;
+
+                case "game_set":
+                    Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GAME);
+                    try
+                    {
+                        Core.Server.Settings.WriteToFile(Core);
+                        WebAdmin.SendHtml(ctx, ToJson(new GameSettingsSaveResponse()));
+                    }
+                    catch (Exception e)
+                    {
+                        WebAdmin.SendHtml(ctx, ToJson(new GameSettingsSaveResponse(e)));
+                    }
+                    break;
+            }
         }
     }
 }

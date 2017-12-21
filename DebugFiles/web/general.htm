@@ -1,6 +1,6 @@
 <div class="default">    
   <h2>General Settings</h2>
-  <div style="width: 50%;" class="general">
+  <div class="settings autoscale">
 
     <div class="item">
       <span>Save changes</span>      
@@ -17,9 +17,9 @@
       <table class="status embedded">
         <tr class="fixed"><th>Session name</th><td><input id="general_input_session_name" type="text"></td></tr>
         <tr class="fixed"><th>Password</th><td><input id="general_input_password" type="text"></td></tr>
-        <tr class="runtime"><th>Admin Password</th><td><input id="general_input_admin_password" type="text"></td></tr>
-        <tr class="fixed"><th>Max. Players</th><td><input id="general_input_max_players" type="number" min="1" max="64"></td></tr>  
-        <tr class="fixed"><th>Min. Players</th><td><input id="general_input_min_players" type="number" min="0" max="64"></td></tr>                 
+        <tr class="runtime"><th>Admin password</th><td><input id="general_input_admin_password" type="text"></td></tr>
+        <tr class="fixed"><th>Max. players</th><td><input id="general_input_max_players" type="number" min="1" max="64"></td></tr>  
+        <tr class="fixed"><th>Min. players</th><td><input id="general_input_min_players" type="number" min="0" max="64"></td></tr>                 
         <tr class="runtime"><th>TPS</th><td><input id="general_input_tps" type="number" min="15" max="30" step="5"></td></tr> 
       </table>   
     </div>
@@ -28,17 +28,17 @@
       <span>Network</span>
       <table class="status embedded">
         <tr class="fixed">
-          <th>Bind Address</th>
+          <th>Bind address</th>
           <td><select id="general_select_ipa"></select></td>
         </tr>
         
         <tr class="fixed">
-          <th>Game Port</th>
+          <th>Game port</th>
           <td><input id="general_input_gameport" type="number" min="0" max="65535"></td>
         </tr>  
         
         <tr class="fixed">
-          <th>Rcon Port</th>
+          <th>Rcon port</th>
           <td><input id="general_input_rconport" type="number" min="0" max="65535"></td>
         </tr>  
                        
@@ -53,7 +53,7 @@
         </tr> 
         
         <tr class="runtime">
-          <th>Max. Bandwidth</th>
+          <th>Max. bandwidth</th>
           <td>
             <select id="general_select_bandwidth">
               <option value="6144">6 Mbit/s</option>

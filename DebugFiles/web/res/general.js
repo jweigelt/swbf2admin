@@ -10,7 +10,7 @@ function General() {
       base.saveSettings();  
     });
     
-    base.updateSettings();
+    base.updateSettings();   
   };  
   
   this.onStatusChange = function(online) {    
