@@ -1,20 +1,25 @@
 var GeneralUrl = "/settings/general";
+var GeneralEditTimeout = 2500;
 
 function General() {
   var base = this;
- 
-  this.events = new EventDisplay("#general_div_error"); 
+  
+  this.events = new EventDisplay("#general_div_events"); 
+  this.timeout = null;
 
   this.onInit = function() {       
-    $("#general_btn_save").click(function(){
-      base.saveSettings();  
-    });
+    $("#general_div_container input, #general_div_container select").each(function(i,e) {
+    
+      $(e).on('input propertychange paste', function(evt){
+        base.setSaved(false);
+      });   
+    });  
     
     base.updateSettings();   
   };  
   
   this.onStatusChange = function(online) {    
-    $(".fixed input, .fixed select").each(function(i,e){ $(e).prop( "disabled", online ); });
+    $(".fixed input, .fixed select").each(function(i,e){ $(e).prop( "disabled", online ); });    
   };
   
   this.onDeinit = function() { }; 
@@ -22,21 +27,18 @@ function General() {
   this.setSaved = function(r) {
     if(r != false) {
       if(r.Ok) {
-        $("#general_txt_status").attr("class", "online");
-        $("#general_txt_status").html("Settings saved");
-        return;
+        base.events.ShowInfo("Settings saved.");  
       }else{
         base.events.ShowError(r.Error);        
       }
+    } else {
+      base.events.ShowWarning("Changes not saved ...");   
+      if(base.timeout != null) clearTimeout(base.timeout);
+      base.timeout = setTimeout(function(){base.saveSettings();}, GeneralEditTimeout);
     }
-    $("#general_txt_status").attr("class", "offline");
-    $("#general_txt_status").html("Not saved");   
   };
 
-  this.saveSettings = function() {
-    $("#general_txt_status").attr("class", "loading");
-    $("#general_txt_status").html("Saving...");
-    
+  this.saveSettings = function() {    
     var settings = {
       Action: "general_set",
       Settings: { 

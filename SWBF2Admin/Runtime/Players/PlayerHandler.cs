@@ -6,8 +6,11 @@ namespace SWBF2Admin.Runtime
 {
     public class PlayerHandler : ComponentBase
     {
-        /// <summary>List containing all connected players</summary>
+        /// <summary>
+        /// List of all players currently connected to the server
+        /// </summary>
         public virtual List<Player> PlayerList { get { return playerList; } }
+
         private List<Player> playerList;
 
         public PlayerHandler(AdminCore core) : base(core)
@@ -15,6 +18,7 @@ namespace SWBF2Admin.Runtime
             playerList = new List<Player>();
             UpdateInterval = 10000;
         }
+
         public override void OnServerStart()
         {
             EnableUpdates();
@@ -31,8 +35,35 @@ namespace SWBF2Admin.Runtime
             Core.Rcon.SendPacket(plp);
             if (plp.PacketOk)
             {
+                foreach (Player p in plp.PlayerList)
+                {
+                    if (IsNew(p)) OnNewPlayerJoin(p);
+                }
                 playerList = plp.PlayerList;
             }
+        }
+
+        /// <summary>
+        /// Checks if a player just joined
+        /// </summary>
+        /// <param name="player">player to be checked</param>
+        /// <returns>true if player just joined, false if player was already online</returns>
+        private bool IsNew(Player player)
+        {
+            foreach (Player p in playerList)
+            {
+                if (p.KeyHash.Equals(player.KeyHash)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Called when a new player joins the game
+        /// </summary>
+        /// <param name="p"></param>
+        private void OnNewPlayerJoin(Player p)
+        {
+            //TODO: trigger any OnJoin Events here
         }
 
         /// <summary>Gets a copy of the current playerlist</summary>
@@ -41,6 +72,13 @@ namespace SWBF2Admin.Runtime
             return new List<Player>(playerList);
         }
 
+        /// <summary>
+        /// Gets a List of all players who match the given condition
+        /// </summary>
+        /// <param name="exp">Expression to compare the player's name against</param>
+        /// <param name="ignoreCase">Ignore case string comparision</param>
+        /// <param name="exact">Only search players if their name equals the given expression</param>
+        /// <returns>A List containing all matching players. If no players match an empty List is returned.</returns>
         public List<Player> GetPlayers(string exp, bool ignoreCase = true, bool exact = false)
         {
             List<Player> matching = new List<Player>();

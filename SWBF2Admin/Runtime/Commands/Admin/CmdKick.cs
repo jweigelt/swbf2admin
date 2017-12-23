@@ -2,16 +2,13 @@
 using System.Xml.Serialization;
 using SWBF2Admin.Runtime.Permissions;
 using SWBF2Admin.Structures;
+using SWBF2Admin.Config;
 
 namespace SWBF2Admin.Runtime.Commands.Admin
 {
+    [ConfigFileInfo(fileName: "./cfg/cmd/kick.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.kick.xml"*/)]
     public class CmdKick : PlayerCommand
     {
-        [XmlIgnore]
-        public const string FILE_NAME = "./cfg/cmd/kick.xml";
-
-        //[XmlIgnore]
-        //public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.cmd.kick.xml";
 
         public CmdKick() : base("kick", Permission.Kick) { }
 

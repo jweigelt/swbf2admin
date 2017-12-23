@@ -7,6 +7,7 @@ using SWBF2Admin.Web;
 using SWBF2Admin.Database;
 using SWBF2Admin.Gameserver;
 using SWBF2Admin.Scheduler;
+using SWBF2Admin.Structures;
 
 using SWBF2Admin.Runtime;
 using SWBF2Admin.Runtime.Rcon;
@@ -92,7 +93,15 @@ namespace SWBF2Admin
                 //Scheduler.PushTask(new SchedulerTask(OnServerStart));
             }
 
-            Console.ReadLine();
+            string cmd = string.Empty;
+
+            while((cmd = Console.ReadLine()) != "quit")
+            {
+                if (cmd == "import maps")
+                {
+                    Database.ImportMaps(ServerMap.ReadServerMapConfig(this));
+                }
+            }                  
 
             Scheduler.Stop();
             foreach (ComponentBase h in components) h.OnDeInit();

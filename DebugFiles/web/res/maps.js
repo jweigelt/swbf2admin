@@ -1,15 +1,17 @@
+//TODO: clean up map adding
 var MapsUrl = "/settings/maps";
+var MapsEditTimeout = 2500;
 
 var MapFlags = {
-  GCWCon : (1 << 0), GCWCTF : (1 << 1), GCW1Flag : (1 << 2), GCWHunt : (1 << 3), GCWEli : (1 << 4),
-  CWCon : (1 << 10), CWCTF : (1 << 11), CW1Flag : (1 << 12), CWHunt : (1 << 13), CWEli : (1 << 14)
+  GCWCon : (1 << 0), GCWCTF : (1 << 1), GCW1Flag : (1 << 2), GCWHunt : (1 << 3), GCWEli : (1 << 4), GCWAss : (1 << 5),
+  CWCon : (1 << 10), CWCTF : (1 << 11), CW1Flag : (1 << 12), CWHunt : (1 << 13), CWEli : (1 << 14), CWAss : (1 << 15)
 };
 
 function Maps() {
   var base = this;
   this.dialog = null;
   this.mapList = [];
-  this.events = new EventDisplay("#maps_div_error");
+  this.events = new EventDisplay("#maps_div_events");
 
   this.onInit = function() {       
     base.updateInstalledMaps();
@@ -29,11 +31,7 @@ function Maps() {
     $("#maps_table_installed").on("dragover", function(e) {
       e.preventDefault();
     });
-      
-    $("#maps_btn_save").click(function(){
-      base.saveMaps();  
-    });
-      
+       
     base.dialog = new Dialog("#maps_div_add", "Pick Gamemodes", [{Text: "OK", Callback : base.dialogOK, Icon : "check"}]);      
   };  
   
@@ -47,23 +45,19 @@ function Maps() {
   this.setSaved = function(r) {
     if(r != false) {
       if(r.Ok) {
-        $("#maps_txt_status").attr("class", "online");
-        $("#maps_txt_status").html("Maps saved");
-        return;
+        base.events.ShowInfo("Settings saved.");  
       }else{
         base.events.ShowError(r.Error);        
       }
+    } else {
+      base.events.ShowWarning("Changes not saved ...");   
+      if(base.timeout != null) clearTimeout(base.timeout);
+      base.timeout = setTimeout(function(){base.saveMaps();}, MapsEditTimeout);
     }
-    $("#maps_txt_status").attr("class", "offline");
-    $("#maps_txt_status").html("Not saved");   
   };
   
-  this.saveMaps = function() {
-    $("#maps_txt_status").attr("class", "loading");
-    $("#maps_txt_status").html("Saving...");
-  
-    var req = { Action: "maps_save", Maps: []};
-  
+  this.saveMaps = function() {  
+    var req = { Action: "maps_save", Maps: []};  
     $("#maps_table_rotation tr").each(function(i,e){
       req.Maps.push($(e).data("name"));  
     });    
@@ -79,9 +73,13 @@ function Maps() {
   this.dialogOK = function(m) {  
     var tb = $("#maps_table_rotation");        
     $("#maps_div_add input").each(function(i,e) {
+      
       if($(e).prop('checked')) {
+        var gm = $(e).data("map").split("_")[1];
+        
         var tr = $(
         '<tr data-id="'+m.id+'" data-flags="'+m.flags+'" data-name="'+m.name+$(e).data("map")+'" data-nicename="'+m.nicename+'" draggable="true">' + 
+        '<td><span class="'+(gm=="1flag"?"ctf":gm)+'">'+gm.toUpperCase()+'</span></td>' + 
         "<td>"+m.nicename+"</td>" + 
         "<td>"+m.name+$(e).data("map")+"</td>" + 
         "</tr>");
@@ -92,11 +90,11 @@ function Maps() {
           e.originalEvent.dataTransfer.setData("map",JSON.stringify(m)); 
         });         
       }
-    }); 
-  };
+    });
+    base.setSaved(false);  
+  };    
   
   this.addMap=function(map) {
-    base.setSaved(false); 
     $("#maps_div_add input").each(function(i,e) {
       $(e).prop('checked', false);
       if((parseInt(map.flags) & MapFlags[$(e).data("flag")]) > 0) $(e).prop("disabled", false);
@@ -159,9 +157,11 @@ function Maps() {
     for (var x in r.Maps) {
       var name = r.Maps[x];
       var m = base.getMap(name);    
+      var gm = name.split("_")[1];
       
       var tr = $(
         '<tr data-id="'+m.DatabaseId+'" data-flags="'+m.Flags+'" data-name="'+name+'" data-nicename="'+m.NiceName+'" draggable="true">' + 
+        '<td><span class="'+(gm=="1flag"?"ctf":gm)+'">'+gm.toUpperCase()+'</span></td>' + 
         "<td>"+m.NiceName+"</td>" + 
         "<td>"+name+"</td>" + 
         "</tr>");

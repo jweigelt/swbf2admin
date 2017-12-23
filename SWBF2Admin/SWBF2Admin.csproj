@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminCore.cs" />
+    <Compile Include="Config\ConfigFileInfo.cs" />
     <Compile Include="Runtime\Announce\Announce.cs" />
     <Compile Include="Runtime\Announce\AnnounceHandlerConfiguration.cs" />
     <Compile Include="Runtime\Announce\AnnounceEventArgs.cs" />

@@ -447,15 +447,22 @@ div.legend i {
   margin-left: 0;
 }
 
-a#game_a_con.active { }
-a#game_a_ctf.active { background: #f4a742; }
-a#game_a_ass.active { background: #7fd173; }
-a#game_a_eli.active { background: #ff5e42; }
-a#game_a_hunt.active { background: #df6dff; }
+a#game_a_con.active, span.con { background: #00cbff; }
+a#game_a_ctf.active, span.ctf, span.flag { background: #f4a742; }
+a#game_a_ass.active, span.ass { background: #7fd173; }
+a#game_a_eli.active, span.eli { background: #ff5e42; }
+a#game_a_hunt.active, span.hunt { background: #df6dff; }
                                                 
 /**
  *  Map Rotation Tab
  **/
+
+table.maps td span {
+  color: #ffffff;
+  border-radius: .25em;
+  padding: 0em .25em 0em .25em; 
+}
+
 table.maps td {
   padding-left: 1em;
 } 
@@ -465,10 +472,20 @@ table.map-container {
   border-collapse: collapse;
 }
 
-table.map-container td {
+table.map-container > tbody > tr > td {
   width: 50%;
-  vertical-align: top;
 } 
+
+table.map-container td {
+  vertical-align: top;
+}
+
+table.maprot :first-child {
+  /* hack so the td width matches content size*/
+  width:1%;
+  white-space:nowrap;
+}
+
  
 /**
  *  About Tab

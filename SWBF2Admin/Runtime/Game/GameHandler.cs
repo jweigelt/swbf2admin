@@ -7,7 +7,7 @@ namespace SWBF2Admin.Runtime.Game
     public class GameHandler : ComponentBase
     {
         private ServerInfo latestInfo;
-        public ServerInfo LatestInfo { get { return latestInfo; } }
+        public virtual ServerInfo LatestInfo { get { return latestInfo; } }
 
         GameHandlerConfiguration config;
 

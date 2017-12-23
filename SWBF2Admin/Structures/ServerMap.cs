@@ -12,12 +12,14 @@ namespace SWBF2Admin.Structures
             GCW1Flag = (1 << 2),
             GCWHunt = (1 << 3),
             GCWEli = (1 << 4),
+            GCWAss = (1 << 5),
 
             CWCon = (1 << 10),
             CWCTF = (1 << 11),
             CW1Flag = (1 << 12),
             CWHunt = (1 << 13),
             CWEli = (1 << 14),
+            CWAss = (1 << 15)
         }
 
         public ServerMap(long databaseId, string name, string niceName, long flags)
@@ -46,6 +48,8 @@ namespace SWBF2Admin.Structures
         public virtual bool HasGCWHunt { get { return (Flags & (int)MapFlags.GCWHunt) > 0; } set { if (value) Flags |= (int)MapFlags.GCWHunt; else Flags &= ~(int)MapFlags.GCWHunt; } }
         [JsonIgnore]
         public virtual bool HasGCWEli { get { return (Flags & (int)MapFlags.GCWEli) > 0; } set { if (value) Flags |= (int)MapFlags.GCWEli; else Flags &= ~(int)MapFlags.GCWEli; } }
+        [JsonIgnore]
+        public virtual bool HasGCWAss { get { return (Flags & (int)MapFlags.GCWAss) > 0; } set { if (value) Flags |= (int)MapFlags.GCWAss; else Flags &= ~(int)MapFlags.GCWAss; } }
 
         [JsonIgnore]
         public virtual bool HasCWCon { get { return (Flags & (int)MapFlags.CWCon) > 0; } set { if (value) Flags |= (int)MapFlags.CWCon; else Flags &= ~(int)MapFlags.CWCon; } }
@@ -57,6 +61,8 @@ namespace SWBF2Admin.Structures
         public virtual bool HasCWHunt { get { return (Flags & (int)MapFlags.CWHunt) > 0; } set { if (value) Flags |= (int)MapFlags.CWHunt; else Flags &= ~(int)MapFlags.CWHunt; } }
         [JsonIgnore]
         public virtual bool HasCWEli { get { return (Flags & (int)MapFlags.CWEli) > 0; } set { if (value) Flags |= (int)MapFlags.CWEli; else Flags &= ~(int)MapFlags.CWEli; } }
+        [JsonIgnore]
+        public virtual bool HasCWAss { get { return (Flags & (int)MapFlags.CWAss) > 0; } set { if (value) Flags |= (int)MapFlags.CWAss; else Flags &= ~(int)MapFlags.CWAss; } }
 
         public static List<string> ReadMapRotation(AdminCore core)
         {
@@ -87,12 +93,11 @@ namespace SWBF2Admin.Structures
             core.Files.WriteFileText(core.Config.ServerPath + "/settings/ServerRotation.cfg", sr);
         }
 
-#if DEBUG
         //Attention: messy code ahead
         public static List<ServerMap> ReadServerMapConfig(AdminCore core)
         {
             Logger.Log(LogLevel.Info, "Starting map import...");
-            string mapCfg = core.Files.ReadFileText(core.Config.ServerPath + "/settings/ServerRotation.cfg");
+            string mapCfg = core.Files.ReadFileText(core.Config.ServerPath + "/settings/Maps.cfg");
             mapCfg = mapCfg.Replace("\r", "");
             string[] rows = mapCfg.Split('\n');
 
@@ -162,12 +167,14 @@ namespace SWBF2Admin.Structures
                         if (gcw) m.HasGCWEli = true;
                         else m.HasCWEli = true;
                         break;
+                    case "ass":
+                        if (gcw) m.HasGCWAss = true;
+                        else m.HasCWAss = true;
+                        break;
                 }
                 cnt++;
             }
             return maps;
         }
-#endif
-
     }
 }

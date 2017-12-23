@@ -6,14 +6,9 @@ using SWBF2Admin.Utility;
 
 namespace SWBF2Admin.Config
 {
+    [ConfigFileInfo(fileName: "./cfg/core.xml", template: "SWBF2Admin.Resources.cfg.core.xml")]
     public class CoreConfiguration
     {
-        [XmlIgnore]
-        public const string FILE_NAME = "./cfg/core.xml";
-
-        [XmlIgnore]
-        public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.core.xml";
-
         /** 
          *  Web Admin  
          **/

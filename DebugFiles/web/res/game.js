@@ -1,19 +1,23 @@
 var GameUrl = "/settings/game";
+var GameEditTimeout = 2500;
 
 function General() {
   var base = this;
  
-  this.events = new EventDisplay("#game_div_error"); 
+  this.events = new EventDisplay("#game_div_events"); 
   this.tabs = new Tab("#game_tabs");
+  this.pending = false;
+  
   
   this.onInit = function() {       
     $("#game_btn_save").click(function(){ base.saveSettings(); });    
-    base.updateSettings();   
-    $("#game_div_container input").each(function(i,e) {
-      $(e).change(function(evt){
+    base.updateSettings(); 
+      
+    $("#game_div_container input, #game_div_container select").each(function(i,e) {
+      $(e).on('input propertychange paste change', function(evt) {
         base.setSaved(false);
       });   
-    });    
+    });     
   };  
   
   this.onStatusChange = function(online) {    
@@ -25,21 +29,18 @@ function General() {
   this.setSaved = function(r) {
     if(r != false) {
       if(r.Ok) {
-        $("#game_txt_status").attr("class", "online");
-        $("#game_txt_status").html("Settings saved");
-        return;
+        base.events.ShowInfo("Settings saved.");  
       }else{
         base.events.ShowError(r.Error);        
       }
+    } else {
+      base.events.ShowWarning("Changes not saved ...");   
+      if(base.timeout != null) clearTimeout(base.timeout);
+      base.timeout = setTimeout(function(){base.saveSettings();}, GameEditTimeout);
     }
-    $("#game_txt_status").attr("class", "offline");
-    $("#game_txt_status").html("Not saved");   
   };
 
   this.saveSettings = function() {
-    $("#game_txt_status").attr("class", "loading");
-    $("#game_txt_status").html("Saving...");
-    
     var settings = {
       Action: "game_set",
       Settings: { 

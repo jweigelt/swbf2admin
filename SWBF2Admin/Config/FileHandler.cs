@@ -49,35 +49,13 @@ namespace SWBF2Admin.Config
         }
 
         /// <summary>
-        /// Gets the FILE_NAME constant from a given class
-        /// </summary>
-        /// <param name="t">class type</param>
-        private string GetFileName(Type t)
-        {
-            string fileName = (string)t.GetField("FILE_NAME").GetValue(null);
-            fileName = ParseFileName(fileName);
-            return fileName;
-        }
-
-        /// <summary>
-        /// Gets the RESOURCE_NAME constant from a given class,
-        /// returns string.Empty if RESOURCE_NAME is not defined 
-        /// </summary>
-        /// <param name="t">class type</param>
-        private string GetResourceName(Type t)
-        {
-            FieldInfo fi = t.GetField("RESOURCE_NAME");
-            return (fi == null ? string.Empty : (string)fi.GetValue(null));
-        }
-
-        /// <summary>
         /// Deserializes a XML file and returns the object
         /// </summary>
         /// <param name="fileName">relative or absolute path</param>
         private T ReadXmlFile<T>(string fileName = "")
         {
             XmlSerializer serializer = new XmlSerializer(typeof(T));
-            if (fileName.Equals("")) fileName = GetFileName(typeof(T));
+            if (fileName.Equals("")) fileName = GetFileInfo<T>().FileName;
 
             try
             {
@@ -97,16 +75,15 @@ namespace SWBF2Admin.Config
 
         /// <summary>
         /// Serializes an object and saves it to a XML-file
-        /// <para>If no filename is specified, the FILE_NAME constant will be read from the given type.</para>
-        /// <para>If a resource path is specified using the RESOURCE_NAME constant, the matching resource will be unpacked.</para>
-        /// <para>If RESOURCE_NAME is not defined, a standard object will be generated using the type's default constuctor.</para>
+        /// <para>If no filename is specified, the filename will be read from a ConfigFileInfo Attribute</para>
+        /// <para>If ConfigFileInfo also provides a template path, the template will be unpacked and written to disk.</para>
         /// </summary>
         /// <param name="fileName">relative or absolute path</param>
         /// <param name="obj">object to be serialized</param>
-        private void WriteXmlFile<T>(string fileName, T obj)
+        private void WriteXmlFile<T>(T obj, string fileName)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(T));
-            if (fileName.Equals("")) fileName = GetFileName(typeof(T));
+            if (fileName.Equals("")) fileName = GetFileInfo<T>().FileName;
 
             try
             {
@@ -156,40 +133,48 @@ namespace SWBF2Admin.Config
         /// <param name="fileName">relative or absolute path</param>
         public void WriteConfigDefault<T>(string fileName = "")
         {
-            if (fileName.Equals("")) fileName = GetFileName(typeof(T));
+            if (fileName == "") fileName = GetFileInfo<T>().FileName;
             CreateDirectoryStructure(fileName);
-            WriteXmlFile<T>(fileName, (T)Activator.CreateInstance(typeof(T)));
+            WriteXmlFile<T>((T)Activator.CreateInstance(typeof(T)), fileName);
         }
 
         /// <summary>
-        /// Unpacks the resource specified in RESOURCE_NAME and writes it to FILE_NAME 
+        /// Unpacks the resource specified in ConfigFileInfo
         /// </summary>
         public void UnpackConfigDefault<T>()
         {
-            string res = GetResourceName(typeof(T));
-            string file = GetFileName(typeof(T));
-            if (res == string.Empty)
-                WriteConfigDefault<T>(file);
+            ConfigFileInfo info = GetFileInfo<T>();
+            if (info.HasTemplate)
+                UnpackResource(info.FileName, info.Template);   
             else
-                UnpackResource(file, res);
+                WriteConfigDefault<T>(info.FileName);
         }
 
         /// <summary>
         /// Reads a config file from disk, deserializes it and returns the object
-        /// FILE_NAME has to be defined in the given T
         /// <para>If the file doesn't exist yet, a default configuration will be written and read afterwards.</para>
         /// <para>
-        /// RESOURCE_NAME can be defined in the given T, if not defined, a default configuration will be created using the
+        /// A template can be defined in the given T. If not defined, a default configuration will be created using the
         /// T's standard constructor
         /// </para>
         /// </summary>
         public T ReadConfig<T>()
         {
-            if (!File.Exists(GetFileName(typeof(T))))
+            if (!File.Exists(GetFileInfo<T>().FileName))
             {
                 UnpackConfigDefault<T>();
             }
             return ReadXmlFile<T>();
+        }
+
+        /// <summary>
+        /// Gets ConfigFileInfo object from type
+        /// </summary>
+        private ConfigFileInfo GetFileInfo<T>()
+        {
+            ConfigFileInfo[] info = (ConfigFileInfo[])typeof(T).GetCustomAttributes(typeof(ConfigFileInfo), false);
+            if (info.Length > 0) return info[0];
+            throw new Exception("No [ConfigFileInfo] attribute specified and no filename given.");
         }
 
         /// <summary>
