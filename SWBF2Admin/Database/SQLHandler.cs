@@ -84,7 +84,7 @@ namespace SWBF2Admin.Database
                 Logger.Log(LogLevel.Info, "[SQL] Database closed.");
             }
         }
-        DbDataReader Query(string query, params string[] parameters)
+        DbDataReader Query(string query, params object[] parameters)
         {
             Logger.Log(LogLevel.VerboseSQL, "[SQL] Query: {0}", query);
             DbDataReader reader = null;
@@ -105,7 +105,7 @@ namespace SWBF2Admin.Database
                 return null;
             }
         }
-        void NonQuery(string query, params string[] parameters)
+        void NonQuery(string query, params object[] parameters)
         {
             Logger.Log(LogLevel.VerboseSQL, "[SQL] NonQuery: {0}", query);
             try
@@ -118,7 +118,7 @@ namespace SWBF2Admin.Database
                 Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
             }
         }
-        private DbCommand BuildCommand(string query, params string[] parameters)
+        private DbCommand BuildCommand(string query, params object[] parameters)
         {
             query = query.Replace("prefix_", SQLTablePrefix);
             DbCommand command;
@@ -131,13 +131,14 @@ namespace SWBF2Admin.Database
             {
                 if (parameters.Length < i)
                 {
-                    Logger.Log(LogLevel.Error, "[SQL] No value for parameter '{0}' specified", parameters[i]);
+                    Logger.Log(LogLevel.Error, "[SQL] No value for parameter '{0}' specified", parameters[i].ToString());
                 }
                 else
                 {
                     DbParameter p = command.CreateParameter();
-                    p.ParameterName = parameters[i];
+                    p.ParameterName = parameters[i].ToString();
                     p.Value = parameters[i + 1];
+
                     command.Parameters.Add(p);
                 }
             }
@@ -153,7 +154,7 @@ namespace SWBF2Admin.Database
         }
         private long GetTimestamp()
         {
-            return (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            return (long)(DateTime.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
         private uint GetTimestamp(DateTime date)
         {
@@ -161,7 +162,7 @@ namespace SWBF2Admin.Database
         }
         private DateTime GetDateTime(uint timestamp)
         {
-            DateTime r = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            DateTime r = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Local);
             return r.AddSeconds(timestamp).ToLocalTime();
         }
         private string RS(DbDataReader reader, string field)
@@ -177,18 +178,8 @@ namespace SWBF2Admin.Database
             return (long)reader[field];
         }
         #endregion
-        #region Ingame
-        public bool PlayerExists(Player player)
-        {
-            string sql =
-                "SELECT " +
-                "id " +
-                "FROM " +
-                "prefix_payers " +
-                "WHERE keyhash = @keyhash";
 
-            return (HasRows(Query(sql, "@keyhash", player.KeyHash)));
-        }
+        #region permissions
         public bool HasPermission(Player player, Permission permission)
         {
             string sql =
@@ -204,12 +195,107 @@ namespace SWBF2Admin.Database
             return (HasRows(Query(sql, "@steam_id", player.KeyHash, "@permission", permission.ToString())));
         }
         #endregion
+
+        #region Ban management
+        public bool IsBanned(Player player)
+        {
+            string sql =
+                "SELECT " +
+                    "prefix_bans.id " +
+                "FROM " +
+                    "prefix_bans " +
+                "INNER JOIN swbf_players ON prefix_bans.player_id = prefix_players.id " +
+                "WHERE " +
+                "((player_keyhash = @keyhash AND ban_type = " + ((int)BanType.Keyhash).ToString() + ") " +
+                "OR (player_last_ip = @ip AND ban_type = " + ((int)BanType.IPAddress).ToString() + ")) " +
+                "AND ((ban_timestamp + ban_duration) > @timestamp OR ban_duration < 0)";
+
+            return (HasRows(Query(sql, "@keyhash", player.KeyHash, "@ip", player.RemoteAddressStr, "@timestamp", GetTimestamp())));
+        }
+        public void InsertBan(PlayerBan ban)
+        {
+            string sql =
+            "INSERT INTO prefix_bans " +
+            "(player_id, admin_id, ban_reason, ban_duration, ban_type, ban_timestamp) VALUES " +
+            "(@player_id, @admin_id, @ban_reason, @ban_duration, @ban_type, @ban_timestamp)";
+
+            NonQuery(sql,
+                "@player_id", ban.PlayerDatabaseId.ToString(),
+                "@admin_id", ban.AdminDatabaseId.ToString(),
+                "@ban_reason", ban.Reason,
+                "@ban_duration", ban.Duration.ToString(),
+                "@ban_type", ban.TypeId.ToString(),
+                "@ban_timestamp", GetTimestamp().ToString());
+        }
+        #endregion
+
+        #region Player tracking
+        public bool PlayerExists(Player player)
+        {
+            string sql =
+                "SELECT " +
+                "id " +
+                "FROM " +
+                "prefix_players " +
+                "WHERE player_keyhash = @keyhash";
+
+            return (HasRows(Query(sql, "@keyhash", player.KeyHash)));
+        }
+        public void InsertPlayer(Player player)
+        {
+            string sql =
+                "INSERT INTO prefix_players " +
+                "(player_keyhash, player_last_visit, player_first_visit, player_visits, player_last_ip, player_last_name) VALUES " +
+                "(@keyhash, @last_visit, @first_visit, 1, @ip, @name)";
+
+            NonQuery(sql,
+                "@keyhash", player.KeyHash,
+                "@last_visit", GetTimestamp().ToString(),
+                "@first_visit", GetTimestamp().ToString(),
+                "@ip", player.RemoteAddressStr,
+                "@name", player.Name);
+        }
+        public void UpdatePlayer(Player player)
+        {
+            string sql =
+                "UPDATE prefix_players SET " +
+                    "player_last_visit = @last_visit, " +
+                    "player_visits = player_visits+1, " +
+                    "player_last_ip = @ip, " +
+                    "player_last_name = @name " +
+                "WHERE player_keyhash = @keyhash";
+
+            NonQuery(sql,
+                "@last_visit", GetTimestamp().ToString(),
+                "@ip", player.RemoteAddressStr,
+                "@name", player.Name,
+                "@keyhash", player.KeyHash);
+        }
+        public void AttachDbInfo(Player player)
+        {
+            string sql =
+                "SELECT * FROM prefix_players " +
+                "WHERE player_keyhash = @keyhash";
+
+            using (DbDataReader reader = Query(sql, "@keyhash", player.KeyHash))
+            {
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    player.DatabaseId = RL(reader, "id");
+                    player.IsBanned = IsBanned(player);
+                }
+                else Logger.Log(LogLevel.Warning, "Couldn't find player info for player \"{0}\". (keyhash: {1})", player.Name, player.KeyHash);
+            }
+        }
+        #endregion
+
         #region Web
         public WebUser GetWebUser(string username, string password)
         {
             string sql =
                 "SELECT " +
-                "id, user_name, user_lastvisit " +
+                "id, user_name, user_password, user_lastvisit " +
                 "FROM " +
                 "prefix_web_users " +
                 "WHERE user_name = @username AND user_password = @password";
@@ -219,7 +305,7 @@ namespace SWBF2Admin.Database
                 if (HasRows(reader))
                 {
                     reader.Read();
-                    return new WebUser(RL(reader, "id"), RS(reader, "user_name"), GetDateTime(RU(reader, "user_lastvisit")));
+                    return new WebUser(RL(reader, "id"), RS(reader, "user_name"), RS(reader, "user_password"), GetDateTime(RU(reader, "user_lastvisit")));
                 }
             }
 
@@ -238,6 +324,8 @@ namespace SWBF2Admin.Database
                 "ban_duration, " +
                 "ban_type, " +
                 "ban_timestamp, " +
+                "admin_id, " +
+                "player_id, " +
                 "prefix_players.player_last_name, " +
                 "prefix_players_admins.player_last_name AS admin_last_name, " +
                 "prefix_players.player_keyhash, " +
@@ -249,10 +337,10 @@ namespace SWBF2Admin.Database
                 "WHERE " +
                 "prefix_players.player_last_name LIKE @player_exp AND " +
                 "admin_last_name LIKE @admin_exp AND " +
-                "ban_reason LIKE @reason_exp" +
-                " AND (ban_timestamp) > @date_timestamp";
+                "ban_reason LIKE @reason_exp AND " +
+                "(ban_timestamp) > @date_timestamp";
 
-            if (!expired) sql += " AND (ban_timestamp + ban_duration) > @timestamp";
+            if (!expired) sql += " AND ((ban_timestamp + ban_duration) > @timestamp)";
             if (banType != (int)BanType.ShowAll) sql += " AND ban_type = @ban_type";
 
             sql += " ORDER BY ban_timestamp LIMIT @max_rows";
@@ -263,7 +351,7 @@ namespace SWBF2Admin.Database
                 "@player_exp", playerExp,
                 "@admin_exp", adminExp,
                 "@reason_exp", reasonExp,
-                "@timestamp", GetTimestamp().ToString(),
+                "@timestamp", GetTimestamp(),
                 "@max_rows", maxRows.ToString(),
                 "@date_timestamp", GetTimestamp(date).ToString(),
                 "@ban_type", banType.ToString()))
@@ -279,7 +367,9 @@ namespace SWBF2Admin.Database
                         RS(reader, "ban_reason"),
                         GetDateTime(RU(reader, "ban_timestamp")),
                         RL(reader, "ban_duration"),
-                        (BanType)(RU(reader, "ban_type"))));
+                        (BanType)(RU(reader, "ban_type")),
+                        RL(reader, "player_id"),
+                        RL(reader, "admin_id")));
                 }
             }
             return bans;

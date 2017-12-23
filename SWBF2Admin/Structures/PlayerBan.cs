@@ -12,6 +12,7 @@ namespace SWBF2Admin.Structures
 
     public class PlayerBan
     {
+        public const int DURATION_PERMANENT = -1;
         public long DatabaseId { get; }
 
         [JsonIgnore]
@@ -19,7 +20,7 @@ namespace SWBF2Admin.Structures
         public virtual string DateStr { get { return Date.ToString(); } }
 
         public long Duration { get; }
-        public virtual bool Expired { get { return (((DateTime.Now - Date).TotalSeconds > Duration) && Duration > 0); } }
+        public virtual bool Expired { get { return ((Date.AddSeconds(Duration) < DateTime.Now) && Duration > 0); } }
 
         [JsonIgnore]
         public BanType Type { get; }
@@ -32,15 +33,49 @@ namespace SWBF2Admin.Structures
         public string AdminName { get; }
         public string Reason { get; }
 
-        public PlayerBan(long databaseId, string playerName, string playerKeyhash, string playerIPAddress, string adminName, string reason, DateTime date, long duration, BanType type)
+        public long PlayerDatabaseId { get; }
+        public long AdminDatabaseId { get; }
+
+        public PlayerBan(long databaseId, string playerName, string playerKeyhash, string playerIPAddress, string adminName, string reason, DateTime date, long duration, BanType type, long playerDatabaseId, long adminDatabaseId)
         {
             DatabaseId = databaseId;
+
             PlayerName = playerName;
             PlayerKeyhash = playerKeyhash;
             PlayerIPAddress = playerIPAddress;
+            PlayerDatabaseId = playerDatabaseId;
+
             AdminName = adminName;
+            AdminDatabaseId = adminDatabaseId;
             Date = date;
             Duration = duration;
+            Type = type;
+            Reason = reason;
+        }
+
+        public PlayerBan(string playerName, string playerKeyhash, string playerIPAddress, string adminName, string reason, TimeSpan duration, BanType type, long playerDatabaseId, long adminDatabaseId)
+        {
+            PlayerName = playerName;
+            PlayerKeyhash = playerKeyhash;
+            PlayerIPAddress = playerIPAddress;
+            PlayerDatabaseId = playerDatabaseId;
+
+            AdminName = adminName;
+            AdminDatabaseId = adminDatabaseId;
+            Duration = (long)duration.TotalSeconds;
+            Type = type;
+            Reason = reason;
+        }
+        public PlayerBan(string playerName, string playerKeyhash, string playerIPAddress, string adminName, string reason, BanType type, long playerDatabaseId, long adminDatabaseId)
+        {
+            PlayerName = playerName;
+            PlayerKeyhash = playerKeyhash;
+            PlayerIPAddress = playerIPAddress;
+            PlayerDatabaseId = playerDatabaseId;
+
+            AdminName = adminName;
+            AdminDatabaseId = adminDatabaseId;
+            Duration = DURATION_PERMANENT;
             Type = type;
             Reason = reason;
         }

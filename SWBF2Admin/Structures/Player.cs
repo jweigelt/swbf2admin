@@ -7,14 +7,15 @@ namespace SWBF2Admin.Structures
     {
         public byte Slot { get; }
 
-        public ushort Ping { get; }
-        public int Kills { get; }
-        public int Deaths { get; }
-        public int Score { get; }
-
-        public string Name { get; set; }
-        public string KeyHash { get; set; }
+        public ushort Ping { get; set; }
+        public int Kills { get; set; }
+        public int Deaths { get; set; }
+        public int Score { get; set; }
         public string Team { get; set; }
+
+        public string Name { get; }
+        public string KeyHash { get; }
+        public bool IsBanned { get; set; }
 
         [JsonIgnore]
         public IPAddress RemoteAddress { get; }
@@ -35,5 +36,10 @@ namespace SWBF2Admin.Structures
             RemoteAddress = remoteAddress;
         }
 
+        public void CopyDbInfo(Player p)
+        {
+            DatabaseId = p.DatabaseId;
+            IsBanned = p.IsBanned;
+        }
     }
 }

@@ -14,6 +14,8 @@ namespace SWBF2Admin.Web
     public class WebServer : ComponentBase
     {
         private List<WebPage> webpages = new List<WebPage>();
+        private Dictionary<string, WebUser> authCache = new Dictionary<string, WebUser>();
+
         private string prefix = "http://localhost:8080/";
         private Thread workThread;
         private HttpListener listener;
@@ -130,7 +132,26 @@ namespace SWBF2Admin.Web
         private WebUser CheckAuth(HttpListenerContext ctx)
         {
             HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)ctx.User.Identity;
-            return Core.Database.GetWebUser(identity.Name, identity.Password);
+            WebUser user = null;
+
+            if (authCache.TryGetValue(identity.Name, out user))
+            {
+                if (!Util.Md5(identity.Password).Equals(user.PasswordHash))
+                {
+                    user = Core.Database.GetWebUser(identity.Name, identity.Password);
+                    if (user != null)
+                    {
+                        authCache.Remove(user.Username);
+                        authCache.Add(user.Username, user);
+                    }
+                }
+            }
+            else
+            {
+                user = Core.Database.GetWebUser(identity.Name, identity.Password);
+                if (user != null) authCache.Add(user.Username, user);
+            }
+            return user;
         }
 
         public void SendHttpStatus(HttpListenerContext ctx, HttpStatusCode code)

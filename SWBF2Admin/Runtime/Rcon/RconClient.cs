@@ -114,9 +114,18 @@ namespace SWBF2Admin.Runtime.Rcon
             SendCommand("say", message);
         }
 
+        public void SendCommand(string command, bool dontwait, params string[] p)
+        {
+            if (dontwait)
+                Send(command + " " + string.Join(" ", p));
+            else
+                SendCommand(command, p);
+        }
+
         public void SendCommand(string command, params string[] p)
         {
-            Send(command + " " + string.Join(" ", p));
+            RconPacket packet = new RconPacket(command + " " + string.Join(" ", p));
+            SendPacket(packet);
         }
 
         /// <summary>Connects to rcon-server and authenticates</summary>

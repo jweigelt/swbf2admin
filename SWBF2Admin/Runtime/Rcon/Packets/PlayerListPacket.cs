@@ -16,7 +16,12 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
         public override void HandleResponse(string response)
         {
             PlayerList = new List<Player>();
-            if (response.Length == 0) return; //no players
+            if (response.Length == 0)
+            {
+                //no players
+                PacketOk = true;
+                return;
+            }
 
             string[] rows = response.Split('\n');
 

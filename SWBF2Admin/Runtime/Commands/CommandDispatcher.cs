@@ -24,6 +24,7 @@ namespace SWBF2Admin.Runtime.Commands
         {
             //Commands can be registered here
             RegisterCommand<CmdKick>();
+            RegisterCommand<CmdTempban>();
 
             Core.Rcon.ChatInput += new EventHandler(Rcon_ChatInput);
         }

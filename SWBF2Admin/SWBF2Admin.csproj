@@ -102,6 +102,9 @@
     <Compile Include="Runtime\Announce\AnnounceHandlerConfiguration.cs" />
     <Compile Include="Runtime\Announce\AnnounceEventArgs.cs" />
     <Compile Include="Runtime\Announce\AnnounceHandler.cs" />
+    <Compile Include="Runtime\Commands\Admin\CmdBan.cs" />
+    <Compile Include="Runtime\Commands\Admin\CmdIpBan.cs" />
+    <Compile Include="Runtime\Commands\Admin\CmdTempban.cs" />
     <Compile Include="Runtime\Commands\Admin\CmdKick.cs" />
     <Compile Include="Runtime\Commands\Admin\PlayerCommand.cs" />
     <Compile Include="Runtime\Commands\ChatCommand.cs" />

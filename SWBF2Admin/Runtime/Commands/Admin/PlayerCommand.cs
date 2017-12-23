@@ -36,7 +36,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
 
             else if (matching.Count > 1)
             {
-                if ((parameters.Length > 1) && parameters[1] == OptionNumber)
+                if ((parameters.Length > 1) && parameters[1].Equals(OptionNumber))
                 {
                     if (parameters.Length < 3)
                     {

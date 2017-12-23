@@ -15,7 +15,6 @@ namespace SWBF2Admin.Runtime
 
         public PlayerHandler(AdminCore core) : base(core)
         {
-            playerList = new List<Player>();
             UpdateInterval = 10000;
         }
 
@@ -33,14 +32,43 @@ namespace SWBF2Admin.Runtime
         {
             PlayerListPacket plp = new PlayerListPacket();
             Core.Rcon.SendPacket(plp);
+
             if (plp.PacketOk)
             {
                 foreach (Player p in plp.PlayerList)
                 {
-                    if (IsNew(p)) OnNewPlayerJoin(p);
+                    if (playerList != null)
+                    {
+                        Player oldPlayer = GetPlayerByKeyHash(p.KeyHash);
+                        if (oldPlayer == null)
+                        {
+                            HandlePlayerDb(p);
+                            OnNewPlayerJoin(p);
+                        }
+                        else
+                        {
+                            p.CopyDbInfo(oldPlayer);
+                        }
+
+                        if (p.IsBanned) Kick(p);
+                    }
+                    else
+                    {
+                        HandlePlayerDb(p);
+                    }
                 }
-                playerList = plp.PlayerList;
             }
+            playerList = plp.PlayerList;
+        }
+
+        private void HandlePlayerDb(Player p)
+        {
+            if (Core.Database.PlayerExists(p))
+                Core.Database.UpdatePlayer(p);
+            else
+                Core.Database.InsertPlayer(p);
+
+            Core.Database.AttachDbInfo(p);
         }
 
         /// <summary>
@@ -63,6 +91,10 @@ namespace SWBF2Admin.Runtime
         /// <param name="p"></param>
         private void OnNewPlayerJoin(Player p)
         {
+            if(p.IsBanned)
+            {
+                //TODO: display message
+            }
             //TODO: trigger any OnJoin Events here
         }
 
@@ -98,5 +130,18 @@ namespace SWBF2Admin.Runtime
             return matching;
         }
 
+        private Player GetPlayerByKeyHash(string kh)
+        {
+            foreach (Player p in playerList)
+            {
+                if (p.KeyHash.Equals(kh)) return p;
+            }
+            return null;
+        }
+
+        public void Kick(Player p)
+        {
+            Core.Rcon.SendCommand("boot", p.Slot.ToString());
+        }
     }
 }
