@@ -15,7 +15,7 @@
         #region Rcon
         public const byte RCON_LOGIN_MAGIC = 0x64;
         public const byte RCON_SLEEP = 5;
-        public const string RCON_STATUS_MESSAGE_GAME_HAS_ENDED = "Game has ended.";
+        public const string RCON_STATUS_MESSAGE_GAME_HAS_ENDED = "Game has ended";
         #endregion
 
         #region Web

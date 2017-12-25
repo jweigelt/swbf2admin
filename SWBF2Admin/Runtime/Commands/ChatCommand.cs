@@ -29,12 +29,7 @@ namespace SWBF2Admin.Runtime.Commands
 
         public abstract bool Run(Player player, string commandLine, string[] parameters);
 
-        public void SendFormatted(string message, params string[] tags)
-        {
-            SendFormatted(message, null, tags);
-        }
-
-        public void SendFormatted(string message, Player player, params string[] tags)
+        protected string FormatString(string message, params string[] tags)
         {
             for (int i = 0; i < tags.Length; i++)
             {
@@ -43,7 +38,17 @@ namespace SWBF2Admin.Runtime.Commands
                 else
                     message = message.Replace(tags[i], tags[++i]);
             }
+            return message;
+        }
 
+        protected void SendFormatted(string message, params string[] tags)
+        {
+            SendFormatted(message, null, tags);
+        }
+
+        protected void SendFormatted(string message, Player player, params string[] tags)
+        {
+            message = FormatString(message, tags);
             if (player == null) Core.Rcon.Say(message); else Core.Rcon.Pm(message, player);
         }
     }

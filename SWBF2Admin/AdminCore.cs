@@ -9,7 +9,7 @@ using SWBF2Admin.Gameserver;
 using SWBF2Admin.Scheduler;
 using SWBF2Admin.Structures;
 
-using SWBF2Admin.Runtime;
+using SWBF2Admin.Runtime.Players;
 using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Runtime.Game;
 using SWBF2Admin.Runtime.Announce;

@@ -5,7 +5,7 @@ namespace SWBF2Admin.Structures
 {
     public class ServerMap
     {
-        enum MapFlags
+        private enum MapFlags
         {
             GCWCon = (1 << 0),
             GCWCTF = (1 << 1),
@@ -21,7 +21,6 @@ namespace SWBF2Admin.Structures
             CWEli = (1 << 14),
             CWAss = (1 << 15)
         }
-
         public ServerMap(long databaseId, string name, string niceName, long flags)
         {
             DatabaseId = databaseId;
@@ -175,6 +174,39 @@ namespace SWBF2Admin.Structures
                 cnt++;
             }
             return maps;
+        }
+
+        public List<string> GetCWGameModes()
+        {
+            List<string> modes = new List<string>();
+            if (HasCW1Flag) modes.Add("1flag");
+            if (HasCWAss) modes.Add("ass");
+            if (HasCWCon) modes.Add("con");
+            if (HasCWCTF) modes.Add("ctf");
+            if (HasCWEli) modes.Add("eli");
+            if (HasCWHunt) modes.Add("hunt");
+
+            return modes;
+        }
+
+        public List<string> GetGCWGameModes()
+        {
+            List<string> modes = new List<string>();
+            if (HasGCW1Flag) modes.Add("1flag");
+            if (HasGCWAss) modes.Add("ass");
+            if (HasGCWCon) modes.Add("con");
+            if (HasGCWCTF) modes.Add("ctf");
+            if (HasGCWEli) modes.Add("eli");
+            if (HasGCWHunt) modes.Add("hunt");
+
+            return modes;
+        }
+
+        //TODO
+        public bool HasMode(string mode)
+        {
+
+            return true;
         }
     }
 }

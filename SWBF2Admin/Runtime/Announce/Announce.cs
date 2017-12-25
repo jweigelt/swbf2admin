@@ -2,9 +2,14 @@
 {
     public class Announce
     {
-        /// <summary>Enables dynamic variable parsing</summary>
+        /// <summary>
+        /// Enables dynamic variable parsing
+        /// </summary>
         public bool EnableParser { get; set; }
-        /// <summary>Message text which will be broadcasted</summary>
+
+        /// <summary>
+        /// Message text which will be broadcasted
+        /// </summary>
         public string Message { get; set; }
     }
 }

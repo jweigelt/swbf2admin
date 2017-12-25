@@ -14,7 +14,6 @@ namespace SWBF2Admin.Structures.Attributes
         private bool canUpdate;
         private bool needsReload;
 
-
         public ConfigSection(int type, bool canUpdate, bool needsReload)
         {
             Type = type;

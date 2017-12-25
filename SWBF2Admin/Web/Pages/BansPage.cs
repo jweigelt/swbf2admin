@@ -38,8 +38,6 @@ namespace SWBF2Admin.Web.Pages
             }
             public bool Expired { get; set; }
             public int Type { get; set; }
-
-            public int BanId { get; set; }
             public QuickBanAction QuickBan { get; set; }
         }
 
@@ -67,7 +65,7 @@ namespace SWBF2Admin.Web.Pages
                     break;
 
                 case Constants.WEB_ACTION_BANS_DELETE:
-                    Core.Database.DeleteBan(p.BanId);
+                    Core.Database.DeleteBan(p.DatabaseId);
                     WebAdmin.SendHtml(ctx, ToJson(new BanAdminResponse(true)));
                     break;
             }

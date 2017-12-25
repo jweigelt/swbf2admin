@@ -19,6 +19,5 @@ namespace SWBF2Admin.Config
             FileName = fileName;
             Template = null;
         }
-
     }
 }
