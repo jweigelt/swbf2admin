@@ -8,9 +8,12 @@ namespace SWBF2Admin.Runtime.Commands
 {
     public abstract class ChatCommand
     {
-        public string Alias { get; }
-        public Permission Permission { get; }
-        public string Usage { get; }
+        [XmlIgnore]
+        public Permission Permission { get; set; }
+
+        public bool Enabled { get; set; } = true;
+        public string Alias { get; set; } = "change me";
+        public string Usage { get; set; } = "change me";
 
         [XmlIgnore]
         public AdminCore Core { get; set; }
@@ -21,6 +24,7 @@ namespace SWBF2Admin.Runtime.Commands
             Permission = permission;
             Usage = usage;
         }
+        public ChatCommand() { }
 
         public virtual bool Match(string command, string[] parameters)
         {

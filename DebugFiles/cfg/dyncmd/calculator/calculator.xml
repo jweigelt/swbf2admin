@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DynamicCommand xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Enabled>true</Enabled>
+  <Alias>calc</Alias>
+  <Usage>calc &lt;c|r|+|-|*|/&gt; [&lt;num&gt;] </Usage>
+  <UserConfig>
+    <OnSyntaxError>Usage: {usage}</OnSyntaxError>
+    <OnClear>Cleared.</OnClear>
+    <OnInvalidNumber>"{input}" is not a valid number.</OnInvalidNumber>
+    <OnCalc>Calculated value: "{value}"</OnCalc>
+  </UserConfig>
+</DynamicCommand>

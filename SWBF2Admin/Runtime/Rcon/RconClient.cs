@@ -22,15 +22,18 @@ namespace SWBF2Admin.Runtime.Rcon
             ServerPassword = Core.Server.Settings.AdminPw;
             Start();
         }
+
         public override void OnServerStop()
         {
             Stop();
         }
+
         public override void Configure(CoreConfiguration config)
         {
             ServerPassword = config.RconPassword;
             ServerIPEP = config.GetRconIPEP;
         }
+
         public override void OnDeInit()
         {
             Stop();
@@ -55,11 +58,6 @@ namespace SWBF2Admin.Runtime.Rcon
         public int PacketTimeout { get; set; } = 500;
 
         private bool running = false;
-
-        internal void Pm(string message, Player player)
-        {
-            throw new NotImplementedException();
-        }
 
         private Thread workThread;
         private TcpClient client;
@@ -112,6 +110,11 @@ namespace SWBF2Admin.Runtime.Rcon
         public void Say(string message)
         {
             SendCommand("say", message);
+        }
+
+        public void Pm(string message, Player player)
+        {
+            SendCommand("warn", player.Slot.ToString(), message);
         }
 
         public void SendCommand(string command, bool dontwait, params string[] p)

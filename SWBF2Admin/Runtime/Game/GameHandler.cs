@@ -39,38 +39,50 @@ namespace SWBF2Admin.Runtime.Game
 
         public override void OnServerStart()
         {
-            //Re-open last game (if it exists)
-            currentGame = Core.Database.GetLastOpenGame();
-            if (currentGame == null)
-            {
+            if (config.EnableGameStatsLogging)
+                StatsInitGame();
+            else
                 UpdateInfo();
-                if (latestInfo != null) CreateNewGame(latestInfo.CurrentMap);
-            }
-            else Logger.Log(LogLevel.Verbose, "Found open game {0} ({1}).", currentGame.DatabaseId.ToString(), currentGame.Map);
 
             EnableUpdates();
-            OnUpdate(); //make sure we get the first update fast
         }
 
         public override void OnServerStop()
         {
             DisableUpdates();
-            SaveGameStats();
+            if (config.EnableGameStatsLogging) StatsSaveGame();
         }
 
         protected override void OnUpdate()
         {
             UpdateInfo();
         }
-
         private void Rcon_GameEnded(object sender, EventArgs e)
         {
-            SaveGameStats();
-            //Assume we're so fast that the server hasn't loaded the new map yet
-            CreateNewGame(latestInfo.NextMap);
+            if (config.EnableGameStatsLogging)
+            {
+                StatsSaveGame();
+                //Assume we're so fast that the server hasn't loaded the new map yet
+                StatsCreateGame(latestInfo.NextMap);
+            }
         }
 
-        private void SaveGameStats()
+        private void StatsInitGame()
+        {
+            //Re-open last game (if it exists)
+            currentGame = Core.Database.GetLastOpenGame();
+            if (currentGame == null)
+            {
+                UpdateInfo();
+                if (latestInfo != null) StatsCreateGame(latestInfo.CurrentMap);
+            }
+            else
+            {
+                Logger.Log(LogLevel.Verbose, "Found open game {0} ({1}).", currentGame.DatabaseId.ToString(), currentGame.Map);
+                UpdateInfo();
+            }
+        }
+        private void StatsSaveGame()
         {
             if (currentGame != null)
             {
@@ -87,14 +99,12 @@ namespace SWBF2Admin.Runtime.Game
                 GameClosed.Invoke(this, new GameClosedEventArgs(currentGame));
             }
         }
-
-        private void CreateNewGame(string map)
+        private void StatsCreateGame(string map)
         {
             Logger.Log(LogLevel.Verbose, "Registering new game ({0})", map);
             Core.Database.InsertGame(new GameInfo(map));
             currentGame = Core.Database.GetLastOpenGame();
         }
-
         private void UpdateInfo()
         {
             StatusPacket sp = new StatusPacket();

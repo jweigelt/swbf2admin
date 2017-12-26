@@ -50,6 +50,7 @@ namespace SWBF2Admin.Config
          *  CommandHandler
          **/
         public string CommandPrefix { get; set; } = "!";
+        public bool CommandEnableDynamic { get; set; } = true;
 
         /**
          *  Logging 
@@ -59,6 +60,5 @@ namespace SWBF2Admin.Config
         public string LogFileName { get; set; } = "./log.txt";
 
         public int TickDelay { get; set; } = 10;
-
     }
 }

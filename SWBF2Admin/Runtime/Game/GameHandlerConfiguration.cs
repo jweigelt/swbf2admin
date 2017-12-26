@@ -8,7 +8,7 @@ namespace SWBF2Admin.Runtime.Game
     /// </summary>
     [ConfigFileInfo(fileName: "./cfg/game.xml")]
     public class GameHandlerConfiguration
-    {      
+    {
         //[XmlIgnore]
         //public const string RESOURCE_NAME = "SWBF2Admin.Resources.cfg.game.xml";
 
@@ -16,5 +16,7 @@ namespace SWBF2Admin.Runtime.Game
         ///Delay between /status requests
         /// </summary>
         public int StatusUpdateInterval { get; set; } = 30000;
+
+        public bool EnableGameStatsLogging { get; set; } = true;
     }
 }

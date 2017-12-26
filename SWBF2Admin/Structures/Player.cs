@@ -1,8 +1,10 @@
 ﻿using System.Net;
 using Newtonsoft.Json;
+using MoonSharp.Interpreter;
 
 namespace SWBF2Admin.Structures
 {
+    [MoonSharpUserData]
     public class Player
     {
         public byte Slot { get; }
@@ -18,11 +20,14 @@ namespace SWBF2Admin.Structures
         public bool IsBanned { get; set; }
 
         [JsonIgnore]
+        [MoonSharpHidden]
         public IPAddress RemoteAddress { get; }
+
         public virtual string RemoteAddressStr { get { return RemoteAddress.ToString(); } }
 
         public long DatabaseId { get; set; }
 
+        [MoonSharpHidden]
         public Player(byte slot, ushort ping, int kills, int deaths, int score, string name, string keyhash, string team, IPAddress remoteAddress)
         {
             Slot = slot;
@@ -36,6 +41,7 @@ namespace SWBF2Admin.Structures
             RemoteAddress = remoteAddress;
         }
 
+        [MoonSharpHidden]
         public void CopyDbInfo(Player p)
         {
             DatabaseId = p.DatabaseId;

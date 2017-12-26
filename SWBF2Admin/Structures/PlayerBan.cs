@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using MoonSharp.Interpreter;
 
 namespace SWBF2Admin.Structures
 {
@@ -10,12 +11,14 @@ namespace SWBF2Admin.Structures
         IPAddress = 1
     }
 
+    [MoonSharpUserData]
     public class PlayerBan
     {
         public const int DURATION_PERMANENT = -1;
         public long DatabaseId { get; }
 
         [JsonIgnore]
+        [MoonSharpHidden]
         public DateTime Date { get; }
         public virtual string DateStr { get { return Date.ToString(); } }
 
@@ -23,6 +26,7 @@ namespace SWBF2Admin.Structures
         public virtual bool Expired { get { return ((Date.AddSeconds(Duration) < DateTime.Now) && Duration > 0); } }
 
         [JsonIgnore]
+        [MoonSharpHidden]
         public BanType Type { get; }
         public virtual int TypeId { get { return (int)Type; } }
 
@@ -36,6 +40,7 @@ namespace SWBF2Admin.Structures
         public long PlayerDatabaseId { get; }
         public long AdminDatabaseId { get; }
 
+        [MoonSharpHidden]
         public PlayerBan(long databaseId, string playerName, string playerKeyhash, string playerIPAddress, string adminName, string reason, DateTime date, long duration, BanType type, long playerDatabaseId, long adminDatabaseId)
         {
             DatabaseId = databaseId;
@@ -52,7 +57,7 @@ namespace SWBF2Admin.Structures
             Type = type;
             Reason = reason;
         }
-
+        [MoonSharpHidden]
         public PlayerBan(string playerName, string playerKeyhash, string playerIPAddress, string adminName, string reason, TimeSpan duration, BanType type, long playerDatabaseId, long adminDatabaseId)
         {
             PlayerName = playerName;
@@ -66,6 +71,7 @@ namespace SWBF2Admin.Structures
             Type = type;
             Reason = reason;
         }
+        [MoonSharpHidden]
         public PlayerBan(string playerName, string playerKeyhash, string playerIPAddress, string adminName, string reason, BanType type, long playerDatabaseId, long adminDatabaseId)
         {
             PlayerName = playerName;

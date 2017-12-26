@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DynamicCommand xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Enabled>true</Enabled>
+  <Alias>hello</Alias>
+  <Usage>hello</Usage>
+  
+  <!--
+	This section can be used to define custom settings for your command.
+	You can access them in lua by calling api.GetConfig("NodeName")
+  -->
+  <UserConfig>
+    <OnHello>Hello, {player}!</OnHello>
+  </UserConfig>
+</DynamicCommand>

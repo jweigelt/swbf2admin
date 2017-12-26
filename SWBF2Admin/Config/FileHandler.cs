@@ -145,7 +145,7 @@ namespace SWBF2Admin.Config
         {
             ConfigFileInfo info = GetFileInfo<T>();
             if (info.HasTemplate)
-                UnpackResource(info.FileName, info.Template);   
+                UnpackResource(info.FileName, info.Template);
             else
                 WriteConfigDefault<T>(info.FileName);
         }
@@ -158,13 +158,19 @@ namespace SWBF2Admin.Config
         /// T's standard constructor
         /// </para>
         /// </summary>
-        public T ReadConfig<T>()
+        public T ReadConfig<T>(string fileName = "")
         {
-            if (!File.Exists(GetFileInfo<T>().FileName))
+            if (fileName == "")
             {
-                UnpackConfigDefault<T>();
+                if (!File.Exists(GetFileInfo<T>().FileName))
+                    UnpackConfigDefault<T>();
+            }else
+            {
+                if (!File.Exists(fileName))
+                    WriteConfigDefault<T>(fileName);
             }
-            return ReadXmlFile<T>();
+
+            return ReadXmlFile<T>(fileName);
         }
 
         /// <summary>
@@ -206,5 +212,15 @@ namespace SWBF2Admin.Config
             fileName = ParseFileName(fileName);
             return File.ReadAllBytes(fileName);
         }
+
+        public DirectoryInfo[] GetDirectories(string fileName)
+        {
+            fileName = ParseFileName(fileName);
+            string[] dirs = Directory.GetDirectories(fileName);
+            DirectoryInfo[] res = new DirectoryInfo[dirs.Length];
+            for (int i = 0; i < dirs.Length; i++) res[i] = new DirectoryInfo(dirs[i]);
+            return res;
+        }
+
     }
 }

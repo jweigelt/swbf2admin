@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 
 using SWBF2Admin.Utility;
@@ -6,19 +7,27 @@ using SWBF2Admin.Config;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Runtime.Commands.Admin;
+using SWBF2Admin.Runtime.Commands.Dynamic;
+
+using MoonSharp.Interpreter;
 
 namespace SWBF2Admin.Runtime.Commands
 {
     public class CommandDispatcher : ComponentBase
     {
+        private const string DYNCOMMAND_DIR = "./cfg/dyncmd";
+
         private List<ChatCommand> commandList = new List<ChatCommand>();
         private string commandPrefix;
+        private bool enableDynamic;
 
-        public CommandDispatcher(AdminCore core) : base(core) { }
-
+        public CommandDispatcher(AdminCore core) : base(core)
+        {
+        }
         public override void Configure(CoreConfiguration config)
         {
             commandPrefix = config.CommandPrefix;
+            enableDynamic = config.CommandEnableDynamic;
         }
         public override void OnInit()
         {
@@ -26,6 +35,11 @@ namespace SWBF2Admin.Runtime.Commands
             RegisterCommand<CmdKick>();
             RegisterCommand<CmdTempban>();
             RegisterCommand<CmdAddMap>();
+            if (enableDynamic)
+            {
+                UserData.RegisterAssembly();
+                LoadDynCommands();
+            }
             Core.Rcon.ChatInput += new EventHandler(Rcon_ChatInput);
         }
 
@@ -57,9 +71,15 @@ namespace SWBF2Admin.Runtime.Commands
                     if (players.Count == 1)
                     {
                         //permissions could be checked here
-
-                        Logger.Log(LogLevel.Verbose, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, name);
-                        c.Run(players[0], command, parameters);
+                        if (c.Enabled)
+                        {
+                            Logger.Log(LogLevel.Verbose, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, name);
+                            c.Run(players[0], command, parameters);
+                        }
+                        else
+                        {
+                            Logger.Log(LogLevel.Verbose, "Command \"{0}\" (called by \"{1}\") is disabled - ignoring call.", c.Alias, name);
+                        }
                     }
                     else
                     {
@@ -70,6 +90,25 @@ namespace SWBF2Admin.Runtime.Commands
             }
 
             Logger.Log(LogLevel.Verbose, "Player \"{0}\" issued unknown command \"{1}\"", name, command);
+        }
+
+        private void LoadDynCommands()
+        {
+            DirectoryInfo[] dirs = Core.Files.GetDirectories(DYNCOMMAND_DIR);
+            foreach (DirectoryInfo dir in dirs)
+            {
+                try
+                {
+                    DynamicCommand c = Core.Files.ReadConfig<DynamicCommand>($"{dir.FullName}/{dir.Name}.xml");
+                    c.Init(Core, dir);
+                    commandList.Add(c);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogLevel.Warning, "Couldn't load dynamic command \"{0}\" - disabling it.", dir.Name);
+                }
+            }
+
         }
     }
 }

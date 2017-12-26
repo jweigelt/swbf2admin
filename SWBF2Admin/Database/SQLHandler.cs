@@ -258,7 +258,7 @@ namespace SWBF2Admin.Database
                 "@ban_type", ban.TypeId.ToString(),
                 "@ban_timestamp", GetTimestamp().ToString());
         }
-        public List<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, DateTime date, int maxRows)
+        public List<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, uint timestamp, int maxRows)
         {
             playerExp += "%";
             adminExp += "%";
@@ -299,9 +299,9 @@ namespace SWBF2Admin.Database
                 "@admin_exp", adminExp,
                 "@reason_exp", reasonExp,
                 "@timestamp", GetTimestamp(),
-                "@max_rows", maxRows.ToString(),
-                "@date_timestamp", GetTimestamp(date).ToString(),
-                "@ban_type", banType.ToString()))
+                "@max_rows", maxRows,
+                "@date_timestamp", timestamp,
+                "@ban_type", banType))
             {
                 while (reader.Read())
                 {
@@ -320,6 +320,10 @@ namespace SWBF2Admin.Database
                 }
             }
             return bans;
+        }
+        public List<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, DateTime date, int maxRows)
+        {
+            return GetBans(playerExp, adminExp, reasonExp, expired, banType, GetTimestamp(date), maxRows);
         }
         public void DeleteBan(int id)
         {

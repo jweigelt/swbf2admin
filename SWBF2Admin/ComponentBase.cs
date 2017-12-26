@@ -77,17 +77,7 @@ namespace SWBF2Admin
             enableUpdate = false;
         }
 
-        protected string FormatString(string message, params string[] tags)
-        {
-            for (int i = 0; i < tags.Length; i++)
-            {
-                if (i + 1 >= tags.Length)
-                    Logger.Log(LogLevel.Warning, "No value for parameter {0} specified. Ignoring it.", tags[i]);
-                else
-                    message = message.Replace(tags[i], tags[++i]);
-            }
-            return message;
-        }
+
 
         protected void SendFormatted(string message, params string[] tags)
         {
@@ -96,7 +86,7 @@ namespace SWBF2Admin
 
         protected void SendFormatted(string message, Player player, params string[] tags)
         {
-            message = FormatString(message, tags);
+            message = Util.FormatString(message, tags);
             if (player == null) Core.Rcon.Say(message); else Core.Rcon.Pm(message, player);
         }
 
