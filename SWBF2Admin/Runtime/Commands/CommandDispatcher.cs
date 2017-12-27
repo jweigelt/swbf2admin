@@ -105,7 +105,7 @@ namespace SWBF2Admin.Runtime.Commands
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(LogLevel.Warning, "Couldn't load dynamic command \"{0}\" - disabling it.", dir.Name);
+                    Logger.Log(LogLevel.Warning, "Couldn't load dynamic command \"{0}\" ({1})- disabling it.", dir.Name, e.Message);
                 }
             }
 

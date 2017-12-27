@@ -1,10 +1,13 @@
 ﻿using SWBF2Admin.Gameserver;
 using System;
+using MoonSharp.Interpreter;
 
 namespace SWBF2Admin.Structures
 {
+    [MoonSharpUserData]
     public class ServerInfo
     {
+        [MoonSharpHidden]
         public ServerStatus Status { get; set; }
         public virtual int StatusId { get { return (int)Status; } }
 

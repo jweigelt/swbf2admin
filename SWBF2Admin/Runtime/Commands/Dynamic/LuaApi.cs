@@ -47,6 +47,10 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         {
             core.Players.Swap(player);
         }
+        public void Pm(string message, Player player, params string[] p)
+        {
+            core.Rcon.Pm(Util.FormatString(message, p), player);
+        }
 
         public List<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, uint timestamp, int maxRows)
         {
@@ -62,11 +66,27 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
                 b = new PlayerBan(p.Name, p.KeyHash, p.RemoteAddressStr, a.Name, reason, new TimeSpan(0, 0, 0, duration), t, p.DatabaseId, a.DatabaseId);
             core.Database.InsertBan(b);
         }
+
         #endregion
 
         #region "Game"
         public ServerInfo GetServerInfo() { return core.Game.LatestInfo; }
         public GameInfo GetGameInfo() { return core.Game.LatestGame; }
+        #endregion
+
+        #region "Rcon"
+        public string SendCommand(string cmd, params string[] args)
+        {
+            return core.Rcon.SendCommand(cmd, args);
+        }
+        public void SendCommandNoResponse(string cmd, params string[] args)
+        {
+            core.Rcon.SendCommandNoResponse(cmd, args);
+        }
+        public void Say(string message, params string[] p)
+        {
+            core.Rcon.Say(Util.FormatString(message, p));
+        }
         #endregion
 
         #region "I/O"
@@ -90,15 +110,6 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         {
             message = $"[LUA] [{command.Alias}] {message}";
             Logger.Log((LogLevel)level, message, p);
-        }
-
-        public void Say(string message, params string[] p)
-        {
-            core.Rcon.Say(Util.FormatString(message, p));
-        }
-        public void Pm(string message, Player player, params string[] p)
-        {
-            core.Rcon.Pm(Util.FormatString(message, p), player);
         }
         #endregion
     }

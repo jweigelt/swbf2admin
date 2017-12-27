@@ -117,18 +117,17 @@ namespace SWBF2Admin.Runtime.Rcon
             SendCommand("warn", player.Slot.ToString(), message);
         }
 
-        public void SendCommand(string command, bool dontwait, params string[] p)
+        public void SendCommandNoResponse(string command, params string[] p)
         {
-            if (dontwait)
-                Send(command + " " + string.Join(" ", p));
-            else
-                SendCommand(command, p);
+            Send(command + " " + string.Join(" ", p));
+
         }
 
-        public void SendCommand(string command, params string[] p)
+        public string SendCommand(string command, params string[] p)
         {
             RconPacket packet = new RconPacket(command + " " + string.Join(" ", p));
             SendPacket(packet);
+            return packet.Response;
         }
 
         /// <summary>Connects to rcon-server and authenticates</summary>
