@@ -9,7 +9,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
     public class CmdAddMap : MapCommand
     {
         public string OnAddMap { get; set; } = "Map {map_nicename} ({map_name}{gamemode}) was added to the map rotation.";
-        public CmdAddMap() : base("addmap", Permission.SetMap) { }
+        public CmdAddMap() : base("addmap", "addmap") { }
 
         public override bool AffectMap(ServerMap map, string mode, Player player, string commandLine, string[] parameters, int paramIdx)
         {

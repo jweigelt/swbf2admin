@@ -10,8 +10,8 @@ namespace SWBF2Admin.Runtime.Commands.Admin
 
         public string OnBan { get; set; } = "{player} was banned by {admin}";
         public string OnBanReason { get; set; } = "{player} was kicked by {admin} for {reason}";
-        public CmdBan() : base("ban", Permission.Ban) { }
-        public CmdBan(string n, Permission p) : base(n, p) { }
+        public CmdBan() : base("ban", "ban") { }
+        public CmdBan(string n, string p) : base(n, p) { }
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {

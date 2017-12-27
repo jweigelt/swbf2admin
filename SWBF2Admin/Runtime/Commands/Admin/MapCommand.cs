@@ -18,7 +18,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         public int MaxMapListLen { get; set; } = 5;
         public bool SearchNiceName { get; set; } = true;
 
-        public MapCommand(string alias, Permission permission) : base(alias, permission, $"{alias} <map> <gamemode>") { }
+        public MapCommand(string alias, string permission) : base(alias, permission, $"{alias} <map> <gamemode>") { }
         public abstract bool AffectMap(ServerMap map, string mode, Player player, string commandLine, string[] parameters, int paramIdx);
 
         public override bool Run(Player player, string commandLine, string[] parameters)
