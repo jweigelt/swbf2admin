@@ -95,13 +95,13 @@ namespace SWBF2Admin
 
             string cmd = string.Empty;
 
-            while((cmd = Console.ReadLine()) != "quit")
+            while ((cmd = Console.ReadLine()) != "quit")
             {
                 if (cmd == "import maps")
                 {
                     Database.ImportMaps(ServerMap.ReadServerMapConfig(this));
                 }
-            }                  
+            }
 
             Scheduler.Stop();
             foreach (ComponentBase h in components) h.OnDeInit();

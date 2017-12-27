@@ -1,42 +1,65 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CoreConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  
+
+  <!--
+    WebAdmin configuration:
+    - WebAdminEnable: enable WebAdmin
+    - WebAdminPrefix: URL ("prefix") of the webserver.
+    Using https:
+    - install your cert into your local cert store
+    - run netsh http add sslcert ipport=<WebAdminPrefix> certhash=<certhash> appid={02639d71-0935-35e8-9d1b-9dd1a2a34627}
+  --> 
+  <WebAdminEnable>true</WebAdminEnable>
+  <WebAdminPrefix>http://localhost:8080/</WebAdminPrefix>
+
+  <!--
+    Server options:
+    - ManageServer:       act as the server manager and not as a client
+    - AutoLaunchServer:   launch server on startup
+    - AutoRestartServer:  restart server automatically if it crashes
+    - ServerPath:         Path to gameserver directory. Use ./path/to/server for relative file access.
+  -->  
+  <ManageServer>true</ManageServer>
+  <AutoLaunchServer>false</AutoLaunchServer>
+  <AutoRestartServer>false</AutoRestartServer>
+  <ServerPath>./server</ServerPath>
+
   <!--
     Remote console:
-    - RconHostname > format: <host>:<port> server's IP address or hostname and remote console port
-    - RconPassword > server's admin password
+    - RconHostname: format: <host>:<port> server's IP address or hostname and remote console port
+    - RconPassword: server's admin password
   -->
   <RconHostname>192.168.188.123:4658</RconHostname>
   <RconPassword>password</RconPassword>
-  
+
   <!--
     Database:
-    - SQLEngine       > Database backend (SQLite or MySQL)
-    - SQLiteFileName  > Path to sqlitedb when using SQLite. Use ./path/to/fb.sqlite for relative file access.
-    - MySQLHostname   > Format: <host>:<port> mysql server's IP address or hostname and port
-    - MySQLUsername   > MySQL server's username
-    - MySQLUsername   > MySQL user's password    
+    - SQLEngine:        Database backend (SQLite or MySQL)
+    - SQLiteFileName:   Path to sqlitedb when using SQLite. Use ./path/to/fb.sqlite for relative file access.
+    - MySQLHostname:    Format: <host>:<port> mysql server's IP address or hostname and port
+    - MySQLUsername:    MySQL server's username
+    - MySQLUsername:    MySQL user's password    
   -->
   <SQLEngine>SQLite</SQLEngine>
   <SQLiteFileName>./SWBF2Admin.sqlite</SQLiteFileName>
   <MySQLHostname>localhost:3306</MySQLHostname>
   <MySQLUsername>root</MySQLUsername>
   <MySQLPassword />
-  
+
   <!--
     CommandHandler:
-    - CommandPrefix > Prefix that initiates a command
+    - CommandPrefix: Prefix that initiates a command
   -->
   <CommandPrefix>!</CommandPrefix>
 
   <!--
     Event logging:
-    - LogMinimumLevel > Minium level for messages to be logged
-    - LogToFile       > Write console output to file (true/false)
-    - LogFileName     > Path to logfile. Use ./path/to/fb.sqlite for relative file access.
-  --> 
+    - LogMinimumLevel:  Minium level for messages to be logged
+    - LogToFile:        Write console output to file (true/false)
+    - LogFileName:      Path to logfile. Use ./path/to/fb.sqlite for relative file access.
+  -->
   <LogMinimumLevel>VerboseSQL</LogMinimumLevel>
   <LogToFile>false</LogToFile>
   <LogFileName>./log.txt</LogFileName>
-  
+
 </CoreConfiguration>

@@ -8,11 +8,20 @@ using System.Collections.Generic;
 using SWBF2Admin.Utility;
 using SWBF2Admin.Web.Pages;
 using SWBF2Admin.Config;
+using System.Diagnostics;
+using System.Security.Principal;
+using System.Reflection;
 
 namespace SWBF2Admin.Web
 {
     public class WebServer : ComponentBase
     {
+        private const int NETSH_WAIT = 1500;
+        private enum WinErrorCode
+        {
+            AccessDenied = 5
+        }
+
         private List<WebPage> webpages = new List<WebPage>();
         private Dictionary<string, WebUser> authCache = new Dictionary<string, WebUser>();
 
@@ -54,7 +63,29 @@ namespace SWBF2Admin.Web
         }
         private void Start()
         {
+            string rr = Assembly.GetCallingAssembly().GetType().GUID.ToString();
+
+            try
+            {
+                StartListener();
+            }
+            catch (HttpListenerException e)
+            {
+                if (e.ErrorCode == (int)WinErrorCode.AccessDenied)
+                {
+                    RegisterPrefix(prefix);
+                    StartListener();
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Error, "Failed to start HttpListener ({0})", e.Message);
+                    throw e;
+                }
+            }
+
             running = true;
+            Logger.Log(LogLevel.Info, Log.WEB_START, prefix);
+
             workThread = new Thread(WorkThread_Run);
             workThread.Start();
         }
@@ -64,15 +95,51 @@ namespace SWBF2Admin.Web
             listener.Stop();
             workThread.Join();
         }
-        private void WorkThread_Run()
+
+        private void RegisterPrefix(string prefix)
+        {
+            if (System.Environment.OSVersion.Version.Major >= 6)
+            {
+                string cmd = $"netsh http add urlacl url={prefix} user={Environment.UserDomainName}\\{Environment.UserName}";
+                Logger.Log(LogLevel.Info, "Trying to register HttpPrefix \"{0}\"", prefix);
+
+                ProcessStartInfo info = new ProcessStartInfo("cmd.exe", $"/C {cmd}");
+                info.CreateNoWindow = true;
+                info.UseShellExecute = true;
+                info.Verb = "runas";
+
+                Logger.Log(LogLevel.Info, "--> {0}", cmd);
+
+                try
+                {
+                    Process p = Process.Start(info);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogLevel.Error, "Failed to register HttpPrefix. ({0})", e.Message);
+                    throw e;
+                }
+
+                //Windows' UAC doesn't allow the redirection of stdout when using runas
+                //therefore we can only assume netsh is done after waiting a bit
+                Thread.Sleep(NETSH_WAIT);
+            }
+            else //XP
+            {
+                Logger.Log(LogLevel.Info, "No UAC support found - please add urlacl \"{0}\" manually.", prefix);
+            }
+        }
+
+        private void StartListener()
         {
             listener = new HttpListener();
             listener.Prefixes.Add(prefix);
             listener.AuthenticationSchemes = AuthenticationSchemes.Basic;
             listener.Start();
+        }
 
-            Logger.Log(LogLevel.Info, Log.WEB_START, prefix);
-
+        private void WorkThread_Run()
+        {
             try
             {
                 while (running) HandleContext(listener.GetContext());
