@@ -13,7 +13,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         public string OnInvalidIndex { get; set; } = "Invalid index. Please specify index between 0 and {matchcount}.";
         public string OptionNumber { get; set; } = "-n";
 
-        public PlayerCommand(string alias, Permission permission) : base(alias, permission, $"{alias} <player> [-n <num>] [<reason>]") { }
+        public PlayerCommand(string alias, string permissionName) : base(alias, permissionName, $"{alias} <player> [-n <num>] [<reason>]") { }
         public abstract bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx);
         public override bool Run(Player player, string commandLine, string[] parameters)
         {

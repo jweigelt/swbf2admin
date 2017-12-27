@@ -4,7 +4,7 @@ using SWBF2Admin.Structures;
 
 namespace SWBF2Admin.Runtime.Permissions
 {
-    class PermissionUser
+    public class PermissionUser
     {
         private Player _player;
         private readonly ISet<PermissionGroup> _groups = new HashSet<PermissionGroup>();

@@ -225,6 +225,80 @@ namespace SWBF2Admin.Database
             // Permission.ToString currently returns Permission.Name, but if we used a simple enum then it would return the enum name
             return (HasRows(Query(sql, "@steam_id", player.KeyHash, "@permission", permission.ToString())));
         }
+        
+
+        /*
+         * TODO This proposition invalidates existing permission code, so just commenting most of it out
+         * Proposed schema for permissions:
+         * permissions:
+         *     - id (int)
+         *     - name (string)
+         * groups:
+         *     - id (int)
+         *     - name (string)
+         * grouped_permissions (many-to-many join table):
+         *     - group_id (int, reference to groups)
+         *     - permission_id (int, reference to permissions)
+         * players_permissions (one-to-many joins to groups and/or permissions:
+         *     - player_id: (int)
+         *     - group_id (int, nullable, reference to groups)
+         *     - permission_id (int, nullable, reference to permissions)
+         */
+        // TODO This is just a prototype for how the proposed schema would work
+        public bool HasPermission(Player player, string permissionName)
+        {
+            string sql = @"
+            SElECT player_id
+            FROM players_permissions
+                INNER JOIN players ON
+                    players.id = players_permissions.player_id
+                LEFT JOIN grouped_permissions ON
+                    players_permissions.group_id = grouped_permissions.group_id
+                INNER JOIN permissions ON
+                    permissions.id = players_permissions.permission_id OR
+                    permissions.id = grouped_permissions.permission_id 
+            WHERE players.keyhash = @keyhash AND permissions.name = @permission_name
+            ";
+            return HasRows(Query(sql, "@keyhash", player.KeyHash, "@permission_name", permissionName));
+        }
+        public IDictionary<int, Permission> GetPermissions()
+        {
+            string sql = "SELECT id, permission_name FROM prefix_permissions";
+            IDictionary<int, Permission> permissions = new Dictionary<int, Permission>();
+            using (DbDataReader reader = Query(sql))
+            {
+                while (reader.Read())
+                {
+                    int permId = (int) reader["id"];
+//                    permissions[permId] = new Permission(permId, RS(reader, "permission_name"), (int) reader["group_id"]);
+                }
+            }
+            Permission.InitPermissions(permissions);
+            return permissions;
+        }
+
+        // TODO
+        public IDictionary<string, PermissionGroup> GetPermissionGroups()
+        {
+            GetPermissions();
+            string sql =
+                "SELECT id, group_level, group_welcome, group_welcome_enable, group_default, group_name FROM prefix_groups";
+            IDictionary<string, PermissionGroup> permissionGroups = new Dictionary<string, PermissionGroup>();
+            using (DbDataReader reader = Query(sql))
+            {
+                while (reader.Read())
+                {
+                    string groupName = RS(reader, "group_name");
+                    ISet<Permission> permissionsInGroup = new HashSet<Permission>();
+                    foreach (KeyValuePair<int, Permission> permission in Permission.GetPermissions())
+                    {
+//                        if ()
+                    }
+//                    permissionGroups[groupName] = new PermissionGroup(groupName, );
+                }
+            }
+            return permissionGroups;
+        }
         #endregion
 
         #region Ban management

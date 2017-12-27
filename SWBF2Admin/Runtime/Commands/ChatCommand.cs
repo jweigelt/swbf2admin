@@ -18,10 +18,14 @@ namespace SWBF2Admin.Runtime.Commands
         [XmlIgnore]
         public AdminCore Core { get; set; }
 
-        public ChatCommand(string alias, Permission permission, string usage)
+        public ChatCommand(string alias, string permissionName, string usage)
         {
             Alias = alias;
-            Permission = permission;
+            Permission = Permission.FromName(permissionName);
+            if (Permission == null)
+            {
+                Logger.Log(LogLevel.Error, "Command '{0}' is using an invalid permission name '{1}'", alias, permissionName);
+            }
             Usage = usage;
         }
         public ChatCommand() { }

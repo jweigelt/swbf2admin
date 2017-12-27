@@ -12,7 +12,8 @@ namespace SWBF2Admin.Runtime.Commands.Admin
 
         public string OnKick { get; set; } = "{player} was kicked by {admin}";
         public string OnKickReason { get; set; } = "{player} was kicked by {admin} for {reason}";
-        public CmdKick() : base("kick", Permission.Kick) { }
+
+        public CmdKick() : base("kick", "kick") { }
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {
