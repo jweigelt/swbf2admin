@@ -1,7 +1,7 @@
 ﻿using System;
 namespace SWBF2Admin.Config
 {
-    [AttributeUsage(System.AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class)]
     class ConfigFileInfo : Attribute
     {
         public virtual bool HasTemplate { get { return (Template != null); } }

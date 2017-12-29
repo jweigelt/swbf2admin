@@ -26,19 +26,28 @@ namespace SWBF2Admin.Gameserver
         ///<summary>Called after the server-process exits planned</summary>
         public event EventHandler ServerStopped;
 
-        ///<summary>Relative or absolute path to server installation</summary>
+        /// <summary>
+        /// Relative or absolute path to server installation
+        /// </summary>
         public string ServerPath { get; set; } = "./server";
-    
-        ///<summary>Command-line args for starting the gameserver</summary>
+
+        /// <summary>
+        /// Command-line args for starting the gameserver
+        /// </summary>
         public string ServerArgs { get; set; } = "/win /norender /nosound /autonet dedicated /resolution 640 480";
 
         private Process serverProcess = null;
         private AdminCore core;
         private ServerStatus status = ServerStatus.Offline;
 
-        ///<summary>Current gameserver status</summary>
+        /// <summary>
+        /// Current gameserver status
+        /// </summary>
         public ServerStatus Status { get { return status; } }
-        ///<summary>Settings used by the gameserver</summary>
+
+        /// <summary>
+        /// Settings used by the gameserver
+        /// </summary>
         public ServerSettings Settings { get; set; }
 
         public ServerManager(AdminCore core) : base(core)
@@ -48,18 +57,21 @@ namespace SWBF2Admin.Gameserver
         public override void Configure(CoreConfiguration config)
         {
             ServerPath = Core.Files.ParseFileName(config.ServerPath);
+            ServerArgs = config.ServerArgs;
         }
         public override void OnInit()
         {
             Open();
         }
 
-        ///<summary>Checks if the server-process is already running and re-attaches if required</summary>
+        /// <summary>
+        /// Checks if the server-process is already running and re-attaches if required
+        /// </summary>
         private void Open()
-        {  
+        {
             foreach (Process p in Process.GetProcessesByName("BattlefrontII"))
             {
-            
+
                 if (Path.GetFullPath(p.MainModule.FileName).Equals(Path.GetFullPath(ServerPath + "\\BattlefrontII.exe")))
                 {
                     Logger.Log(LogLevel.Info, "Found running server process '{0}' ({1}), re-attaching...", p.MainWindowTitle, p.Id.ToString());
@@ -74,7 +86,9 @@ namespace SWBF2Admin.Gameserver
             Settings = ServerSettings.FromSettingsFile(core, ServerPath);
         }
 
-        ///<summary>Launches the gameserver</summary>
+        /// <summary>
+        /// Launches the gameserver
+        /// </summary>
         public void Start()
         {
             if (serverProcess == null)
@@ -93,7 +107,9 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
-        /// <summary>Stops the gameserver</summary>
+        /// <summary>
+        /// Stops the gameserver
+        /// </summary>
         public void Stop()
         {
             if (serverProcess != null)
@@ -104,7 +120,9 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
-        ///<summary>Called by EventHandler, when the serverprocess exits</summary>
+        ///<summary>
+        ///Called by EventHandler when the serverprocess exits
+        ///</summary>
         private void ServerProcess_Exited(object sender, EventArgs e)
         {
             serverProcess = null;

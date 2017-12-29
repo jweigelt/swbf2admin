@@ -166,7 +166,9 @@ namespace SWBF2Admin.Database
         private bool HasRows(DbDataReader reader)
         {
             if (reader == null) return false;
-            return reader.HasRows;
+            bool r = reader.HasRows;
+            reader.Dispose();
+            return r;
         }
         private long GetTimestamp()
         {
@@ -225,7 +227,7 @@ namespace SWBF2Admin.Database
             // Permission.ToString currently returns Permission.Name, but if we used a simple enum then it would return the enum name
             return (HasRows(Query(sql, "@steam_id", player.KeyHash, "@permission", permission.ToString())));
         }
-        
+
 
         /*
          * TODO This proposition invalidates existing permission code, so just commenting most of it out
@@ -269,8 +271,8 @@ namespace SWBF2Admin.Database
             {
                 while (reader.Read())
                 {
-                    int permId = (int) reader["id"];
-//                    permissions[permId] = new Permission(permId, RS(reader, "permission_name"), (int) reader["group_id"]);
+                    int permId = (int)reader["id"];
+                    //                    permissions[permId] = new Permission(permId, RS(reader, "permission_name"), (int) reader["group_id"]);
                 }
             }
             Permission.InitPermissions(permissions);
@@ -292,9 +294,9 @@ namespace SWBF2Admin.Database
                     ISet<Permission> permissionsInGroup = new HashSet<Permission>();
                     foreach (KeyValuePair<int, Permission> permission in Permission.GetPermissions())
                     {
-//                        if ()
+                        //                        if ()
                     }
-//                    permissionGroups[groupName] = new PermissionGroup(groupName, );
+                    //                    permissionGroups[groupName] = new PermissionGroup(groupName, );
                 }
             }
             return permissionGroups;
@@ -501,7 +503,8 @@ namespace SWBF2Admin.Database
                 "game_team2_tickets = @tickets2 " +
                 "WHERE id = @id";
 
-            NonQuery(sql, "@id", game.DatabaseId,
+            NonQuery(sql,
+                "@id", game.DatabaseId,
                 "@timestamp", GetTimestamp(),
                 "@score1", game.Team1Score,
                 "@score2", game.Team2Score,
@@ -517,13 +520,14 @@ namespace SWBF2Admin.Database
             NonQuery(sql, "@map", game.Map, "@started", GetTimestamp());
         }
 
-        public void AddPlayerStats(Player player, GameInfo game, bool quit = false)
+        public void InsertPlayerStats(Player player, GameInfo game, bool quit = false)
         {
             string sql = "INSERT INTO prefix_stats " +
                 "(player_id, stat_kills, stat_deaths, stat_points, stat_team, stat_quit, game_id) VALUES " +
                 "(@player_id, @kills, @deaths, @points, @team, @quit, @game_id)";
 
-            NonQuery(sql, "@player_id", player.DatabaseId,
+            NonQuery(sql,
+                "@player_id", player.DatabaseId,
                 "@kills", player.Kills,
                 "@deaths", player.Deaths,
                 "@points", player.Score,
@@ -545,9 +549,8 @@ namespace SWBF2Admin.Database
 
             using (DbDataReader reader = Query(sql, "@username", username, "@password", Util.Md5(password)))
             {
-                if (HasRows(reader))
-                {
-                    reader.Read();
+                if (reader.Read())
+                {  
                     return new WebUser(RL(reader, "id"), RS(reader, "user_name"), RS(reader, "user_password"), GetDateTime(RU(reader, "user_lastvisit")));
                 }
             }

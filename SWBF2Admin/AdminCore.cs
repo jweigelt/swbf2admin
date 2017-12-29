@@ -14,6 +14,7 @@ using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Runtime.Game;
 using SWBF2Admin.Runtime.Announce;
 using SWBF2Admin.Runtime.Commands;
+using SWBF2Admin.Runtime.ApplyMods;
 
 namespace SWBF2Admin
 {
@@ -32,6 +33,7 @@ namespace SWBF2Admin
         public AnnounceHandler Announce { get; }
         public GameHandler Game { get; }
         public CommandDispatcher Commands { get; }
+        public LvlWriter Mods { get; }
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
 
@@ -45,6 +47,7 @@ namespace SWBF2Admin
             Announce = new AnnounceHandler(this);
             Game = new GameHandler(this);
             Commands = new CommandDispatcher(this);
+            Mods = new LvlWriter(this);
 
             components.Add(Database);
             components.Add(Server);
@@ -54,7 +57,9 @@ namespace SWBF2Admin
             components.Add(Announce);
             components.Add(Game);
             components.Add(Commands);
+            components.Add(Mods);
         }
+
         public void Run()
         {
             Logger.Log(LogLevel.Info, Log.CORE_START, Constants.PRODUCT_NAME, Constants.PRODUCT_VERSION, Constants.PRODUCT_AUTHOR);
@@ -139,7 +144,7 @@ namespace SWBF2Admin
 
         private void Announce_Broadcast(object sender, EventArgs e)
         {
-            Rcon.Say(((AnnounceEventArgs)e).GetMessage());
+            Rcon.Say(((AnnounceEventArgs)e).Announce.ParseMessage(this));
         }
         #endregion
     }

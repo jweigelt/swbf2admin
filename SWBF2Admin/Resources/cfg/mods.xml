@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LvlWriterConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!--
+	idea & mods stolen from Yoni: https://gist.github.com/yonilerner/caf62536fe75d1061cbde89abe348d4c
+  -->
+  <Mods>
+
+    <!--We change the TK points to +2, and change tank enemy tank kill to -2-->
+    <LvlMod Name="positive_tk">
+      <HexEdits>
+        <HexEdit FileName="ingame.lvl" StartAddress="000000b9" PatchedBytes= "4040" OriginalBytes="0000" />
+        <HexEdit FileName="ingame.lvl" StartAddress="000000be" PatchedBytes= "00c0" OriginalBytes="4040" />
+        <HexEdit FileName="ingame.lvl" StartAddress="0000013b" PatchedBytes= "09" OriginalBytes="89" />
+        <HexEdit FileName="ingame.lvl" StartAddress="00000143" PatchedBytes= "89" OriginalBytes="c9" />
+        <HexEdit FileName="ingame.lvl" StartAddress="0000014b" PatchedBytes= "c9" OriginalBytes="09" />
+      </HexEdits>
+    </LvlMod>
+
+    <LvlMod Name="droid_invincible">
+      <HexEdits>
+        <!--health-->
+        <HexEdit FileName="ingame.lvl" StartAddress="002e7614"
+          PatchedBytes= "00000000000000000000000000000000"
+          OriginalBytes="50524f50070000001b1f971938300000" />
+
+        <!--ammo-->
+        <HexEdit FileName="ingame.lvl" StartAddress="002a9644"
+          PatchedBytes= "00000000000000000000000000000000"
+          OriginalBytes="50524F50080000001B1F971932303000" />
+      </HexEdits>
+    </LvlMod>
+
+    <LvlMod Name="droid_fast_heal">
+      <HexEdits>
+        <!--speed-->
+        <HexEdit FileName="ingame.lvl" StartAddress="002e7630" PatchedString= "0.1" OriginalString="1.0"/>
+
+        <!--heal power-->
+        <HexEdit FileName="ingame.lvl" StartAddress="002e7640" PatchedString= "1000.0" OriginalString="25.000"/>
+      </HexEdits>
+    </LvlMod>
+
+    <LvlMod Name="no_chewie">
+      <HexEdits>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "24" OriginalString="00"/>
+        <!--chewie-->
+      </HexEdits>
+    </LvlMod>
+
+    <LvlMod Name="no_gunner">
+      <HexEdits>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "24" OriginalString="00"/>
+        <!--chewie-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "15" OriginalString="00"/>
+        <!--han 1-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0029784C8" PatchedString= "15" OriginalString="00"/>
+        <!--han 2-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0019D9EA0" PatchedString= "12" OriginalString="00"/>
+        <!--leia-->
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002B3FAC" PatchedString= "12" OriginalString="00"/>
+        <!--boba-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="007994A8" PatchedString= "12" OriginalString="00"/>
+        <!--jango-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="007994A8" PatchedString= "12" OriginalString="00"/>
+        <!--jango-->
+      </HexEdits>
+    </LvlMod>
+
+    <LvlMod Name="no_force">
+      <HexEdits>
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0052471C" PatchedString= "0" OriginalString="1"/>
+        <!--choke-->
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003012E0" PatchedString= "0" OriginalString="1"/>
+        <!--choke 1-->
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003A07E4" PatchedString= "0" OriginalString="1"/>
+        <!--choke 3-->
+
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003A00E4" PatchedString= "0" OriginalString="1"/>
+        <!--lightning ord 1-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0052401C" PatchedString= "0" OriginalString="1"/>
+        <!--lightning ord 2-->
+
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00581CF4" PatchedString= "0" OriginalString="1"/>
+        <!--pull ord 1-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0072A1D8" PatchedString= "0" OriginalString="1"/>
+        <!--pull ord 2-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00958FF4" PatchedString= "0" OriginalString="1"/>
+        <!--pull ord 3-->
+
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="007B75B0" PatchedString= "0" OriginalString="4"/>
+        <!--push ord 1-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00843518" PatchedString= "0" OriginalString="4"/>
+        <!--push ord 2-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="008CAC88" PatchedString= "0" OriginalString="4"/>
+        <!--push ord 3-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00959548" PatchedString= "0" OriginalString="4"/>
+        <!--push ord 4-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="005B8128" PatchedString= "0" OriginalString="4"/>
+        <!--push ord 5-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="001BF2D88" PatchedString= "0" OriginalString="4"/>
+        <!--push ord 6-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="002020570" PatchedString= "0" OriginalString="4"/>
+        <!--push ord 7-->
+      </HexEdits>
+    </LvlMod>
+
+    <LvlMod Name="enemy_tk">
+      <HexEdits>
+        <HexEdit FileName="mission.lvl" StartAddress="0000C2BB" PatchedBytes= "80" OriginalBytes="00" />
+      </HexEdits>
+    </LvlMod>
+
+  </Mods>
+</LvlWriterConfig>

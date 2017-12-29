@@ -164,7 +164,8 @@ namespace SWBF2Admin.Config
             {
                 if (!File.Exists(GetFileInfo<T>().FileName))
                     UnpackConfigDefault<T>();
-            }else
+            }
+            else
             {
                 if (!File.Exists(fileName))
                     WriteConfigDefault<T>(fileName);
@@ -221,6 +222,37 @@ namespace SWBF2Admin.Config
             for (int i = 0; i < dirs.Length; i++) res[i] = new DirectoryInfo(dirs[i]);
             return res;
         }
+
+        public FileStream OpenStream(string fileName)
+        {
+
+            fileName = ParseFileName(fileName);
+            try
+            {
+                return File.Open(fileName, FileMode.Open);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, "Failed to open stream \"{0}\" ({1})", fileName, e.Message);
+                throw e;
+            }
+        }
+
+        public void WriteBytes(FileStream stream, long address, byte[] buf, int offset = 0, int len = -1)
+        {
+            if (len < 0) len = buf.Length;
+            try
+            {
+                stream.Position = address;
+                stream.Write(buf, offset, len);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, "Failed write to {0} ({1}) \"{2}\"", address.ToString(), stream.Name, e.Message);
+                throw e;
+            }
+        }
+
 
     }
 }

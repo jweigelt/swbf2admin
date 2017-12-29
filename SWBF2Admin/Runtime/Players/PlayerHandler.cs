@@ -81,6 +81,10 @@ namespace SWBF2Admin.Runtime.Players
 
         }
 
+        /// <summary>
+        /// Handles player's db data sets, attaches dbinfo to Player object 
+        /// </summary>
+        /// <param name="p"></param>
         private void HandlePlayerDb(Player p)
         {
             if (Core.Database.PlayerExists(p))
@@ -103,18 +107,28 @@ namespace SWBF2Admin.Runtime.Players
                 SendFormatted(config.OnPlayerAutoKickBanned, "{player}", p.Name);
             }
         }
+
+        /// <summary>
+        /// Called when a player leaves the server
+        /// </summary>
+        /// <param name="p"></param>
         private void OnPlayerLeave(Player p)
         {
             Logger.Log(LogLevel.Verbose, "Player {0} left.", p.Name);
-            Core.Database.AddPlayerStats(p, Core.Game.LatestGame, true);
+            Core.Database.InsertPlayerStats(p, Core.Game.LatestGame, true);
         }
 
+        /// <summary>
+        /// Called when GameHandler writes stats
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Game_GameClosed(object sender, EventArgs e)
         {
             foreach (Player p in playerList)
             {
                 GameClosedEventArgs gce = (GameClosedEventArgs)e;
-                Core.Database.AddPlayerStats(p, gce.Game);
+                Core.Database.InsertPlayerStats(p, gce.Game);
             }
         }
 
@@ -152,6 +166,12 @@ namespace SWBF2Admin.Runtime.Players
             return matching;
         }
 
+        /// <summary>
+        /// Checks if a player is present in a list of player
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="list"></param>
+        /// <returns>true if players is contained, false if not</returns>
         private bool PlayerExists(Player player, List<Player> list)
         {
             foreach (Player p in list)
@@ -160,6 +180,12 @@ namespace SWBF2Admin.Runtime.Players
             }
             return false;
         }
+
+        /// <summary>
+        /// Searches the current playerlist for a player with matching keyhash
+        /// </summary>
+        /// <param name="kh"></param>
+        /// <returns>Matching player object if player was found, null if no player was found</returns>
         private Player GetPlayerByKeyHash(string kh)
         {
             foreach (Player p in playerList)
@@ -169,10 +195,19 @@ namespace SWBF2Admin.Runtime.Players
             return null;
         }
 
+        /// <summary>
+        /// Kicks a player from the server
+        /// </summary>
+        /// <param name="p"></param>
         public void Kick(Player p)
         {
             Core.Rcon.SendCommand("boot", p.Slot.ToString());
         }
+
+        /// <summary>
+        /// Changes a player's team
+        /// </summary>
+        /// <param name="p"></param>
         public void Swap(Player p)
         {
             Core.Rcon.SendCommand("swap", p.Slot.ToString());

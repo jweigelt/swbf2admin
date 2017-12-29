@@ -35,6 +35,8 @@ namespace SWBF2Admin.Runtime.Commands
             RegisterCommand<CmdKick>();
             RegisterCommand<CmdTempban>();
             RegisterCommand<CmdAddMap>();
+            RegisterCommand<CmdApplyMods>();
+
             if (enableDynamic)
             {
                 UserData.RegisterAssembly();
@@ -75,7 +77,7 @@ namespace SWBF2Admin.Runtime.Commands
                             "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, c.Alias);
                     }
                     // TODO Use permissions
-                    else if (!Core.Database.HasPermission(players[0], c.Permission))
+                    else if(false)//if (!Core.Database.HasPermission(players[0], c.Permission))
                     {
                         Logger.Log(LogLevel.Verbose,
                             "Player \"{0}\" doesnt have permission for \"{1}\"", players[0].Name, c.Alias);

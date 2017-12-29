@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 using SWBF2Admin.Structures;
 using SWBF2Admin.Utility;
+using SWBF2Admin.Runtime.ApplyMods;
 
 using MoonSharp.Interpreter;
 namespace SWBF2Admin.Runtime.Commands.Dynamic
@@ -110,6 +111,28 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         {
             message = $"[LUA] [{command.Alias}] {message}";
             Logger.Log((LogLevel)level, message, p);
+        }
+        #endregion
+
+        #region "Mods"
+        public List<LvlMod> GetMods()
+        {
+            return core.Mods.Mods;
+        }
+
+        public void ApplyMod(LvlMod mod)
+        {
+            core.Mods.ApplyMod(mod);
+        }
+
+        public void RevertMod(LvlMod mod)
+        {
+            core.Mods.RevertMod(mod);
+        }
+
+        public void RevertAllMods()
+        {
+            core.Mods.RevertAll();
         }
         #endregion
     }

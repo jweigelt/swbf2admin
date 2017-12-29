@@ -63,8 +63,6 @@ namespace SWBF2Admin.Web
         }
         private void Start()
         {
-            string rr = Assembly.GetCallingAssembly().GetType().GUID.ToString();
-
             try
             {
                 StartListener();

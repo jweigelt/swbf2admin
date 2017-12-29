@@ -6,26 +6,10 @@ namespace SWBF2Admin.Runtime.Announce
         /// <summary>
         /// Announce object to be broadcasted
         /// </summary>
-        private Announce announce;
+        public Announce Announce { get; }
         public AnnounceEventArgs(Announce announce)
         {
-            this.announce = announce;
-        }
-
-        /// <summary>
-        /// Gets the announce-message. Variables are parsed if required.
-        /// </summary>
-        public string GetMessage()
-        {
-            if (!announce.EnableParser)
-            {
-                return announce.Message;
-            }
-            else
-            {
-                //TODO: parse stuff
-                return announce.Message;
-            }
+            Announce = announce;
         }
     }
 }
