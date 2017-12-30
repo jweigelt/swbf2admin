@@ -253,6 +253,10 @@ namespace SWBF2Admin.Config
             }
         }
 
-
+        public bool FileExists(string fileName)
+        {
+            fileName = ParseFileName(fileName);
+            return File.Exists(fileName);
+        }
     }
 }

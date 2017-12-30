@@ -25,8 +25,9 @@ function General() {
 
     this.onDeinit = function () {
         if (base.pending == true) {
+            if (base.timeout != null) clearTimeout(base.timeout);
+            base.pending = true;
             base.saveSettings();
-            base.pending = false;
         }
     };
 
@@ -91,6 +92,10 @@ function General() {
         $("#general_input_rconport").val(s.RconPort);
         $("#general_select_lan").val(s.Lan.toString());
         $("#general_select_bandwidth").val(s.Bandwidth);
+
+        if ($("#general_select_ipa option:selected").length < 1) {
+            $("#general_select_ipa option:first").prop('selected', true);
+        }
     };
 
     this.updateSettings = function () {

@@ -26,6 +26,7 @@ function MainFrame() {
     this.loadPage = function (href) {
         var e = { delay: false };
         if (base.activePage != null) {
+            console.log("deinit()");
             base.activePage.onDeinit(e);
         }
 

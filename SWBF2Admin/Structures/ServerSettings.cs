@@ -3,8 +3,11 @@ using System.Reflection;
 
 using SWBF2Admin.Structures.Attributes;
 using SWBF2Admin.Utility;
+using SWBF2Admin.Config;
+
 namespace SWBF2Admin.Structures
 {
+    //[ConfigFileInfo(fileName:"./server/settings/ServerSettings.cfg", Template = )
     public class ServerSettings
     {
         private const string FILE_NAME = "/settings/ServerSettings.cfg";
@@ -49,7 +52,7 @@ namespace SWBF2Admin.Structures
         public string NetRegion { get; set; } = "EU";
 
         [ConfigSection(ConfigSection.GENERAL_KEEPDEFAULT)]
-        public string VideoStd { get; set; } = "NTSC";   
+        public string VideoStd { get; set; } = "NTSC";
 
         #region "Heroes"
         [ConfigSection(ConfigSection.GAME)]
@@ -62,10 +65,10 @@ namespace SWBF2Admin.Structures
         public ushort HrUnlockValue { get; set; } = 10;
 
         [ConfigSection(ConfigSection.GAME)]
-        public ushort HrPlayer { get; set; } = 0;
+        public ushort HrPlayer { get; set; } = 1;
 
         [ConfigSection(ConfigSection.GAME)]
-        public ushort HrTeam { get; set; } = 0;
+        public ushort HrTeam { get; set; } = 1;
 
         [ConfigSection(ConfigSection.GAME)]
         public ushort HrRespawn { get; set; } = 90;
@@ -147,6 +150,12 @@ namespace SWBF2Admin.Structures
             ServerSettings settings = new ServerSettings();
             string file = null;
             string fileName = path + FILE_NAME;
+
+            if (!core.Files.FileExists(fileName))
+            {
+                return settings;
+            }
+
             try
             {
                 file = core.Files.ReadFileText(fileName);

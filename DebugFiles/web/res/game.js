@@ -26,8 +26,9 @@ function Game() {
 
     this.onDeinit = function () {
         if (base.pending == true) {
+            if (base.timeout != null) clearTimeout(base.timeout);
+            base.pending = true;
             base.saveSettings();
-            base.pending = false;
         }
     };
 
