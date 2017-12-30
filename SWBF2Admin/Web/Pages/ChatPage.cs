@@ -39,9 +39,10 @@ namespace SWBF2Admin.Web.Pages
             }
         }
 
-        public ChatPage(AdminCore core) : base(core, Constants.WEB_URL_CHAT, Constants.WEB_FILE_CHAT)
+        public ChatPage(AdminCore core) : base(core, "/live/chat", "chat.htm")
         {
             Core.Rcon.ChatInput += new EventHandler(Rcon_Chat);
+            Core.Rcon.ChatOutput += new EventHandler(Rcon_Chat);
         }
 
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
@@ -49,13 +50,12 @@ namespace SWBF2Admin.Web.Pages
             ChatApiParams p = null;
             if ((p = TryJsonParse<ChatApiParams>(ctx, postData)) == null) return;
 
-            if (p.Action == Constants.WEB_ACTION_CHAT_SEND)
+            if (p.Action.Equals("chat_send"))
             {
                 Logger.Log(LogLevel.Verbose, "Processing webchat input: '{0}'", p.Message);
-                //TODO: Fix me
-                Chat_Input(new ChatMessage(p.Message, "WebAdmin"));
-                Core.Rcon.SendCommand("say", "[WebAdmin]", p.Message);
+                Core.Rcon.Say(p.Message);
             }
+
             ChatSession s = GetSession(ctx);
 
             mtx.WaitOne();
@@ -143,8 +143,6 @@ namespace SWBF2Admin.Web.Pages
         {
             RconChatEventArgs re = (RconChatEventArgs)e;
             Chat_Input(new ChatMessage(re.Message, re.Name));
-
         }
-
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
-using SWBF2Admin.Runtime.Permissions;
-using SWBF2Admin.Structures;
-using MoonSharp.Interpreter;
-using System.Xml.Serialization;
-using System.Xml;
+
 using SWBF2Admin.Utility;
+using SWBF2Admin.Structures;
+
+using MoonSharp.Interpreter;
 
 namespace SWBF2Admin.Runtime.Commands.Dynamic
 {

@@ -355,15 +355,15 @@ namespace SWBF2Admin.Database
                 "prefix_players.player_last_ip " +
                 "FROM " +
                 "prefix_bans " +
-                "INNER JOIN prefix_players ON prefix_players.id = prefix_bans.player_id " +
-                "INNER JOIN prefix_players AS prefix_players_admins ON prefix_players_admins.id = prefix_bans.admin_id " +
+                "LEFT JOIN prefix_players ON prefix_players.id = prefix_bans.player_id " +
+                "LEFT JOIN prefix_players AS prefix_players_admins ON prefix_players_admins.id = prefix_bans.admin_id " +
                 "WHERE " +
                 "prefix_players.player_last_name LIKE @player_exp AND " +
                 "admin_last_name LIKE @admin_exp AND " +
                 "ban_reason LIKE @reason_exp AND " +
                 "(ban_timestamp) > @date_timestamp";
 
-            if (!expired) sql += " AND ((ban_timestamp + ban_duration) > @timestamp)";
+            if (!expired) sql += " AND ((ban_timestamp + ban_duration) > @timestamp OR ban_duration < 0)";
             if (banType != (int)BanType.ShowAll) sql += " AND ban_type = @ban_type";
 
             sql += " ORDER BY ban_timestamp LIMIT @max_rows";

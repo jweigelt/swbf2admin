@@ -7,7 +7,7 @@ namespace SWBF2Admin.Web.Pages
 {
     class ResourcesPage : WebPage
     {
-        public ResourcesPage(AdminCore core) : base(core, Constants.WEB_URL_RESOURCES) { }
+        public ResourcesPage(AdminCore core) : base(core, "/res") { }
 
         public override bool UriMatch(Uri uri)
         {

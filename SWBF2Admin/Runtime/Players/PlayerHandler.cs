@@ -186,11 +186,20 @@ namespace SWBF2Admin.Runtime.Players
         /// </summary>
         /// <param name="kh"></param>
         /// <returns>Matching player object if player was found, null if no player was found</returns>
-        private Player GetPlayerByKeyHash(string kh)
+        public Player GetPlayerByKeyHash(string kh)
         {
             foreach (Player p in playerList)
             {
                 if (p.KeyHash.Equals(kh)) return p;
+            }
+            return null;
+        }
+
+        public Player GetPlayerBySlot(byte slot)
+        {
+            foreach (Player p in playerList)
+            {
+                if (p.Slot == slot) return p;
             }
             return null;
         }

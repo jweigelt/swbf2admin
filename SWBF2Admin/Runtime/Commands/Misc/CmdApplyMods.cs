@@ -2,7 +2,7 @@
 using SWBF2Admin.Config;
 using SWBF2Admin.Runtime.ApplyMods;
 
-namespace SWBF2Admin.Runtime.Commands.Admin
+namespace SWBF2Admin.Runtime.Commands.Misc
 {
     [ConfigFileInfo(fileName: "./cfg/cmd/applymods.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.kick.xml"*/)]
     public class CmdApplyMods : ChatCommand

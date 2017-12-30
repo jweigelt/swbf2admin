@@ -62,7 +62,7 @@ namespace SWBF2Admin
 
         public void Run()
         {
-            Logger.Log(LogLevel.Info, Log.CORE_START, Constants.PRODUCT_NAME, Constants.PRODUCT_VERSION, Constants.PRODUCT_AUTHOR);
+            Logger.Log(LogLevel.Info, Log.CORE_START, Util.GetProductName(), Util.GetProductVersion(), Util.GetProductAuthor());
             Logger.Log(LogLevel.Verbose, Log.CORE_READ_CONFIG);
             config = Files.ReadConfig<CoreConfiguration>();
             Logger.Log(LogLevel.Info, Log.CORE_READ_CONFIG_OK);
@@ -95,7 +95,7 @@ namespace SWBF2Admin
             else
             {
                 Logger.Log(LogLevel.Info, "Acting as client");
-                //Scheduler.PushTask(new SchedulerTask(OnServerStart));
+                //Scheduler.PushTask(new SchedulerTask(Server_Started));
             }
 
             string cmd = string.Empty;

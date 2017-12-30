@@ -1,56 +1,51 @@
-<div class="default">    
-  <h2>Map Rotation</h2>
-    <div style="width: 80%;">
-    <!--<div class="item">
-      <span>Save changes</span>      
-      <div class="text">
-        <a href="#" id="maps_btn_save" class="button"><i class="material-icons">save</i><span>Save</span></a>
-        <span id="maps_txt_status" class="online">Settings saved.</span>
-      </div>-->
-    </div>
-    
-    <div class="item" id="maps_div_events"></div>
-  
-  <table class="map-container">
-    <tr>
-      <td>
-        <div class="item">
-          <span>Installed Maps</span>
-          <table class="maps embedded" id="maps_table_installed">
-          </table>
-        </div>
-      </td>
-      <td>
-        <div class="item">
-          <span>Map Rotation</span>
-          <table class="maps embedded maprot" id="maps_table_rotation" style="min-height: 1em;">
-          </table>
-        </div>    
-      </td>
-    </tr>
-  </table>  
-  </div>
-   
-<div id="maps_div_add">
-  <table><tr>
-  <td><table>
-    <tr><td><input data-flag="GCWCon" data-map="g_con" type="checkbox" id="maps_gcw_con"></td><td><label for="maps_gcw_con">GCW Conquest</label></td></tr>
-    <tr><td><input data-flag="GCWCTF" data-map="g_ctf" type="checkbox" id="maps_gcw_ctf"></td><td><label for="maps_gcw_ctf">GCW CTF</label></td></tr>
-    <tr><td><input data-flag="GCW1Flag" data-map="g_1flag" type="checkbox" id="maps_gcw_1flag"></td><td><label for="maps_gcw_1flag">GCW 1 Flag</label></td></tr>
-    <tr><td><input data-flag="GCWHunt" data-map="g_hunt" type="checkbox" id="maps_gcw_hunt"></td><td><label for="maps_gcw_hunt">GCW Hunt</label></td></tr>    
-    <tr><td><input data-flag="GCWEli" data-map="g_eli" type="checkbox" id="maps_gcw_eli"></td><td><label for="maps_gcw_eli">GCW Elimination</label></td></tr>
-    <tr><td><input data-flag="GCWAss" data-map="g_ass" type="checkbox" id="maps_gcw_ass"></td><td><label for="maps_gcw_ass">GCW Assault</label></td></tr>
-  </table></td>
-  <td><table>
-    <tr><td><input data-flag="CWCon" data-map="c_con" type="checkbox" id="maps_cw_con"></td><td><label for="maps_cw_con">CW Conquest</label></td></tr>
-    <tr><td><input data-flag="CWCTF" data-map="c_ctf" type="checkbox" id="maps_cw_ctf"></td><td><label for="maps_cw_ctf">CW CTF</label></td></tr>
-    <tr><td><input data-flag="CW1Flag" data-map="c_1flag" type="checkbox" id="maps_cw_1flag"></td><td><label for="maps_cw_1flag">CW 1 Flag</label></td></tr>
-    <tr><td><input data-flag="CWHunt" data-map="c_hunt" type="checkbox" id="maps_cw_hunt"></td><td><label for="maps_cw_hunt">CW Hunt</label></td></tr>    
-    <tr><td><input data-flag="CWEli" data-map="c_eli" type="checkbox" id="maps_cw_eli"></td><td><label for="maps_cw_eli">CW Elimination</label></td></tr>
-    <tr><td><input data-flag="CWAss" data-map="g_ass" type="checkbox" id="maps_cw_ass"></td><td><label for="maps_cw_ass">GCW Assault</label></td></tr>
-  </table></td>
-  </tr></table>
-</div>
+<div class="default">
+    <h2>Map Rotation</h2>
+    <div class="autoscale">
+        <div class="item" id="maps_div_events"></div>
 
+        <table class="map-container">
+            <tr>
+                <td>
+                    <div class="item">
+                        <span>Installed Maps</span>
+                        <table class="maps embedded" id="maps_table_installed"></table>
+                    </div>
+                </td>
+                <td>
+                    <div class="item">
+                        <span>Map Rotation</span>
+                        <table class="maps embedded maprot" id="maps_table_rotation" style="min-height: 1em;"></table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div id="maps_div_add">
+            <table>
+                <tr>
+                    <td>
+                        <table>
+                            <tr><td><input data-flag="GCWCon" data-map="g_con" type="checkbox" id="maps_gcw_con"></td><td><label for="maps_gcw_con">GCW Conquest</label></td></tr>
+                            <tr><td><input data-flag="GCWCTF" data-map="g_ctf" type="checkbox" id="maps_gcw_ctf"></td><td><label for="maps_gcw_ctf">GCW CTF</label></td></tr>
+                            <tr><td><input data-flag="GCW1Flag" data-map="g_1flag" type="checkbox" id="maps_gcw_1flag"></td><td><label for="maps_gcw_1flag">GCW 1 Flag</label></td></tr>
+                            <tr><td><input data-flag="GCWHunt" data-map="g_hunt" type="checkbox" id="maps_gcw_hunt"></td><td><label for="maps_gcw_hunt">GCW Hunt</label></td></tr>
+                            <tr><td><input data-flag="GCWEli" data-map="g_eli" type="checkbox" id="maps_gcw_eli"></td><td><label for="maps_gcw_eli">GCW Elimination</label></td></tr>
+                            <tr><td><input data-flag="GCWAss" data-map="g_ass" type="checkbox" id="maps_gcw_ass"></td><td><label for="maps_gcw_ass">GCW Assault</label></td></tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table>
+                            <tr><td><input data-flag="CWCon" data-map="c_con" type="checkbox" id="maps_cw_con"></td><td><label for="maps_cw_con">CW Conquest</label></td></tr>
+                            <tr><td><input data-flag="CWCTF" data-map="c_ctf" type="checkbox" id="maps_cw_ctf"></td><td><label for="maps_cw_ctf">CW CTF</label></td></tr>
+                            <tr><td><input data-flag="CW1Flag" data-map="c_1flag" type="checkbox" id="maps_cw_1flag"></td><td><label for="maps_cw_1flag">CW 1 Flag</label></td></tr>
+                            <tr><td><input data-flag="CWHunt" data-map="c_hunt" type="checkbox" id="maps_cw_hunt"></td><td><label for="maps_cw_hunt">CW Hunt</label></td></tr>
+                            <tr><td><input data-flag="CWEli" data-map="c_eli" type="checkbox" id="maps_cw_eli"></td><td><label for="maps_cw_eli">CW Elimination</label></td></tr>
+                            <tr><td><input data-flag="CWAss" data-map="g_ass" type="checkbox" id="maps_cw_ass"></td><td><label for="maps_cw_ass">GCW Assault</label></td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
 <script type="text/javascript" src="/res/maps.js"></script>

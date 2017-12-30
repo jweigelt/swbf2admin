@@ -1,36 +1,66 @@
-<div class="default">    
-  <h2>Players</h2>
-  <div class="item" id="players_div_players">
-    <table class="players embedded" id="players_tbl_players">
-      <thead>
-      <tr>
-        <th>Slot</th>
-        <th>Name</th>
-        <th>Team</th>              
-        <th>Score</th>  
-        <th>Kills</th>  
-        <th>Deaths</th>  
-        <th>Ping</th>  
-        <th>IP-Address</th> 
-        <th>Keyhash</th> 
-        <th>Group</th> 
-      </tr>
-      <tr>
-        <td colspan="10" id="players_td_noplayers" style="display: none;"><i class="material-icons">sentiment_dissatisfied</i>No players online.</th>
-      </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-  </div>                                          
+<div class="default">
+    <h2>Players</h2>
+
+    <div id="players_div_events"></div>
+
+    <div class="item" id="players_div_players">
+        <table class="players embedded" id="players_tbl_players">
+            <thead>
+                <tr>
+                    <th>Slot</th>
+                    <th>Name</th>
+                    <th>Team</th>
+                    <th>Score</th>
+                    <th>Kills</th>
+                    <th>Deaths</th>
+                    <th>Ping</th>
+                    <th>IP-Address</th>
+                    <th>Keyhash</th>
+                    <th>Group</th>
+                </tr>
+                <tr>
+                    <td colspan="10" id="players_td_noplayers" style="display: none;">
+                        <i class="material-icons">sentiment_dissatisfied</i>No players online.
+                    </td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
 <ul id="players_ul_admin" class="contextmenu" style="display: none;">
-  <li><a href="#"><i class="material-icons">info</i>Info</a></li>
-  <li><a href="#"><i class="material-icons">swap_horiz</i>Swap player</a></li>
-  <li><a href="#"><i class="material-icons">remove_circle</i>Kick player</a></li>
-  <li><a href="#"><i class="material-icons">gavel</i>Ban player</a></li>
-</ul>                                                                    
-                  
+    <!--<li><a href="#"><i class="material-icons">info</i>Info</a></li>-->
+    <li><a href="#" id="players_a_swap"><i class="material-icons">swap_horiz</i>Swap player</a></li>
+    <li><a href="#" id="players_a_kick"><i class="material-icons">remove_circle</i>Kick player</a></li>
+    <li><a href="#" id="players_a_ban"><i class="material-icons">gavel</i>Ban player</a></li>
+</ul>
+
+<div id="players_div_ban" class="settings">
+    <table class="dialog-controls">
+        <tr>
+            <th>Type</th>
+            <td>
+                <select id="players_select_ban_type">
+                    <option value="0" selected>Keyhash</option>
+                    <option value="1">IP Address</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>Duration [s]</th>
+            <td>
+                <!--TODO: maybe replace with some fancy timespan-picker-->
+                <input type="number" min="0" value="3600" id="players_num_ban_duration">
+            </td>
+        </tr>
+        <tr>
+            <th><label for="players_ban_permanent">Permanent</label></th>
+            <td>
+                <input type="checkbox" id="players_ban_permanent" checked>
+            </td>
+        </tr>
+    </table>
+</div>
+
 <script type="text/javascript" src="/res/players.js"></script>
-                                                                  

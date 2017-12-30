@@ -77,8 +77,6 @@ namespace SWBF2Admin
             enableUpdate = false;
         }
 
-
-
         protected void SendFormatted(string message, params string[] tags)
         {
             SendFormatted(message, null, tags);

@@ -42,6 +42,12 @@ namespace SWBF2Admin.Structures
         }
 
         [MoonSharpHidden]
+        public Player(byte slot)
+        {
+            Slot = slot;
+        }
+
+     [MoonSharpHidden]
         public void CopyDbInfo(Player p)
         {
             DatabaseId = p.DatabaseId;

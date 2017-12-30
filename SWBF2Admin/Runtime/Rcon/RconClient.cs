@@ -1,13 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.IO;
 
-using SWBF2Admin.Utility;
-using SWBF2Admin.Runtime.Rcon.Packets;
 using SWBF2Admin.Config;
+using SWBF2Admin.Utility;
 using SWBF2Admin.Structures;
+using SWBF2Admin.Runtime.Rcon.Packets;
 
 namespace SWBF2Admin.Runtime.Rcon
 {
@@ -16,7 +16,12 @@ namespace SWBF2Admin.Runtime.Rcon
     /// </summary>
     public class RconClient : ComponentBase
     {
+        private const byte LOGIN_MAGIC = 0x64;
+        private const byte SLEEP = 5;
+        private const string STATUS_MESSAGE_GAME_HAS_ENDED = "Game has ended";
+
         public RconClient(AdminCore core) : base(core) { }
+
         public override void OnServerStart()
         {
             ServerPassword = Core.Server.Settings.AdminPw;
@@ -39,98 +44,54 @@ namespace SWBF2Admin.Runtime.Rcon
             Stop();
         }
 
-        /// <summary>Called when the rcon-connection is lost</summary>
+        /// <summary>
+        /// Called when the rcon-connection is lost
+        /// </summary>
         public event EventHandler Disconnected;
 
-        /// <summary>Called when new chat is received</summary>
+        /// <summary>
+        /// Called when new chat is received
+        /// </summary>
         public event EventHandler ChatInput;
 
-        /// <summary>Called when a match ended</summary>
+        /// <summary>
+        /// Called when chat is sent
+        /// </summary>
+        public event EventHandler ChatOutput;
+
+        /// <summary>
+        /// Called when a match ended
+        /// </summary>
         public event EventHandler GameEnded;
 
-        /// <summary>Rcon-servers IPEndPoint</summary>
+        /// <summary>
+        /// Rcon-servers IPEndPoint
+        /// </summary>
         public IPEndPoint ServerIPEP { get; set; }
 
-        /// <summary>server's admin-password</summary>
+        /// <summary>
+        /// server's admin password
+        /// </summary>
         public string ServerPassword { get; set; }
 
-        /// <summary>max. time (in ms) before a packet is dropped if the server doesn't respond</summary>
+        /// <summary>
+        /// max. time (in ms) before a packet is dropped if the server doesn't respond
+        /// </summary>
         public int PacketTimeout { get; set; } = 500;
 
         private bool running = false;
 
         private Thread workThread;
-        private TcpClient client;
 
+        private TcpClient client;
         private BinaryReader reader;
         private BinaryWriter writer;
 
         private string lastMessage = null;
 
-        public string FilterString(string cmd)
-        {
-            //Prevent command injection
-            return cmd.Replace('/', '\\');
-        }
-
-        /// <summary>Connects to rcon-server and authenticates</summary>
-        public void SendPacket(RconPacket packet)
-        {
-            try
-            {
-                Logger.Log(LogLevel.Verbose, "Sending command: '{0}'", packet.Command);
-                Send(packet.Command);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogLevel.Warning, "SendPacket failed. ({0})", e.ToString());
-                return;
-            }
-
-            lastMessage = null;
-            DateTime start = DateTime.Now;
-            while (lastMessage == null)
-            {
-                if ((DateTime.Now - start).TotalMilliseconds < PacketTimeout)
-                {
-                    Thread.Sleep(Constants.RCON_SLEEP);
-                }
-                else
-                {
-                    Logger.Log(LogLevel.Warning, "Rcon packet timeout. (running {0})", packet.Command);
-                    return;
-                }
-            }
-
-            packet.HandleResponse(lastMessage);
-            lastMessage = null;
-        }
-
-        /// <summary>Connects to rcon-server and authenticates</summary>
-        public void Say(string message)
-        {
-            SendCommand("say", message);
-        }
-
-        public void Pm(string message, Player player)
-        {
-            SendCommand("warn", player.Slot.ToString(), message);
-        }
-
-        public void SendCommandNoResponse(string command, params string[] p)
-        {
-            Send(command + " " + string.Join(" ", p));
-
-        }
-
-        public string SendCommand(string command, params string[] p)
-        {
-            RconPacket packet = new RconPacket(command + " " + string.Join(" ", p));
-            SendPacket(packet);
-            return packet.Response;
-        }
-
-        /// <summary>Connects to rcon-server and authenticates</summary>
+        /// <summary>
+        /// Connects to rcon-server and authenticates
+        /// </summary>
         private void Start()
         {
             if (running) return;
@@ -172,7 +133,9 @@ namespace SWBF2Admin.Runtime.Rcon
             workThread.Start();
         }
 
-        /// <summary>Closes the current connection</summary>
+        /// <summary>
+        /// Closes the current connection
+        /// </summary>
         private void Stop()
         {
             running = false;
@@ -180,17 +143,118 @@ namespace SWBF2Admin.Runtime.Rcon
             if (workThread != null) workThread.Join();
         }
 
-        /// <summary>Sends authentication to server</summary>
+        #region TX
+        /// <summary>
+        /// Filters command string to prevent injection vulns
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public string FilterString(string cmd)
+        {
+            //Prevent command injection
+            return cmd.Replace('/', '\\');
+        }
+
+        /// <summary>
+        /// Sends a packet and retrieves the response
+        /// </summary>
+        /// <param name="packet"></param>
+        public void SendPacket(RconPacket packet)
+        {
+            try
+            {
+                Logger.Log(LogLevel.Verbose, "Sending command: '{0}'", packet.Command);
+                Send(packet.Command);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Warning, "SendPacket failed. ({0})", e.ToString());
+                return;
+            }
+
+            lastMessage = null;
+            DateTime start = DateTime.Now;
+            while (lastMessage == null)
+            {
+                if ((DateTime.Now - start).TotalMilliseconds < PacketTimeout)
+                {
+                    Thread.Sleep(SLEEP);
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Warning, "Rcon packet timeout. (running {0})", packet.Command);
+                    return;
+                }
+            }
+
+            packet.HandleResponse(lastMessage);
+            lastMessage = null;
+        }
+
+        /// <summary>
+        /// Broadcasts a message in chat
+        /// </summary>
+        /// <param name="message"></param>
+        public void Say(string message)
+        {
+            ChatOutput.Invoke(this, new RconChatEventArgs("Admin", message));
+            SendCommand("say", message);
+        }
+
+        /// <summary>
+        /// Sends a privte message to a player
+        /// <note>Use with caution as sending too many PMs will cause the chat to get slow/stuck.</note>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="player"></param>
+        public void Pm(string message, Player player)
+        {
+            ChatOutput.Invoke(this, new RconChatEventArgs($"Admin [=> {player.Name}]", message));
+            SendCommand("warn", player.Slot.ToString(), message);
+        }
+
+        /// <summary>
+        /// Sends a command to the server but does not retrieve the response
+        /// <note>
+        /// Only use this method if your command doesn't output anything,
+        /// otherwise the receive thread will lock until PacketTimeout expired. 
+        /// </note>
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="p"></param>
+        public void SendCommandNoResponse(string command, params string[] p)
+        {
+            Send(command + " " + string.Join(" ", p));
+        }
+
+        /// <summary>
+        /// Sends a command to the server and retrieves the response
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public string SendCommand(string command, params string[] p)
+        {
+            RconPacket packet = new RconPacket(command + " " + string.Join(" ", p));
+            SendPacket(packet);
+            return packet.Response;
+        }
+
+        /// <summary>
+        /// Sends authentication to server
+        /// </summary>
         private void Login()
         {
             byte[] buf = Util.StrToBytes(Util.Md5(ServerPassword));
             writer.Write(buf);
-            writer.Write(Constants.RCON_LOGIN_MAGIC);
+            writer.Write(LOGIN_MAGIC);
             writer.Flush();
             if (reader.ReadByte() != 0x01) throw new RconNotAuthorizedException();
         }
 
-        /// <summary>Sends a raw string to the server</summary>
+        /// <summary>
+        /// Sends a raw string to the server
+        /// </summary>
         private void Send(string command)
         {
             //filter any /'s to prevent command injection
@@ -203,8 +267,12 @@ namespace SWBF2Admin.Runtime.Rcon
             writer.Write((byte)0);
             writer.Flush();
         }
+        #endregion
 
-        /// <summary>Thread handling inbound data</summary>
+        #region RX
+        /// <summary>
+        /// Thread handling inbound data
+        /// </summary>
         private void WorkThread_Run()
         {
             string message = string.Empty;
@@ -247,7 +315,9 @@ namespace SWBF2Admin.Runtime.Rcon
             InvokeEvent(Disconnected, this, new EventArgs());
         }
 
-        /// <summary>Processes messages received by the server</summary>
+        /// <summary>
+        /// Processes messages received by the server
+        /// </summary>
         /// <param name="message">messaged received from server</param>
         private void ProcessMessage(string message)
         {
@@ -264,7 +334,7 @@ namespace SWBF2Admin.Runtime.Rcon
             {
                 if ((DateTime.Now - start).TotalMilliseconds < PacketTimeout)
                 {
-                    Thread.Sleep(Constants.RCON_SLEEP);
+                    Thread.Sleep(SLEEP);
                 }
                 else
                 {
@@ -305,12 +375,13 @@ namespace SWBF2Admin.Runtime.Rcon
         {
             switch (message)
             {
-                case Constants.RCON_STATUS_MESSAGE_GAME_HAS_ENDED:
+                case STATUS_MESSAGE_GAME_HAS_ENDED:
                     InvokeEvent(GameEnded, this, null);
                     return true;
                 default:
                     return false;
             }
         }
+        #endregion
     }
 }

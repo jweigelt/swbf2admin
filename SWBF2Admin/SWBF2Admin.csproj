@@ -110,13 +110,13 @@
     <Compile Include="Runtime\ApplyMods\LvlMod.cs" />
     <Compile Include="Runtime\ApplyMods\LvlWriter.cs" />
     <Compile Include="Runtime\ApplyMods\LvlWriterConfig.cs" />
-    <Compile Include="Runtime\Commands\Admin\CmdAddMap.cs" />
+    <Compile Include="Runtime\Commands\Map\CmdAddMap.cs" />
     <Compile Include="Runtime\Commands\Admin\CmdBan.cs" />
     <Compile Include="Runtime\Commands\Admin\CmdIpBan.cs" />
-    <Compile Include="Runtime\Commands\Admin\CmdApplyMods.cs" />
+    <Compile Include="Runtime\Commands\Misc\CmdApplyMods.cs" />
     <Compile Include="Runtime\Commands\Admin\CmdTempban.cs" />
     <Compile Include="Runtime\Commands\Admin\CmdKick.cs" />
-    <Compile Include="Runtime\Commands\Admin\MapCommand.cs" />
+    <Compile Include="Runtime\Commands\Map\MapCommand.cs" />
     <Compile Include="Runtime\Commands\Admin\PlayerCommand.cs" />
     <Compile Include="Runtime\Commands\ChatCommand.cs" />
     <Compile Include="Runtime\Commands\CommandDispatcher.cs" />

@@ -10,7 +10,7 @@ namespace SWBF2Admin.Web.Pages
 {
     class GeneralSettingsPage : AjaxPage
     {
-        public GeneralSettingsPage(AdminCore core) : base(core, Constants.WEB_URL_SETTINGS_GENERAL, Constants.WEB_FILE_SETTINGS_GENERAL) { }
+        public GeneralSettingsPage(AdminCore core) : base(core, "/settings/general", "general.htm") { }
 
         class DeviceInfo
         {

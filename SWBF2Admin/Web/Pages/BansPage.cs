@@ -50,7 +50,7 @@ namespace SWBF2Admin.Web.Pages
             }
         }
 
-        public BansPage(AdminCore core) : base(core, Constants.WEB_URL_BANS, Constants.WEB_FILE_BANS) { }
+        public BansPage(AdminCore core) : base(core, "/live/bans", "bans.htm") { }
 
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
         {
@@ -59,12 +59,12 @@ namespace SWBF2Admin.Web.Pages
 
             switch (p.Action)
             {
-                case Constants.WEB_ACTION_BANS_UPDATE:
+                case "bans_update":
                     List<PlayerBan> banList = Core.Database.GetBans(p.PlayerNameExp, p.AdminNameExp, p.ReasonExp, p.Expired, p.Type, p.StartDate, 25);
                     WebAdmin.SendHtml(ctx, ToJson(banList));
                     break;
 
-                case Constants.WEB_ACTION_BANS_DELETE:
+                case "bans_delete":
                     Core.Database.DeleteBan(p.DatabaseId);
                     WebAdmin.SendHtml(ctx, ToJson(new BanAdminResponse(true)));
                     break;

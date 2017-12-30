@@ -52,7 +52,7 @@ namespace SWBF2Admin.Web.Pages
             }
         }
 
-        public MapSettingsPage(AdminCore core) : base(core, Constants.WEB_URL_SETTINGS_MAPS, Constants.WEB_FILE_SETTINGS_MAPS) { }
+        public MapSettingsPage(AdminCore core) : base(core, "/settings/maps", "maps.htm") { }
 
         public override void HandleGet(HttpListenerContext ctx, WebUser user)
         {
@@ -94,7 +94,10 @@ namespace SWBF2Admin.Web.Pages
             {
                 r = new MapSaveResponse(e);
             }
-            sRMtx.ReleaseMutex();
+            finally
+            {
+                sRMtx.ReleaseMutex();
+            }
             return r;
         }
 
@@ -110,7 +113,11 @@ namespace SWBF2Admin.Web.Pages
             {
                 r = new MapRotResponse(e);
             }
-            sRMtx.ReleaseMutex();
+            finally
+            {
+                sRMtx.ReleaseMutex();
+            }
+
             return r;
         }
 

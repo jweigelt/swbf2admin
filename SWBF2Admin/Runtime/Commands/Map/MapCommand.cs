@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using SWBF2Admin.Runtime.Permissions;
 using SWBF2Admin.Structures;
 
-namespace SWBF2Admin.Runtime.Commands.Admin
+namespace SWBF2Admin.Runtime.Commands.Map
 {
     public abstract class MapCommand : ChatCommand
     {

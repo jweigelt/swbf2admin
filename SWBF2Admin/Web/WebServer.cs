@@ -3,14 +3,12 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 using SWBF2Admin.Utility;
 using SWBF2Admin.Web.Pages;
 using SWBF2Admin.Config;
-using System.Diagnostics;
-using System.Security.Principal;
-using System.Reflection;
 
 namespace SWBF2Admin.Web
 {
@@ -32,11 +30,13 @@ namespace SWBF2Admin.Web
         private bool enabled = false;
 
         public WebServer(AdminCore core) : base(core) { }
+
         public override void Configure(CoreConfiguration config)
         {
             prefix = config.WebAdminPrefix;
             enabled = config.WebAdminEnable;
         }
+
         public override void OnInit()
         {
             RegisterPage<ResourcesPage>();
@@ -61,6 +61,7 @@ namespace SWBF2Admin.Web
         {
             Stop();
         }
+
         private void Start()
         {
             try
@@ -87,6 +88,7 @@ namespace SWBF2Admin.Web
             workThread = new Thread(WorkThread_Run);
             workThread.Start();
         }
+
         private void Stop()
         {
             running = false;

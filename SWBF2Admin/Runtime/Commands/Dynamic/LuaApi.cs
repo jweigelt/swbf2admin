@@ -9,6 +9,9 @@ using SWBF2Admin.Runtime.ApplyMods;
 using MoonSharp.Interpreter;
 namespace SWBF2Admin.Runtime.Commands.Dynamic
 {
+    /// <summary>
+    /// API-class exposed to LUA-scripts
+    /// </summary>
     [MoonSharpUserData]
     public class LuaApi
     {
@@ -31,7 +34,7 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
 
         //TODO: add more wrappers
 
-        #region "Players"
+        #region Players
         public List<Player> GetPlayers()
         {
             return core.Players.PlayerList;
@@ -70,12 +73,12 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
 
         #endregion
 
-        #region "Game"
+        #region Game
         public ServerInfo GetServerInfo() { return core.Game.LatestInfo; }
         public GameInfo GetGameInfo() { return core.Game.LatestGame; }
         #endregion
 
-        #region "Rcon"
+        #region Rcon
         public string SendCommand(string cmd, params string[] args)
         {
             return core.Rcon.SendCommand(cmd, args);
@@ -90,7 +93,7 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         }
         #endregion
 
-        #region "I/O"
+        #region I/O
         public string GetConfig(string name)
         {
             foreach (XmlNode node in (XmlNode[])command.UserConfig)
@@ -114,7 +117,7 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         }
         #endregion
 
-        #region "Mods"
+        #region Mods
         public List<LvlMod> GetMods()
         {
             return core.Mods.Mods;

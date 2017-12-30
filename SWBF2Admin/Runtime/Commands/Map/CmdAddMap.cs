@@ -1,9 +1,7 @@
-﻿using System;
-using SWBF2Admin.Runtime.Permissions;
-using SWBF2Admin.Structures;
+﻿using SWBF2Admin.Structures;
 using SWBF2Admin.Config;
 
-namespace SWBF2Admin.Runtime.Commands.Admin
+namespace SWBF2Admin.Runtime.Commands.Map
 {
     [ConfigFileInfo(fileName: "./cfg/cmd/addmap.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.addmap.xml"*/)]
     public class CmdAddMap : MapCommand

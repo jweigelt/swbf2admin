@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Text;
 using System.Security.Cryptography;
+using System.Reflection;
+
 using SWBF2Admin.Structures;
+using System.Diagnostics;
 
 namespace SWBF2Admin.Utility
 {
@@ -79,9 +82,25 @@ namespace SWBF2Admin.Utility
                "{g:nr}", game.DatabaseId.ToString());
 
             //banner for generous folks
-            s = FormatString(s, "{banner}", $"{Constants.PRODUCT_NAME} v{Constants.PRODUCT_VERSION} ({Constants.PRODUCT_AUTHOR})");
+            s = FormatString(s, "{banner}", $"{GetProductName()} v{GetProductVersion()} ({GetProductAuthor()})");
 
             return s;
+        }
+
+        public static string GetProductName()
+        {
+            return Assembly.GetExecutingAssembly().GetName().Name;
+        }
+
+
+        public static string GetProductVersion()
+        {
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        }
+
+        public static string GetProductAuthor()
+        {
+            return FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).CompanyName;
         }
     }
 }

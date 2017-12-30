@@ -11,7 +11,7 @@ namespace SWBF2Admin.Web.Pages
             public int NewStatusId { get; set; }
         }
 
-        public DashboardPage(AdminCore core) : base(core, Constants.WEB_URL_DASHBOARD, Constants.WEB_FILE_DASHBOARD) { }
+        public DashboardPage(AdminCore core) : base(core, "/live/dashboard", "dashboard.htm") { }
 
         public override void HandleGet(HttpListenerContext ctx, WebUser user)
         {
@@ -26,7 +26,7 @@ namespace SWBF2Admin.Web.Pages
 
             switch (p.Action)
             {
-                case Constants.WEB_ACTION_DASHBOARD_STATUS_SET:
+                case "status_set":
                     if (p.NewStatusId == (int)ServerStatus.Online)
                     {
                         Core.Server.Start();

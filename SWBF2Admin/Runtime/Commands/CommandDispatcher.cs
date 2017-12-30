@@ -7,6 +7,8 @@ using SWBF2Admin.Config;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Runtime.Commands.Admin;
+using SWBF2Admin.Runtime.Commands.Map;
+using SWBF2Admin.Runtime.Commands.Misc;
 using SWBF2Admin.Runtime.Commands.Dynamic;
 
 using MoonSharp.Interpreter;
@@ -21,9 +23,7 @@ namespace SWBF2Admin.Runtime.Commands
         private string commandPrefix;
         private bool enableDynamic;
 
-        public CommandDispatcher(AdminCore core) : base(core)
-        {
-        }
+        public CommandDispatcher(AdminCore core) : base(core) { }
         public override void Configure(CoreConfiguration config)
         {
             commandPrefix = config.CommandPrefix;
@@ -45,12 +45,6 @@ namespace SWBF2Admin.Runtime.Commands
             Core.Rcon.ChatInput += new EventHandler(Rcon_ChatInput);
         }
 
-        private void RegisterCommand<T>() where T : ChatCommand
-        {
-            ChatCommand c = Core.Files.ReadConfig<T>();
-            c.Core = Core;
-            commandList.Add(c);
-        }
         private void Rcon_ChatInput(object sender, EventArgs e)
         {
             RconChatEventArgs ce = (RconChatEventArgs)e;
@@ -77,7 +71,7 @@ namespace SWBF2Admin.Runtime.Commands
                             "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, c.Alias);
                     }
                     // TODO Use permissions
-                    else if(false)//if (!Core.Database.HasPermission(players[0], c.Permission))
+                    else if (false)//if (!Core.Database.HasPermission(players[0], c.Permission))
                     {
                         Logger.Log(LogLevel.Verbose,
                             "Player \"{0}\" doesnt have permission for \"{1}\"", players[0].Name, c.Alias);
@@ -99,6 +93,13 @@ namespace SWBF2Admin.Runtime.Commands
             }
 
             Logger.Log(LogLevel.Verbose, "Player \"{0}\" issued unknown command \"{1}\"", name, command);
+        }
+
+        private void RegisterCommand<T>() where T : ChatCommand
+        {
+            ChatCommand c = Core.Files.ReadConfig<T>();
+            c.Core = Core;
+            commandList.Add(c);
         }
 
         private void LoadDynCommands()
