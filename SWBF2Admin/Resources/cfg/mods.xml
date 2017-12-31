@@ -97,9 +97,9 @@
         <!--push ord 4-->
         <HexEdit FileName="SIDE/cis.lvl" StartAddress="005B8128" PatchedString= "0" OriginalString="4"/>
         <!--push ord 5-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="001BF2D88" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="001BF2D88" PatchedString= "0" OriginalString="4"/>
         <!--push ord 6-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="002020570" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="002020570" PatchedString= "0" OriginalString="4"/>
         <!--push ord 7-->
       </HexEdits>
     </LvlMod>
