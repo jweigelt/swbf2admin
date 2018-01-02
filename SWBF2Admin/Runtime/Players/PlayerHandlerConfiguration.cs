@@ -15,7 +15,7 @@ namespace SWBF2Admin.Runtime.Players
         /// <summary>
         ///Delay between /players requests
         /// </summary>
-        public int PlayersUpdateInterval { get; set; } = 5000;
+        public int PlayersUpdateInterval { get; set; } = 8000;
 
         public bool EnablePlayerStatsLogging { get; set; } = true;
     }

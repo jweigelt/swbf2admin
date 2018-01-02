@@ -5,7 +5,7 @@ A modern, easy-to-use server manager for Star Wars Battlefront II (2005) dedicat
 ## Getting Started
 
 These instructions will get you a minimal SWBF2Admin setup up and running.
-SWBF2Admin is highly configurable - if you're interested in customizing your SWBF2Admin installation, please also read "Advanced configuration" for further information.
+SWBF2Admin is highly configurable - if you're interested in customizing your SWBF2Admin installation, please also check out "Advanced configuration" for further information.
 
 ### Prerequisites
 
@@ -25,10 +25,82 @@ http://info.swbfspy.com/
 - Copy your server installation to <yourfolder>/server (BattlefrontII.exe has to be in that folder)
 - Run SWBF2Admin.exe
 
-### Getting a server running
-- Open your WebBrowser and navigate to http://localhost:8080/
+## Using the web panel
 
-TODO
+### Accessing the panel
+By default, your web panel's URL is set to http://localhost:8080/ and can only be accessed locally.
+If you want to access your panel from a remote computer, you can adjust the panel's URL in ./cfg/core.xml.
+
+```
+<WebAdminPrefix>http://localhost:8080/</WebAdminPrefix>
+```
+
+Notes:
+- If you're using a address different from localhost, SWBF2Admin will ask for admin permissions during the first startup using the new URL. This is done because each URL has to be registered before it can be used. SWBF2Admin will register your new URL and continue operation in user Mode.
+- HTTPS is supported if a valid certificate is installed and assigned to SWBF2Admin's application id (see https://stackoverflow.com/questions/11403333/httplistener-with-https-support)
+
+User authentication is done via HTTP basic auth. You'll be prompted for a username and password. 
+If you forget your credentials, run "SWBF2admin.exe --reset-webcredentials".
+
+### Dashboard
+
+The dashboard page show status information on your server. It also provides the big not-so-red button which is used to start and stop your server.
+When your server is running, the status information will be updated automatically every 20~30 seconds.
+
+The dashboard's icon in the navigation bar will change color depending on your server's current status.
+- red: server is offline
+- green: server is online
+- yellow: server is starting/stopping
+
+### Players
+
+The players page displays a list of all players who are connected to the server. The list is updated automatically every 10~15 seconds.
+
+Right-clicking a player will bring up a context menu containing buttons for quick administation.
+- Swap player's team
+- Kick player
+- Ban player
+
+If you click on "Ban player", a dialog will open asking you to specify the ban's duration and the ban's type.
+If "permanent" is selected, the duration field will be ignored.
+
+### Chat
+
+The chat page provides you a live feed of the server's ingame chat. You can also send messages which will be shown ingame.
+
+### Bans
+
+The bans page lets you manage all banned players. You'll find various filter options in the page's top section.
+Text fields don't have to be exact matches. Similar results will be shown as well.
+
+- Player: banned player's nick
+- Admin: name of the admin who submitted the ban
+- Reason: reason specified for the ban
+- Date: only bans which were created after the given date will be shown
+- Expired: also show expired bans
+- Type: whether the player's IP-Address or CD-Key was banned
+
+To delete a ban, just right click it. A context menu will show up - click on "Delete ban".
+
+### Settings / General
+
+TODO 
+
+### Settings / Game
+
+TODO 
+
+### Settings / Map Rotation
+
+TODO 
+
+### Groups
+
+TODO 
+
+### Users
+
+TODO 
 
 ## Authors
 
@@ -42,11 +114,11 @@ This project is licensed under the GNU Public License (GPL) - see the [LICENSE.m
 
 TODO
 
-### Advanced configuration
+## Advanced configuration
 
-## Automatic announce broadcasts
+### Automatic announce broadcasts
 
-#Configuring the scheduler
+#### Configuring the scheduler
 Open ./cfg/announce.xml using your favourite text editor.
 - Set Enable to true to enable automatic announce scheduling
 - Adjust Interval to configure the delay between broadcasts
@@ -58,7 +130,8 @@ Announces must have the following format:
 <Announce EnableParser="true/false" Message="YourMessage"/>
 ```
 
-#Tags
+#### Variables
+
 If EnableParser is set to true, the Announce is parsed before broadcasting it.
 The following tags are available:
 ```
@@ -82,7 +155,7 @@ The following tags are available:
 {t:(format)}	current time formatted by given format string
 ```
 
-Using the {t:(format)} tag:
+#### Using the {t:(format)} tag:
 
 The {t:(format)} tag can be used to display the current time.
 Replace (format) with a format string.
@@ -93,7 +166,7 @@ Example for a broadcast displaying the current time in HH:mm:ss format:
 <Announce EnableParser="true" Message="Current time {t:HH:mm:ss}"/>
 ```
 ## Command configuration
-Every command has it's own XML configuration. The files are located under /cfg/cmd
+Every command has it's own XML configuration. The files are located in ./cfg/cmd.
 
 TODO
 
@@ -145,7 +218,8 @@ player: (Player) player who invoked your command
 command: (string) your command alias
 params: (table(of string)) paramaters given by the player
 
-#LUA object definitions
+LUA object definitions
+
 Player
 ```
 (number)Slot - player's slot (shown in /admin /players)
@@ -277,7 +351,3 @@ void ApplyMod(LvlMod mod)
 void RevertMod(LvlMod mod)
 void RevertAllMods()
 ```
-
-
-
-

@@ -18,7 +18,6 @@ namespace SWBF2Admin
             {
                 Logger.Log(LogLevel.Error, "Exiting ({0})", e.Message);
             }
-
 #endif
         }
     }
