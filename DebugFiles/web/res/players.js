@@ -79,7 +79,7 @@ function Players() {
                 "<td>" + p.Ping + "</td>" +
                 "<td>" + p.RemoteAddressStr + "</td>" +
                 "<td>" + p.KeyHash + "</td>" +
-                "<td>" + "Group" + "</td>" +
+                "<td>" + p.GroupName + "</td>" +
                 "</tr>";
             i++;
         }

@@ -3,6 +3,8 @@
   <Enabled>true</Enabled>
   <Alias>calc</Alias>
   <Usage>calc &lt;c|r|+|-|*|/&gt; [&lt;num&gt;] </Usage>
+  <PermissionName>calculator</PermissionName>
+
   <UserConfig>
     <OnSyntaxError>Usage: {usage}</OnSyntaxError>
     <OnClear>Cleared.</OnClear>

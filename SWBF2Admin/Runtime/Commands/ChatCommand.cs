@@ -9,7 +9,7 @@ namespace SWBF2Admin.Runtime.Commands
     public abstract class ChatCommand
     {
         [XmlIgnore]
-        public Permission Permission { get; set; }
+        public virtual Permission Permission { get; set; }
 
         public bool Enabled { get; set; } = true;
         public string Alias { get; set; } = "change me";
@@ -58,6 +58,12 @@ namespace SWBF2Admin.Runtime.Commands
         {
             message = FormatString(message, tags);
             if (player == null) Core.Rcon.Say(message); else Core.Rcon.Pm(message, player);
+        }
+
+
+        public virtual bool HasPermission(Player player)
+        {
+            return Core.Database.HasPermission(player, Permission);
         }
     }
 }

@@ -22,6 +22,11 @@ namespace SWBF2Admin.Structures
         public int TotalVisits { get; set; }
 
         [JsonIgnore]
+        public PlayerGroup MainGroup { get; set; }
+
+        public virtual string GroupName { get { return (MainGroup == null ? string.Empty : MainGroup.Name); } }
+
+        [JsonIgnore]
         [MoonSharpHidden]
         public IPAddress RemoteAddress { get; }
 
@@ -49,12 +54,13 @@ namespace SWBF2Admin.Structures
             Slot = slot;
         }
 
-     [MoonSharpHidden]
+        [MoonSharpHidden]
         public void CopyDbInfo(Player p)
         {
             DatabaseId = p.DatabaseId;
             TotalVisits = p.TotalVisits;
             IsBanned = p.IsBanned;
+            MainGroup = p.MainGroup;
         }
     }
 }

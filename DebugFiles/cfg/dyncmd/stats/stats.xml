@@ -3,6 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>stats</Alias>
   <Usage>stats</Usage>
+  <PermissionName>stats</PermissionName>  
   
   <UserConfig>
     <OnNoStats>No stats found.</OnNoStats>

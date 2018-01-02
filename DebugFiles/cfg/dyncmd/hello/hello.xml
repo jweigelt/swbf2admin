@@ -3,7 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>hello</Alias>
   <Usage>hello</Usage>
-  
+  <PermissionName>hello</PermissionName>  
   <!--
 	This section can be used to define custom settings for your command.
 	You can access them in lua by calling api.GetConfig("NodeName")

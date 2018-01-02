@@ -93,6 +93,7 @@ namespace SWBF2Admin.Runtime.Players
                 Core.Database.InsertPlayer(p);
 
             Core.Database.AttachDbInfo(p);
+            p.MainGroup = Core.Database.GetTopGroup(p);
         }
 
         /// <summary>
@@ -105,6 +106,10 @@ namespace SWBF2Admin.Runtime.Players
             if (p.IsBanned)
             {
                 SendFormatted(config.OnPlayerAutoKickBanned, "{player}", p.Name);
+            }
+            else
+            {
+                if ((p.MainGroup != null) && p.MainGroup.EnableWelcome) Core.Rcon.Say(Util.FormatString(p.MainGroup.WelcomeMessage, "{player}", p.Name, "{group}", p.MainGroup.Name, "{joined}", p.TotalVisits.ToString()));
             }
         }
 

@@ -10,7 +10,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         public string OnSwap { get; set; } = "{player} was swapped by {admin}";
         public string OnSwapReason { get; set; } = "{player} was swapped by {admin} for {reason}";
 
-        public CmdSwap() : base("kick", "kick") { }
+        public CmdSwap() : base("swap", "swap") { }
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {

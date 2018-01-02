@@ -3,6 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>endgame</Alias>
   <Usage>endgame</Usage>
+  <PermissionName>endgame</PermissionName>
   
   <UserConfig>
     <OnEnd>Loading next map...</OnEnd>

@@ -3,6 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>bots</Alias>
   <Usage>bots &lt;count&gt;</Usage>
+  <PermissionName>bots</PermissionName>
   
   <UserConfig>
     <OnNoParam>No bot count specified. {usage}</OnNoParam>

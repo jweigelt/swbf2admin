@@ -14,6 +14,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         public string OptionNumber { get; set; } = "-n";
 
         public PlayerCommand(string alias, string permissionName) : base(alias, permissionName, $"{alias} <player> [-n <num>] [<reason>]") { }
+        public PlayerCommand(string alias, string permissionName, string usage) : base(alias, permissionName, usage) { }
         public abstract bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx);
         public override bool Run(Player player, string commandLine, string[] parameters)
         {

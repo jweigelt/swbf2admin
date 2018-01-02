@@ -6,9 +6,11 @@ using SWBF2Admin.Utility;
 using SWBF2Admin.Config;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Runtime.Rcon;
+using SWBF2Admin.Runtime.Permissions;
 using SWBF2Admin.Runtime.Commands.Admin;
 using SWBF2Admin.Runtime.Commands.Map;
 using SWBF2Admin.Runtime.Commands.Misc;
+using SWBF2Admin.Runtime.Commands.Permissions;
 using SWBF2Admin.Runtime.Commands.Dynamic;
 
 using MoonSharp.Interpreter;
@@ -39,12 +41,18 @@ namespace SWBF2Admin.Runtime.Commands
             RegisterCommand<CmdTempban>();
             RegisterCommand<CmdTempIpBan>();
 
-            
+            RegisterCommand<CmdMap>();
             RegisterCommand<CmdAddMap>();
             RegisterCommand<CmdRemoveMap>();
             RegisterCommand<CmdSetNextMap>();
 
+            RegisterCommand<CmdPutGroup>();
+            RegisterCommand<CmdRmGroup>();
+            RegisterCommand<CmdGimmeAdmin>();
+
             RegisterCommand<CmdApplyMods>();
+
+            Permission.InitPermissions(Core.Database.GetPermissions());
 
             if (enableDynamic)
             {
@@ -80,7 +88,7 @@ namespace SWBF2Admin.Runtime.Commands
                             "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, c.Alias);
                     }
                     // TODO Use permissions
-                    else if (false)//if (!Core.Database.HasPermission(players[0], c.Permission))
+                    else if (!c.HasPermission(players[0]))
                     {
                         Logger.Log(LogLevel.Verbose,
                             "Player \"{0}\" doesnt have permission for \"{1}\"", players[0].Name, c.Alias);

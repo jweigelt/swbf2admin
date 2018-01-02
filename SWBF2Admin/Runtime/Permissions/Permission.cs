@@ -15,9 +15,8 @@ namespace SWBF2Admin.Runtime.Permissions
         public int Id { get; }
         public string Name { get; }
         public IList<PermissionGroup> Groups { get; }
-        
 
-        public Permission(int id, string name, IList<PermissionGroup> groups)
+        public Permission(int id, string name, IList<PermissionGroup> groups = null)
         {
             this.Id = id;
             this.Name = name;
@@ -42,7 +41,7 @@ namespace SWBF2Admin.Runtime.Permissions
             {
                 return false;
             }
-            return ((Permission) obj).Id == this.Id;
+            return ((Permission)obj).Id == this.Id;
         }
 
         public override int GetHashCode()
@@ -50,7 +49,7 @@ namespace SWBF2Admin.Runtime.Permissions
             return this.Id;
         }
 
-        public static bool operator==(Permission a, Permission b)
+        public static bool operator ==(Permission a, Permission b)
         {
             return object.Equals(a, b);
         }
@@ -77,7 +76,9 @@ namespace SWBF2Admin.Runtime.Permissions
 
         public static Permission FromName(string name)
         {
-            return _permissionNameToId.TryGetValue(name, out var id) ? FromId(id) : null;
+            //TODO: messy quickfix to get basic permissions working -> generating new Permission object if perm not found
+
+            return _permissionNameToId.TryGetValue(name, out var id) ? FromId(id) : new Permission(-1, name) /*null*/;
         }
     }
 }

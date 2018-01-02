@@ -3,6 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>nextmap</Alias>
   <Usage>nextmap</Usage>
+  <PermissionName>nextmap</PermissionName>  
   
   <UserConfig>
     <OnNextMap>Next map: {map}</OnNextMap>

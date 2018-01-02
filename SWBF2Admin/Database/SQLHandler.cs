@@ -213,6 +213,7 @@ namespace SWBF2Admin.Database
         #endregion
 
         #region permissions
+        /*
         public bool HasPermission(Player player, Permission permission)
         {
             string sql =
@@ -227,8 +228,7 @@ namespace SWBF2Admin.Database
             // Permission.ToString currently returns Permission.Name, but if we used a simple enum then it would return the enum name
             return (HasRows(Query(sql, "@steam_id", player.KeyHash, "@permission", permission.ToString())));
         }
-
-
+        */
         /*
          * TODO This proposition invalidates existing permission code, so just commenting most of it out
          * Proposed schema for permissions:
@@ -246,9 +246,28 @@ namespace SWBF2Admin.Database
          *     - group_id (int, nullable, reference to groups)
          *     - permission_id (int, nullable, reference to permissions)
          */
-        // TODO This is just a prototype for how the proposed schema would work
-        public bool HasPermission(Player player, string permissionName)
+        /*
+         * Created some views with slightly modified schema
+         * 
+         * (players: all unique players)
+         * (groups: player groups for #putgroup)
+         * (groups_players: refs players to groups)
+         * 
+         * permissions_groups: group_id, permission_id refs player groups to permissions
+         * permissions_players: player_id, permission_id refs players to permissions
+         * 
+         * permissions: id, name
+         * permissions_grouped: child_id, parent_id refs permissions back to permissions, so that one permission can act as an alias for n permission
+         * 
+         * view_permissions_groups: selects permissions union child permissions (based on player's groups)
+         * view_permissions_players: selects permissions union child permissions (based on player)
+         * 
+         * view_permission(player_id, permission_name): view_permissions_groups union view_permissions_players
+         * 
+         */
+        public bool HasPermission(Player player, Permission permission)
         {
+            /*
             string sql = @"
             SElECT player_id
             FROM players_permissions
@@ -261,8 +280,11 @@ namespace SWBF2Admin.Database
                     permissions.id = grouped_permissions.permission_id 
             WHERE players.keyhash = @keyhash AND permissions.name = @permission_name
             ";
-            return HasRows(Query(sql, "@keyhash", player.KeyHash, "@permission_name", permissionName));
+            */
+            string sql = "SELECT player_id FROM view_permissions WHERE permission_name = @permission_name AND player_id = @player_id";
+            return HasRows(Query(sql, "@player_id", player.DatabaseId, "@permission_name", permission.Name));
         }
+
         public IDictionary<int, Permission> GetPermissions()
         {
             string sql = "SELECT id, permission_name FROM prefix_permissions";
@@ -271,8 +293,8 @@ namespace SWBF2Admin.Database
             {
                 while (reader.Read())
                 {
-                    int permId = (int)reader["id"];
-                    //                    permissions[permId] = new Permission(permId, RS(reader, "permission_name"), (int) reader["group_id"]);
+                    Permission p = new Permission(RI(reader, "id"), RS(reader, "permission_name"));
+                    permissions.Add(p.Id, p);
                 }
             }
             Permission.InitPermissions(permissions);
@@ -301,6 +323,109 @@ namespace SWBF2Admin.Database
             }
             return permissionGroups;
         }
+
+        //TODO: cache groups
+        public PlayerGroup GetPlayerGroup(string name)
+        {
+            string sql = "SELECT * FROM prefix_groups WHERE lower(group_name) = @group_name LIMIT 1";
+
+            using (DbDataReader reader = Query(sql, "@group_name", name.ToLower()))
+            {
+                if (reader.Read())
+                {
+                    return new PlayerGroup(
+                        RL(reader, "id"),
+                        RL(reader, "group_level"),
+                        RS(reader, "group_name"),
+                        RS(reader, "group_welcome"),
+                        (RL(reader, "group_welcome_enable") == 1));
+
+                }
+            }
+            return null;
+        }
+
+        public PlayerGroup GetTopGroup()
+        {
+            string sql = "SELECT * FROM prefix_groups ORDER BY group_level DESC LIMIT 1";
+
+            using (DbDataReader reader = Query(sql))
+            {
+                if (reader.Read())
+                {
+                    return new PlayerGroup(
+                        RL(reader, "id"),
+                        RL(reader, "group_level"),
+                        RS(reader, "group_name"),
+                        RS(reader, "group_welcome"),
+                        (RL(reader, "group_welcome_enable") == 1));
+
+                }
+            }
+            return null;
+        }
+
+
+        public PlayerGroup GetTopGroup(Player player)
+        {
+            string sql =
+                "SELECT " +
+                    "group_name, " +
+                    "group_welcome, " +
+                    "group_level, " +
+                    "group_welcome_enable, " +
+                    "player_id, " +
+                    "prefix_groups.id " +
+                "FROM " +
+                    "prefix_players_groups " +
+                "INNER JOIN prefix_groups ON prefix_players_groups.group_id = prefix_groups.id " +
+                "WHERE player_id = @player_id " +
+                "ORDER BY group_level DESC LIMIT 1";
+
+            using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId))
+            {
+                if (reader.Read())
+                {
+                    return new PlayerGroup(
+                         RL(reader, "id"),
+                         RL(reader, "group_level"),
+                         RS(reader, "group_name"),
+                         RS(reader, "group_welcome"),
+                         (RL(reader, "group_welcome_enable") == 1));
+                }
+            }
+            return null;
+        }
+
+        public bool NoPlayerGroups()
+        {
+            string sql = "SELECT id FROM prefix_players_groups";
+            return !(HasRows(Query(sql)));
+        }
+
+        public bool IsGroupMember(Player player, PlayerGroup group)
+        {
+            string sql = "SELECT id FROM prefix_players_groups WHERE player_id = @player_id AND group_id = @group_id";
+            return (HasRows(Query(sql, "@player_id", player.DatabaseId, "@group_id", group.Id)));
+        }
+
+        public void AddPlayerGroup(Player player, PlayerGroup group)
+        {
+            string sql = "INSERT INTO prefix_players_groups " +
+                "(player_id, group_id) VALUES " +
+                "(@player_id, @group_id)";
+
+            NonQuery(sql, "@player_id", player.DatabaseId, "@group_id", group.Id);
+            player.MainGroup = GetTopGroup(player);
+        }
+
+        public void RemovePlayerGroup(Player player, PlayerGroup group)
+        {
+            string sql = "DELETE FROM prefix_players_groups WHERE player_id = @player_id AND group_id = @group_id";
+            NonQuery(sql, "@player_id", player.DatabaseId, "@group_id", group.Id);
+            player.MainGroup = GetTopGroup(player);
+        }
+
         #endregion
 
         #region Ban management
@@ -342,26 +467,26 @@ namespace SWBF2Admin.Database
 
             string sql =
                 "SELECT " +
-                "prefix_bans.id, " +
-                "ban_reason, " +
-                "ban_duration, " +
-                "ban_type, " +
-                "ban_timestamp, " +
-                "admin_id, " +
-                "player_id, " +
-                "prefix_players.player_last_name, " +
-                "prefix_players_admins.player_last_name AS admin_last_name, " +
-                "prefix_players.player_keyhash, " +
-                "prefix_players.player_last_ip " +
+                    "prefix_bans.id, " +
+                    "ban_reason, " +
+                    "ban_duration, " +
+                    "ban_type, " +
+                    "ban_timestamp, " +
+                    "admin_id, " +
+                    "player_id, " +
+                    "prefix_players.player_last_name, " +
+                    "prefix_players_admins.player_last_name AS admin_last_name, " +
+                    "prefix_players.player_keyhash, " +
+                    "prefix_players.player_last_ip " +
                 "FROM " +
-                "prefix_bans " +
-                "LEFT JOIN prefix_players ON prefix_players.id = prefix_bans.player_id " +
-                "LEFT JOIN prefix_players AS prefix_players_admins ON prefix_players_admins.id = prefix_bans.admin_id " +
+                    "prefix_bans " +
+                    "LEFT JOIN prefix_players ON prefix_players.id = prefix_bans.player_id " +
+                    "LEFT JOIN prefix_players AS prefix_players_admins ON prefix_players_admins.id = prefix_bans.admin_id " +
                 "WHERE " +
-                "prefix_players.player_last_name LIKE @player_exp AND " +
-                "admin_last_name LIKE @admin_exp AND " +
-                "ban_reason LIKE @reason_exp AND " +
-                "(ban_timestamp) > @date_timestamp";
+                    "prefix_players.player_last_name LIKE @player_exp AND " +
+                    "admin_last_name LIKE @admin_exp AND " +
+                    "ban_reason LIKE @reason_exp AND " +
+                    "(ban_timestamp) > @date_timestamp";
 
             if (!expired) sql += " AND ((ban_timestamp + ban_duration) > @timestamp OR ban_duration < 0)";
             if (banType != (int)BanType.ShowAll) sql += " AND ban_type = @ban_type";
@@ -410,7 +535,7 @@ namespace SWBF2Admin.Database
         }
         #endregion
 
-        #region Player tracking
+        #region player/statistics tracking
         public bool PlayerExists(Player player)
         {
             string sql =
@@ -422,6 +547,7 @@ namespace SWBF2Admin.Database
 
             return (HasRows(Query(sql, "@keyhash", player.KeyHash)));
         }
+
         public void InsertPlayer(Player player)
         {
             string sql =
@@ -538,22 +664,22 @@ namespace SWBF2Admin.Database
                 "@deaths", player.Deaths,
                 "@points", player.Score,
                 "@team", player.Team,
-                "@quit", (quit ? "1" : "0"),
+                "@quit", (quit ? 1 : 0),
                 "@game_id", game.DatabaseId);
         }
 
         public PlayerStatistics GetPlayerStats(Player player)
         {
             string sql =
-                "select " +
+                "SELECT " +
                     "sum(stat_kills) as total_kills, " +
                     "sum(stat_deaths) as total_deaths, " +
                     "sum(stat_points) as total_score, " +
-                    "(select count(*) from prefix_stats_games inner join prefix_stats on game_id = prefix_stats_games.id left join prefix_teams on team_name = stat_team where player_id = @player_id and game_team_won = team_number) as games_won, " +
-                    "(select count(*) from prefix_stats_games inner join prefix_stats on game_id = prefix_stats_games.id and game_team_won != stat_team where player_id = @player_id) as games_lost, " +
-                    "(select count(*) from prefix_stats_games inner join prefix_stats on game_id = prefix_stats_games.id and stat_quit = 1 where player_id = @player_id) as games_quit " +
-                "from prefix_stats " +
-                    "where player_id = @player_id";
+                    "(SELECT count(*) FROM prefix_stats_games INNER JOIN prefix_stats ON game_id = prefix_stats_games.id LEFT JOIN prefix_teams ON team_name = stat_team WHERE player_id = @player_id and game_team_won = team_number) as games_won, " +
+                    "(SELECT count(*) FROM prefix_stats_games INNER JOIN prefix_stats ON game_id = prefix_stats_games.id LEFT JOIN prefix_teams ON team_name = stat_team WHERE player_id = @player_id and game_team_won != team_number) as games_lost, " +
+                    "(SELECT count(*) FROM prefix_stats_games INNER JOIN prefix_stats ON game_id = prefix_stats_games.id AND stat_quit = 1 WHERE player_id = @player_id) as games_quit " +
+                "FROM prefix_stats " +
+                    "WHERE player_id = @player_id";
 
             using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId))
             {

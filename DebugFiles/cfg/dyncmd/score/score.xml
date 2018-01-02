@@ -3,6 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>score</Alias>
   <Usage>score &lt;score&gt;</Usage>
+  <PermissionName>score</PermissionName>  
   
   <UserConfig>
     <OnNoParam>No score specified. {usage}</OnNoParam>

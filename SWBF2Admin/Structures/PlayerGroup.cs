@@ -1,6 +1,8 @@
-﻿namespace SWBF2Admin.Structures
+﻿using MoonSharp.Interpreter;
+namespace SWBF2Admin.Structures
 {
-    class PlayerGroup
+    [MoonSharpUserData]
+    public class PlayerGroup
     {
         public long Id { get; }
         public long Level { get; }

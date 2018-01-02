@@ -3,6 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>timer</Alias>
   <Usage>timer &lt;time&gt;</Usage>
+  <PermissionName>stats</PermissionName>
   
   <UserConfig>
     <OnNoParam>No time specified. {usage}</OnNoParam>

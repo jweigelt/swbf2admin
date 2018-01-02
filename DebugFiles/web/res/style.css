@@ -496,15 +496,19 @@ a#game_a_hunt.active, span.hunt {
  *  Map Rotation Tab
  **/
 
-table.maps td span {
-    color: #ffffff;
-    border-radius: .25em;
-    padding: 0em .25em 0em .25em;
+table.maps {
+    border-collapse: collapse;
 }
 
-table.maps td {
-    padding-left: 1em;
-}
+    table.maps td span {
+        color: #ffffff;
+        border-radius: .25em;
+        padding: 0em .25em 0em .25em;
+    }
+
+    table.maps td {
+        padding-left: 1em;
+    }
 
 table.map-container {
     width: 100%;

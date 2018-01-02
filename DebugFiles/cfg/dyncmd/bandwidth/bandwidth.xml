@@ -3,6 +3,7 @@
   <Enabled>true</Enabled>
   <Alias>bandwidth</Alias>
   <Usage>bandwidth</Usage>
+  <PermissionName>bandwidth</PermissionName>
   
   <UserConfig>
     <OnBandwidth>Bandwidth: {bandwidth}</OnBandwidth>
