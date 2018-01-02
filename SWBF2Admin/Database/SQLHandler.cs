@@ -456,7 +456,7 @@ namespace SWBF2Admin.Database
         public void AttachDbInfo(Player player)
         {
             string sql =
-                "SELECT * FROM prefix_players " +
+                "SELECT id, player_visits FROM prefix_players " +
                 "WHERE player_keyhash = @keyhash";
 
             using (DbDataReader reader = Query(sql, "@keyhash", player.KeyHash))
@@ -465,6 +465,7 @@ namespace SWBF2Admin.Database
                 {
                     reader.Read();
                     player.DatabaseId = RL(reader, "id");
+                    player.TotalVisits = RI(reader, "player_visits");
                     player.IsBanned = IsBanned(player);
                 }
                 else Logger.Log(LogLevel.Warning, "Couldn't find player info for player \"{0}\". (keyhash: {1})", player.Name, player.KeyHash);
@@ -484,6 +485,7 @@ namespace SWBF2Admin.Database
                     return new GameInfo(RL(reader, "id"),
                         GetDateTime(RU(reader, "game_started_timestamp")),
                         RS(reader, "game_map"),
+                        RS(reader, "game_mode"),
                         RI(reader, "game_team1_score"),
                         RI(reader, "game_team2_score"),
                         RI(reader, "game_team1_tickets"),
@@ -495,12 +497,15 @@ namespace SWBF2Admin.Database
 
         public void CloseGame(GameInfo game)
         {
+            //stroring winning team in game_team_won se we can query won/lost games fast later on
+
             string sql = "UPDATE prefix_stats_games SET " +
                 "game_ended_timestamp = @timestamp, " +
                 "game_team1_score = @score1, " +
                 "game_team2_score = @score2, " +
                 "game_team1_tickets = @tickets1, " +
-                "game_team2_tickets = @tickets2 " +
+                "game_team2_tickets = @tickets2," +
+                "game_team_won = @team_won " +
                 "WHERE id = @id";
 
             NonQuery(sql,
@@ -509,15 +514,16 @@ namespace SWBF2Admin.Database
                 "@score1", game.Team1Score,
                 "@score2", game.Team2Score,
                 "@tickets1", game.Team1Tickets,
-                "@tickets2", game.Team2Tickets);
+                "@tickets2", game.Team2Tickets,
+                "@team_won", game.WinningTeam);
         }
 
         public void InsertGame(GameInfo game)
         {
             string sql = "INSERT INTO prefix_stats_games " +
-                "(game_map, game_started_timestamp, game_ended_timestamp, game_team1_score, game_team2_score, game_team1_tickets, game_team2_tickets) VALUES " +
-                "(@map, @started, 0, 0, 0, 0, 0)";
-            NonQuery(sql, "@map", game.Map, "@started", GetTimestamp());
+                "(game_map, game_mode, game_started_timestamp, game_ended_timestamp, game_team1_score, game_team2_score, game_team1_tickets, game_team2_tickets) VALUES " +
+                "(@map, @mode, @started, 0, 0, 0, 0, 0)";
+            NonQuery(sql, "@map", game.Map, "@mode", game.Mode.ToString(), "@started", GetTimestamp());
         }
 
         public void InsertPlayerStats(Player player, GameInfo game, bool quit = false)
@@ -535,6 +541,37 @@ namespace SWBF2Admin.Database
                 "@quit", (quit ? "1" : "0"),
                 "@game_id", game.DatabaseId);
         }
+
+        public PlayerStatistics GetPlayerStats(Player player)
+        {
+            string sql =
+                "select " +
+                    "sum(stat_kills) as total_kills, " +
+                    "sum(stat_deaths) as total_deaths, " +
+                    "sum(stat_points) as total_score, " +
+                    "(select count(*) from prefix_stats_games inner join prefix_stats on game_id = prefix_stats_games.id left join prefix_teams on team_name = stat_team where player_id = @player_id and game_team_won = team_number) as games_won, " +
+                    "(select count(*) from prefix_stats_games inner join prefix_stats on game_id = prefix_stats_games.id and game_team_won != stat_team where player_id = @player_id) as games_lost, " +
+                    "(select count(*) from prefix_stats_games inner join prefix_stats on game_id = prefix_stats_games.id and stat_quit = 1 where player_id = @player_id) as games_quit " +
+                "from prefix_stats " +
+                    "where player_id = @player_id";
+
+            using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId))
+            {
+                if (reader.Read())
+                {
+                    return new PlayerStatistics(
+                        RI(reader, "games_won"),
+                        RI(reader, "games_lost"),
+                        RI(reader, "games_quit"),
+                        RI(reader, "total_kills"),
+                        RI(reader, "total_deaths"),
+                        RI(reader, "total_score"));
+                }
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region Web
@@ -550,7 +587,7 @@ namespace SWBF2Admin.Database
             using (DbDataReader reader = Query(sql, "@username", username, "@password", Util.Md5(password)))
             {
                 if (reader.Read())
-                {  
+                {
                     return new WebUser(RL(reader, "id"), RS(reader, "user_name"), RS(reader, "user_password"), GetDateTime(RU(reader, "user_lastvisit")));
                 }
             }

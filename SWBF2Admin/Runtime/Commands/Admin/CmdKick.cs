@@ -1,6 +1,4 @@
-﻿using System;
-using System.Xml.Serialization;
-using SWBF2Admin.Runtime.Permissions;
+﻿using SWBF2Admin.Runtime.Permissions;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Config;
 

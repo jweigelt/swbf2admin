@@ -125,10 +125,13 @@ namespace SWBF2Admin.Runtime.Players
         /// <param name="e"></param>
         private void Game_GameClosed(object sender, EventArgs e)
         {
-            foreach (Player p in playerList)
+            if (playerList != null)
             {
-                GameClosedEventArgs gce = (GameClosedEventArgs)e;
-                Core.Database.InsertPlayerStats(p, gce.Game);
+                foreach (Player p in playerList)
+                {
+                    GameClosedEventArgs gce = (GameClosedEventArgs)e;
+                    Core.Database.InsertPlayerStats(p, gce.Game);
+                }
             }
         }
 

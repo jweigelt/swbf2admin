@@ -19,6 +19,8 @@ namespace SWBF2Admin.Structures
         public string KeyHash { get; }
         public bool IsBanned { get; set; }
 
+        public int TotalVisits { get; set; }
+
         [JsonIgnore]
         [MoonSharpHidden]
         public IPAddress RemoteAddress { get; }
@@ -51,6 +53,7 @@ namespace SWBF2Admin.Structures
         public void CopyDbInfo(Player p)
         {
             DatabaseId = p.DatabaseId;
+            TotalVisits = p.TotalVisits;
             IsBanned = p.IsBanned;
         }
     }

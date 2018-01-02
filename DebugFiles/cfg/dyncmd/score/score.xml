@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DynamicCommand xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Enabled>true</Enabled>
+  <Alias>score</Alias>
+  <Usage>score &lt;score&gt;</Usage>
+  
+  <UserConfig>
+    <OnNoParam>No score specified. {usage}</OnNoParam>
+    <OnInvalidParam>Invalid input {input}. Expected numeric value (0~{maxvalue}).</OnInvalidParam>
+	<OnInvalidGameMode>Current gamemode ({mode}) doesn't support score.</OnInvalidGameMode>   
+    <OnSet>{admin} set max. score to {value}.</OnSet>
+  </UserConfig>
+</DynamicCommand>

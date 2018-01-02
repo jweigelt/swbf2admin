@@ -63,7 +63,7 @@ namespace SWBF2Admin.Runtime.Game
             {
                 StatsSaveGame();
                 //Assume we're so fast that the server hasn't loaded the new map yet
-                StatsCreateGame(latestInfo.NextMap);
+                StatsCreateGame(latestInfo.NextMap, latestInfo.GameMode);
             }
         }
 
@@ -74,7 +74,7 @@ namespace SWBF2Admin.Runtime.Game
             if (currentGame == null)
             {
                 UpdateInfo();
-                if (latestInfo != null) StatsCreateGame(latestInfo.CurrentMap);
+                if (latestInfo != null) StatsCreateGame(latestInfo.CurrentMap, latestInfo.GameMode);
             }
             else
             {
@@ -99,10 +99,10 @@ namespace SWBF2Admin.Runtime.Game
                 GameClosed.Invoke(this, new GameClosedEventArgs(currentGame));
             }
         }
-        private void StatsCreateGame(string map)
+        private void StatsCreateGame(string map, string mode)
         {
             Logger.Log(LogLevel.Verbose, "Registering new game ({0})", map);
-            Core.Database.InsertGame(new GameInfo(map));
+            Core.Database.InsertGame(new GameInfo(map, mode));
             currentGame = Core.Database.GetLastOpenGame();
         }
         private void UpdateInfo()

@@ -71,6 +71,11 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
             core.Database.InsertBan(b);
         }
 
+        public PlayerStatistics GetPlayerStats(Player player)
+        {
+            return core.Database.GetPlayerStats(player);
+        }
+
         #endregion
 
         #region Game

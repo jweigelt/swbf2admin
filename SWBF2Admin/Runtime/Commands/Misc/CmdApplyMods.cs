@@ -34,7 +34,6 @@ namespace SWBF2Admin.Runtime.Commands.Misc
                 return false;
             }
 
-
             LvlMod mod = null;
             foreach (LvlMod m in Core.Mods.Mods)
             {

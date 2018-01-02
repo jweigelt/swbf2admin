@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DynamicCommand xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Enabled>true</Enabled>
+  <Alias>stats</Alias>
+  <Usage>stats</Usage>
+  
+  <UserConfig>
+    <OnNoStats>No stats found.</OnNoStats>
+    <OnTotal>Total | score: {score}, kills: {kills}, deaths: {deaths}, times joined: {joined}</OnTotal>
+	<OnGame>Games | won: {won}, lost: {lost}, quit: {quit}</OnGame>
+	<OnAVG>Average | K/D: {kd}, S/G: {sg}, K/G: {kg}, D/G: {dg}</OnAVG>
+	<OnInvalidArg>Invalid argument {input}. Only {arg_total}, {arg_avg} and {arg_game} are supported.</OnInvalidArg>
+	
+	<ArgTotal>total</ArgTotal>
+	<ArgAVG>avg</ArgAVG>
+	<ArgGame>game</ArgGame>
+	<ArgAll>all</ArgAll>
+	</UserConfig>
+</DynamicCommand>

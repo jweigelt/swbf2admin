@@ -12,6 +12,9 @@ namespace SWBF2Admin.Runtime.Commands.Map
         public override bool AffectMap(ServerMap map, string mode, Player player, string commandLine, string[] parameters, int paramIdx)
         {
             SendFormatted(OnAddMap, "{map_name}", map.Name, "{map_nicename}", map.NiceName, "{gamemode}", mode);
+
+            Core.Rcon.SendCommand("removemap", map.Name + mode);
+            Core.Rcon.SendCommand("addmap", map.Name + mode);
             return true;
         }
     }

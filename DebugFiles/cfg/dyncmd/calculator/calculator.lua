@@ -4,12 +4,7 @@
 
 local val = 0
 
-function syntaxError()
-	api.Say(api.getConfig("OnSyntaxError"), "{usage}", api.getUsage())
-end
-
 function init()
-	api.Log(api.LogLevel_Verbose, "Preparing calculate everyting.")
 end
 
 function run(player, command, params)
@@ -48,4 +43,8 @@ function run(player, command, params)
 		return false
 	end
 	api.Say(api.GetConfig("OnCalc"), "{value}", tostring(val))
+end
+
+function syntaxError()
+	api.Say(api.getConfig("OnSyntaxError"), "{usage}", api.getUsage())
 end

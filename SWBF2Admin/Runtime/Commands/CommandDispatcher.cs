@@ -32,9 +32,18 @@ namespace SWBF2Admin.Runtime.Commands
         public override void OnInit()
         {
             //Commands can be registered here
+            RegisterCommand<CmdSwap>();
             RegisterCommand<CmdKick>();
+            RegisterCommand<CmdBan>();
+            RegisterCommand<CmdIpBan>();
             RegisterCommand<CmdTempban>();
+            RegisterCommand<CmdTempIpBan>();
+
+            
             RegisterCommand<CmdAddMap>();
+            RegisterCommand<CmdRemoveMap>();
+            RegisterCommand<CmdSetNextMap>();
+
             RegisterCommand<CmdApplyMods>();
 
             if (enableDynamic)

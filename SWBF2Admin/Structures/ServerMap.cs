@@ -205,8 +205,10 @@ namespace SWBF2Admin.Structures
         //TODO
         public bool HasMode(string mode)
         {
-
             return true;
         }
+
+
+    
     }
 }

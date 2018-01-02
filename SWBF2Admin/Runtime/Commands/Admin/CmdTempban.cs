@@ -26,7 +26,9 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         }
         public string DefaultReason { get; set; } = "";
 
-        public CmdTempban() : base("tempban", "kick") { }
+        public CmdTempban() : base("tempban", "tempban") { }
+
+        public CmdTempban(string alias, string permission) : base(alias, permission) { }
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {
