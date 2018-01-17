@@ -6,14 +6,15 @@ using System.Threading;
 using Newtonsoft.Json;
 
 using SWBF2Admin.Runtime.Rcon;
+using SWBF2Admin.Runtime.Rcon.Packets;
 using SWBF2Admin.Utility;
 using SWBF2Admin.Structures;
-
 
 namespace SWBF2Admin.Web.Pages
 {
     class ChatPage : AjaxPage
     {
+        private const string COMMAND_START = "/admin /";
         private List<ChatSession> chatSessions = new List<ChatSession>();
 
         //Webserver is running async to main thread -> mutex is required
@@ -24,7 +25,7 @@ namespace SWBF2Admin.Web.Pages
             public string Message { get; set; }
         }
 
-        class ChatSession
+        public class ChatSession
         {
             [JsonIgnore]
             public DateTime LastAcitvity { get; set; }
@@ -50,13 +51,13 @@ namespace SWBF2Admin.Web.Pages
             ChatApiParams p = null;
             if ((p = TryJsonParse<ChatApiParams>(ctx, postData)) == null) return;
 
+            ChatSession s = GetSession(ctx);
+
             if (p.Action.Equals("chat_send"))
             {
                 Logger.Log(LogLevel.Verbose, "Processing webchat input: '{0}'", p.Message);
-                Core.Rcon.Say(p.Message);
+                ProcessInput(p.Message, s);
             }
-
-            ChatSession s = GetSession(ctx);
 
             mtx.WaitOne();
             WebAdmin.SendHtml(ctx, ToJson(s.Messages));
@@ -110,7 +111,6 @@ namespace SWBF2Admin.Web.Pages
             mtx.ReleaseMutex();
             return session;
         }
-
         public void ManageSessions()
         {
             mtx.WaitOne();
@@ -128,7 +128,6 @@ namespace SWBF2Admin.Web.Pages
             }
             mtx.ReleaseMutex();
         }
-
         private void Chat_Input(ChatMessage msg)
         {
             mtx.WaitOne();
@@ -138,11 +137,38 @@ namespace SWBF2Admin.Web.Pages
             }
             mtx.ReleaseMutex();
         }
-
         private void Rcon_Chat(object sender, EventArgs e)
         {
-            RconChatEventArgs re = (RconChatEventArgs)e;
-            Chat_Input(new ChatMessage(re.Message, re.Name));
+            Chat_Input(((RconChatEventArgs)e).Message);
+        }
+
+        private void ProcessInput(string message, ChatSession session)
+        {
+            if (message.StartsWith(COMMAND_START))
+            {
+                //Chat_Input(new ChatMessage(message));
+                message = message.Substring(COMMAND_START.Length); //remove /admin
+                //we need to be on the main thread to send safely -> use the scheduler
+                Core.Scheduler.PushTask(() => SendChatCommand_Sync(message, session));
+            }
+            else Core.Rcon.Say(message); //Assume /say if no command specified
+
+        }
+
+        private void SendChatCommand_Sync(string command, ChatSession session)
+        {
+            //NOTE: we're not in sync with the webserver's thread in here
+            WebChatPacket wcp = new WebChatPacket(command, session);
+            Core.Rcon.SendPacket(wcp);
+            if (wcp.PacketOk)
+            {
+                ChatMessage[] messages = wcp.GetMessages();
+                foreach (ChatMessage msg in messages)
+                {
+                    //Chat_Input is threadsafe so we don't have to worry about that here
+                    Chat_Input(msg);
+                }
+            }
         }
     }
 }

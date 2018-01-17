@@ -28,7 +28,11 @@ function Chat() {
    var t = $("#chat_tbl_chat");   
     
     for (var x in r) {
-      var rw = $("<tr><td>#"+r[x].PlayerName+": "+r[x].Message+"</td></tr>").hide();
+		console.log(r[x]);
+	  var name = (r[x].IsSystem ? "Admin" : r[x].PlayerName);
+	  var cls = (r[x].IsSystem ? "adminMessage" : "playerMessage");
+	  
+      var rw = $('<tr class="'+cls+'"><td>#<span>'+name+"</span>: "+r[x].Message+"</td></tr>").hide();
       t.append(rw);
       rw.show("normal");
     }

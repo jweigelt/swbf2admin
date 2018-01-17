@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SWBF2Admin")]
 [assembly: AssemblyDescription("SWBF2 server manager")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Lorem ipsum")]
+[assembly: AssemblyCompany("LeKeks, Yoni")]
 [assembly: AssemblyProduct("SWBF2Admin")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright ©  2017 Jan Weigelt")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

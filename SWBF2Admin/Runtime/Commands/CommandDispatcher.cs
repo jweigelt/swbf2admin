@@ -64,11 +64,11 @@ namespace SWBF2Admin.Runtime.Commands
 
         private void Rcon_ChatInput(object sender, EventArgs e)
         {
-            RconChatEventArgs ce = (RconChatEventArgs)e;
-            if (ce.Message.StartsWith(commandPrefix))
-                HandleCommand(ce.Name, ce.Message);
+            ChatMessage msg = ((RconChatEventArgs)e).Message;
+            if (msg.Message.StartsWith(commandPrefix))
+                HandleCommand(msg.PlayerName, msg.Message);
             else
-                Logger.Log(LogLevel.Info, "[CHAT] #{0}: {1}", ce.Name, ce.Message);
+                Logger.Log(LogLevel.Info, "[CHAT] #{0}: {1}", msg.PlayerName, msg.Message);
         }
         private void HandleCommand(string name, string message)
         {

@@ -116,12 +116,12 @@ namespace SWBF2Admin
         private void Server_Started(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Starting runtime management...");
-            foreach (ComponentBase h in components) h.OnServerStart();
+            if(config.EnableRuntime) foreach(ComponentBase h in components) h.OnServerStart();
         }
         private void Server_Stopped(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
-            foreach (ComponentBase h in components) h.OnServerStop();
+            if (config.EnableRuntime) foreach (ComponentBase h in components) h.OnServerStop();
         }
         private void Server_Crashed(object sender, EventArgs e)
         {

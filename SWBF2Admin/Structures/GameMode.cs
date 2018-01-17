@@ -33,9 +33,15 @@
                     return ELI;
                 case "1flag":
                     return ONEFLAG;
+                case "ctf1":
+                    return ONEFLAG;
                 case "ctf":
+                    return CTF;         
+                case "ctf2":
                     return CTF;
                 case "hunt":
+                    return HUNT;
+                case "hun":
                     return HUNT;
                 case "con":
                     return CON;

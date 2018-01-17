@@ -197,7 +197,7 @@ namespace SWBF2Admin.Runtime.Rcon
         /// <param name="message"></param>
         public void Say(string message)
         {
-            ChatOutput.Invoke(this, new RconChatEventArgs("Admin", message));
+            ChatOutput.Invoke(this, new RconChatEventArgs(new ChatMessage(message)));
             SendCommand("say", message);
         }
 
@@ -209,7 +209,7 @@ namespace SWBF2Admin.Runtime.Rcon
         /// <param name="player"></param>
         public void Pm(string message, Player player)
         {
-            ChatOutput.Invoke(this, new RconChatEventArgs($"Admin [=> {player.Name}]", message));
+            ChatOutput.Invoke(this, new RconChatEventArgs(new ChatMessage($"[=> {player.Name}] {message}")));
             SendCommand("warn", player.Slot.ToString(), message);
         }
 
@@ -361,7 +361,7 @@ namespace SWBF2Admin.Runtime.Rcon
             else
             {
                 Logger.Log(LogLevel.Info, "#{0}:{1}", cc[1], cc[2]);
-                InvokeEvent(ChatInput, this, new RconChatEventArgs(cc[1], cc[2]));
+                InvokeEvent(ChatInput, this, new RconChatEventArgs(new ChatMessage(cc[1], cc[2])));
             }
             return true;
         }

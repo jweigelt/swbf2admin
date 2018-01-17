@@ -1,14 +1,14 @@
 ﻿using System;
+using SWBF2Admin.Structures;
 namespace SWBF2Admin.Runtime.Rcon
 {
     class RconChatEventArgs : EventArgs
     {
-        public string Name { get; }
-        public string Message { get; }
+    
+        public ChatMessage Message { get; }
 
-        public RconChatEventArgs(string name, string message)
+        public RconChatEventArgs(ChatMessage message)
         {
-            Name = name;
             Message = message;
         }
     }

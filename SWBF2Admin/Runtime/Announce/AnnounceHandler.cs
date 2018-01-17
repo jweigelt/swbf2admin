@@ -37,8 +37,11 @@ namespace SWBF2Admin.Runtime.Announce
         }
         protected override void OnUpdate()
         {
-            InvokeEvent(Broadcast, this, new AnnounceEventArgs(config.AnnounceList[currentIdx++]));
-            if (currentIdx == config.AnnounceList.Count) currentIdx = 0;
+            if (Core.Players.PlayerList.Count > 0)
+            {
+                InvokeEvent(Broadcast, this, new AnnounceEventArgs(config.AnnounceList[currentIdx++]));
+                if (currentIdx == config.AnnounceList.Count) currentIdx = 0;
+            }
         }
     }
 }

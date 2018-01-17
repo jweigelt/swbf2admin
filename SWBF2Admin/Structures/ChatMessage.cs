@@ -2,6 +2,7 @@
 {
     class ChatMessage
     {
+        public bool IsSystem { get; }
         public string Message { get; }
         public string PlayerName { get; }
         public byte PlayerSlot { get; }
@@ -10,6 +11,13 @@
         {
             Message = message;
             PlayerName = playerName;
+            IsSystem = false;
+        }
+
+        public ChatMessage(string message)
+        {
+            Message = message;
+            IsSystem = true;
         }
     }
 }

@@ -20,6 +20,7 @@ namespace SWBF2Admin.Config
         public bool AutoRestartServer { get; set; } = false;
         public string ServerPath { get; set; } = "./server";
         public string ServerArgs { get; set; } = "/win /norender /nosound /autonet dedicated /resolution 640 480";
+        public bool EnableRuntime { get; set; } = true;
         #endregion
 
         #region "rcon"

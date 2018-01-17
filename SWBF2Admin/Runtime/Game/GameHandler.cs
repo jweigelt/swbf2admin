@@ -91,7 +91,7 @@ namespace SWBF2Admin.Runtime.Game
 
                 Logger.Log(LogLevel.Verbose, "Closing game {0} ({1}). Final score: {2}/{3}",
                     currentGame.DatabaseId.ToString(),
-                    currentGame.Map,
+                    latestInfo.CurrentMap,
                     currentGame.Team1Score.ToString(),
                     currentGame.Team2Score.ToString());
 

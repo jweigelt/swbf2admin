@@ -414,6 +414,12 @@ table.players {
     padding-left: 1em;
 }
 
+tr.adminMessage span {
+	color: #ff5e42;
+}
+
+tr.playerMessage span{ }
+
 div.chat-container {
     overflow-y: scroll;
     height: 25rem;

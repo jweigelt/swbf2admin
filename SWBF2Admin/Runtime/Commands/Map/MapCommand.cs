@@ -93,7 +93,8 @@ namespace SWBF2Admin.Runtime.Commands.Map
         private bool CheckMode(string mode)
         {
             //TODO: I'm not sure if modmaps use different formats so era and gamemode aren't checked
-            return ((mode.Length == 5 || mode.Length == 6) && mode.Contains("_"));
+            
+            return ((mode.Length == 5 || mode.Length == 6 || mode.Length == 7) && mode.Contains("_"));
         }
 
         private string GetModes(ServerMap map)

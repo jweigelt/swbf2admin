@@ -140,6 +140,7 @@
     <Compile Include="Runtime\Players\PlayerHandler.cs" />
     <Compile Include="ComponentBase.cs" />
     <Compile Include="Runtime\Rcon\Packets\PlayerListPacket.cs" />
+    <Compile Include="Runtime\Rcon\Packets\WebChatPacket.cs" />
     <Compile Include="Runtime\Rcon\Packets\StatusPacket.cs" />
     <Compile Include="Runtime\Rcon\RconChatEventArgs.cs" />
     <Compile Include="Scheduler\RepeatingSchedulerTask.cs" />
