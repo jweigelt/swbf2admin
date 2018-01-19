@@ -8,7 +8,7 @@ namespace SWBF2Admin.Runtime.Announce
         /// <summary>
         /// Enable announce broadcasting
         /// </summary>
-        public bool Enable { get; set; } = false;
+        public bool Enable { get; set; } = true;
 
         /// <summary>
         /// Delay (in seconds) between broadcasts

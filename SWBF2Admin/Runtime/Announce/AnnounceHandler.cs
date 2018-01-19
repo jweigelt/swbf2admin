@@ -27,7 +27,7 @@ namespace SWBF2Admin.Runtime.Announce
             this.config = Core.Files.ReadConfig<AnnounceHandlerConfiguration>();
             if (this.config.Enable) UpdateInterval = this.config.Interval * 1000;
         }
-        public override void OnServerStart()
+        public override void OnServerStart(EventArgs e)
         {
             EnableUpdates();
         }

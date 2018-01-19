@@ -102,6 +102,9 @@
   <ItemGroup>
     <Compile Include="AdminCore.cs" />
     <Compile Include="Config\ConfigFileInfo.cs" />
+    <Compile Include="Gameserver\IngameServerController.cs" />
+    <Compile Include="Gameserver\IngameServerControllerConfiguration.cs" />
+    <Compile Include="Gameserver\StartEventArgs.cs" />
     <Compile Include="Runtime\Announce\Announce.cs" />
     <Compile Include="Runtime\Announce\AnnounceHandlerConfiguration.cs" />
     <Compile Include="Runtime\Announce\AnnounceEventArgs.cs" />
@@ -143,6 +146,7 @@
     <Compile Include="Runtime\Rcon\Packets\WebChatPacket.cs" />
     <Compile Include="Runtime\Rcon\Packets\StatusPacket.cs" />
     <Compile Include="Runtime\Rcon\RconChatEventArgs.cs" />
+    <Compile Include="Scheduler\DelayedSchedulerTask.cs" />
     <Compile Include="Scheduler\RepeatingSchedulerTask.cs" />
     <Compile Include="Scheduler\SchedulerTask.cs" />
     <Compile Include="Scheduler\TaskScheduler.cs" />

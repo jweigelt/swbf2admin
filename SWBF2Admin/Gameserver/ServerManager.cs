@@ -13,82 +13,98 @@ namespace SWBF2Admin.Gameserver
         Online = 0,
         Offline = 1,
         Starting = 2,
-        Stopping = 3
+        Stopping = 3,
+        SteamPending = 4
     }
 
-    ///<summary>class handling the gameserver-process</summary>
     public class ServerManager : ComponentBase
     {
-        ///<summary>Called if the server-process exits unexpectedly</summary>
+        private const string SERVERPROC_NAME = "BattlefrontII";
+        private const int STEAMMODE_PDECT_TIMEOUT = 1000;
+        private const int STEAMMODE_MAX_RETRY = 1000;
+
         public event EventHandler ServerCrashed;
-        ///<summary>Called after the server-process was launched</summary>
         public event EventHandler ServerStarted;
-        ///<summary>Called after the server-process exits planned</summary>
         public event EventHandler ServerStopped;
+        public event EventHandler SteamServerStarting;
 
-        /// <summary>
-        /// Relative or absolute path to server installation
-        /// </summary>
         public string ServerPath { get; set; } = "./server";
-
-        /// <summary>
-        /// Command-line args for starting the gameserver
-        /// </summary>
         public string ServerArgs { get; set; } = "/win /norender /nosound /autonet dedicated /resolution 640 480";
 
         private Process serverProcess = null;
-        private AdminCore core;
         private ServerStatus status = ServerStatus.Offline;
-
-        /// <summary>
-        /// Current gameserver status
-        /// </summary>
         public ServerStatus Status { get { return status; } }
-
-        /// <summary>
-        /// Settings used by the gameserver
-        /// </summary>
         public ServerSettings Settings { get; set; }
+        public virtual Process ServerProcess { get { return serverProcess; } }
 
-        public ServerManager(AdminCore core) : base(core)
-        {
-            this.core = core;
-        }
+        private int steamLaunchRetryCount = 0;
+        private bool steamMode = false;
+
+        public ServerManager(AdminCore core) : base(core) { }
+
         public override void Configure(CoreConfiguration config)
         {
             ServerPath = Core.Files.ParseFileName(config.ServerPath);
-            ServerArgs = config.ServerArgs;
+            steamMode = config.EnableSteamMode;
+            ServerArgs = (steamMode ? string.Empty : config.ServerArgs);
+
+            UpdateInterval = STEAMMODE_PDECT_TIMEOUT; //updates for detecting steam startup
         }
+
         public override void OnInit()
         {
-            Open();
+            Attach(false);
+            Settings = ServerSettings.FromSettingsFile(Core, ServerPath);
         }
 
-        /// <summary>
-        /// Checks if the server-process is already running and re-attaches if required
-        /// </summary>
-        private void Open()
+        protected override void OnUpdate()
         {
-            foreach (Process p in Process.GetProcessesByName("BattlefrontII"))
+            if (Status == ServerStatus.SteamPending)
             {
+                if (Attach(true))
+                {
+                    DisableUpdates();
+                    steamLaunchRetryCount = 0;
+                }
+                else if (++steamLaunchRetryCount > STEAMMODE_MAX_RETRY)
+                {
+                    Logger.Log(LogLevel.Error, "Server didn't start after {0} retries. Assuming it has crashed.", steamLaunchRetryCount.ToString());
+                    status = ServerStatus.Offline;
+                    DisableUpdates();
+                }
 
-                if (Path.GetFullPath(p.MainModule.FileName).Equals(Path.GetFullPath(ServerPath + "\\BattlefrontII.exe")))
+            }
+        }
+
+        private Process FindProcess(string name)
+        {
+            foreach (Process p in Process.GetProcessesByName(name))
+            {
+                //NOTE: as there's no easy way to detect steam startup, we assume we're already in running mode when re-attaching
+                if (Path.GetFullPath(p.MainModule.FileName).Equals(Path.GetFullPath(ServerPath + $"\\{name}.exe")))
                 {
                     Logger.Log(LogLevel.Info, "Found running server process '{0}' ({1}), re-attaching...", p.MainWindowTitle, p.Id.ToString());
-                    serverProcess = p;
-                    p.EnableRaisingEvents = true;
-                    serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                    status = ServerStatus.Online;
-                    InvokeEvent(ServerStarted, this, null);
-                    break;
+                    return p;
                 }
             }
-            Settings = ServerSettings.FromSettingsFile(core, ServerPath);
+            return null;
         }
 
-        /// <summary>
-        /// Launches the gameserver
-        /// </summary>
+        private bool Attach(bool starting)
+        {
+            serverProcess = FindProcess(SERVERPROC_NAME);
+            if (serverProcess != null)
+            {
+                serverProcess.EnableRaisingEvents = true;
+                serverProcess.Exited += new EventHandler(ServerProcess_Exited);
+                status = ServerStatus.Online;
+
+                InvokeEvent(ServerStarted, this, new StartEventArgs(!starting));
+                return true;
+            }
+            return false;
+        }
+
         public void Start()
         {
             if (serverProcess == null)
@@ -96,20 +112,36 @@ namespace SWBF2Admin.Gameserver
                 Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ServerArgs);
                 status = ServerStatus.Starting;
 
-                ProcessStartInfo startInfo = new ProcessStartInfo(core.Files.ParseFileName(ServerPath + "/BattlefrontII.exe"), ServerArgs);
-                startInfo.WorkingDirectory = core.Files.ParseFileName(ServerPath);
-                serverProcess = Process.Start(startInfo);
+                ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerPath + "/BattlefrontII.exe"), ServerArgs);
+                startInfo.WorkingDirectory = Core.Files.ParseFileName(ServerPath);
 
-                serverProcess.EnableRaisingEvents = true;
-                serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                status = ServerStatus.Online;
-                InvokeEvent(ServerStarted, this, new EventArgs());
+
+                //if we're in steam mode, steam will start at launcher exe prior to the actual game
+                if (steamMode)
+                {
+                    InvokeEvent(SteamServerStarting, this, new EventArgs());
+                    steamLaunchRetryCount = 0;
+                    Core.Scheduler.PushDelayedTask(() =>
+                    {
+                        serverProcess = Process.Start(startInfo);
+                        serverProcess.EnableRaisingEvents = true;
+                        serverProcess.Exited += new EventHandler(ServerProcess_Exited);
+                    }
+                    , 5000);
+                    status = ServerStatus.SteamPending;
+                }
+                else
+                {
+                    serverProcess = Process.Start(startInfo);
+                    serverProcess.EnableRaisingEvents = true;
+                    serverProcess.Exited += new EventHandler(ServerProcess_Exited);
+
+                    status = ServerStatus.Online;
+                    InvokeEvent(ServerStarted, this, new StartEventArgs(false));
+                }
             }
         }
 
-        /// <summary>
-        /// Stops the gameserver
-        /// </summary>
         public void Stop()
         {
             if (serverProcess != null)
@@ -120,18 +152,20 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
-        ///<summary>
-        ///Called by EventHandler when the serverprocess exits
-        ///</summary>
         private void ServerProcess_Exited(object sender, EventArgs e)
         {
             serverProcess = null;
 
-            if (status != ServerStatus.Stopping)
+            if (status != ServerStatus.Stopping && status != ServerStatus.SteamPending)
             {
                 Logger.Log(LogLevel.Warning, "Server has crashed.");
                 status = ServerStatus.Offline;
                 InvokeEvent(ServerCrashed, this, new EventArgs());
+            }
+            else if (status == ServerStatus.SteamPending)
+            {
+                Logger.Log(LogLevel.Info, "Steam Launcher closed. Trying to attach to the server process.");
+                EnableUpdates();
             }
             else
             {
@@ -140,6 +174,5 @@ namespace SWBF2Admin.Gameserver
                 InvokeEvent(ServerStopped, this, new EventArgs());
             }
         }
-
     }
 }

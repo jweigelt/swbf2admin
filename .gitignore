@@ -1,5 +1,7 @@
 SWBF2Admin/bin
 SWBF2Admin/obj
+IngameControllerServer/bin
+IngameControllerServer/obj
 packages
 .vs
 .tmp

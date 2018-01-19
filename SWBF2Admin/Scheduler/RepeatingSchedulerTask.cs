@@ -5,25 +5,26 @@ namespace SWBF2Admin.Scheduler
     public class RepeatingSchedulerTask : SchedulerTask
     {
         private Int64 lastRun;
-        private DateTime startTime;
+        protected DateTime StartTime { get; set; }
         public int Interval { get; set; }
+        public bool Remove { get; set; } = false;
 
         public RepeatingSchedulerTask(TaskDelegate task) : base(task)
         {
-            startTime = new DateTime(1970, 1, 1);
+            StartTime = DateTime.Now;
         }
 
         public RepeatingSchedulerTask(TaskDelegate task, int interval)
             : base(task)
         {
             Interval = interval;
-            startTime = new DateTime(1970, 1, 1);
+            StartTime = DateTime.Now;
         }
 
         /// <summary>
         /// Runs the task if required.
         /// </summary>
-        public void Tick()
+        public virtual void Tick()
         {
             if (Interval == 0)
             {
@@ -40,9 +41,9 @@ namespace SWBF2Admin.Scheduler
         /// <summary>
         /// Gets millis since object creation
         /// </summary>
-        private Int64 GetMillis()
+        protected Int64 GetMillis()
         {
-            return (Int64)((DateTime.Now - startTime).TotalMilliseconds);
+            return (Int64)((DateTime.Now - StartTime).TotalMilliseconds);
         }
 
     }

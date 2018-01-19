@@ -22,7 +22,7 @@ namespace SWBF2Admin.Runtime.Rcon
 
         public RconClient(AdminCore core) : base(core) { }
 
-        public override void OnServerStart()
+        public override void OnServerStart(EventArgs e)
         {
             ServerPassword = Core.Server.Settings.AdminPw;
             Start();

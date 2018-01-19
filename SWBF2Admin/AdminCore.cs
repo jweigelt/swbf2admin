@@ -34,11 +34,13 @@ namespace SWBF2Admin
         public GameHandler Game { get; }
         public CommandDispatcher Commands { get; }
         public LvlWriter Mods { get; }
+        public IngameServerController IngameController { get; }
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
 
         public AdminCore()
         {
+            //TODO: check EnableRuntime before creating these objects to save memory
             Database = new SQLHandler(this);
             Server = new ServerManager(this);
             WebAdmin = new WebServer(this);
@@ -48,16 +50,7 @@ namespace SWBF2Admin
             Game = new GameHandler(this);
             Commands = new CommandDispatcher(this);
             Mods = new LvlWriter(this);
-
-            components.Add(Database);
-            components.Add(Server);
-            components.Add(WebAdmin);
-            components.Add(Rcon);
-            components.Add(Players);
-            components.Add(Announce);
-            components.Add(Game);
-            components.Add(Commands);
-            components.Add(Mods);
+            IngameController = new IngameServerController(this);
         }
 
         public void Run()
@@ -66,6 +59,24 @@ namespace SWBF2Admin
             Logger.Log(LogLevel.Verbose, Log.CORE_READ_CONFIG);
             config = Files.ReadConfig<CoreConfiguration>();
             Logger.Log(LogLevel.Info, Log.CORE_READ_CONFIG_OK);
+
+            components.Add(Database);
+            components.Add(Server);
+            components.Add(WebAdmin);
+
+            if (config.EnableRuntime)
+            {
+                components.Add(Rcon);
+                components.Add(Players);
+                components.Add(Announce);
+                components.Add(Game);
+                components.Add(Commands);
+                components.Add(Mods);
+            }
+            else if (config.EnableSteamMode)
+            {
+                components.Add(IngameController);
+            }
 
             Scheduler.TickDelay = Config.TickDelay;
 
@@ -82,7 +93,7 @@ namespace SWBF2Admin
             {
                 h.Configure(Config);
                 h.OnInit();
-                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Update, h.UpdateInterval);
+                if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Task);
             }
 
             Scheduler.Start();
@@ -115,13 +126,21 @@ namespace SWBF2Admin
         #region "Events"
         private void Server_Started(object sender, EventArgs e)
         {
+
             Logger.Log(LogLevel.Verbose, "Starting runtime management...");
-            if(config.EnableRuntime) foreach(ComponentBase h in components) h.OnServerStart();
+            try
+            {
+                foreach (ComponentBase h in components) h.OnServerStart(e);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Error, "Failed to start runtime management ({0})", ex.Message);
+            }
         }
         private void Server_Stopped(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
-            if (config.EnableRuntime) foreach (ComponentBase h in components) h.OnServerStop();
+            foreach (ComponentBase h in components) h.OnServerStop();
         }
         private void Server_Crashed(object sender, EventArgs e)
         {

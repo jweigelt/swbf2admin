@@ -8,8 +8,20 @@ namespace SWBF2Admin
     public class ComponentBase
     {
         protected AdminCore Core { get; }
+        private RepeatingSchedulerTask task = null;
 
-        public int UpdateInterval { get; set; } = -1;
+        public virtual RepeatingSchedulerTask Task { get { return task; } }
+
+        public int UpdateInterval
+        {
+            get { return (task == null ? -1 : task.Interval); }
+            set
+            {
+                if (task == null) task = new RepeatingSchedulerTask(() => Update());
+                task.Interval = value;
+            }
+        }
+
         private bool enableUpdate = false;
 
         public ComponentBase(AdminCore core)
@@ -28,7 +40,7 @@ namespace SWBF2Admin
         public virtual void OnDeInit() { }
 
         ///<summary>Called after the gameserver was launched</summary>
-        public virtual void OnServerStart() { }
+        public virtual void OnServerStart(EventArgs e) { }
 
         ///<summary>Called after the gameserver was either stopped or crashed</summary>
         public virtual void OnServerStop() { }

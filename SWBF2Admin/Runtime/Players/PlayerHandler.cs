@@ -30,7 +30,7 @@ namespace SWBF2Admin.Runtime.Players
             Core.Game.GameClosed += new EventHandler(Game_GameClosed);
         }
 
-        public override void OnServerStart()
+        public override void OnServerStart(EventArgs e)
         {
             EnableUpdates();
         }

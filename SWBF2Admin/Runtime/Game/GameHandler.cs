@@ -37,7 +37,7 @@ namespace SWBF2Admin.Runtime.Game
             Core.Rcon.GameEnded += new EventHandler(Rcon_GameEnded);
         }
 
-        public override void OnServerStart()
+        public override void OnServerStart(EventArgs e)
         {
             if (config.EnableGameStatsLogging)
                 StatsInitGame();

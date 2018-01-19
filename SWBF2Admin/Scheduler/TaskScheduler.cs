@@ -16,6 +16,7 @@ namespace SWBF2Admin.Scheduler
         public int TickDelay { get; set; } = 10;
         private ConcurrentQueue<SchedulerTask> taskQueue;
         private List<RepeatingSchedulerTask> repeatingTasks;
+        private List<RepeatingSchedulerTask> delayedTasks;
 
         private Thread workThread;
         private bool running;
@@ -23,7 +24,8 @@ namespace SWBF2Admin.Scheduler
         public TaskScheduler()
         {
             taskQueue = new ConcurrentQueue<SchedulerTask>();
-            repeatingTasks = new List<RepeatingSchedulerTask>(); ;
+            repeatingTasks = new List<RepeatingSchedulerTask>();
+            delayedTasks = new List<RepeatingSchedulerTask>();
         }
 
         /// <summary>
@@ -73,7 +75,12 @@ namespace SWBF2Admin.Scheduler
         /// <param name="task">Task to be executed</param>
         public void PushRepeatingTask(RepeatingSchedulerTask task)
         {
-            repeatingTasks.Add(task);
+            taskQueue.Enqueue(task);
+        }
+
+        public void PushDelayedTask(SchedulerTask.TaskDelegate d, int interval)
+        {
+            PushRepeatingTask(new DelayedSchedulerTask(d, interval));
         }
 
         /// <summary>
@@ -83,7 +90,7 @@ namespace SWBF2Admin.Scheduler
         /// <param name="interval">Delay between running the task</param>
         public void PushRepeatingTask(SchedulerTask.TaskDelegate d, int interval)
         {
-            repeatingTasks.Add(new RepeatingSchedulerTask(d, interval));
+            PushRepeatingTask(new RepeatingSchedulerTask(d, interval));
         }
 
         /// <summary>
@@ -99,19 +106,36 @@ namespace SWBF2Admin.Scheduler
         /// </summary>
         private void DoWork()
         {
+            Stack<SchedulerTask> toRemove = new Stack<SchedulerTask>();
             while (running)
             {
                 if (taskQueue.Count > 0)
                 {
                     SchedulerTask t;
                     while (!taskQueue.TryDequeue(out t)) Thread.Sleep(TickDelay);
-                    t.Run();
+                    if (t.GetType() == typeof(DelayedSchedulerTask) || t.GetType() == typeof(RepeatingSchedulerTask))
+                    {
+                        RepeatingSchedulerTask dst = (RepeatingSchedulerTask)t;
+                        dst.Tick();
+                        if (!dst.Remove) repeatingTasks.Add(dst);
+                    }
+                    else
+                    {
+                        t.Run();
+                    }
                 }
 
                 foreach (RepeatingSchedulerTask task in this.repeatingTasks)
                 {
                     task.Tick();
+                    if (task.Remove) toRemove.Push(task);
                 }
+
+                while (toRemove.Count > 0)
+                {
+                    repeatingTasks.Remove((RepeatingSchedulerTask)toRemove.Pop());
+                }
+
                 Thread.Sleep(TickDelay);
             }
         }

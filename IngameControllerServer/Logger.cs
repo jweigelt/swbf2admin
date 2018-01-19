@@ -1,24 +1,9 @@
-﻿/* 
- * This file is part of kf2 adminhelper.
- * 
- * SWBF2 SADS-Administation Helper is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * kf2 adminhelper is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with kf2 adminhelper.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿
 using System;
 using System.Threading;
 using System.IO;
 
-namespace SWBF2Admin.Utility
+namespace IngameControllerServer
 {
     public enum LogLevel
     {
@@ -49,7 +34,7 @@ namespace SWBF2Admin.Utility
 
             time = "[" + DateTime.Now.ToString() + "] ";
 
-            if (mtx.WaitOne(Constants.MUTEX_LOCK_TIMEOUT))
+            if (mtx.WaitOne(10))
             {
                 Console.Write(time);
                 switch (logLevel)
