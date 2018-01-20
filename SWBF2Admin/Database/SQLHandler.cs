@@ -11,7 +11,6 @@ using SWBF2Admin.Structures;
 using SWBF2Admin.Web;
 using SWBF2Admin.Config;
 using SWBF2Admin.Runtime.Permissions;
-using SWBF2Admin.Runtime.Players;
 
 namespace SWBF2Admin.Database
 {
@@ -365,7 +364,6 @@ namespace SWBF2Admin.Database
             return null;
         }
 
-
         public PlayerGroup GetTopGroup(Player player)
         {
             string sql =
@@ -425,7 +423,6 @@ namespace SWBF2Admin.Database
             NonQuery(sql, "@player_id", player.DatabaseId, "@group_id", group.Id);
             player.MainGroup = GetTopGroup(player);
         }
-
         #endregion
 
         #region Ban management
@@ -720,6 +717,62 @@ namespace SWBF2Admin.Database
 
             return null;
         }
+        public void UpdateLastSeen(WebUser user)
+        {
+            string sql = "UPDATE prefix_web_users SET user_lastvisit = @timestamp WHERE id = @user_id";
+
+            NonQuery(sql, "@timestamp", GetTimestamp(), "@user_id", user.Id);
+        }
+        public List<WebUser> GetWebUsers()
+        {
+            List<WebUser> users = new List<WebUser>();
+            string sql = "SELECT * FROM prefix_web_users";
+
+            using (DbDataReader reader = Query(sql))
+            {
+                while (reader.Read())
+                {
+                    users.Add(new WebUser(RL(reader, "id"), RS(reader, "user_name"), RS(reader, "user_password"), GetDateTime(RU(reader, "user_lastvisit"))));
+                }
+            }
+            return users;
+        }
+
+        public void InsertWebUser(WebUser user)
+        {
+            string sql = "INSERT INTO prefix_web_users " +
+                "(user_name, user_password, user_lastvisit) VALUES " +
+                "(@username, @password, 0)";
+            NonQuery(sql, "@username", user.Username, "@password", user.PasswordHash);
+        }
+        public void UpdateWebUser(WebUser user, bool updatePwd)
+        {
+            string sql = "UPDATE prefix_web_users SET " +
+                "user_name = @username ";
+            if (updatePwd) sql += ",user_password = @password ";
+            sql += "WHERE id = @user_id";
+
+            NonQuery(sql, "@username", user.Username, "@password", user.PasswordHash, "@user_id", user.Id);
+        }
+        public void DeleteWebUser(WebUser user)
+        {
+            string sql = "DELETE FROM prefix_web_users WHERE id = @user_id";
+            NonQuery(sql, "@user_id", user.Id);
+        }
+
+        public bool WebUserExists()
+        {
+            using (DbDataReader reader = Query("SELECT id from prefix_web_users"))
+            {
+                return HasRows(reader);
+            }
+        }
+
+        public void TruncateWebUsers()
+        {
+            NonQuery("DELETE FROM prefix_web_users");
+        }
+
         #endregion
 
         #region "Maps"

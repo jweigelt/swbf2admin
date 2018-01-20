@@ -7,7 +7,7 @@ namespace SWBF2Admin
         static void Main(string[] args)
         {
 #if DEBUG
-            new AdminCore().Run();
+            new AdminCore().Run(args);
             Console.ReadLine();
 #else
             try

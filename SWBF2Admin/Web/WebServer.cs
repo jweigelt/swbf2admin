@@ -52,6 +52,7 @@ namespace SWBF2Admin.Web
             RegisterPage<MapSettingsPage>();
             RegisterPage<GroupSettingsPage>();
 
+            RegisterPage<WebUsersPage>();
             RegisterPage<AboutPage>();
 
             if (enabled) Start();
@@ -210,13 +211,18 @@ namespace SWBF2Admin.Web
                     {
                         authCache.Remove(user.Username);
                         authCache.Add(user.Username, user);
+                        Core.Database.UpdateLastSeen(user);
                     }
                 }
             }
             else
             {
                 user = Core.Database.GetWebUser(identity.Name, identity.Password);
-                if (user != null) authCache.Add(user.Username, user);
+                if (user != null)
+                {
+                    authCache.Add(user.Username, user);
+                    Core.Database.UpdateLastSeen(user);
+                }
             }
             return user;
         }

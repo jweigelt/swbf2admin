@@ -13,6 +13,7 @@ namespace SWBF2Admin.Gameserver
     public class IngameServerController : ComponentBase
     {
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
+        private const int OFFSET_MAP_FREEZE = (0x01E640FF - 0x00401000 + 0x1000);
 
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
         private const byte NET_COMMAND_RDP_CLOSE = 0x02;
@@ -35,9 +36,11 @@ namespace SWBF2Admin.Gameserver
             Synchronize = 0x00100000
         }
 
-        private bool isLoading = false;
-        private bool steamMode;
-        private int notRespondingCount = 0;
+        private bool isLoading = false;     //map load in progress
+        private bool steamMode;             //steam mode enabled?
+        private int notRespondingCount = 0; //times the server process didn't espond
+        private int mapHangTime = 0;        //time since game ended
+        private int freezeCount = 0;        //times we tried to freeze-unfreeze
 
         private IngameServerControllerConfiguration config;
 
@@ -51,8 +54,82 @@ namespace SWBF2Admin.Gameserver
         static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool CloseHandle(IntPtr hObject);
 
+        public IngameServerController(AdminCore core) : base(core) { }
+
+        public override void OnInit()
+        {
+            if (steamMode)
+            {
+                UpdateInterval = config.ReadTimeout;
+                Core.Server.SteamServerStarting += Server_SteamServerStarting;
+                Core.Scheduler.PushRepeatingTask(() => CheckResponding(), config.NotRespondingCheckInterval);
+            }
+        }
+        public override void OnServerStart(EventArgs e)
+        {
+            if (steamMode)
+            {
+                if (((StartEventArgs)e).Attached) EnableUpdates();
+
+                try
+                {
+                    MemoryInit();
+                }
+                catch
+                {
+                    MemoryClose();
+                    Logger.Log(LogLevel.Warning, "IngameServerController failed to attach. Server won't be supported.");
+                }
+            }
+        }
+        public override void OnServerStop()
+        {
+            if (steamMode)
+            {
+                DisableUpdates();
+                MemoryClose();
+            }
+        }
+        protected override void OnUpdate()
+        {
+            try
+            {
+                CheckMapStatus();
+            }
+            catch
+            {
+                //TODO
+            }
+        }
+
+        public override void Configure(CoreConfiguration config)
+        {
+            steamMode = config.EnableSteamMode;
+            this.config = Core.Files.ReadConfig<IngameServerControllerConfiguration>();
+
+            //TODO: clean that up:
+            //calling getter once so any format errors are thrown now (during config) and not during runtime
+            IPEndPoint ipep = this.config.ServerIPEP;
+        }
+
+        public void Server_SteamServerStarting(object sender, EventArgs e)
+        {
+            //request RD session for startup
+            DisableUpdates();
+            isLoading = true;
+            SendCommand(NET_COMMAND_RDP_OPEN);
+            Core.Scheduler.PushDelayedTask(() => EnableUpdates(), config.StartupTime);
+        }
+
+        private void SetFreeze(bool freeze)
+        {
+            WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
+        }
         private byte ReadMapStatus()
         {
             return ReadByte(OFFSET_MAP_STATUS);
@@ -65,7 +142,13 @@ namespace SWBF2Admin.Gameserver
                 throw new Exception("ReadProcessMemory() failed");
             return buf[0];
         }
-
+        private void WriteByte(int offset, byte value)
+        {
+            UIntPtr bytesWritten;
+            byte[] buf = new byte[] { value };
+            if (!WriteProcessMemory(procHandle, IntPtr.Add(moduleBase, offset), buf, 1, out bytesWritten) || bytesWritten == UIntPtr.Zero)
+                throw new Exception("WriteProcessMemory() failed");
+        }
         private void MemoryInit()
         {
             Process p = Core.Server.ServerProcess;
@@ -119,66 +202,6 @@ namespace SWBF2Admin.Gameserver
 
         }
 
-        public override void OnInit()
-        {
-            UpdateInterval = config.ReadTimeout;
-            Core.Server.SteamServerStarting += Server_SteamServerStarting;
-            if (config.Enable)
-                Core.Scheduler.PushRepeatingTask(() => CheckResponding(), config.NotRespondingCheckInterval);
-
-        }
-
-        public IngameServerController(AdminCore core) : base(core)
-        {
-
-        }
-        public override void Configure(CoreConfiguration config)
-        {
-            steamMode = config.EnableSteamMode;
-            this.config = Core.Files.ReadConfig<IngameServerControllerConfiguration>();
-
-            //TODO: clean that up:
-            //calling getter once so any format errors are thrown now (during config) and not during runtime
-            IPEndPoint ipep = this.config.ServerIPEP;
-        }
-
-        public void Server_SteamServerStarting(object sender, EventArgs e)
-        {
-            //request RD session for startup
-            if (config.Enable)
-            {
-                DisableUpdates();
-                isLoading = true;
-                SendCommand(NET_COMMAND_RDP_OPEN);
-                Core.Scheduler.PushDelayedTask(() => EnableUpdates(), config.StartupTime);
-            }
-        }
-        public override void OnServerStart(EventArgs e)
-        {
-            if (steamMode && config.Enable)
-            {
-                if (((StartEventArgs)e).Attached) EnableUpdates();
-
-                try
-                {
-                    MemoryInit();
-                }
-                catch
-                {
-                    MemoryClose();
-                    Logger.Log(LogLevel.Warning, "IngameServerController failed to attach. Server won't be supported.");
-                }
-            }
-        }
-        public override void OnServerStop()
-        {
-            if (config.Enable)
-            {
-                DisableUpdates();
-                MemoryClose();
-            }
-        }
-
         private void CheckResponding()
         {
             //check if the process is stuck and "crash" it manually if necessary
@@ -187,7 +210,7 @@ namespace SWBF2Admin.Gameserver
             {
                 if (!p.Responding)
                 {
-                    if (++notRespondingCount > config.NotRespondingMaxCount)
+                    if (notRespondingCount++ >= config.NotRespondingMaxCount)
                         p.Kill();
                 }
                 else notRespondingCount = 0;
@@ -202,27 +225,40 @@ namespace SWBF2Admin.Gameserver
                     SendCommand(NET_COMMAND_RDP_OPEN);
                 }
                 isLoading = true;
+                mapHangTime += UpdateInterval;
             }
             else
             {
+                mapHangTime = 0;
+                freezeCount = 0;
                 if (isLoading)
                 {
                     isLoading = false;
                     SendCommand(NET_COMMAND_RDP_CLOSE);
                 }
             }
+
+            if (mapHangTime > config.MapHangTimeout && freezeCount < config.FreezesBeforeKill)
+            {
+                Logger.Log(LogLevel.Info, "Server seems to be stuck - trying to freeze-unfreeze it...");
+                freezeCount++;
+                mapHangTime = 0;
+                TryFreezeUnfreeze();
+            }
+            else if (freezeCount > config.FreezesBeforeKill)
+            {
+                Logger.Log(LogLevel.Info, "Server doesn't seem to resume. Shutting it down.");
+                Core.Server.ServerProcess.Kill(); //"crash" the server so ServerManager will restart it
+                freezeCount = 0;
+            }
         }
-        protected override void OnUpdate()
+        private void TryFreezeUnfreeze()
         {
-            try
-            {
-                CheckMapStatus();
-            }
-            catch
-            {
-                //TODO
-            }
+
+            SetFreeze(true);
+            Core.Scheduler.PushDelayedTask(() => SetFreeze(false), config.FreezeTime);
         }
+
         ~IngameServerController()
         {
             OnServerStop(); //make sure we close any open handle

@@ -17,6 +17,7 @@ namespace SWBF2Admin.Web.Pages
         {
             ReturnTemplate(ctx,
                 "{account:username}", user.Username,
+                "{account:id}", user.Id.ToString(),
                 "{account:lastvisit}", user.LastVisit.ToShortDateString());
         }
 

@@ -1,0 +1,54 @@
+<div class="default">
+  <h2>Web users</h2>
+
+    <div id="users_div_events"></div>
+  <div class="item">       
+	   <table class="players embedded" id="users_tbl_users">
+            <thead>
+                <tr>
+					<th style="width: 2em;">Id</th>
+                    <th>Name</th>
+                    <th>Last visit</th>
+                </tr>
+               
+            </thead>
+            <tbody>
+				<tr>
+                    <td colspan="3" id="users_td_loading">
+                        <i class="material-icons">update</i>Loading...
+                    </td>
+                </tr>
+			</tbody>
+        </table>
+		</div>
+</div>
+
+<ul id="users_ul_admin" class="contextmenu" style="display: none;">
+    <li><a href="#" id="users_a_add"><i class="material-icons">add</i>Add new user</a></li>
+    <li><a href="#" id="users_a_edit"><i class="material-icons">create</i>Edit user</a></li>
+    <li><a href="#" id="users_a_delete"><i class="material-icons">delete</i>Delete user</a></li>
+</ul>
+
+<div id="users_div_edit" class="settings">
+    <table class="dialog-controls">
+        <tr>
+            <th>Name</th>
+            <td><input type="text" id="users_text_name"></td>
+        </tr>
+        <tr>
+            <th>Password</th>
+            <td><input data-update="false" type="password" id="users_text_password"></td>
+        </tr>
+        <tr>
+            <th>Confirm</th>
+            <td><input type="password" id="users_text_password_confirm"></td>
+        </tr>
+    </table>
+</div>
+
+<div id="users_div_delete">
+  <p>Are you sure?</p>
+</div>
+
+
+<script type="text/javascript" src="/res/users.js"></script>

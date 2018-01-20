@@ -181,6 +181,7 @@
     <Compile Include="Web\Pages\ChatPage.cs" />
     <Compile Include="Web\Pages\BansPage.cs" />
     <Compile Include="Web\Pages\GameSettingsPage.cs" />
+    <Compile Include="Web\Pages\WebUsersPage.cs" />
     <Compile Include="Web\Pages\GroupSettingsPage.cs" />
     <Compile Include="Web\Pages\MapSettingsPage.cs" />
     <Compile Include="Web\Pages\GeneralSettingsPage.cs" />

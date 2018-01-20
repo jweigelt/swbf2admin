@@ -20,6 +20,8 @@ namespace SWBF2Admin
 {
     public class AdminCore
     {
+        private const string ARG_RESET_WEBUSER = "--reset-webcredentials";
+
         private CoreConfiguration config;
         public CoreConfiguration Config { get { return config; } }
         public FileHandler Files { get; } = new FileHandler();
@@ -38,6 +40,29 @@ namespace SWBF2Admin
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
 
+        private void SetupWebUser()
+        {
+            string name, pwd = "", confirmPwd = "";
+            Console.WriteLine("A new web user has to be created.");
+            Console.Write("Enter Username: ");
+            name = Console.ReadLine();
+
+            do
+            {
+                Console.Write("Enter Password: ");
+                pwd = Console.ReadLine();
+                Console.Write("Confirm Password: ");
+                confirmPwd = Console.ReadLine();
+
+                if (!pwd.Equals(confirmPwd))
+                    Console.WriteLine("Password don't match.");
+
+
+            } while (!pwd.Equals(confirmPwd));
+
+            Database.InsertWebUser(new WebUser(name, Util.Md5(pwd)));
+        }
+
         public AdminCore()
         {
             //TODO: check EnableRuntime before creating these objects to save memory
@@ -53,7 +78,7 @@ namespace SWBF2Admin
             IngameController = new IngameServerController(this);
         }
 
-        public void Run()
+        public void Run(string[] args)
         {
             Logger.Log(LogLevel.Info, Log.CORE_START, Util.GetProductName(), Util.GetProductVersion(), Util.GetProductAuthor());
             Logger.Log(LogLevel.Verbose, Log.CORE_READ_CONFIG);
@@ -94,6 +119,23 @@ namespace SWBF2Admin
                 h.Configure(Config);
                 h.OnInit();
                 if (h.UpdateInterval > 0) Scheduler.PushRepeatingTask(h.Task);
+            }
+
+            if (!Database.WebUserExists())
+            {
+                SetupWebUser();
+            }
+            else
+            {
+                foreach (string s in args)
+                {
+                    if (s.Equals(ARG_RESET_WEBUSER))
+                    {
+                        Logger.Log(LogLevel.Info, "Resetting web users...");
+                        Database.TruncateWebUsers();
+                        SetupWebUser();
+                    }
+                }
             }
 
             Scheduler.Start();

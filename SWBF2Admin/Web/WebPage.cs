@@ -21,6 +21,5 @@ namespace SWBF2Admin.Web
         {
             return (uri.AbsolutePath.Equals(Url)) ;
         }
-
     }
 }
