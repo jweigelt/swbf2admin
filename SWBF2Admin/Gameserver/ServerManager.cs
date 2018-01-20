@@ -21,7 +21,7 @@ namespace SWBF2Admin.Gameserver
     {
         private const string SERVERPROC_NAME = "BattlefrontII";
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
-        private const int STEAMMODE_MAX_RETRY = 1000;
+        private const int STEAMMODE_MAX_RETRY = 30;
 
         public event EventHandler ServerCrashed;
         public event EventHandler ServerStarted;
@@ -80,11 +80,18 @@ namespace SWBF2Admin.Gameserver
         {
             foreach (Process p in Process.GetProcessesByName(name))
             {
-                //NOTE: as there's no easy way to detect steam startup, we assume we're already in running mode when re-attaching
-                if (Path.GetFullPath(p.MainModule.FileName).Equals(Path.GetFullPath(ServerPath + $"\\{name}.exe")))
+                try
                 {
-                    Logger.Log(LogLevel.Info, "Found running server process '{0}' ({1}), re-attaching...", p.MainWindowTitle, p.Id.ToString());
-                    return p;
+                    //NOTE: as there's no easy way to detect steam startup, we assume we're already in running mode when re-attaching
+                    if (Path.GetFullPath(p.MainModule.FileName).Equals(Path.GetFullPath(ServerPath + $"\\{name}.exe")))
+                    {
+                        Logger.Log(LogLevel.Info, "Found running server process '{0}' ({1}), re-attaching...", p.MainWindowTitle, p.Id.ToString());
+                        return p;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogLevel.Warning, "Can't access BattlefrontII process #{0} ({1})", p.Id.ToString(), e.Message);
                 }
             }
             return null;

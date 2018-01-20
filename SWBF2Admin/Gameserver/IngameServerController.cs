@@ -13,7 +13,7 @@ namespace SWBF2Admin.Gameserver
     public class IngameServerController : ComponentBase
     {
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
-        private const int READ_TIMEOUT = 50;
+
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
         private const byte NET_COMMAND_RDP_CLOSE = 0x02;
 
@@ -37,6 +37,7 @@ namespace SWBF2Admin.Gameserver
 
         private bool isLoading = false;
         private bool steamMode;
+        private int notRespondingCount = 0;
 
         private IngameServerControllerConfiguration config;
 
@@ -89,7 +90,7 @@ namespace SWBF2Admin.Gameserver
                 CloseHandle(procHandle);
             }
         }
- 
+
         private void SendCommand(byte command)
         {
             Logger.Log(LogLevel.Verbose, "Sending controller command: {0}", command.ToString());
@@ -120,11 +121,16 @@ namespace SWBF2Admin.Gameserver
 
         public override void OnInit()
         {
+            UpdateInterval = config.ReadTimeout;
             Core.Server.SteamServerStarting += Server_SteamServerStarting;
+            if (config.Enable)
+                Core.Scheduler.PushRepeatingTask(() => CheckResponding(), config.NotRespondingCheckInterval);
+
         }
+
         public IngameServerController(AdminCore core) : base(core)
         {
-            UpdateInterval = READ_TIMEOUT;
+
         }
         public override void Configure(CoreConfiguration config)
         {
@@ -135,6 +141,7 @@ namespace SWBF2Admin.Gameserver
             //calling getter once so any format errors are thrown now (during config) and not during runtime
             IPEndPoint ipep = this.config.ServerIPEP;
         }
+
         public void Server_SteamServerStarting(object sender, EventArgs e)
         {
             //request RD session for startup
@@ -171,7 +178,22 @@ namespace SWBF2Admin.Gameserver
                 MemoryClose();
             }
         }
-        private void HandleStatus()
+
+        private void CheckResponding()
+        {
+            //check if the process is stuck and "crash" it manually if necessary
+            Process p = Core.Server.ServerProcess;
+            if (p != null && !p.HasExited)
+            {
+                if (!p.Responding)
+                {
+                    if (++notRespondingCount > config.NotRespondingMaxCount)
+                        p.Kill();
+                }
+                else notRespondingCount = 0;
+            }
+        }
+        private void CheckMapStatus()
         {
             if (ReadMapStatus() != 0)
             {
@@ -194,7 +216,7 @@ namespace SWBF2Admin.Gameserver
         {
             try
             {
-                HandleStatus();
+                CheckMapStatus();
             }
             catch
             {

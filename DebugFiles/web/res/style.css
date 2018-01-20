@@ -109,7 +109,7 @@ td#navigation, td#content {
             background: #00cbff;
             color: #ffffff;
         }
-
+		
 td#content {
     background: #f0f0f0;
     padding: 1em;
@@ -261,7 +261,6 @@ i {
         pointer-events: none;
         cursor: default;
     }
-
 
 /**
  *  Fake-Button

@@ -10,6 +10,10 @@ namespace SWBF2Admin.Gameserver
         public bool Enable { get; set; } = true;
         public int TcpTimeout { get; set; } = 100;
         public int StartupTime { get; set; } = 20000;
+        public int NotRespondingCheckInterval { get; set; } = 5000;
+        public int NotRespondingMaxCount { get; set; } = 2;
+        public int ReadTimeout { get; set; } = 100;
+
         public string ServerHostname { get; set; } = "127.0.0.1:1138";
 
         [XmlIgnore]
