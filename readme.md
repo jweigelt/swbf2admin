@@ -2,7 +2,7 @@
 
 A modern, easy-to-use server manager for Star Wars Battlefront II (2005) dedicated servers
 
-## Getting Started
+## Getting Started (SWBFSpy)
 
 These instructions will get you a minimal SWBF2Admin setup up and running.
 SWBF2Admin is highly configurable - if you're interested in customizing your SWBF2Admin installation, please also check out "Advanced configuration" for further information.
@@ -12,18 +12,51 @@ SWBF2Admin is highly configurable - if you're interested in customizing your SWB
 SWBF2Admin requires .NET Framework(or equivalent) v4.6.1 or newer. .NET Framework can be downloaded at
 https://www.microsoft.com/net/download/windows
 
-You'll also need a working SWBF2 dedicated server installation.
-Dedicated server files can be downloaded at
-http://www.moddb.com/games/star-wars-battlefront-ii/downloads/star-wars-battlefront-ii-v11-dedicated-server
+### Creating a working server installation:
 
-Working multiplayer binaries can be downloaded at
-http://info.swbfspy.com/
+As SWBF2Admin is only a server management tool, the gameserver has to be installed first.
+
+If you want to host a SWBFSpy dedicated server:
+
+- Download dedicated server files from http://www.moddb.com/games/star-wars-battlefront-ii/downloads/star-wars-battlefront-ii-v11-dedicated-server
+- Download multiplayer server binaries from http://info.swbfspy.com/
+- Replace the server executable with the one downloaded from swbfspy
+
+If you want to host a Steam (GoG) server:
+
+- Install Steam on your server machine
+- Install the latest Star Wars Battlefront II (Classic, 2005) version
+- Right click the game in your steam library, set launch options to /autonet /win /nointro <map name (e.g tat2g_eli)>
+- Download dedicated server files from http://www.moddb.com/games/star-wars-battlefront-ii/downloads/star-wars-battlefront-ii-v11-dedicated-server
+- Copy the data folder from the dedicated server installation to your SWBF2 installation. Replace all files except shell.lvl!
+- If you're running Windows server: enable sound backend
 
 ### Minimal setup
 
-- Extract all files to a folder of your choice
-- Copy your server installation to <yourfolder>/server (BattlefrontII.exe has to be in that folder)
+Extract all files to a folder of your choice
+- EITHER Copy your server installation to <yourfolder>/server (BattlefrontII.exe has to be in that folder)
+- OR run SWBF2Admin.exe once, close it again, open core.xml, set  <ServerPath> to the (absolute) path to your server installation
+
+- If you want to host a Steam Server: open core.xml, set SteamMode
+```
+<SteamMode>true</SteamMode
+```
+
 - Run SWBF2Admin.exe
+- You'll be asked to enter credentials you'll need to access the web panel later on. Enter credentials of your choice.
+
+### Steam ingame server sustainer
+
+If you want to use the Steam version in Remote Desktop mode (required for most rental machines), you have to to a bit of extra setup 
+to keep it from crashing.
+
+- Create an additional account on your server machine
+- log in to your new account
+- Run Remote Desktop and connect to your gameserver account, save user name and password
+- Get IngameControllerServer.exe from your SWBF2Admin installation, run it and leave it open
+
+IngameControllerServer.exe does not have to be located in the SWBF2Admin installation folder,
+so you can move it to a new location if you want.
 
 ## Using the web panel
 
@@ -38,9 +71,10 @@ If you want to access your panel from a remote computer, you can adjust the pane
 Notes:
 - If you're using a address different from localhost, SWBF2Admin will ask for admin permissions during the first startup using the new URL. This is done because each URL has to be registered before it can be used. SWBF2Admin will register your new URL and continue operation in user Mode.
 - HTTPS is supported if a valid certificate is installed and assigned to SWBF2Admin's application id (see https://stackoverflow.com/questions/11403333/httplistener-with-https-support)
+- If you want to access your web panel from WAN, I'd recommend using a non-standard port in the high range
 
 User authentication is done via HTTP basic auth. You'll be prompted for a username and password. 
-If you forget your credentials, run "SWBF2admin.exe --reset-webcredentials".
+If you forget your credentials, running "SWBF2admin.exe --reset-webcredentials" will reset all web credentials.
 
 ### Dashboard
 
@@ -82,17 +116,30 @@ Text fields don't have to be exact matches. Similar results will be shown as wel
 
 To delete a ban, just right click it. A context menu will show up - click on "Delete ban".
 
+### Settings
+
+Once you made any changes, the page will notify you that the changes weren't saved yet. 
+Five seconds after you made your last change, all settings will automatically be saved.
+Settings are also saved immediately if you change to another page, so you don't have to wait.
+
 ### Settings / General
 
-TODO 
+This page lets you change your server's basic parameters.
+
+TODO
 
 ### Settings / Game
 
-TODO 
+TODO
 
 ### Settings / Map Rotation
 
-TODO 
+This page let's you adjust your servers map rotation.
+Simply grab the map you want to add from the table on the left. Drag&drop it to the table on the right.
+A dialog will open, asking you to select the game modes you want to add. After doing so, click OK and the maps will be added.
+If you want to cancel the dialog, just click on the red cross in the top right corner. This will leave your map rotation untouched.
+
+If you want to remove a map from the rotation, just drag&drop it from the right table to the left table.
 
 ### Groups
 
@@ -100,11 +147,19 @@ TODO
 
 ### Users
 
-TODO 
+If you want to edit your web admin username / password or want to add additional users, you can do so on this page.
+Right-clicking on any user will give you the options to delete or edit a user or create a new one.
+
+If you're editing an existing user but don't want to change his password, leave the password fields untouched.
+The password will not be updated.
+If you chose create or edit, a dialog box will open which lets you edit the users properties.
+
+Notes:
+- The delete option won't appear for your own account
 
 ## Authors
 
-TODO
+This project was written by Jan "LeKeks" Weigelt (https://github.com/jweigelt) and Yoni (https://github.com/yonilerner).
 
 ## License
 
@@ -112,14 +167,15 @@ This project is licensed under the GNU Public License (GPL) - see the [LICENSE.m
 
 ## Third party software
 
-TODO
+SWBF2Admin uses several pieces of third party software.
+All licenses for third party software can be found in the licenses folder supplied with SWBF2Admin.
 
 ## Advanced configuration
 
 ### Automatic announce broadcasts
 
 #### Configuring the scheduler
-Open ./cfg/announce.xml using your favourite text editor.
+Open ./cfg/announce.xml
 - Set Enable to true to enable automatic announce scheduling
 - Adjust Interval to configure the delay between broadcasts
 
@@ -165,6 +221,7 @@ Example for a broadcast displaying the current time in HH:mm:ss format:
 ```
 <Announce EnableParser="true" Message="Current time {t:HH:mm:ss}"/>
 ```
+
 ## Command configuration
 Every command has it's own XML configuration. The files are located in ./cfg/cmd.
 
