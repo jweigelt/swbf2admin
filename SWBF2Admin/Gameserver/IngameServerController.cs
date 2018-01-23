@@ -245,7 +245,7 @@ namespace SWBF2Admin.Gameserver
                 mapHangTime = 0;
                 TryFreezeUnfreeze();
             }
-            else if (freezeCount > config.FreezesBeforeKill)
+            else if (freezeCount >= config.FreezesBeforeKill)
             {
                 Logger.Log(LogLevel.Info, "Server doesn't seem to resume. Shutting it down.");
                 Core.Server.ServerProcess.Kill(); //"crash" the server so ServerManager will restart it
