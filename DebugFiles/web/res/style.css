@@ -545,6 +545,10 @@ table.maprot :first-child {
     white-space: nowrap;
 }
 
+table.maprot tbody {
+	min-height: 4em;
+}
+
 
 /**
  *  About Tab

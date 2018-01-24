@@ -8,7 +8,7 @@ namespace SWBF2Admin.Gameserver
     public class IngameServerControllerConfiguration
     {
         public int TcpTimeout { get; set; } = 100;
-        public int StartupTime { get; set; } = 20000;
+        public int StartupTime { get; set; } = 30000;
         public int NotRespondingCheckInterval { get; set; } = 5000;
         public int NotRespondingMaxCount { get; set; } = 2;
         public int ReadTimeout { get; set; } = 100;

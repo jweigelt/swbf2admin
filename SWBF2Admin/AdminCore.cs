@@ -84,6 +84,7 @@ namespace SWBF2Admin
             Logger.Log(LogLevel.Verbose, Log.CORE_READ_CONFIG);
             config = Files.ReadConfig<CoreConfiguration>();
             Logger.Log(LogLevel.Info, Log.CORE_READ_CONFIG_OK);
+            Logger.MinLevel = config.LogMinimumLevel;
 
             components.Add(Database);
             components.Add(Server);

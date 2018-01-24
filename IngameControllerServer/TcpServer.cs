@@ -68,6 +68,14 @@ namespace IngameControllerServer
         private void StartRDP()
         {
             Logger.Log(LogLevel.Info, "Starting RDP session");
+            /*try
+            {
+                Process.Start(Directory.GetCurrentDirectory() + "/rdp.bat");
+            }catch(Exception e)
+            {
+                Logger.Log(LogLevel.Error, e.Message);
+            }*/
+          
             ProcessStartInfo info = new ProcessStartInfo("mstsc.exe", "/v:localhost");
             Process.Start(info);
         }
@@ -86,12 +94,10 @@ namespace IngameControllerServer
                         p.Kill();
                     }
                 }
-                catch (Exception e)
+                catch /*(Exception e)*/
                 {
-                    Logger.Log(LogLevel.Warning, "Failed to end Process {0} ({1})", p.Id.ToString(), e.Message);
+                   // Logger.Log(LogLevel.Warning, "Failed to end Process {0} ({1})", p.Id.ToString(), e.Message);
                 }
-
-
             }
         }
 

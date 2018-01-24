@@ -33,7 +33,7 @@ namespace SWBF2Admin.Utility
     {
         private static Mutex mtx = new Mutex();
 
-        public static LogLevel MinLevel { get; set; } = LogLevel.Verbose;
+        public static LogLevel MinLevel { get; set; } = LogLevel.Info;
         public static bool LogToFile { get; set; } = false;
         public static string LogFile { get; set; } = "/log.txt";
 

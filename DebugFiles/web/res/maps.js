@@ -64,7 +64,7 @@ function Maps() {
 
     this.saveMaps = function () {
         var req = { Action: "maps_save", Maps: [] };
-        $("#maps_table_rotation tr").each(function (i, e) {
+        $("#maps_table_rotation tbody tr").each(function (i, e) {
             req.Maps.push($(e).data("name"));
         });
 
@@ -77,7 +77,7 @@ function Maps() {
     };
 
     this.dialogOK = function (m) {
-        var tb = $("#maps_table_rotation");
+        var tb = $("#maps_table_rotation tbody");
         $("#maps_div_add input").each(function (i, e) {
 
             if ($(e).prop('checked')) {
@@ -111,7 +111,7 @@ function Maps() {
 
     this.dropMap = function (map) {
         base.setSaved(false);
-        $("#maps_table_rotation tr").each(function (i, e) {
+        $("#maps_table_rotation tbody tr").each(function (i, e) {
             if ($(e).data("name") == map.name) {
                 $(e).remove();
                 return false;
@@ -122,7 +122,7 @@ function Maps() {
     this.setInstalledMaps = function (r) {
         base.mapList = r;
 
-        var tb = $("#maps_table_installed");
+        var tb = $("#maps_table_installed tbody");
         tb.html("");
         for (var x in r) {
             var m = r[x];
@@ -157,7 +157,7 @@ function Maps() {
             return;
         }
 
-        var tb = $("#maps_table_rotation");
+        var tb = $("#maps_table_rotation tbody");
         tb.html("");
 
         for (var x in r.Maps) {
