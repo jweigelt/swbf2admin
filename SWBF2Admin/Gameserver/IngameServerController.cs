@@ -14,6 +14,7 @@ namespace SWBF2Admin.Gameserver
     {
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
         private const int OFFSET_MAP_FREEZE = (0x01E640FF - 0x00401000 + 0x1000);
+        private const int OFFSET_NORENDER = (0x01EAD47B - 0x00401000 + 0x1000);
 
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
         private const byte NET_COMMAND_RDP_CLOSE = 0x02;
@@ -126,6 +127,11 @@ namespace SWBF2Admin.Gameserver
             Core.Scheduler.PushDelayedTask(() => EnableUpdates(), config.StartupTime);
         }
 
+        private void SetNoRender(bool norender)
+        {
+            WriteByte(OFFSET_NORENDER, (byte)(norender ? 1 : 0));
+        }
+
         private void SetFreeze(bool freeze)
         {
             WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
@@ -222,6 +228,7 @@ namespace SWBF2Admin.Gameserver
             {
                 if (!isLoading)
                 {
+                    SetNoRender(false);
                     SendCommand(NET_COMMAND_RDP_OPEN);
                 }
                 isLoading = true;
@@ -233,6 +240,7 @@ namespace SWBF2Admin.Gameserver
                 freezeCount = 0;
                 if (isLoading)
                 {
+                    SetNoRender(true);
                     isLoading = false;
                     SendCommand(NET_COMMAND_RDP_CLOSE);
                 }
