@@ -30,7 +30,7 @@ namespace SWBF2Admin.Gameserver
     public class IngameServerController : ComponentBase
     {
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
-        private const int OFFSET_MAP_FREEZE = (0x01E640FF - 0x00401000 + 0x1000);
+        private const int OFFSET_MAP_FREEZE = (0x01E64EFF - 0x00401000 + 0x1000);
         private const int OFFSET_NORENDER = (0x01EAD47B - 0x00401000 + 0x1000);
 
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
