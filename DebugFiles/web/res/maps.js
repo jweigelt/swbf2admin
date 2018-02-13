@@ -70,7 +70,7 @@ function Maps() {
 
         $.post({
             url: MapsUrl,
-            data: JSON.stringify(req),
+            data: JSON.stringify(req)
         }).done(function (res) {
             base.setSaved(jQuery.parseJSON(res));
         });
@@ -145,7 +145,7 @@ function Maps() {
     this.updateInstalledMaps = function () {
         $.post({
             url: MapsUrl,
-            data: '{"Action":"maps_installed"}',
+            data: '{"Action":"maps_installed"}'
         }).done(function (res) {
             base.setInstalledMaps(jQuery.parseJSON(res));
         });
@@ -198,7 +198,7 @@ function Maps() {
     this.updateMapRotation = function () {
         $.post({
             url: MapsUrl,
-            data: '{"Action":"maps_rotation"}',
+            data: '{"Action":"maps_rotation"}'
         }).done(function (res) {
             base.setMapRotation(jQuery.parseJSON(res));
         });

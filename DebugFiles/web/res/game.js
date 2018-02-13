@@ -138,7 +138,7 @@ function Game() {
     this.updateSettings = function () {
         $.post({
             url: GameUrl,
-            data: '{"Action":"game_get"}',
+            data: '{"Action":"game_get"}'
         }).done(function (res) {
             base.setSettings(JSON.parse(res));
         });

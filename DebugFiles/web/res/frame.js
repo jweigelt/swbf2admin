@@ -20,7 +20,7 @@ function MainFrame() {
         base.activePage = p;
         base.activePage.onInit();
         base.activePage.onStatusChange(base.online);
-    }
+    };
 
     this.isOnline = function () { return base.online; };
 
@@ -32,7 +32,7 @@ function MainFrame() {
         }
 
         if ($.active > 0) {
-            console.log("Waiting for pending ajax requests to finish...")
+            console.log("Waiting for pending ajax requests to finish...");
             //wait for any ajax-requests to finish before unloading the page
             base.stopEvent = function () { $.get(href, function (data) { $("td#content").html(data); }); };
         } else {
@@ -60,7 +60,7 @@ function MainFrame() {
     this.updateStatus = function () {
         $.post({
             url: MainFrameUrl,
-            data: '{"Action":"status_get"}',
+            data: '{"Action":"status_get"}'
         }).done(function (res) {
             base.setStatus(jQuery.parseJSON(res));
         });

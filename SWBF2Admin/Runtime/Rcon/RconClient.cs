@@ -33,6 +33,7 @@ namespace SWBF2Admin.Runtime.Rcon
     /// </summary>
     public class RconClient : ComponentBase
     {
+
         private const byte LOGIN_MAGIC = 0x64;
         private const byte SLEEP = 5;
         private const string STATUS_MESSAGE_GAME_HAS_ENDED = "Game has ended";
@@ -42,6 +43,7 @@ namespace SWBF2Admin.Runtime.Rcon
         public override void OnServerStart(EventArgs e)
         {
             ServerPassword = Core.Server.Settings.AdminPw;
+            ServerIPEP = new IPEndPoint(IPAddress.Parse(Core.Server.Settings.IP), Core.Server.Settings.RconPort);
             Start();
         }
 
@@ -377,8 +379,7 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             else
             {
-                Logger.Log(LogLevel.Info, "#{0}:{1}", cc[1], cc[2]);
-                InvokeEvent(ChatInput, this, new RconChatEventArgs(new ChatMessage(cc[1], cc[2])));
+                InvokeEvent(ChatInput, this, new RconChatEventArgs(new ChatMessage(cc[2], cc[1])));
             }
             return true;
         }

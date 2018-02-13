@@ -210,6 +210,7 @@ namespace SWBF2Admin.Database
         }
         private int RI(DbDataReader reader, string field)
         {
+            object o = reader[field];
             return (int)(long)reader[field];
         }
 
@@ -382,6 +383,40 @@ namespace SWBF2Admin.Database
             return null;
         }
 
+        private PlayerGroup ReadGroup(DbDataReader reader)
+        {
+            if (reader.Read())
+            {
+                return new PlayerGroup(
+                     RL(reader, "id"),
+                     RL(reader, "group_level"),
+                     RS(reader, "group_name"),
+                     RS(reader, "group_welcome"),
+                     (RL(reader, "group_welcome_enable") == 1));
+            }
+            return null;
+        }
+
+        private PlayerGroup GetDefaultGroup()
+        {
+            string sql =
+               "SELECT " +
+                   "id, " +
+                   "group_name, " +
+                   "group_welcome, " +
+                   "group_level, " +
+                   "group_welcome_enable " + 
+               "FROM " +
+                   "prefix_groups " +
+               "WHERE group_default = 1";
+
+            using (DbDataReader reader = Query(sql))
+            {
+                return ReadGroup(reader);
+            }
+
+        }
+
         public PlayerGroup GetTopGroup(Player player)
         {
             string sql =
@@ -400,17 +435,14 @@ namespace SWBF2Admin.Database
 
             using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId))
             {
-                if (reader.Read())
-                {
-                    return new PlayerGroup(
-                         RL(reader, "id"),
-                         RL(reader, "group_level"),
-                         RS(reader, "group_name"),
-                         RS(reader, "group_welcome"),
-                         (RL(reader, "group_welcome_enable") == 1));
+                PlayerGroup group = ReadGroup(reader);
+                if (group == null) {
+                    PlayerGroup defaultGroup = GetDefaultGroup();
+                    if(defaultGroup != null) AddPlayerGroup(player, defaultGroup);
+                    return defaultGroup;
                 }
+                return group;
             }
-            return null;
         }
 
         public bool NoPlayerGroups()
@@ -687,9 +719,9 @@ namespace SWBF2Admin.Database
         {
             string sql =
                 "SELECT " +
-                    "sum(stat_kills) as total_kills, " +
-                    "sum(stat_deaths) as total_deaths, " +
-                    "sum(stat_points) as total_score, " +
+                    "coalesce(sum(stat_kills), 0) as total_kills, " +
+                    "coalesce(sum(stat_deaths), 0) as total_deaths, " +
+                    "coalesce(sum(stat_points), 0) as total_score, " +
                     "(SELECT count(*) FROM prefix_stats_games INNER JOIN prefix_stats ON game_id = prefix_stats_games.id LEFT JOIN prefix_teams ON team_name = stat_team WHERE player_id = @player_id and game_team_won = team_number) as games_won, " +
                     "(SELECT count(*) FROM prefix_stats_games INNER JOIN prefix_stats ON game_id = prefix_stats_games.id LEFT JOIN prefix_teams ON team_name = stat_team WHERE player_id = @player_id and game_team_won != team_number) as games_lost, " +
                     "(SELECT count(*) FROM prefix_stats_games INNER JOIN prefix_stats ON game_id = prefix_stats_games.id AND stat_quit = 1 WHERE player_id = @player_id) as games_quit " +
@@ -710,9 +742,10 @@ namespace SWBF2Admin.Database
                 }
             }
 
+
+
             return null;
         }
-
         #endregion
 
         #region Web

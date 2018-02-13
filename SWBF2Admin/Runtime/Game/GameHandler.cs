@@ -51,7 +51,11 @@ namespace SWBF2Admin.Runtime.Game
 
         public override void OnInit()
         {
-            Core.Rcon.GameEnded += new EventHandler(Rcon_GameEnded);
+            Core.Rcon.GameEnded += new EventHandler(Server_GameEnded);
+            if (Core.Config.EnableSteamMode)
+            {
+                Core.IngameController.GameEnded += new EventHandler(Server_GameEnded);
+            }
         }
 
         public override void OnServerStart(EventArgs e)
@@ -74,7 +78,7 @@ namespace SWBF2Admin.Runtime.Game
         {
             UpdateInfo();
         }
-        private void Rcon_GameEnded(object sender, EventArgs e)
+        private void Server_GameEnded(object sender, EventArgs e)
         {
             if (config.EnableGameStatsLogging)
             {

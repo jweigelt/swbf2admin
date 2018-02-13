@@ -29,12 +29,16 @@ namespace SWBF2Admin.Gameserver
 {
     public class IngameServerController : ComponentBase
     {
+        private const string DLL_LOADER = "dllloader.exe";
+
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
         private const int OFFSET_MAP_FREEZE = (0x01E64EFF - 0x00401000 + 0x1000);
         private const int OFFSET_NORENDER = (0x01EAD47B - 0x00401000 + 0x1000);
 
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
         private const byte NET_COMMAND_RDP_CLOSE = 0x02;
+
+        public event EventHandler GameEnded;
 
         [Flags]
         private enum ProcessAccessFlags : uint
@@ -54,6 +58,7 @@ namespace SWBF2Admin.Gameserver
             Synchronize = 0x00100000
         }
 
+        private bool enableRuntime;
         private bool isLoading = false;     //map load in progress
         private bool steamMode;             //steam mode enabled?
         private int notRespondingCount = 0; //times the server process didn't espond
@@ -77,6 +82,7 @@ namespace SWBF2Admin.Gameserver
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool CloseHandle(IntPtr hObject);
 
+
         public IngameServerController(AdminCore core) : base(core) { }
 
         public override void OnInit()
@@ -93,7 +99,6 @@ namespace SWBF2Admin.Gameserver
             if (steamMode)
             {
                 if (((StartEventArgs)e).Attached) EnableUpdates();
-
                 try
                 {
                     MemoryInit();
@@ -102,6 +107,26 @@ namespace SWBF2Admin.Gameserver
                 {
                     MemoryClose();
                     Logger.Log(LogLevel.Warning, "IngameServerController failed to attach. Server won't be supported.");
+                }
+
+                if (enableRuntime && !((StartEventArgs)e).Attached)
+                {
+                    Logger.Log(LogLevel.Info, "Attach RconServer.dll to server process...");
+                    try
+                    {
+                        string loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLL_LOADER}";
+                        if (File.Exists(loader))
+                        {
+                            Process.Start(loader);
+                        }
+
+                        //TODO: messy workaround to give RconServer time to start before RconClient connects
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(LogLevel.Error, "Failed to load dll : {0}", ex.Message);
+                    }
                 }
             }
         }
@@ -128,6 +153,7 @@ namespace SWBF2Admin.Gameserver
         public override void Configure(CoreConfiguration config)
         {
             steamMode = config.EnableSteamMode;
+            enableRuntime = config.EnableRuntime;
             this.config = Core.Files.ReadConfig<IngameServerControllerConfiguration>();
 
             //TODO: clean that up:
@@ -247,6 +273,7 @@ namespace SWBF2Admin.Gameserver
                 {
                     SetNoRender(false);
                     SendCommand(NET_COMMAND_RDP_OPEN);
+                    InvokeEvent(GameEnded.Invoke, this, new EventArgs());
                 }
                 isLoading = true;
                 mapHangTime += UpdateInterval;
@@ -270,6 +297,7 @@ namespace SWBF2Admin.Gameserver
                 mapHangTime = 0;
                 TryFreezeUnfreeze();
             }
+
             else if (freezeCount >= config.FreezesBeforeKill)
             {
                 Logger.Log(LogLevel.Info, "Server doesn't seem to resume. Shutting it down.");

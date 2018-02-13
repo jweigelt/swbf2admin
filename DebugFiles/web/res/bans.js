@@ -117,7 +117,7 @@ function Bans() {
 
         $.post({
             url: BansUrl,
-            data: JSON.stringify(filter),
+            data: JSON.stringify(filter)
         }).done(function (res) {
             base.setBans(JSON.parse(res));
         });
@@ -138,7 +138,7 @@ function Bans() {
         var rq = { Action: "bans_delete", DatabaseId: tag };
         $.post({
             url: BansUrl,
-            data: JSON.stringify(rq),
+            data: JSON.stringify(rq)
         }).done(function (res) {
             base.banDeleted(JSON.parse(res));
         });

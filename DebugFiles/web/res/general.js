@@ -101,7 +101,7 @@ function General() {
     this.updateSettings = function () {
         $.post({
             url: GeneralUrl,
-            data: '{"Action":"general_get"}',
+            data: '{"Action":"general_get"}'
         }).done(function (res) {
             base.setSettings(JSON.parse(res));
         });

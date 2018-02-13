@@ -107,6 +107,11 @@ namespace SWBF2Admin
             components.Add(Server);
             components.Add(WebAdmin);
 
+            if (config.EnableSteamMode)
+            {
+                components.Add(IngameController);
+            }
+
             if (config.EnableRuntime)
             {
                 components.Add(Rcon);
@@ -115,10 +120,6 @@ namespace SWBF2Admin
                 components.Add(Game);
                 components.Add(Commands);
                 components.Add(Mods);
-            }
-            else if (config.EnableSteamMode)
-            {
-                components.Add(IngameController);
             }
 
             Scheduler.TickDelay = Config.TickDelay;
