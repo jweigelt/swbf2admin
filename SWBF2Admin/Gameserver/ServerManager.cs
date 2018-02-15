@@ -178,10 +178,16 @@ namespace SWBF2Admin.Gameserver
 
         private void ServerProcess_Exited(object sender, EventArgs e)
         {
+            Process p = serverProcess;
             serverProcess = null;
 
             if (status != ServerStatus.Stopping && status != ServerStatus.SteamPending)
             {
+                try
+                {
+                    serverProcess.Kill();
+                }
+                catch { }
                 Logger.Log(LogLevel.Warning, "Server has crashed.");
                 status = ServerStatus.Offline;
                 InvokeEvent(ServerCrashed, this, new EventArgs());

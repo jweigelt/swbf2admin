@@ -284,9 +284,12 @@ namespace SWBF2Admin.Gameserver
                 freezeCount = 0;
                 if (isLoading)
                 {
-                    SetNoRender(true);
                     isLoading = false;
-                    SendCommand(NET_COMMAND_RDP_CLOSE);
+                    Core.Scheduler.PushDelayedTask(() =>
+                    {
+                        SetNoRender(true);
+                        SendCommand(NET_COMMAND_RDP_CLOSE);
+                    }, config.RdpCloseDelay);
                 }
             }
 

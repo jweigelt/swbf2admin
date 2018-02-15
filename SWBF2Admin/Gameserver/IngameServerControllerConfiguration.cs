@@ -32,6 +32,7 @@ namespace SWBF2Admin.Gameserver
         public int MapHangTimeout { get; set; } = 20000;
         public int FreezeTime { get; set; } = 1000;
         public int FreezesBeforeKill { get; set; } = 10;
+        public int RdpCloseDelay {get; set;} = 2000;
 
         public string ServerHostname { get; set; } = "127.0.0.1:1138";
 
