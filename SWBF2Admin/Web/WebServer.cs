@@ -217,9 +217,8 @@ namespace SWBF2Admin.Web
         private WebUser CheckAuth(HttpListenerContext ctx)
         {
             HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)ctx.User.Identity;
-            WebUser user = null;
 
-            if (authCache.TryGetValue(identity.Name, out user))
+            if (authCache.TryGetValue(identity.Name, out WebUser user))
             {
                 if (!Util.Md5(identity.Password).Equals(user.PasswordHash))
                 {

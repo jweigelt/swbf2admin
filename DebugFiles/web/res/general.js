@@ -54,8 +54,8 @@ function General() {
                 GameName: $("#general_input_session_name").val(),
                 Password: $("#general_input_password").val(),
                 AdminPw: $("#general_input_admin_password").val(),
-                PlayerCount: $("#general_input_max_players").val(),
-                PlayerLimit: $("#general_input_min_players").val(),
+                PlayerCount: $("#general_input_min_players").val(),
+                PlayerLimit: $("#general_input_max_players").val(),
                 Tps: $("#general_input_tps").val(),
                 IP: $("#general_select_ipa").val(),
                 GamePort: $("#general_input_gameport").val(),
@@ -84,8 +84,8 @@ function General() {
         $("#general_input_session_name").val(s.GameName);
         $("#general_input_password").val(s.Password);
         $("#general_input_admin_password").val(s.AdminPw);
-        $("#general_input_max_players").val(s.PlayerCount);
-        $("#general_input_min_players").val(s.PlayerLimit);
+        $("#general_input_min_players").val(s.PlayerCount);
+        $("#general_input_max_players").val(s.PlayerLimit);
         $("#general_input_tps").val(s.Tps);
         $("#general_select_ipa").val(s.IP);
         $("#general_input_gameport").val(s.GamePort);

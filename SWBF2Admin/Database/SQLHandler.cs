@@ -356,8 +356,8 @@ namespace SWBF2Admin.Database
                         RL(reader, "group_level"),
                         RS(reader, "group_name"),
                         RS(reader, "group_welcome"),
+                         RS(reader, "group_welcome_new"),
                         (RL(reader, "group_welcome_enable") == 1));
-
                 }
             }
             return null;
@@ -376,6 +376,7 @@ namespace SWBF2Admin.Database
                         RL(reader, "group_level"),
                         RS(reader, "group_name"),
                         RS(reader, "group_welcome"),
+                        RS(reader, "group_welcome_new"),
                         (RL(reader, "group_welcome_enable") == 1));
 
                 }
@@ -392,6 +393,7 @@ namespace SWBF2Admin.Database
                      RL(reader, "group_level"),
                      RS(reader, "group_name"),
                      RS(reader, "group_welcome"),
+                     RS(reader, "group_welcome_new"),
                      (RL(reader, "group_welcome_enable") == 1));
             }
             return null;
@@ -400,12 +402,7 @@ namespace SWBF2Admin.Database
         private PlayerGroup GetDefaultGroup()
         {
             string sql =
-               "SELECT " +
-                   "id, " +
-                   "group_name, " +
-                   "group_welcome, " +
-                   "group_level, " +
-                   "group_welcome_enable " + 
+               "SELECT * " + 
                "FROM " +
                    "prefix_groups " +
                "WHERE group_default = 1";
@@ -420,13 +417,7 @@ namespace SWBF2Admin.Database
         public PlayerGroup GetTopGroup(Player player)
         {
             string sql =
-                "SELECT " +
-                    "group_name, " +
-                    "group_welcome, " +
-                    "group_level, " +
-                    "group_welcome_enable, " +
-                    "player_id, " +
-                    "prefix_groups.id " +
+                "SELECT * " +
                 "FROM " +
                     "prefix_players_groups " +
                 "INNER JOIN prefix_groups ON prefix_players_groups.group_id = prefix_groups.id " +
@@ -436,19 +427,20 @@ namespace SWBF2Admin.Database
             using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId))
             {
                 PlayerGroup group = ReadGroup(reader);
-                if (group == null) {
+                if (group == null)
+                {
                     PlayerGroup defaultGroup = GetDefaultGroup();
-                    if(defaultGroup != null) AddPlayerGroup(player, defaultGroup);
+                    if (defaultGroup != null) AddPlayerGroup(player, defaultGroup);
                     return defaultGroup;
                 }
                 return group;
             }
         }
 
-        public bool NoPlayerGroups()
+        public bool GroupEmpty(PlayerGroup group)
         {
-            string sql = "SELECT id FROM prefix_players_groups";
-            return !(HasRows(Query(sql)));
+            string sql = "SELECT id FROM prefix_players_groups where group_id = @group_id";
+            return !(HasRows(Query(sql, "@group_id", group.Id)));
         }
 
         public bool IsGroupMember(Player player, PlayerGroup group)

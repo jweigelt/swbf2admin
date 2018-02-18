@@ -2,7 +2,7 @@
 
 A modern, easy-to-use server manager for Star Wars Battlefront II (2005) dedicated servers
 
-## Getting Started (SWBFSpy)
+## Getting Started
 
 These instructions will get you a minimal SWBF2Admin setup up and running.
 SWBF2Admin is highly configurable - if you're interested in customizing your SWBF2Admin installation, please also check out "Advanced configuration" for further information.
@@ -29,7 +29,7 @@ If you want to host a Steam (GoG) server:
 - Right click the game in your steam library, set launch options to /autonet /win /nointro <map name (e.g tat2g_eli)>
 - Download dedicated server files from http://www.moddb.com/games/star-wars-battlefront-ii/downloads/star-wars-battlefront-ii-v11-dedicated-server
 - Copy the data folder from the dedicated server installation to your SWBF2 installation. Replace all files except shell.lvl!
-- If you're running Windows server: enable sound backend
+- Copy the contents of the GameData folder that came with SWBF2Admin to your server's GameData folder
 
 ### Minimal setup
 
@@ -38,12 +38,19 @@ Extract all files to a folder of your choice
 - OR run SWBF2Admin.exe once, close it again, open core.xml, set  <ServerPath> to the (absolute) path to your server installation
 
 - If you want to host a Steam Server: open core.xml, set SteamMode
+```xml
+<SteamMode>true</SteamMode>
 ```
-<SteamMode>true</SteamMode
+
+- If you want to enable ingame commands / player list / web chat etc.: set EnableRuntime
+```xml
+<EnableRuntime>true</EnableRuntime>
 ```
 
 - Run SWBF2Admin.exe
-- You'll be asked to enter credentials you'll need to access the web panel later on. Enter credentials of your choice.
+- You will be asked to enter credentials which will be used to access the web panel later on. Enter credentials of your choice.
+- Access the web panel and start your server (see Using the web panel)
+- Join your server and enter !gimmeadmin in chat
 
 ### Steam ingame server sustainer
 
@@ -52,11 +59,11 @@ to keep it from crashing.
 
 - Create an additional account on your server machine
 - log in to your new account
-- Run Remote Desktop and connect to your gameserver account, save user name and password
+- Run Remote Desktop and connect to your gameserver account, save user name and password.
 - Get IngameControllerServer.exe from your SWBF2Admin installation, run it and leave it open
 
 IngameControllerServer.exe does not have to be located in the SWBF2Admin installation folder,
-so you can move it to a new location if you want.
+so you can move it to a new location if you like.
 
 ## Using the web panel
 
@@ -64,7 +71,7 @@ so you can move it to a new location if you want.
 By default, your web panel's URL is set to http://localhost:8080/ and can only be accessed locally.
 If you want to access your panel from a remote computer, you can adjust the panel's URL in ./cfg/core.xml.
 
-```
+```xml
 <WebAdminPrefix>http://localhost:8080/</WebAdminPrefix>
 ```
 
@@ -157,6 +164,14 @@ If you chose create or edit, a dialog box will open which lets you edit the user
 Notes:
 - The delete option won't appear for your own account
 
+## Ingame commands
+
+### Getting permissions
+
+After you freshly installed SWBF2Admin, join your server and enter !gimmeadmin in chat. This will add your player account to the Administrator group.
+
+TODO
+
 ## Authors
 
 This project was written by Jan "LeKeks" Weigelt (https://github.com/jweigelt) and Yoni (https://github.com/yonilerner).
@@ -182,7 +197,7 @@ Open ./cfg/announce.xml
 You can now add as many announces as you like to the "AnnounceList" attribute.
 Announces must have the following format:
 
-```
+```xml
 <Announce EnableParser="true/false" Message="YourMessage"/>
 ```
 
@@ -218,7 +233,7 @@ Replace (format) with a format string.
 The given formatter has to be a .NET-style format string. (see https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings)
 
 Example for a broadcast displaying the current time in HH:mm:ss format:
-```
+```xml
 <Announce EnableParser="true" Message="Current time {t:HH:mm:ss}"/>
 ```
 
@@ -240,7 +255,7 @@ Create an empty XML and LUA file in that folder. Rename both files so their name
 
 Use the following template for your XML file:
 
-```
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <DynamicCommand xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Enabled>true</Enabled>
@@ -259,7 +274,7 @@ Usage: A small explanation on how to use your command
 UserConfig: You can add custom child nodes to UserConfig to configure your command. These can later be accessed by LUA.
 
 Copy the following template to your LUA file:
-```
+```lua
 function init()
 
 end

@@ -23,7 +23,6 @@ namespace SWBF2Admin.Runtime.Commands.Admin
     [ConfigFileInfo(fileName: "./cfg/cmd/ban.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.ban.xml"*/)]
     public class CmdBan : PlayerCommand
     {
-
         public string OnBan { get; set; } = "{player} was banned by {admin}";
         public string OnBanReason { get; set; } = "{player} was kicked by {admin} for {reason}";
         public CmdBan() : base("ban", "ban") { }

@@ -38,7 +38,7 @@ namespace SWBF2Admin.Scheduler
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "Failed to run task {0}::{1} ({2})", task.Target.ToString(), task.Method.Name, e.Message);
+                Logger.Log(LogLevel.Warning, "Failed to run task {0}::{1} ({2})", task.Target.ToString(), task.Method.Name, e.ToString());
             }
         }
     }

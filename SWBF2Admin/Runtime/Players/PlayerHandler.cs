@@ -95,7 +95,6 @@ namespace SWBF2Admin.Runtime.Players
 
                 playerList = plp.PlayerList;
             }
-
         }
 
         /// <summary>
@@ -126,7 +125,15 @@ namespace SWBF2Admin.Runtime.Players
             }
             else
             {
-                if ((p.MainGroup != null) && p.MainGroup.EnableWelcome) Core.Rcon.Say(Util.FormatString(p.MainGroup.WelcomeMessage, "{player}", p.Name, "{group}", p.MainGroup.Name, "{joined}", p.TotalVisits.ToString()));
+                if ((p.MainGroup != null) && p.MainGroup.EnableWelcome)
+                {
+                    Core.Rcon.Say(Util.FormatString(
+                      ((p.TotalVisits == 1) ? p.MainGroup.NewWelcomeMessage : p.MainGroup.WelcomeMessage),
+                     "{player}", p.Name,
+                     "{group}", p.MainGroup.Name,
+                     "{joined}", p.TotalVisits.ToString(),
+                     "{id}", p.DatabaseId.ToString()));
+                }
             }
         }
 

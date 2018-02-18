@@ -77,7 +77,6 @@ namespace SWBF2Admin.Runtime.Commands
             if (player == null) Core.Rcon.Say(message); else Core.Rcon.Pm(message, player);
         }
 
-
         public virtual bool HasPermission(Player player)
         {
             return Core.Database.HasPermission(player, Permission);
