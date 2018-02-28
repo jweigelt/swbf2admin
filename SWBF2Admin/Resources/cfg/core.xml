@@ -23,7 +23,11 @@
   <AutoLaunchServer>false</AutoLaunchServer>
   <AutoRestartServer>false</AutoRestartServer>
   <ServerPath>./server</ServerPath>
+  <EnableSteamMode>false</EnableSteamMode>
+  <!--NOTE: if you set EnableRuntime to true, make sure you're the first one to enter !gimmeadmin in chat!-->
+  <EnableRuntime>false</EnableRuntime>
 
+  
   <!--
     Remote console:
     - RconHostname: format: <host>:<port> server's IP address or hostname and remote console port
