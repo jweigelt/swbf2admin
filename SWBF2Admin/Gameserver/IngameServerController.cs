@@ -82,7 +82,6 @@ namespace SWBF2Admin.Gameserver
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool CloseHandle(IntPtr hObject);
 
-
         public IngameServerController(AdminCore core) : base(core) { }
 
         public override void OnInit()
@@ -144,9 +143,9 @@ namespace SWBF2Admin.Gameserver
             {
                 CheckMapStatus();
             }
-            catch
+            catch(Exception e)
             {
-                //TODO
+                Logger.Log(LogLevel.Verbose, e.Message);
             }
         }
 
@@ -163,6 +162,7 @@ namespace SWBF2Admin.Gameserver
 
         public void Server_SteamServerStarting(object sender, EventArgs e)
         {
+            Logger.Log(LogLevel.Verbose, "Server_SteamServerStarting()");
             //request RD session for startup
             DisableUpdates();
             isLoading = true;
@@ -265,18 +265,20 @@ namespace SWBF2Admin.Gameserver
                 else notRespondingCount = 0;
             }
         }
+
         private void CheckMapStatus()
         {
             if (ReadMapStatus() != 0)
             {
+            
+                mapHangTime += UpdateInterval;
                 if (!isLoading)
                 {
+                    isLoading = true;
                     SetNoRender(false);
+                    InvokeEvent(GameEnded, this, new EventArgs());
                     SendCommand(NET_COMMAND_RDP_OPEN);
-                    InvokeEvent(GameEnded.Invoke, this, new EventArgs());
-                }
-                isLoading = true;
-                mapHangTime += UpdateInterval;
+               }
             }
             else
             {
@@ -284,6 +286,7 @@ namespace SWBF2Admin.Gameserver
                 freezeCount = 0;
                 if (isLoading)
                 {
+                    Logger.Log(LogLevel.Verbose, "Server finished loading.");
                     isLoading = false;
                     Core.Scheduler.PushDelayedTask(() =>
                     {
