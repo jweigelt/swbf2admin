@@ -34,11 +34,11 @@ namespace SWBF2Admin.Config
         #region "gameserver"
         public bool ManageServer { get; set; } = true;
         public bool AutoLaunchServer { get; set; } = false;
-        public bool AutoRestartServer { get; set; } = false;
+        public bool AutoRestartServer { get; set; } = true;
         public string ServerPath { get; set; } = @"G:\Programme\SteamLibrary\steamapps\common\Star Wars Battlefront II\GameData";
         public string ServerArgs { get; set; } = "/win /norender /nosound /autonet dedicated /resolution 640 480";
 
-        public bool EnableRuntime { get; set; }
+        public bool EnableRuntime { get; set; } = false;
         public bool EnableSteamMode { get; set; } = false;
         #endregion
 

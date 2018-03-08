@@ -18,12 +18,14 @@
 using System;
 using System.Net;
 using System.IO;
+using System.Text;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
 using SWBF2Admin.Utility;
 using SWBF2Admin.Config;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace SWBF2Admin.Gameserver
 {
@@ -172,6 +174,7 @@ namespace SWBF2Admin.Gameserver
 
         private void SetNoRender(bool norender)
         {
+            //TODO: fix me
             WriteByte(OFFSET_NORENDER, (byte)(norender ? 1 : 0));
         }
 
@@ -197,6 +200,7 @@ namespace SWBF2Admin.Gameserver
             byte[] buf = new byte[] { value };
             if (!WriteProcessMemory(procHandle, IntPtr.Add(moduleBase, offset), buf, 1, out bytesWritten) || bytesWritten == UIntPtr.Zero)
                 throw new Exception("WriteProcessMemory() failed");
+
         }
         private void MemoryInit()
         {
@@ -249,6 +253,16 @@ namespace SWBF2Admin.Gameserver
                 Logger.Log(LogLevel.Warning, "SendCommand() failed ({0})", e.Message);
             }
 
+        }
+
+        private void SetPwdHash(string pwd)
+        {
+            SHA512 shaM = new SHA512Managed();
+            UIntPtr bytesWritten;
+            byte[] buf = shaM.ComputeHash(Encoding.ASCII.GetBytes(pwd));
+            if (!WriteProcessMemory(procHandle, IntPtr.Add(moduleBase, 0x1AAE968), buf, (uint)buf.Length, out bytesWritten) || bytesWritten == UIntPtr.Zero)
+                throw new Exception("WriteProcessMemory() failed");
+            Logger.Log(LogLevel.Info, "{0} bytes written.", bytesWritten.ToString());
         }
 
         private void CheckResponding()

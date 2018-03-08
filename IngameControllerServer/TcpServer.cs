@@ -67,6 +67,7 @@ namespace IngameControllerServer
 
         private void StartRDP()
         {
+            //StopRDP();
             Logger.Log(LogLevel.Info, "Starting RDP session");
             /*try
             {
@@ -91,12 +92,13 @@ namespace IngameControllerServer
                 {
                     if (p.MainModule.FileName.EndsWith("mstsc.exe"))
                     {
+                        Logger.Log(LogLevel.Info, "Found process with id " + p.Id.ToString() + " -trying to kill it");
                         p.Kill();
                     }
                 }
-                catch /*(Exception e)*/
+                catch (Exception e)
                 {
-                   // Logger.Log(LogLevel.Warning, "Failed to end Process {0} ({1})", p.Id.ToString(), e.Message);
+                    Logger.Log(LogLevel.Warning, "Failed to end Process {0} ({1})", p.Id.ToString(), e.Message);
                 }
             }
         }
