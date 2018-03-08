@@ -39,7 +39,7 @@ Extract all files to a folder of your choice
 
 - If you want to host a Steam Server: open core.xml, set SteamMode
 ```xml
-<SteamMode>true</SteamMode>
+<EnableSteamMode>true</EnableSteamMode>
 ```
 
 - If you want to enable ingame commands / player list / web chat etc.: set EnableRuntime
