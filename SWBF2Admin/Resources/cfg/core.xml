@@ -24,6 +24,7 @@
   <AutoRestartServer>true</AutoRestartServer>
   <ServerPath>./server</ServerPath>
   <EnableSteamMode>false</EnableSteamMode>
+  <EnableGOGMode>false</EnableGOGMode>
   <!--NOTE: if you set EnableRuntime to true, make sure you're the first one to enter !gimmeadmin in chat!-->
   <EnableRuntime>false</EnableRuntime>
 
