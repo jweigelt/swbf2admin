@@ -40,6 +40,7 @@ namespace SWBF2Admin.Config
 
         public bool EnableRuntime { get; set; } = false;
         public bool EnableSteamMode { get; set; } = false;
+        public bool EnableGOGMode { get; set; } = false;
         #endregion
 
         #region "rcon"
