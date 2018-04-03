@@ -107,7 +107,7 @@ namespace SWBF2Admin
             components.Add(Server);
             components.Add(WebAdmin);
 
-            if (config.EnableSteamMode)
+            if (config.EnableSteamMode || config.EnableGOGMode)
             {
                 components.Add(IngameController);
             }

@@ -36,6 +36,9 @@ namespace SWBF2Admin.Gameserver
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
         private const int OFFSET_MAP_FREEZE = (0x01E64EFF - 0x00401000 + 0x1000);
         private const int OFFSET_NORENDER = (0x01EAD47B - 0x00401000 + 0x1000);
+		
+		private const int OFFSET_MAP_STATUS_GOG = (0x01B21054);
+		private const int OFFSET_MAP_FREEZE_GOG = (0x01E663AF - 0x00401000 + 0x1000);
 
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
         private const byte NET_COMMAND_RDP_CLOSE = 0x02;
@@ -63,7 +66,8 @@ namespace SWBF2Admin.Gameserver
         private bool enableRuntime;
         private bool isLoading = false;     //map load in progress
         private bool steamMode;             //steam mode enabled?
-        private int notRespondingCount = 0; //times the server process didn't espond
+		private bool gogMode;				//gog mode enabled?
+        private int notRespondingCount = 0; //times the server process didn't respond
         private int mapHangTime = 0;        //time since game ended
         private int freezeCount = 0;        //times we tried to freeze-unfreeze
 
@@ -88,21 +92,21 @@ namespace SWBF2Admin.Gameserver
 
         public override void OnInit()
         {
-            if (steamMode)
+            if (steamMode || gogMode)
             {
                 UpdateInterval = config.ReadTimeout;
-                Core.Server.SteamServerStarting += Server_SteamServerStarting;
                 Core.Scheduler.PushRepeatingTask(() => CheckResponding(), config.NotRespondingCheckInterval);
             }
         }
         public override void OnServerStart(EventArgs e)
         {
-            if (steamMode)
+            if (steamMode || gogMode)
             {
                 if (((StartEventArgs)e).Attached) EnableUpdates();
                 try
                 {
                     MemoryInit();
+					Core.Scheduler.PushDelayedTask(() => EnableUpdates(), config.StartupTime);
                 }
                 catch
                 {
@@ -154,6 +158,7 @@ namespace SWBF2Admin.Gameserver
         public override void Configure(CoreConfiguration config)
         {
             steamMode = config.EnableSteamMode;
+			gogMode = config.EnableGOGMode;
             enableRuntime = config.EnableRuntime;
             this.config = Core.Files.ReadConfig<IngameServerControllerConfiguration>();
 
@@ -162,29 +167,28 @@ namespace SWBF2Admin.Gameserver
             IPEndPoint ipep = this.config.ServerIPEP;
         }
 
-        public void Server_SteamServerStarting(object sender, EventArgs e)
-        {
-            Logger.Log(LogLevel.Verbose, "Server_SteamServerStarting()");
-            //request RD session for startup
-            DisableUpdates();
-            isLoading = true;
-            SendCommand(NET_COMMAND_RDP_OPEN);
-            Core.Scheduler.PushDelayedTask(() => EnableUpdates(), config.StartupTime);
-        }
-
-        private void SetNoRender(bool norender)
-        {
-            //TODO: fix me
-            WriteByte(OFFSET_NORENDER, (byte)(norender ? 1 : 0));
-        }
 
         private void SetFreeze(bool freeze)
         {
-            WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
+            if (steamMode)
+			{
+			WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
+			}
+			else if (gogMode)
+			{
+			WriteByte(OFFSET_MAP_FREEZE_GOG, (byte) (freeze ? 0 : 1));
+			{
         }
         private byte ReadMapStatus()
         {
-            return ReadByte(OFFSET_MAP_STATUS);
+			if (steamMode)
+			{
+				return ReadByte(OFFSET_MAP_STATUS);
+			}
+			else if (gogMode)
+			{
+				return ReadByte(OFFSET_MAP_STATUS_GOG);
+			}
         }
         private byte ReadByte(int offset)
         {
@@ -227,33 +231,6 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
-        private void SendCommand(byte command)
-        {
-            Logger.Log(LogLevel.Verbose, "Sending controller command: {0}", command.ToString());
-            try
-            {
-                //just using a very primitive single-threaded client which re-connects every time
-                //as events requiring net interaction are rather rare, there's no point in keeping a connection alive
-                using (TcpClient client = new TcpClient())
-                {
-                    //use strict timeouts so we don't block the main thread for too long if something goes wrong
-                    client.ReceiveTimeout = config.TcpTimeout;
-                    client.SendTimeout = config.TcpTimeout;
-
-                    client.Connect(config.ServerIPEP);
-                    using (BinaryWriter writer = new BinaryWriter(client.GetStream()))
-                    {
-                        writer.Write(command);
-                        writer.Flush();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogLevel.Warning, "SendCommand() failed ({0})", e.Message);
-            }
-
-        }
 
         private void SetPwdHash(string pwd)
         {
@@ -289,9 +266,7 @@ namespace SWBF2Admin.Gameserver
                 if (!isLoading)
                 {
                     isLoading = true;
-                    SetNoRender(false);
                     InvokeEvent(GameEnded, this, new EventArgs());
-                    SendCommand(NET_COMMAND_RDP_OPEN);
                }
             }
             else
@@ -302,11 +277,6 @@ namespace SWBF2Admin.Gameserver
                 {
                     Logger.Log(LogLevel.Verbose, "Server finished loading.");
                     isLoading = false;
-                    Core.Scheduler.PushDelayedTask(() =>
-                    {
-                        SetNoRender(true);
-                        SendCommand(NET_COMMAND_RDP_CLOSE);
-                    }, config.RdpCloseDelay);
                 }
             }
 
