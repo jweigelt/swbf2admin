@@ -174,7 +174,7 @@ TODO
 
 ## Authors
 
-This project was written by Jan "LeKeks" Weigelt (https://github.com/jweigelt) and Yoni (https://github.com/yonilerner).
+This project was written by Jan "LeKeks" Weigelt (https://github.com/jweigelt), Yoni (https://github.com/yonilerner) and AsLan (https://github.com/SWBF2AsLan).
 
 ## License
 

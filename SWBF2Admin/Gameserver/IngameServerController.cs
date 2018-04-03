@@ -168,7 +168,18 @@ namespace SWBF2Admin.Gameserver
         }
 
 
-        private void SetFreeze(bool freeze)
+        private byte ReadMapStatus(bool freeze)
+        {
+            if (steamMode)
+			{
+			ReadByte(OFFSET_MAP_STATUS, (byte)(freeze ? 0 : 1));
+			}
+			else
+			{
+			ReadByte(OFFSET_MAP_STAUS_GOG, (byte) (freeze ? 0 : 1));
+			}
+        }
+		private void SetFreeze(bool freeze)
         {
             if (steamMode)
 			{
@@ -177,17 +188,6 @@ namespace SWBF2Admin.Gameserver
 			else if (gogMode)
 			{
 			WriteByte(OFFSET_MAP_FREEZE_GOG, (byte) (freeze ? 0 : 1));
-			{
-        }
-        private byte ReadMapStatus()
-        {
-			if (steamMode)
-			{
-				return ReadByte(OFFSET_MAP_STATUS);
-			}
-			else if (gogMode)
-			{
-				return ReadByte(OFFSET_MAP_STATUS_GOG);
 			}
         }
         private byte ReadByte(int offset)
