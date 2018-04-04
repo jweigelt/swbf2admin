@@ -168,15 +168,15 @@ namespace SWBF2Admin.Gameserver
         }
 
 
-        private byte ReadMapStatus(bool freeze)
+        private byte ReadMapStatus()
         {
             if (steamMode)
 			{
-			ReadByte(OFFSET_MAP_STATUS, (byte)(freeze ? 0 : 1));
+			return ReadByte(OFFSET_MAP_STATUS);
 			}
 			else
 			{
-			ReadByte(OFFSET_MAP_STAUS_GOG, (byte) (freeze ? 0 : 1));
+			return ReadByte(OFFSET_MAP_STATUS_GOG);
 			}
         }
 		private void SetFreeze(bool freeze)
