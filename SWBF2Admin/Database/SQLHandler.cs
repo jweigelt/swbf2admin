@@ -206,17 +206,19 @@ namespace SWBF2Admin.Database
         }
         private uint RU(DbDataReader reader, string field)
         {
-            return (uint)(long)reader[field];
+            if (SQLType == DbType.SQLite) return (uint)(long)reader[field];
+            else return (uint)reader.GetInt32(reader.GetOrdinal(field));
         }
         private int RI(DbDataReader reader, string field)
         {
-            object o = reader[field];
-            return (int)(long)reader[field];
+            if (SQLType == DbType.SQLite) return (int)(long)reader[field];
+            else return reader.GetInt32(reader.GetOrdinal(field));
         }
 
         private long RL(DbDataReader reader, string field)
         {
-            return (long)reader[field];
+            if (SQLType == DbType.SQLite) return (long)reader[field];
+            else return reader.GetInt32(reader.GetOrdinal(field));
         }
         private long LastInsertId()
         {
@@ -402,7 +404,7 @@ namespace SWBF2Admin.Database
         private PlayerGroup GetDefaultGroup()
         {
             string sql =
-               "SELECT * " + 
+               "SELECT * " +
                "FROM " +
                    "prefix_groups " +
                "WHERE group_default = 1";
@@ -429,6 +431,7 @@ namespace SWBF2Admin.Database
                 PlayerGroup group = ReadGroup(reader);
                 if (group == null)
                 {
+                    reader.Close();
                     PlayerGroup defaultGroup = GetDefaultGroup();
                     if (defaultGroup != null) AddPlayerGroup(player, defaultGroup);
                     return defaultGroup;
@@ -523,7 +526,7 @@ namespace SWBF2Admin.Database
                     "LEFT JOIN prefix_players AS prefix_players_admins ON prefix_players_admins.id = prefix_bans.admin_id " +
                 "WHERE " +
                     "prefix_players.player_last_name LIKE @player_exp AND " +
-                    "admin_last_name LIKE @admin_exp AND " +
+                    "prefix_players_admins.player_last_name LIKE @admin_exp AND " +
                     "ban_reason LIKE @reason_exp AND " +
                     "(ban_timestamp) > @date_timestamp";
 
@@ -631,10 +634,10 @@ namespace SWBF2Admin.Database
                     reader.Read();
                     player.DatabaseId = RL(reader, "id");
                     player.TotalVisits = RI(reader, "player_visits");
-                    player.IsBanned = IsBanned(player);
                 }
                 else Logger.Log(LogLevel.Warning, "Couldn't find player info for player \"{0}\". (keyhash: {1})", player.Name, player.KeyHash);
             }
+            player.IsBanned = IsBanned(player);
         }
 
         public GameInfo GetLastOpenGame()
@@ -866,7 +869,7 @@ namespace SWBF2Admin.Database
             if (niceExp != "")
             {
                 niceExp = $"%{niceExp}%";
-                sql += " OR map_name LIKE @nice_exp";
+                sql += " OR map_nice_name LIKE @nice_exp";
             }
 
 

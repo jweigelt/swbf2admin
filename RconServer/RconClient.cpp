@@ -37,7 +37,9 @@ bool RconClient::CheckLogin()
 	if (recv(socket, &magic, 1, 0) != 1) return false;
 	if (magic != 0x64) return false;
 
+
 	string pwdHash = md5(bf2server_get_adminpwd());
+
 
 	if (pwdHash.compare(pwd) == 0) {
 		Logger.Log(LogLevel_VERBOSE, "Client logged in.", pwd);

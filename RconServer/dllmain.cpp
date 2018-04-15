@@ -9,7 +9,7 @@ static bool dllmain_running;
 HANDLE dllmain_hThread;
 
 DWORD WINAPI Run(LPVOID p) {
-	dllmain_server = new RconServer(RCON_PORT, MAX_CONNECTIONS);
+	dllmain_server = new RconServer(MAX_CONNECTIONS);
 	dllmain_server->Start();
 
 #ifdef _DEBUG

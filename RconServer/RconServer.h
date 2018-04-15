@@ -5,7 +5,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
-
+#include <inttypes.h>
 #include "RconClient.h"
 #include "Logger.h"
 
@@ -18,7 +18,7 @@ using std::lock_guard;
 class RconServer
 {
 public:
-	RconServer(uint16_t port, uint16_t maxClients);
+	RconServer(uint16_t maxClients);
 	~RconServer();
 	void Start();
 	void Stop();

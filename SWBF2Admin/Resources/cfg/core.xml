@@ -28,15 +28,6 @@
   <!--NOTE: if you set EnableRuntime to true, make sure you're the first one to enter !gimmeadmin in chat!-->
   <EnableRuntime>false</EnableRuntime>
 
-  
-  <!--
-    Remote console:
-    - RconHostname: format: <host>:<port> server's IP address or hostname and remote console port
-    - RconPassword: server's admin password
-  -->
-  <RconHostname>192.168.188.123:4658</RconHostname>
-  <RconPassword>password</RconPassword>
-
   <!--
     Database:
     - SQLEngine:        Database backend (SQLite or MySQL)
@@ -45,10 +36,11 @@
     - MySQLUsername:    MySQL server's username
     - MySQLUsername:    MySQL user's password    
   -->
-  <SQLEngine>SQLite</SQLEngine>
+  <SQLType>SQLite</SQLType>
   <SQLiteFileName>./SWBF2Admin.sqlite</SQLiteFileName>
   <MySQLHostname>localhost:3306</MySQLHostname>
   <MySQLUsername>root</MySQLUsername>
+  <MySQLDatabaseName>swbf2</MySQLDatabaseName>
   <MySQLPassword />
 
   <!--

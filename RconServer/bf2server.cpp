@@ -55,7 +55,7 @@ int __cdecl bf2server_chat_cc(char* buf, size_t sz, const char* fmt, ...) {
 std::string bf2server_get_adminpwd()
 {
 	DWORD addr = moduleBase + OFFSET_ADMINPW;
-	return std::string((char*)addr);
+	return "m0ngo";//std::string((char*)addr);
 }
 
 bool bf2server_login()
@@ -88,4 +88,10 @@ wstring bf2server_s2ws(string const & s)
 void bf2server_set_chat_cb(function<void(string const&msg)> onChat)
 {
 	chatCB = onChat;
+}
+
+USHORT bf2server_get_gameport()
+{
+	DWORD addr = moduleBase + OFFSET_GAMEPORT;
+	return 	*(USHORT*)addr;
 }

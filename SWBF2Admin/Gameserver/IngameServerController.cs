@@ -36,9 +36,9 @@ namespace SWBF2Admin.Gameserver
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
         private const int OFFSET_MAP_FREEZE = (0x01E64EFF - 0x00401000 + 0x1000);
         private const int OFFSET_NORENDER = (0x01EAD47B - 0x00401000 + 0x1000);
-		
-		private const int OFFSET_MAP_STATUS_GOG = (0x01B21054);
-		private const int OFFSET_MAP_FREEZE_GOG = (0x01E663AF - 0x00401000 + 0x1000);
+
+        private const int OFFSET_MAP_STATUS_GOG = (0x01EB1054 - 0x00401000 + 0x1000);//(0x01B21054);
+        private const int OFFSET_MAP_FREEZE_GOG = (0x01E663AF - 0x00401000 + 0x1000);
 
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
         private const byte NET_COMMAND_RDP_CLOSE = 0x02;
@@ -137,7 +137,7 @@ namespace SWBF2Admin.Gameserver
         }
         public override void OnServerStop()
         {
-            if (steamMode)
+            if (steamMode || gogMode)
             {
                 DisableUpdates();
                 MemoryClose();

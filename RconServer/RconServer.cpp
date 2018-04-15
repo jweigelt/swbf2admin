@@ -1,11 +1,14 @@
 #include "RconServer.h"
 
-RconServer::RconServer(uint16_t port, uint16_t maxClients)
+RconServer::RconServer(uint16_t maxClients)
 {
-	this->port = port;
-	this->maxClients = maxClients;
-
+	this->maxClients = maxClients;	
 	bf2server_init();
+	this->port = (uint16_t)bf2server_get_gameport();
+	//char r[32];
+	//sprintf_s(r, sizeof(r), "%" PRIu16 "\n", (uint16_t)bf2server_get_gameport());
+	//MessageBoxA(NULL, r, "abcde", 0);
+
 	bf2server_set_details(1);
 }
 
