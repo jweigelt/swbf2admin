@@ -139,6 +139,7 @@
     <Compile Include="Runtime\Permissions\Permission.cs" />
     <Compile Include="Runtime\Permissions\PermissionGroup.cs" />
     <Compile Include="Runtime\Permissions\PermissionUser.cs" />
+    <Compile Include="Runtime\Players\ConditionalMessage.cs" />
     <Compile Include="Runtime\Players\PlayerHandlerConfiguration.cs" />
     <Compile Include="Runtime\Players\PlayerHandler.cs" />
     <Compile Include="ComponentBase.cs" />

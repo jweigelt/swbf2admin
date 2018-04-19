@@ -16,8 +16,10 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using System.Net;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using MoonSharp.Interpreter;
+using SWBF2Admin.Runtime.Players;
 
 namespace SWBF2Admin.Structures
 {
@@ -71,13 +73,160 @@ namespace SWBF2Admin.Structures
             Slot = slot;
         }
 
+        #region Condition Tracker
+
+        public void ResetConditionTracker()
+        {
+            KillsAtLastScore = Kills;
+            KillsAtLastDeath = Kills;
+
+            ScoreAtLastKill = Score;
+            ScoreAtLastDeath = Score;
+
+            DeathsAtLastScore = Deaths;
+            DeathsAtLastKill = Deaths;
+        }
+
         [MoonSharpHidden]
-        public void CopyDbInfo(Player p)
+        public void ProcessPrevious(Player p)
         {
             DatabaseId = p.DatabaseId;
             TotalVisits = p.TotalVisits;
             IsBanned = p.IsBanned;
             MainGroup = p.MainGroup;
+            MessageStates = p.MessageStates;
+
+            //new game / new player -> we reset all conditional stats
+
+            if (Deaths < p.Deaths)
+            {
+                HasSlotReset = true;
+                ResetConditionTracker();
+            }
+            else
+            {
+                HasSlotReset = false;
+            }
+
+
+            if (Score > p.Score)
+            {
+                HasScored = true;
+                KillsAtLastScore = Score;
+                DeathsAtLastScore = Deaths;
+            }
+            else
+            {
+                KillsAtLastScore = p.KillsAtLastScore;
+                DeathsAtLastScore = p.DeathsAtLastScore;
+            }
+
+            if (Kills > p.Kills)
+            {
+                HasKilled = true;
+                ScoreAtLastKill = Score;
+                DeathsAtLastKill = Deaths;
+            }
+            else
+            {
+                ScoreAtLastKill = p.ScoreAtLastKill;
+                DeathsAtLastKill = p.DeathsAtLastKill;
+
+            }
+
+            if (Deaths > p.Deaths)
+            {
+                HasDied = true;
+                KillsAtLastDeath = Kills;
+                ScoreAtLastDeath = Score;
+            }
+            else
+            {
+                KillsAtLastDeath = p.KillsAtLastDeath;
+                ScoreAtLastDeath = p.ScoreAtLastDeath;
+            }
         }
+
+        [JsonIgnore]
+        public int ScoreAtLastDeath { get; set; } = 0;
+        [JsonIgnore]
+        public int ScoreAtLastKill { get; set; } = 0;
+
+        [JsonIgnore]
+        public int KillsAtLastDeath { get; set; } = 0;
+        [JsonIgnore]
+        public int KillsAtLastScore { get; set; } = 0;
+
+        [JsonIgnore]
+        public int DeathsAtLastKill { get; set; } = 0;
+        [JsonIgnore]
+        public int DeathsAtLastScore { get; set; } = 0;
+
+        [JsonIgnore]
+        public virtual int ScoreSinceLastKill
+        {
+            get
+            {
+                return Score - ScoreAtLastKill;
+            }
+        }
+        [JsonIgnore]
+        public virtual int ScoreSinceLastDeath
+        {
+            get
+            {
+                return Score - ScoreAtLastDeath;
+            }
+        }
+
+        [JsonIgnore]
+        public virtual int KillsSinceLastDeath
+        {
+            get
+            {
+                return Kills - KillsAtLastDeath;
+            }
+        }
+        [JsonIgnore]
+        public virtual int KillsSinceLastScore
+        {
+            get
+            {
+                return Kills - KillsAtLastScore;
+            }
+        }
+
+        [JsonIgnore]
+        public virtual int DeathsSinceLastScore
+        {
+            get
+            {
+                return Deaths - DeathsAtLastScore;
+            }
+        }
+        [JsonIgnore]
+        public virtual int DeathsSinceLastKill
+        {
+            get
+            {
+                return Deaths - DeathsAtLastKill;
+            }
+        }
+
+        [JsonIgnore]
+        public bool HasScored { get; set; } = false;
+        [JsonIgnore]
+        public bool HasKilled { get; set; } = false;
+        [JsonIgnore]
+        public bool HasDied { get; set; } = false;
+        [JsonIgnore]
+        public bool HasSlotReset { get; set; } = true;
+
+        [JsonIgnore]
+        public Dictionary<ConditionalMessage, bool> MessageStates;
+
+
+
+        #endregion
     }
 }

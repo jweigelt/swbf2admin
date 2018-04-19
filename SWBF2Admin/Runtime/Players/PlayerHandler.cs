@@ -69,19 +69,20 @@ namespace SWBF2Admin.Runtime.Players
                         Player oldPlayer = GetPlayerByKeyHash(p.KeyHash);
                         if (oldPlayer == null)
                         {
-                            HandlePlayerDb(p);
+                            SetupPlayer(p);
                             OnNewPlayerJoin(p);
                         }
                         else
                         {
-                            p.CopyDbInfo(oldPlayer);
+                            p.ProcessPrevious(oldPlayer);
+                            foreach (ConditionalMessage msg in config.ConditionalMessages) msg.TickPlayer(p, Core);
                         }
 
                         if (p.IsBanned) Kick(p);
                     }
                     else
                     {
-                        HandlePlayerDb(p);
+                        SetupPlayer(p);
                     }
                 }
 
@@ -101,7 +102,7 @@ namespace SWBF2Admin.Runtime.Players
         /// Handles player's db data sets, attaches dbinfo to Player object 
         /// </summary>
         /// <param name="p"></param>
-        private void HandlePlayerDb(Player p)
+        private void SetupPlayer(Player p)
         {
             if (Core.Database.PlayerExists(p))
                 Core.Database.UpdatePlayer(p);
@@ -110,6 +111,12 @@ namespace SWBF2Admin.Runtime.Players
 
             Core.Database.AttachDbInfo(p);
             p.MainGroup = Core.Database.GetTopGroup(p);
+
+            p.MessageStates = new Dictionary<ConditionalMessage, bool>();
+            foreach (ConditionalMessage msg in config.ConditionalMessages)
+                p.MessageStates.Add(msg, false);
+
+            p.ResetConditionTracker();
         }
 
         /// <summary>
