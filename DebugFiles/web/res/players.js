@@ -89,8 +89,8 @@ function Players() {
         $("#players_tbl_players tbody tr").each(function (i, e) {
             $(e).contextmenu(function (e) {
                 e.preventDefault();
-                $("#players_ul_admin").css("left", e.clientX);
-                $("#players_ul_admin").css("top", e.clientY);
+                $("#players_ul_admin").css("left", e.pageX);
+                $("#players_ul_admin").css("top", e.pageY);
                 $("#players_ul_admin").css("display", "block");
                 base.player = $(this).data("slot");
             });

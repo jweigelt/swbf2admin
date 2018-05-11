@@ -25,7 +25,7 @@ body {
     }
 
 /**
- *  Increase relative scaling for content-divs if 4:3 screen is use
+ *  Increase relative scaling for content-divs if 4:3 screen is used
  **/
 .autoscale {
     width: 70%;
@@ -156,12 +156,13 @@ div.error {
 }
 
 div.dialog-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-image: url("shader.png");
+    
 }
 
 div.dialog {
@@ -508,6 +509,13 @@ a#game_a_hunt.active, span.hunt {
     background: #df6dff;
 }
 
+span.con, span.ctf, span.flag, span.ass, span.hunt, span.eli {
+    color: #ffffff;
+    border-radius: .25em;
+    padding: 0em .25em 0em .25em;
+}
+
+
 /**
  *  Map Rotation Tab
  **/
@@ -515,12 +523,6 @@ a#game_a_hunt.active, span.hunt {
 table.maps {
     border-collapse: collapse;
 }
-
-    table.maps td span {
-        color: #ffffff;
-        border-radius: .25em;
-        padding: 0em .25em 0em .25em;
-    }
 
     table.maps td {
         padding-left: 1em;
@@ -593,3 +595,21 @@ div.group {
         margin-top: 1px;
         border-left: 1px solid #d1d1d1;
     }
+
+/*
+ * Statistics Tab
+ */
+
+tr.stat_selected {
+    background: #b5ffaa;
+}
+
+div.stats_details {
+    width: 80%;
+}
+
+div.stats_details_scrollcontainer  {
+    max-height: 50em;
+    overflow: auto;
+}
+

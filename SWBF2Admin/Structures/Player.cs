@@ -49,9 +49,9 @@ namespace SWBF2Admin.Structures
         [MoonSharpHidden]
         public IPAddress RemoteAddress { get; }
 
-        public virtual string RemoteAddressStr { get { return RemoteAddress.ToString(); } }
+        public virtual string RemoteAddressStr { get { return (RemoteAddress == null ? null : RemoteAddress.ToString());  } }
 
-        public long DatabaseId { get; set; }
+        public int DatabaseId { get; set; }
 
         [MoonSharpHidden]
         public Player(byte slot, ushort ping, int kills, int deaths, int score, string name, string keyhash, string team, IPAddress remoteAddress)
@@ -65,6 +65,18 @@ namespace SWBF2Admin.Structures
             KeyHash = keyhash;
             Team = team;
             RemoteAddress = remoteAddress;
+        }
+
+        [MoonSharpHidden]
+        public Player(int databaseId, int kills, int deaths, int score, string name, string keyhash, string team)
+        {
+            DatabaseId = databaseId;
+            Kills = kills;
+            Deaths = deaths;
+            Score = score;
+            Name = name;
+            KeyHash = keyhash;
+            Team = team;
         }
 
         [MoonSharpHidden]

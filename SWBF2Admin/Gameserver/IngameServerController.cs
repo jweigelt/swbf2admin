@@ -183,11 +183,11 @@ namespace SWBF2Admin.Gameserver
         {
             if (steamMode)
 			{
-			WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
+			//WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
 			}
 			else if (gogMode)
 			{
-			WriteByte(OFFSET_MAP_FREEZE_GOG, (byte) (freeze ? 0 : 1));
+			//WriteByte(OFFSET_MAP_FREEZE_GOG, (byte) (freeze ? 0 : 1));
 			}
         }
         private byte ReadByte(int offset)

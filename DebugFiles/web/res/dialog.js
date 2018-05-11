@@ -3,6 +3,7 @@ function Dialog(container, title, buttons) {
   var base = this;
   this.container = $(container);
   this.container.wrap('<div class="dialog-overlay"></div>');
+  if(title !== null)
   this.container.prepend('<span>'+title+'<a href="#" class="dialog-close"><i class="material-icons">close</i></a></span>');
   this.container.append('<div class="dialog-buttons"></div>');
   this.container.addClass('dialog');

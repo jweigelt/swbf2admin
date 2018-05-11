@@ -67,7 +67,7 @@ namespace SWBF2Admin.Web.Pages
             }
         }
 
-        public BansPage(AdminCore core) : base(core, "/live/bans", "bans.htm") { }
+        public BansPage(AdminCore core) : base(core, "/db/bans", "bans.htm") { }
 
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
         {

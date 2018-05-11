@@ -1,15 +1,15 @@
-var UsersUrl = "/web/users";
+var UsersUrl = "/web/groups";
 
-function Users() {
+function Groups() {
     var base = this;
 	this.user = null;
 	this.addDialog = null;
 	this.editDialog = null;
 	this.ID_CREATE = "create";
-    this.events = new EventDisplay("#users_div_events");
+    this.events = new EventDisplay("#groups_div_events");
 	
     this.onInit = function () {
-		$("#users_a_add").click(function(e) {
+		$("#groups_a_add").click(function(e) {
 			e.preventDefault();
 		});
 		
@@ -18,12 +18,12 @@ function Users() {
 	    $(window).blur(base.hideQuickAdmin);
         $(document).click(base.hideQuickAdmin);	
 	
-		base.editDialog = new Dialog("#users_div_edit", "Edit user", [{ Text: "OK", Callback: base.editDialogOK, Icon: "check" }]);
-		base.deleteDialog = new Dialog("#users_div_delete", "Delete user", [
+		base.editDialog = new Dialog("#groups_div_edit", "Edit group", [{ Text: "OK", Callback: base.editDialogOK, Icon: "check" }]);
+		base.deleteDialog = new Dialog("#groups_div_delete", "Delete group", [
 		{ Text: "Yes", Callback: base.deleteDialogOK, Icon: "check" },
 		{ Text: "No", Callback: function () { }, Icon: "clear" }]);
 	
-		$("#users_a_add").click(function(e){
+		$("#groups_a_add").click(function(e){
 			e.preventDefault();
 			$("#users_text_name").val("");
 			$("#users_text_password").val("");
@@ -32,7 +32,7 @@ function Users() {
 			base.editDialog.show(base.ID_CREATE);
 		});
 
-		$("#users_a_edit").click(function(e){
+		$("#groups_a_edit").click(function(e){
 			e.preventDefault();
 			if(base.user != null) {
 			$("#users_text_name").val(base.user.Username);
@@ -45,7 +45,7 @@ function Users() {
 			}
 		});
 	
-		$("#users_a_delete").click(function(e){
+		$("#groups_a_delete").click(function(e){
 			e.preventDefault();
 			if(base.user != null) {
 				base.deleteDialog.show(base.user);
@@ -131,8 +131,8 @@ function Users() {
 				else
 					$("#users_a_delete").show();	
 				
-                $("#users_ul_admin").css("left", e.pageX);
-                $("#users_ul_admin").css("top", e.pageY);
+                $("#users_ul_admin").css("left", e.clientX);
+                $("#users_ul_admin").css("top", e.clientY);
                 $("#users_ul_admin").css("display", "block");
                 base.user = { Id: $(this).data("id"), Username: $(this).data("username") };
 			});
@@ -154,4 +154,4 @@ function Users() {
     };
 }
 
-mainFrame.setActivePage(new Users());
+mainFrame.setActivePage(new Groups());

@@ -1,4 +1,4 @@
-var BansUrl = "/live/bans";
+var BansUrl = "/db/bans";
 var BansFilterTimeout = 300;
 
 function Bans() {
@@ -97,8 +97,8 @@ function Bans() {
             $(e).contextmenu(function (e) {
                 e.preventDefault();
                 base.quickAdminId = $(this).closest("tr").data("id");
-                $("#bans_ul_admin").css("left", e.clientX);
-                $("#bans_ul_admin").css("top", e.clientY);
+                $("#bans_ul_admin").css("left", e.pageX);
+                $("#bans_ul_admin").css("top", e.pageY);
                 $("#bans_ul_admin").css("display", "block");
             });
         });

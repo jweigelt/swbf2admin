@@ -206,17 +206,20 @@ namespace SWBF2Admin.Database
         }
         private uint RU(DbDataReader reader, string field)
         {
+            if (DBNull.Value.Equals(reader[field])) return 0;
             if (SQLType == DbType.SQLite) return (uint)(long)reader[field];
             else return (uint)reader.GetInt32(reader.GetOrdinal(field));
         }
         private int RI(DbDataReader reader, string field)
         {
+            if (DBNull.Value.Equals(reader[field])) return 0;
             if (SQLType == DbType.SQLite) return (int)(long)reader[field];
             else return reader.GetInt32(reader.GetOrdinal(field));
         }
 
         private long RL(DbDataReader reader, string field)
         {
+            if (DBNull.Value.Equals(reader[field])) return 0;
             if (SQLType == DbType.SQLite) return (long)reader[field];
             else return reader.GetInt32(reader.GetOrdinal(field));
         }
@@ -632,7 +635,7 @@ namespace SWBF2Admin.Database
                 if (reader.HasRows)
                 {
                     reader.Read();
-                    player.DatabaseId = RL(reader, "id");
+                    player.DatabaseId = RI(reader, "id");
                     player.TotalVisits = RI(reader, "player_visits");
                 }
                 else Logger.Log(LogLevel.Warning, "Couldn't find player info for player \"{0}\". (keyhash: {1})", player.Name, player.KeyHash);
@@ -741,6 +744,116 @@ namespace SWBF2Admin.Database
 
             return null;
         }
+
+
+        public GameInfo ReadMatch(DbDataReader reader)
+        {
+            return new GameInfo(
+                            RL(reader, "id"),
+                            GetDateTime(RU(reader, "game_ended_timestamp")),
+                            RS(reader, "game_map"),
+                            RS(reader, "game_mode"),
+                            RI(reader, "game_team1_score"),
+                            RI(reader, "game_team2_score"),
+                            RI(reader, "game_team1_tickets"),
+                            RI(reader, "game_team2_tickets"),
+                            RI(reader, "game_selected") == 1,
+                            GetDateTime(RU(reader, "game_started_timestamp")),
+                            RS(reader, "game_name"));
+        }
+
+        public GameInfo GetMatch(int id)
+        {
+            string sql = "SELECT * FROM prefix_stats_games WHERE id = @game_id";
+            using (DbDataReader reader = Query(sql, "@game_id", id))
+            {
+                if (reader.Read()) return ReadMatch(reader);
+                else return null;
+            }
+        }
+
+        public List<GameInfo> GetMatches(string nameExp, string mapExp, bool onlySelected, DateTime dateFrom, DateTime dateUntil, int page, int maxRows)
+        {
+            string where = string.Empty;
+
+
+            if (onlySelected) where += "game_selected = 1 AND ";
+            where += "game_started_timestamp > @from_timestamp AND game_started_timestamp < @until_timestamp";
+
+            if (nameExp.Length > 0)
+            {
+                nameExp = $"%{nameExp}%";
+                where += " AND game_name like @name_exp";
+            }
+
+            if (mapExp.Length > 0)
+            {
+                mapExp = $"%{mapExp}%";
+                where += " AND game_map like @map_exp";
+            }
+
+
+            string sql = $"SELECT * FROM prefix_stats_games WHERE {where} ORDER BY game_started_timestamp DESC LIMIT @page,@max_rows";
+
+            List<GameInfo> stats = new List<GameInfo>();
+            using (DbDataReader reader = Query(sql,
+                "@name_exp", nameExp,
+                "@map_exp", mapExp,
+                "@from_timestamp", GetTimestamp(dateFrom),
+                "@until_timestamp", GetTimestamp(dateUntil),
+                "@page", page * maxRows,
+                "@max_rows", maxRows))
+            {
+                while (reader.Read())
+                {
+                    stats.Add(ReadMatch(reader));
+                }
+            }
+
+            return stats;
+        }
+        public List<Player> GetMatchPlayerStats(int gameID)
+        {
+            string sql = "SELECT " +
+                "prefix_stats.id, stat_kills, stat_deaths, stat_points, stat_team, player_last_name, player_keyhash " +
+                "FROM prefix_stats " +
+                "INNER JOIN prefix_players ON player_id = prefix_players.id " +
+                "WHERE game_id = @game_id";
+
+            List<Player> stats = new List<Player>();
+            using (DbDataReader reader = Query(sql, "@game_id", gameID))
+            {
+                while (reader.Read())
+                {
+                    stats.Add(new Player(
+                        RI(reader, "id"),
+                        RI(reader, "stat_kills"),
+                        RI(reader, "stat_deaths"),
+                        RI(reader, "stat_points"),
+                        RS(reader, "player_last_name"),
+                        RS(reader, "player_keyhash"),
+                        RS(reader, "stat_team")));
+                }
+            }
+            return stats;
+        }
+
+        public void DeleteMatch(int id)
+        {
+            NonQuery("DELETE FROM prefix_stats WHERE game_id = @game_id", "@game_id", id);
+            NonQuery("DELETE FROM prefix_stats_games WHERE id = @game_id", "@game_id", id);
+        }
+
+        public void UpdateMatchSelected(int id, bool selected)
+        {
+            NonQuery("UPDATE prefix_stats_games SET game_selected = @selected WHERE id = @game_id", "@selected", selected ? 1 : 0, "@game_id", id);
+        }
+
+        public void UpdateMatchName(int id, string name)
+        {
+            NonQuery("UPDATE prefix_stats_games SET game_name = @name WHERE id = @game_id", "@name", name, "@game_id", id);
+        }
+
         #endregion
 
         #region Web

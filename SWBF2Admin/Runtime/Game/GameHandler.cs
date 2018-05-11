@@ -20,6 +20,7 @@ using SWBF2Admin.Config;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Runtime.Rcon.Packets;
 using SWBF2Admin.Utility;
+using SWBF2Admin.Scheduler;
 
 namespace SWBF2Admin.Runtime.Game
 {
@@ -60,12 +61,16 @@ namespace SWBF2Admin.Runtime.Game
 
         public override void OnServerStart(EventArgs e)
         {
-            if (config.EnableGameStatsLogging)
-                StatsInitGame();
-            else
-                UpdateInfo();
-
             EnableUpdates();
+            //make sure that the server finished loading -> we add a bit of delay here
+            //otherwise we would create a game using the server's loading params (CON w/o map)
+            Core.Scheduler.PushDelayedTask(() =>
+            {
+                if (config.EnableGameStatsLogging)
+                    StatsInitGame();
+                else
+                    UpdateInfo();
+            }, config.StartupDelay);
         }
 
         public override void OnServerStop()
@@ -120,12 +125,14 @@ namespace SWBF2Admin.Runtime.Game
                 GameClosed.Invoke(this, new GameClosedEventArgs(currentGame));
             }
         }
+
         private void StatsCreateGame(string map, string mode)
         {
             Logger.Log(LogLevel.Verbose, "Registering new game ({0})", map);
             Core.Database.InsertGame(new GameInfo(map, mode));
             currentGame = Core.Database.GetLastOpenGame();
         }
+
         private void UpdateInfo()
         {
             StatusPacket sp = new StatusPacket();

@@ -62,7 +62,9 @@ namespace SWBF2Admin.Web
             RegisterPage<DashboardPage>();
             RegisterPage<PlayersPage>();
             RegisterPage<ChatPage>();
+
             RegisterPage<BansPage>();
+            RegisterPage<StatisticsPage>();
 
             RegisterPage<GeneralSettingsPage>();
             RegisterPage<GameSettingsPage>();

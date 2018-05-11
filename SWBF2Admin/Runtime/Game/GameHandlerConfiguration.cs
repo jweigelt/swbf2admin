@@ -33,6 +33,7 @@ namespace SWBF2Admin.Runtime.Game
         /// </summary>
         public int StatusUpdateInterval { get; set; } = 30000;
 
+        public int StartupDelay { get; set; } = 300000;
         public bool EnableGameStatsLogging { get; set; } = true;
     }
 }

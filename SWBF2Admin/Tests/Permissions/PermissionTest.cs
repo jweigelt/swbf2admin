@@ -16,7 +16,6 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using System.Collections.Generic;
-using NUnit.Framework;
 using SWBF2Admin.Runtime.Permissions;
 
 // Im new to C#, just trying to make sure I understand how this works

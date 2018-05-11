@@ -1,3 +1,57 @@
 <div class="default">
-  <h2>Group management</h2>  
+  <h2>Player groups</h2>
+
+  <div id="groups_div_events"></div>
+  <div class="item">       
+	   <table class="players embedded" id="groups_tbl_groups">
+            <thead>
+                <tr>
+					<th style="width: 2em;">Id</th>
+                    <th>Name</th>
+                    <th>Enable welcome</th>
+                    <th>Welcome new player</th>
+                    <th>Welcome old player</th>
+                    <th>Members</th>
+					</tr>
+               
+            </thead>
+            <tbody>
+				<tr>
+                    <td colspan="5" id="users_td_loading">
+                        <i class="material-icons">update</i>Loading...
+                    </td>
+                </tr>
+			</tbody>
+        </table>
+		</div>
 </div>
+
+<ul id="groups_ul_admin" class="contextmenu" style="display: none;">
+    <li><a href="#" id="groups_a_add"><i class="material-icons">add</i>Add new group</a></li>
+    <li><a href="#" id="groups_a_edit"><i class="material-icons">create</i>Edit group</a></li>
+    <li><a href="#" id="groups_a_delete"><i class="material-icons">delete</i>Delete group</a></li>
+</ul>
+
+<div id="groups_div_edit" class="settings">
+    <table class="dialog-controls">
+        <tr>
+            <th>Name</th>
+            <td><input type="text" id="users_text_name"></td>
+        </tr>
+        <tr>
+            <th>Password</th>
+            <td><input data-update="false" type="password" id="users_text_password"></td>
+        </tr>
+        <tr>
+            <th>Confirm</th>
+            <td><input type="password" id="users_text_password_confirm"></td>
+        </tr>
+    </table>
+</div>
+
+<div id="groups_div_delete">
+  <p>Are you sure?</p>
+</div>
+
+
+<script type="text/javascript" src="/res/groups.js"></script>

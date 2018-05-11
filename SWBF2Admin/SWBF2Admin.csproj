@@ -64,6 +64,9 @@
       <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13\lib\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="MoonSharp.Interpreter, Version=2.0.0.0, Culture=neutral, PublicKeyToken=921e73ce94aa17f8, processorArchitecture=MSIL">
       <HintPath>..\packages\MoonSharp.2.0.0.0\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
       <Private>True</Private>
@@ -75,9 +78,6 @@
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
-      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -102,6 +102,7 @@
   <ItemGroup>
     <Compile Include="AdminCore.cs" />
     <Compile Include="Config\ConfigFileInfo.cs" />
+    <Compile Include="Export\StatisticsReportGenerator.cs" />
     <Compile Include="Gameserver\IngameServerController.cs" />
     <Compile Include="Gameserver\IngameServerControllerConfiguration.cs" />
     <Compile Include="Gameserver\StartEventArgs.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Runtime\Game\GameClosedEventArgs.cs" />
     <Compile Include="Runtime\Game\GameHandler.cs" />
     <Compile Include="Runtime\Game\GameHandlerConfiguration.cs" />
+    <Compile Include="Runtime\Game\StatisticsExport.cs" />
     <Compile Include="Runtime\Permissions\Permission.cs" />
     <Compile Include="Runtime\Permissions\PermissionGroup.cs" />
     <Compile Include="Runtime\Permissions\PermissionUser.cs" />
@@ -182,6 +184,7 @@
     <Compile Include="Web\Pages\ChatPage.cs" />
     <Compile Include="Web\Pages\BansPage.cs" />
     <Compile Include="Web\Pages\GameSettingsPage.cs" />
+    <Compile Include="Web\Pages\StatisticsPage.cs" />
     <Compile Include="Web\Pages\WebUsersPage.cs" />
     <Compile Include="Web\Pages\GroupSettingsPage.cs" />
     <Compile Include="Web\Pages\MapSettingsPage.cs" />

@@ -1,0 +1,103 @@
+<div class="default">
+    <h2>Statistics</h2>
+    
+    <div class="item" id="stats_div_filter">
+    <table class="embedded players">
+    <tr>
+        <th>Name</th>
+        <th>Map</th>    
+        <th>Date from</th>
+        <th>Date until</th>
+        <th>Selected</th>
+    </tr>
+    <tr>
+        <td><input type="text" id="stats_input_name" class="stats_autorf"><i class="material-icons">youtube_searched_for</i></td>
+        <td><input type="text" id="stats_input_map" class="stats_autorf"><i class="material-icons">youtube_searched_for</i></td>
+        <td><input type="date" id="stats_input_date1" class="stats_autorf"></td>
+        <td><input type="date" id="stats_input_date2" class="stats_autorf"></td>
+        <td><input type="checkbox" id="stats_input_selected"></td>
+    </tr>      
+    </table>
+    </div>
+    
+    <div id="stats_div_event"></div>
+    
+    <div class="item" id="stats_div_stats">
+        <table class="players embedded" id="stats_table_stats">
+            <thead>
+                <tr>
+                    <th>Name</th>                    
+                    <th>Date</th>
+                    <th>Duration</th>
+                    <th>Mode</th>
+                    <th>Map</th>
+                    <th>Score</th>
+                </tr>
+                <tr>
+                    <td colspan="6" id="stats_td_nostats">
+                        <i class="material-icons">sentiment_dissatisfied</i>No statistics found.
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" id="stats_td_loading">
+                        <i class="material-icons">update</i>Updating...
+                    </td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="stats_div_edit" class="settings">
+    <table class="dialog-controls">
+        <tr>
+            <th>Name</th>
+            <td><input type="text" id="stats_input_edit_name"></td>
+        </tr>
+    </table>
+</div>
+
+<div id="stats_div_delete">
+  <p>Are you sure?</p>
+</div>
+
+<div id="stats_div_details" class="stats_details">
+    <div class="stats_details_scrollcontainer">
+    <table class="players embedded" id="stats_table_players">
+    <thead>
+        <tr>
+        <th>DB ID</th>
+        <th>Name</th>
+        <th>Team</th>        
+        <th>Points</th>   
+        <th>Kills</th>           
+        <th>Deaths</th>
+        <th>Keyhash</th>
+    </tr>
+    <tr>
+        <td colspan="7" id="stats_td_noplayers">
+            <i class="material-icons">sentiment_dissatisfied</i>No players found.
+        </td>
+    </tr>
+     <tr>
+        <td colspan="7" id="stats_td_players_loading">
+            <i class="material-icons">update</i>Updating...
+        </td>
+    </tr>       
+    </thead>
+    <tbody></tbody>
+    </table>
+    </div>
+</div>
+
+
+<ul id="stats_ul_admin" class="contextmenu" style="display: none;">
+  <li><a href="#" id="stats_a_details"><i class="material-icons">list</i>Details</a></li>    
+  <li><a href="#" id="stats_a_select"><i class="material-icons">check_box_outline_blank</i><span>Select</span></a></li>   
+  <li><a href="#" id="stats_a_edit"><i class="material-icons">edit</i>Edit name</a></li>
+  <li><a href="#" id="stats_a_delete"><i class="material-icons">delete</i>Delete match</a></li>  
+  <li><a href="#" id="stats_a_export_csv"><i class="material-icons">cloud_download</i>Export CSV</a></li>         
+</ul>      
+
+<script type="text/javascript" src="/res/statistics.js"></script>

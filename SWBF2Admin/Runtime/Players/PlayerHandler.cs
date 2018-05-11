@@ -151,7 +151,10 @@ namespace SWBF2Admin.Runtime.Players
         private void OnPlayerLeave(Player p)
         {
             Logger.Log(LogLevel.Verbose, "Player {0} left.", p.Name);
-            Core.Database.InsertPlayerStats(p, Core.Game.LatestGame, true);
+            if (Core.Game.LatestGame != null)
+            {
+                Core.Database.InsertPlayerStats(p, Core.Game.LatestGame, true);
+            }
         }
 
         /// <summary>
