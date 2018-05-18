@@ -28,7 +28,7 @@ namespace SWBF2Admin.Gameserver
         public int StartupTime { get; set; } = 60000;
         public int NotRespondingCheckInterval { get; set; } = 5000;
         public int NotRespondingMaxCount { get; set; } = 2;
-        public int ReadTimeout { get; set; } = 100;
+        public int ReadTimeout { get; set; } = 50;
         public int MapHangTimeout { get; set; } = 20000;
         public int FreezeTime { get; set; } = 6000;
         public int FreezesBeforeKill { get; set; } = 5;

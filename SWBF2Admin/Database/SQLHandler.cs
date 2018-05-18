@@ -792,6 +792,7 @@ namespace SWBF2Admin.Database
                 where += " AND game_map like @map_exp";
             }
 
+            where += " AND game_ended_timestamp > 0";
 
             string sql = $"SELECT * FROM prefix_stats_games WHERE {where} ORDER BY game_started_timestamp DESC LIMIT @page,@max_rows";
 

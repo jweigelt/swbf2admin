@@ -39,6 +39,7 @@ namespace SWBF2Admin.Gameserver
 
         private const int OFFSET_MAP_STATUS_GOG = (0x01EB1054 - 0x00401000 + 0x1000);//(0x01B21054);
         private const int OFFSET_MAP_FREEZE_GOG = (0x01E663AF - 0x00401000 + 0x1000);
+        private const int OFFSET_MAPFIX_STATUS = (0x1E6433F - 0x00401000 + 0x1000);
 
         private const byte NET_COMMAND_RDP_OPEN = 0x01;
         private const byte NET_COMMAND_RDP_CLOSE = 0x02;
@@ -66,7 +67,7 @@ namespace SWBF2Admin.Gameserver
         private bool enableRuntime;
         private bool isLoading = false;     //map load in progress
         private bool steamMode;             //steam mode enabled?
-		private bool gogMode;				//gog mode enabled?
+        private bool gogMode;				//gog mode enabled?
         private int notRespondingCount = 0; //times the server process didn't respond
         private int mapHangTime = 0;        //time since game ended
         private int freezeCount = 0;        //times we tried to freeze-unfreeze
@@ -88,6 +89,9 @@ namespace SWBF2Admin.Gameserver
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool CloseHandle(IntPtr hObject);
 
+        [DllImport("kernel32.dll")]
+        static extern bool VirtualProtectEx(IntPtr hProcess, IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+
         public IngameServerController(AdminCore core) : base(core) { }
 
         public override void OnInit()
@@ -98,6 +102,13 @@ namespace SWBF2Admin.Gameserver
                 Core.Scheduler.PushRepeatingTask(() => CheckResponding(), config.NotRespondingCheckInterval);
             }
         }
+
+        private void ApplyInstantSpawn()
+        {
+           
+
+        }
+
         public override void OnServerStart(EventArgs e)
         {
             if (steamMode || gogMode)
@@ -106,7 +117,7 @@ namespace SWBF2Admin.Gameserver
                 try
                 {
                     MemoryInit();
-					Core.Scheduler.PushDelayedTask(() => EnableUpdates(), config.StartupTime);
+                    Core.Scheduler.PushDelayedTask(() => EnableUpdates(), config.StartupTime);
                 }
                 catch
                 {
@@ -149,7 +160,7 @@ namespace SWBF2Admin.Gameserver
             {
                 CheckMapStatus();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Log(LogLevel.Verbose, e.Message);
             }
@@ -158,7 +169,7 @@ namespace SWBF2Admin.Gameserver
         public override void Configure(CoreConfiguration config)
         {
             steamMode = config.EnableSteamMode;
-			gogMode = config.EnableGOGMode;
+            gogMode = config.EnableGOGMode;
             enableRuntime = config.EnableRuntime;
             this.config = Core.Files.ReadConfig<IngameServerControllerConfiguration>();
 
@@ -171,24 +182,24 @@ namespace SWBF2Admin.Gameserver
         private byte ReadMapStatus()
         {
             if (steamMode)
-			{
-			return ReadByte(OFFSET_MAP_STATUS);
-			}
-			else
-			{
-			return ReadByte(OFFSET_MAP_STATUS_GOG);
-			}
+            {
+                return ReadByte(OFFSET_MAP_STATUS);
+            }
+            else
+            {
+                return ReadByte(OFFSET_MAP_STATUS_GOG);
+            }
         }
-		private void SetFreeze(bool freeze)
+        private void SetFreeze(bool freeze)
         {
             if (steamMode)
-			{
-			//WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
-			}
-			else if (gogMode)
-			{
-			//WriteByte(OFFSET_MAP_FREEZE_GOG, (byte) (freeze ? 0 : 1));
-			}
+            {
+                //WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
+            }
+            else if (gogMode)
+            {
+                //WriteByte(OFFSET_MAP_FREEZE_GOG, (byte) (freeze ? 0 : 1));
+            }
         }
         private byte ReadByte(int offset)
         {
@@ -261,13 +272,13 @@ namespace SWBF2Admin.Gameserver
         {
             if (ReadMapStatus() != 0)
             {
-            
+
                 mapHangTime += UpdateInterval;
                 if (!isLoading)
                 {
                     isLoading = true;
                     InvokeEvent(GameEnded, this, new EventArgs());
-               }
+                }
             }
             else
             {
@@ -275,7 +286,10 @@ namespace SWBF2Admin.Gameserver
                 freezeCount = 0;
                 if (isLoading)
                 {
-                    Logger.Log(LogLevel.Verbose, "Server finished loading.");
+                    byte b = ReadByte(OFFSET_MAPFIX_STATUS);
+                    WriteByte(OFFSET_MAPFIX_STATUS, 0);
+                    Logger.Log(LogLevel.Info, "Server finished loading - mapfix status: {0}", b.ToString());
+
                     isLoading = false;
                 }
             }
