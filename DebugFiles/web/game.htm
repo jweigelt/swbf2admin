@@ -119,9 +119,15 @@
           <option value="true">assign</option>
           <option value="false">let player choose</option>
         </select></td></tr>
-        
+        <tr class="runtime"><th>AI Difficulty</th><td>
+        <select id="game_select_difficulty">
+          <option value="1">normal</option>
+          <option value="2">hard</option>
+          <option value="3">elite</option>
+        </select></td></tr>        
         <tr class="runtime"><th>Warmup time [s]</th><td><input type="number" id="game_input_warmup" min="0" max="120"></td></tr>
         <tr class="runtime"><th>Spawn protection [s]</th><td><input type="number" id="game_input_spawn" min="0" max="10"></td></tr>
+        <tr class="runtime"><th>Spawn delay [s]</th><td><input type="number" id="game_input_spawntimer" min="0" max="60"></td></tr>        
       </table>   
     </div>
 

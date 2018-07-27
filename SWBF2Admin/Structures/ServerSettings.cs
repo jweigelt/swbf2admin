@@ -27,6 +27,7 @@ namespace SWBF2Admin.Structures
     {
         private const string FILE_NAME = "/settings/ServerSettings.cfg";
 
+        #region General
         [ConfigSection(ConfigSection.GENERAL)]
         public string GameName { get; set; } = "New Server";
 
@@ -69,6 +70,20 @@ namespace SWBF2Admin.Structures
         [ConfigSection(ConfigSection.GENERAL_KEEPDEFAULT)]
         public string VideoStd { get; set; } = "NTSC";
 
+        [ConfigSection(ConfigSection.GENERAL, yesNoBool: true)]
+        public bool DropLagJumps { get; set; } = false;
+
+        [ConfigSection(ConfigSection.GENERAL, yesNoBool: true)]
+        public bool WaitLate { get; set; } = false;
+
+        [ConfigSection(ConfigSection.GENERAL, yesNoBool: true)]
+        public bool SplitUpdate { get; set; } = false;
+
+        [ConfigSection(ConfigSection.GENERAL)]
+        public int LagVersion { get; set; } = 0;
+        #endregion
+
+        #region Game
         #region "Heroes"
         [ConfigSection(ConfigSection.GAME)]
         public bool Heroes { get; set; } = false;
@@ -156,13 +171,15 @@ namespace SWBF2Admin.Structures
         [ConfigSection(ConfigSection.GAME)]
         public bool AimAssist { get; set; } = false;
 
+        //NOTE: using this to pass spawnvalue
+        [ConfigSection(ConfigSection.GAME)]
+        public int AutoAnnouncePeriod { get; set; } = 0x41700000;
+
+        #endregion
+
+        #region Maps
         [ConfigSection(ConfigSection.MAPS)]
         public bool Randomize { get; set; } = false;
-
-        #region "Hacky"
-        //using this to pass spawnvalue
-        [ConfigSection(ConfigSection.GENERAL)]
-        public int AutoAnnouncePeriod { get; set; } = 0x41700000;
         #endregion
 
         //Attention: messy code ahead
@@ -196,11 +213,6 @@ namespace SWBF2Admin.Structures
             {
                 if (r.Length < 1) continue;
                 string[] dat = r.Split(' ');
-                if (dat.Length < 2)
-                {
-                    Logger.Log(LogLevel.Warning, "Invalid server setting '{0}'. No value specified - skipping.", r);
-                    continue;
-                }
 
                 bool found = false;
                 string settingName = dat[0].Replace("/", "").ToLower();
@@ -209,13 +221,30 @@ namespace SWBF2Admin.Structures
                 foreach (PropertyInfo p in props)
                 {
 
-                    if (p.Name.ToLower().Equals(settingName))
-                    {
+                    ConfigSection[] attr = (ConfigSection[])p.GetCustomAttributes(typeof(ConfigSection), false);
 
+                    if (p.Name.ToLower().Equals(settingName) ||
+                        (attr.Length > 0 && attr[0].YesNoBool && ("no" + p.Name).ToLower().Equals(settingName)))
+                    {
                         found = true;
                         if (p.PropertyType.IsEquivalentTo(typeof(bool)))
-                            p.SetValue(settings, (dat[1].Equals("1")));
-                        else if (p.PropertyType.IsEquivalentTo(typeof(ushort)))
+                        {
+                            //some params like /splitudate use different commands to indicate their status
+                            //(in this case /splitupdate & /nosplitupdate)
+                            if (attr.Length > 0 && attr[0].YesNoBool)
+                                p.SetValue(settings, !(settingName.StartsWith("no")));
+                            else
+                                p.SetValue(settings, (dat.Length > 1 && dat[1].Equals("1")));
+                            continue;
+                        }
+
+                        if (dat.Length < 2)
+                        {
+                            Logger.Log(LogLevel.Warning, "Invalid server setting '{0}'. No value specified - skipping.", r);
+                            continue;
+                        }
+
+                        if (p.PropertyType.IsEquivalentTo(typeof(ushort)))
                         {
                             ushort s = 0;
                             if (!ushort.TryParse(dat[1], out s))
@@ -274,12 +303,21 @@ namespace SWBF2Admin.Structures
             PropertyInfo[] props = typeof(ServerSettings).GetProperties();
             foreach (PropertyInfo p in props)
             {
-                file += "/" + p.Name.ToLower() + " ";
-
                 if (p.PropertyType.IsEquivalentTo(typeof(bool)))
-                    file += (((bool)p.GetValue(this)) ? "1" : "0");
+                {
+                    ConfigSection[] attr = (ConfigSection[])p.GetCustomAttributes(typeof(ConfigSection), false);
+                    if (attr.Length > 0 && attr[0].YesNoBool)
+                        file += ((bool)p.GetValue(this) ? "/" : "/no") + p.Name.ToLower();
 
-                else if (p.PropertyType.IsEquivalentTo(typeof(ushort)))
+                    else
+                    {
+                        file += "/" + p.Name.ToLower() + " ";
+                        file += (((bool)p.GetValue(this)) ? "1" : "0");
+                    }
+                }
+                else file += "/" + p.Name.ToLower() + " ";
+
+                if (p.PropertyType.IsEquivalentTo(typeof(ushort)))
                     file += ((ushort)p.GetValue(this)).ToString();
 
                 else if (p.PropertyType.IsEquivalentTo(typeof(int)))
@@ -298,7 +336,7 @@ namespace SWBF2Admin.Structures
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Error, "Failed to write to file {0} ({1]})", fileName, e.ToString());
+                Logger.Log(LogLevel.Error, "Failed to write to file {0} ({1})", fileName, e.ToString());
             }
         }
 

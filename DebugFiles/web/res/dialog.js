@@ -10,9 +10,16 @@ function Dialog(container, title, buttons) {
   this.overlay = this.container.parent();
   this.buttons = this.container.find(".dialog-buttons");
   this.tag = null;
+  this.isOpen = false;
   
   base.overlay.hide();
-  
+    
+  $(document).keyup(function(e) {
+    if (e.keyCode == 27 && base.isOpen) {  
+      base.close();
+    }
+  }); 
+   
   for (var x in buttons) {
     var b = buttons[x]; 
     var a = $('<a href="#" class="button">'+b.Text+'</a>'); 
@@ -40,17 +47,20 @@ function Dialog(container, title, buttons) {
   
   this.close = function() {
     base.onClose();
+    base.isOpen = false;
     base.overlay.fadeOut(200);
   };
   
   this.show = function() {
     base.tag = null;
-    base.overlay.fadeIn(200);   
+    base.overlay.fadeIn(200); 
+    base.isOpen = true;      
   };
   
   this.show = function(tag) {
     base.tag = tag;  
     base.overlay.fadeIn(200); 
+    base.isOpen = true;        
   };  
   
   this.onClose = function() {};   

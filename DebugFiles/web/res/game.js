@@ -85,7 +85,9 @@ function Game() {
                 EliAiPerTeam: $("#game_input_eli_aiperteam").val(),
 
                 HuntScoreLimit: $("#game_input_hunt_score").val(),
-                HunTimeLimit: $("#game_input_hunt_time").val()
+                HunTimeLimit: $("#game_input_hunt_time").val(),
+                
+                AutoAnnouncePeriod: $("#game_input_spawntimer").val()
             }
         };
 
@@ -133,6 +135,8 @@ function Game() {
 
         $("#game_input_hunt_score").val(s.HuntScoreLimit);
         $("#game_input_hunt_time").val(s.HunTimeLimit);
+    
+        $("#game_input_spawntimer").val(s.AutoAnnouncePeriod);
     };
 
     this.updateSettings = function () {
