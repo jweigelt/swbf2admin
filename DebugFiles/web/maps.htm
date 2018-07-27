@@ -2,13 +2,23 @@
     <h2>Map Rotation</h2>
     <div class="autoscale">
         <div class="item" id="maps_div_events"></div>
-
+        
+    <div class="item">
+      <span>Settings</span>
+        <table class="status embedded">
+        <tr class="fixed">
+          <th>Randomize map order</th>
+          <td><input type="checkbox" id="maps_input_randomize_enable"></td>
+        </tr>
+        </table>
+    </div>
+        
         <table class="map-container">
             <tr>
                 <td>
                     <div class="item">
                         <table class="maps embedded maprot" id="maps_table_installed">
-							<thead><tr><th colspan="2">Installed maps</th></tr></thead>
+							<thead><tr><th colspan="3">Installed maps</th></tr></thead>
 							<tbody></tbody>
 						</table>
                     </div>

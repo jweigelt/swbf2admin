@@ -33,6 +33,11 @@ function Maps() {
             e.preventDefault();
         });
 
+        $("#maps_input_randomize_enable").change(function(e) {
+            base.setSaved(false);    
+        });
+        
+        
         base.dialog = new Dialog("#maps_div_add", "Pick Gamemodes", [{ Text: "OK", Callback: base.dialogOK, Icon: "check" }]);
     };
 
@@ -67,6 +72,7 @@ function Maps() {
         $("#maps_table_rotation tbody tr").each(function (i, e) {
             req.Maps.push($(e).data("name"));
         });
+        req.Randomize = $("#maps_input_randomize_enable").prop("checked");
 
         $.post({
             url: MapsUrl,
@@ -130,6 +136,7 @@ function Maps() {
                 '<tr data-id="' + m.DatabaseId + '" data-flags="' + m.Flags + '" data-name="' + m.Name + '" data-nicename="' + m.NiceName + '" draggable="true">' +
                 "<td>" + m.NiceName + "</td>" +
                 "<td>" + m.Name + "</td>" +
+                "<td>" + base.getModeIndicators(m) + "</td>" +
                 "</tr>");
             tb.append(tr);
 
@@ -140,6 +147,21 @@ function Maps() {
         }
 
         base.updateMapRotation();
+    };
+    
+    this.getModeIndicators = function(map) {
+        var modes = "";
+        modes += base.makeIndicator("con", map.Flags & MapFlags.GCWCon || map.Flags & MapFlags.CWCon);
+        modes += base.makeIndicator("1flag", map.Flags & MapFlags.GCW1Flag || map.Flags & MapFlags.CW1Flag);
+        modes += base.makeIndicator("ctf", map.Flags & MapFlags.GCWCTF || map.Flags & MapFlags.CWCTF);
+        modes += base.makeIndicator("hunt", map.Flags & MapFlags.GCWHunt || map.Flags & MapFlags.CWHunt);
+        modes += base.makeIndicator("ass", map.Flags & MapFlags.GCWAss || map.Flags & MapFlags.CWAss);        
+        modes += base.makeIndicator("eli", map.Flags & MapFlags.GCWEli || map.Flags & MapFlags.CWEli);              
+        return modes;
+    };
+    
+    this.makeIndicator = function(mode, hasMode) {
+      return '<span class="' + (hasMode ? (mode == "1flag" ? "ctf"  : mode) : "inactive") + '">'+mode.toUpperCase()+'</span> ';      
     };
 
     this.updateInstalledMaps = function () {
@@ -180,6 +202,7 @@ function Maps() {
 
             tb.append(tr);
         }
+        $("#maps_input_randomize_enable").prop("checked", r.Randomize);
     };
 
     this.getMap = function (name) {

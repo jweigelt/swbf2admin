@@ -217,6 +217,7 @@ namespace SWBF2Admin.Config
         public void WriteFileText(string fileName, string text)
         {
             fileName = ParseFileName(fileName);
+            if(!File.Exists(fileName)) CreateDirectoryStructure(fileName);
             File.WriteAllText(fileName, text);
         }
 

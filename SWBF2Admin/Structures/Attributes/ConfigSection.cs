@@ -30,17 +30,27 @@ namespace SWBF2Admin.Structures.Attributes
         public int Type { get; set; }
         private bool canUpdate;
         private bool needsReload;
+        public bool YesNoBool { get; } //used for swbf's /command /nocommand parameters
 
         public ConfigSection(int type, bool canUpdate, bool needsReload)
         {
             Type = type;
             this.canUpdate = canUpdate;
             this.needsReload = needsReload;
+            YesNoBool = false;
         }
+
         public ConfigSection(int type)
         {
             Type = type;
+            canUpdate = needsReload = YesNoBool = false;
+        }
+
+        public ConfigSection(int type, bool yesNoBool)
+        {
+            Type = type;
             canUpdate = needsReload = false;
+            YesNoBool = yesNoBool;
         }
     }
 }

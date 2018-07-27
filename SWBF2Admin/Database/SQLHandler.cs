@@ -179,6 +179,22 @@ namespace SWBF2Admin.Database
             return command;
         }
 
+        #region Setup
+
+        private void VerifyDatabase()
+        {
+
+        }
+
+        private void CheckTable()
+        {
+
+        }
+
+        #endregion
+
+
+
         #region Util
         private bool HasRows(DbDataReader reader)
         {

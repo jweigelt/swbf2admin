@@ -31,6 +31,7 @@ namespace SWBF2Admin.Web.Pages
         class MapApiParams : ApiRequestParams
         {
             public List<string> Maps { get; set; }
+            public bool Randomize { get; set; }
         }
 
         class MapSaveResponse
@@ -52,12 +53,14 @@ namespace SWBF2Admin.Web.Pages
         {
             public bool Ok { get; set; }
             public List<string> Maps { get; set; }
+            public bool Randomize { get; set; }
             public string Error { get; set; }
 
-            public MapRotResponse(List<string> maps)
+            public MapRotResponse(List<string> maps, bool randomize)
             {
                 Ok = true;
                 Maps = maps;
+                Randomize = randomize;
                 Error = string.Empty;
             }
 
@@ -89,7 +92,7 @@ namespace SWBF2Admin.Web.Pages
                     break;
 
                 case "maps_save":
-                    WebAdmin.SendHtml(ctx, ToJson(SaveMapRot(p.Maps)));
+                    WebAdmin.SendHtml(ctx, ToJson(SaveMapRot(p)));
                     break;
 
                 case "maps_rotation":
@@ -98,13 +101,21 @@ namespace SWBF2Admin.Web.Pages
             }
         }
 
-        private MapSaveResponse SaveMapRot(List<string> mapRot)
+        private MapSaveResponse SaveMapRot(MapApiParams p)
         {
+            List<string> mapRot = p.Maps;
             MapSaveResponse r;
             sRMtx.WaitOne();
             try
             {
                 ServerMap.SaveMapRotation(Core, mapRot);
+                //theres a good chance that only maps were updated
+                //in this case we dont want to re-write ServerSettings.cfg -> check if Randomize changed
+                if (Core.Server.Settings.Randomize != p.Randomize)
+                {
+                    Core.Server.Settings.Randomize = p.Randomize;
+                    Core.Server.Settings.WriteToFile(Core);
+                }
                 r = new MapSaveResponse();
             }
             catch (Exception e)
@@ -124,7 +135,7 @@ namespace SWBF2Admin.Web.Pages
             sRMtx.WaitOne();
             try
             {
-                r = new MapRotResponse(ServerMap.ReadMapRotation(Core));
+                r = new MapRotResponse(ServerMap.ReadMapRotation(Core), Core.Server.Settings.Randomize);
             }
             catch (Exception e)
             {

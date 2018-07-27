@@ -28,7 +28,6 @@ function Chat() {
    var t = $("#chat_tbl_chat");   
     
     for (var x in r) {
-		console.log(r[x]);
 	  var name = (r[x].IsSystem ? "Admin" : r[x].PlayerName);
 	  var cls = (r[x].IsSystem ? "adminMessage" : "playerMessage");
 	  
@@ -37,7 +36,9 @@ function Chat() {
       rw.show("normal");
     }
         
-    $('#chat_div_scroll').scrollTop($('#chat_div_scroll')[0].scrollHeight);
+    if(r.length > 0 && $("#chat_input_autoscroll").prop("checked")) {
+        $('#chat_div_scroll').scrollTop($('#chat_div_scroll')[0].scrollHeight);
+    }
   };
   
   this.updateChat = function(s) {

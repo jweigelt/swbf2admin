@@ -1,15 +1,7 @@
 <div class="default">    
   <h2>General Settings</h2>
   <div class="settings autoscale" id="general_div_container">
-
-    <!--<div class="item">
-      <span>Save changes</span>      
-      <div class="text">
-        <a href="#" id="general_btn_save" class="button"><i class="material-icons">save</i><span>Save</span></a>
-        <span id="general_txt_status" class="online">Settings saved.</span>
-      </div>
-    </div>-->
-    
+      
     <div id="general_div_events"></div>
   
     <div class="item">
@@ -21,7 +13,6 @@
         <tr class="fixed"><th>Max. players</th><td><input id="general_input_max_players" type="number" min="1" max="64"></td></tr>  
         <tr class="fixed"><th>Min. players</th><td><input id="general_input_min_players" type="number" min="0" max="64"></td></tr>                 
         <tr class="runtime"><th>TPS</th><td><input id="general_input_tps" type="number" min="15" max="50" step="5"></td></tr> 
-        <tr class="runtime"><th>Spawntimer</th><td><input id="general_input_spawntimer" type="number" min="1" max="60" step="1"></td></tr> 
 		</table>   
     </div>
     
@@ -51,12 +42,13 @@
               <option value="true">LAN</option>
             </select>
           </td>
-        </tr> 
-        
+        </tr>       
+          
         <tr class="runtime">
           <th>Max. bandwidth</th>
           <td>
             <select id="general_select_bandwidth">
+              <option value="16384">16 Mbit/s</option>                
               <option value="6144">6 Mbit/s</option>
               <option value="3072">3 Mbit/s</option>
               <option value="2048">2 Mbit/s</option>
@@ -67,6 +59,31 @@
             </select>
           </td>
         </tr> 
+        </table>  
+        </div>
+      
+    <div class="item">
+      <span>Performance</span>
+      <table class="status embedded">
+        <tr class="fixed">
+          <th>Lag version</th>
+          <td><input type="number"id="general_input_lagversion" min="0" max="4"></td>
+        </tr> 
+          
+        <tr class="fixed">
+          <th>Split update</th>
+          <td><input type="checkbox" id="general_input_splitupdate_enable"></td>
+        </tr>
+          
+        <tr class="fixed">
+          <th>Drop lag jumps</th>
+          <td><input type="checkbox" id="general_input_droplagjumps_enable"></td>
+        </tr>
+          
+        <tr class="fixed">
+          <th>Waitlate</th>
+          <td><input type="checkbox" id="general_input_waitlate_enable"></td>
+        </tr>   
       </table>   
     </div>
     
