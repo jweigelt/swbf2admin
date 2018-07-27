@@ -124,6 +124,10 @@ namespace SWBF2Admin.Gameserver
                 status = ServerStatus.Online;
 
                 InvokeEvent(ServerStarted, this, new StartEventArgs(!starting));
+                if(Core.Config.EnableHighPriority)
+                {
+                    serverProcess.PriorityClass = ProcessPriorityClass.High;
+                }
                 return true;
             }
             return false;
@@ -172,6 +176,8 @@ namespace SWBF2Admin.Gameserver
             {
                 Logger.Log(LogLevel.Info, "Stopping Server...");
                 status = ServerStatus.Stopping;
+                //Note: moved this from SP_Exited to give runtime advanced notice so we dont cause exceptions
+                InvokeEvent(ServerStopped, this, new EventArgs());
                 serverProcess.Kill();
             }
         }
@@ -183,11 +189,11 @@ namespace SWBF2Admin.Gameserver
 
             if (status != ServerStatus.Stopping && status != ServerStatus.SteamPending)
             {
-                try
-                {
-                    serverProcess.Kill();
-                }
-                catch { }
+                //try 
+                //{
+                //    serverProcess.Kill();
+                //}
+                //catch { }
                 Logger.Log(LogLevel.Warning, "Server has crashed.");
                 status = ServerStatus.Offline;
                 InvokeEvent(ServerCrashed, this, new EventArgs());
@@ -200,8 +206,7 @@ namespace SWBF2Admin.Gameserver
             else
             {
                 Logger.Log(LogLevel.Info, "Server stopped.");
-                status = ServerStatus.Offline;
-                InvokeEvent(ServerStopped, this, new EventArgs());
+                status = ServerStatus.Offline;            
             }
         }
     }

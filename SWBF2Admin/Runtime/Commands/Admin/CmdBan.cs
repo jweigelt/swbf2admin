@@ -30,9 +30,10 @@ namespace SWBF2Admin.Runtime.Commands.Admin
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {
+            string reason = "";
             if (parameters.Length > paramIdx)
             {
-                string reason = string.Join(" ", parameters, paramIdx, parameters.Length - paramIdx);
+                reason = string.Join(" ", parameters, paramIdx, parameters.Length - paramIdx);
                 SendFormatted(OnBanReason, "{player}", affectedPlayer.Name, "{admin}", player.Name, "{reason}", reason);
             }
             else
@@ -41,6 +42,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
             }
 
             Core.Players.Kick(affectedPlayer);
+            BanPlayer(affectedPlayer, player, reason);
             return true;
         }
 

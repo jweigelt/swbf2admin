@@ -71,7 +71,7 @@ namespace SWBF2Admin.Web.Pages
                     if ((player = Core.Players.GetPlayerBySlot(p.PlayerId)) != null)
                     {
                         //TODO: figure something out for adminId
-                        Core.Database.InsertBan(new PlayerBan(player.Name, player.KeyHash, player.RemoteAddress.ToString(), "WebAdmin", "WebAdmin", p.BanType, player.DatabaseId, 0));
+                        Core.Database.InsertBan(new PlayerBan(player.Name, player.KeyHash, player.RemoteAddress.ToString(), "WebAdmin", "WebAdmin", p.BanType, player.DatabaseId, 1));
                         Core.Scheduler.PushTask(() => Core.Players.Kick(player));
                     }
                  

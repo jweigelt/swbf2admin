@@ -159,6 +159,12 @@ namespace SWBF2Admin.Structures
         [ConfigSection(ConfigSection.MAPS)]
         public bool Randomize { get; set; } = false;
 
+        #region "Hacky"
+        //using this to pass spawnvalue
+        [ConfigSection(ConfigSection.GENERAL)]
+        public int AutoAnnouncePeriod { get; set; } = 0x41700000;
+        #endregion
+
         //Attention: messy code ahead
         public static ServerSettings FromSettingsFile(AdminCore core, string path)
         {
@@ -219,6 +225,16 @@ namespace SWBF2Admin.Structures
                             }
                             p.SetValue(settings, s);
                         }
+                        else if (p.PropertyType.IsEquivalentTo(typeof(int)))
+                        {
+                            int i = 0;
+                            if (!int.TryParse(dat[1], out i))
+                            {
+                                Logger.Log(LogLevel.Warning, "Invalid server setting '{0}'. Expecting valid integer - skipping.", r);
+                                break;
+                            }
+                            p.SetValue(settings, i);
+                        }
                         else if (p.PropertyType.IsEquivalentTo(typeof(string)))
                         {
                             string val = "";
@@ -265,6 +281,9 @@ namespace SWBF2Admin.Structures
 
                 else if (p.PropertyType.IsEquivalentTo(typeof(ushort)))
                     file += ((ushort)p.GetValue(this)).ToString();
+
+                else if (p.PropertyType.IsEquivalentTo(typeof(int)))
+                    file += ((int)p.GetValue(this)).ToString();
 
                 else if (p.PropertyType.IsEquivalentTo(typeof(string)))
                     file += "\"" + (string)p.GetValue(this) + "\"";

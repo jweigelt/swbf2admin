@@ -182,7 +182,22 @@ namespace SWBF2Admin.Web
 
             Logger.Log(LogLevel.Verbose, Log.WEB_REQUEST, url.ToString());
 
-            if ((user = CheckAuth(ctx)) == null)
+            //TODO: there seems to be a bug with Dictionaries,
+            //sometimes TryGet() seems to return true even though lower/upper-case does not match
+            //however when trying to Remove / Get from the dict using the same string an exception is thrown
+            //causing a crash. Using try-catch for now so we can stay up if this bug occurs.
+            try
+            {
+                user = CheckAuth(ctx);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Warning, "Authcache error: {0}", e.ToString());
+                SendHttpStatus(ctx, HttpStatusCode.Unauthorized);
+                return;
+            }
+
+            if (user == null)
             {
                 SendHttpStatus(ctx, HttpStatusCode.Unauthorized);
                 return;
@@ -227,6 +242,7 @@ namespace SWBF2Admin.Web
                     user = Core.Database.GetWebUser(identity.Name, identity.Password);
                     if (user != null)
                     {
+
                         authCache.Remove(user.Username);
                         authCache.Add(user.Username, user);
                         Core.Database.UpdateLastSeen(user);

@@ -91,7 +91,6 @@ namespace SWBF2Admin
                     Core.Scheduler.PushTask(new SchedulerTask(() => evt.Invoke(sender, e)));
                 }
             }
-
         }
 
         ///<summary>Enabled periodic calls to OnUpdate(), if UpdateInterval is greater than 0</summary>
@@ -116,6 +115,5 @@ namespace SWBF2Admin
             message = Util.FormatString(message, tags);
             if (player == null) Core.Rcon.Say(message); else Core.Rcon.Pm(message, player);
         }
-
     }
 }

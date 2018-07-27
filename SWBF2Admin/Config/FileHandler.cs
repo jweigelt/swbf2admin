@@ -187,7 +187,6 @@ namespace SWBF2Admin.Config
                 if (!File.Exists(fileName))
                     WriteConfigDefault<T>(fileName);
             }
-
             return ReadXmlFile<T>(fileName);
         }
 

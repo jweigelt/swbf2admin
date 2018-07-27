@@ -31,18 +31,17 @@ namespace SWBF2Admin.Gameserver
 {
     public class IngameServerController : ComponentBase
     {
+        public const string SETTING_SPAWNTIMER = "mods";
         private const string DLL_LOADER = "dllloader.exe";
 
         private const int OFFSET_MAP_STATUS = (0x01EAFCA0 - 0x00401000 + 0x1000);
-        private const int OFFSET_MAP_FREEZE = (0x01E64EFF - 0x00401000 + 0x1000);
         private const int OFFSET_NORENDER = (0x01EAD47B - 0x00401000 + 0x1000);
-
+        
         private const int OFFSET_MAP_STATUS_GOG = (0x01EB1054 - 0x00401000 + 0x1000);//(0x01B21054);
-        private const int OFFSET_MAP_FREEZE_GOG = (0x01E663AF - 0x00401000 + 0x1000);
-        private const int OFFSET_MAPFIX_STATUS = (0x1E6433F - 0x00401000 + 0x1000);
 
-        private const byte NET_COMMAND_RDP_OPEN = 0x01;
-        private const byte NET_COMMAND_RDP_CLOSE = 0x02;
+
+        private const int OFFSET_MAPFIX_STATUS_GOG = (0x1E6433F - 0x00401000 + 0x1000);
+        private const int OFFSET_SPAWNTIMER_GOG = (0x007E8FE8 - 0x00401000 + 0x1000);
 
         public event EventHandler GameEnded;
 
@@ -103,11 +102,7 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
-        private void ApplyInstantSpawn()
-        {
-           
-
-        }
+   
 
         public override void OnServerStart(EventArgs e)
         {
@@ -190,17 +185,6 @@ namespace SWBF2Admin.Gameserver
                 return ReadByte(OFFSET_MAP_STATUS_GOG);
             }
         }
-        private void SetFreeze(bool freeze)
-        {
-            if (steamMode)
-            {
-                //WriteByte(OFFSET_MAP_FREEZE, (byte)(freeze ? 0 : 1));
-            }
-            else if (gogMode)
-            {
-                //WriteByte(OFFSET_MAP_FREEZE_GOG, (byte) (freeze ? 0 : 1));
-            }
-        }
         private byte ReadByte(int offset)
         {
             IntPtr bytesRead;
@@ -217,6 +201,14 @@ namespace SWBF2Admin.Gameserver
                 throw new Exception("WriteProcessMemory() failed");
 
         }
+        private void WriteFloat(int offset, float value)
+        {
+            UIntPtr bytesWritten;
+            byte[] buf = BitConverter.GetBytes(value);
+            if (!WriteProcessMemory(procHandle, IntPtr.Add(moduleBase, offset), buf, 4, out bytesWritten) || bytesWritten == UIntPtr.Zero)
+                throw new Exception("WriteProcessMemory() failed");
+        }
+
         private void MemoryInit()
         {
             Process p = Core.Server.ServerProcess;
@@ -240,17 +232,6 @@ namespace SWBF2Admin.Gameserver
                 Logger.Log(LogLevel.Verbose, "Closing handle {0}", procHandle.ToString());
                 CloseHandle(procHandle);
             }
-        }
-
-
-        private void SetPwdHash(string pwd)
-        {
-            SHA512 shaM = new SHA512Managed();
-            UIntPtr bytesWritten;
-            byte[] buf = shaM.ComputeHash(Encoding.ASCII.GetBytes(pwd));
-            if (!WriteProcessMemory(procHandle, IntPtr.Add(moduleBase, 0x1AAE968), buf, (uint)buf.Length, out bytesWritten) || bytesWritten == UIntPtr.Zero)
-                throw new Exception("WriteProcessMemory() failed");
-            Logger.Log(LogLevel.Info, "{0} bytes written.", bytesWritten.ToString());
         }
 
         private void CheckResponding()
@@ -286,8 +267,8 @@ namespace SWBF2Admin.Gameserver
                 freezeCount = 0;
                 if (isLoading)
                 {
-                    byte b = ReadByte(OFFSET_MAPFIX_STATUS);
-                    WriteByte(OFFSET_MAPFIX_STATUS, 0);
+                    byte b = ReadByte(OFFSET_MAPFIX_STATUS_GOG);
+                    WriteByte(OFFSET_MAPFIX_STATUS_GOG, 0);
                     Logger.Log(LogLevel.Info, "Server finished loading - mapfix status: {0}", b.ToString());
 
                     isLoading = false;
@@ -296,10 +277,10 @@ namespace SWBF2Admin.Gameserver
 
             if (mapHangTime > config.MapHangTimeout && freezeCount < config.FreezesBeforeKill)
             {
-                Logger.Log(LogLevel.Info, "Server seems to be stuck - trying to freeze-unfreeze it...");
+                Logger.Log(LogLevel.Info, "Server seems to be stuck...");
                 freezeCount++;
                 mapHangTime = 0;
-                TryFreezeUnfreeze();
+                //TryFreezeUnfreeze();
             }
 
             else if (freezeCount >= config.FreezesBeforeKill)
@@ -309,13 +290,6 @@ namespace SWBF2Admin.Gameserver
                 freezeCount = 0;
             }
         }
-        private void TryFreezeUnfreeze()
-        {
-
-            SetFreeze(true);
-            Core.Scheduler.PushDelayedTask(() => SetFreeze(false), config.FreezeTime);
-        }
-
         ~IngameServerController()
         {
             OnServerStop(); //make sure we close any open handle

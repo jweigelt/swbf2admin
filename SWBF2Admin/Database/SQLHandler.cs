@@ -739,9 +739,6 @@ namespace SWBF2Admin.Database
                         RI(reader, "total_score"));
                 }
             }
-
-
-
             return null;
         }
 
@@ -853,6 +850,40 @@ namespace SWBF2Admin.Database
         public void UpdateMatchName(int id, string name)
         {
             NonQuery("UPDATE prefix_stats_games SET game_name = @name WHERE id = @game_id", "@name", name, "@game_id", id);
+        }
+
+        public int GetTotalMatches()
+        {
+            DbDataReader reader = Query("SELECT count(*) FROM prefix_stats_games as match_count");
+            return RI(reader, "match_count");
+
+        }
+
+        private int GetStatSum(string field)
+        {
+            DbDataReader reader = Query($"SELECT sum({field}) FROM prefix_stats as total_sum");
+            return RI(reader, "total_sum");
+        }
+
+        public int GetTotalKills()
+        {
+            return GetStatSum("stat_kills");
+        }
+
+        public int GetTotalPoints()
+        {
+            return GetStatSum("stat_points");
+        }
+
+        public int GetTotalDeaths()
+        {
+            return GetStatSum("stat_deaths");
+        }
+
+        public int GetTotalPlayers()
+        {
+            DbDataReader reader = Query("SELECT count(*) FROM prefix_players as player_count");
+            return RI(reader, "player_count");
         }
 
         #endregion
@@ -999,5 +1030,6 @@ namespace SWBF2Admin.Database
         }
 
         #endregion
+
     }
 }

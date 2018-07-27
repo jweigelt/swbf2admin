@@ -98,6 +98,14 @@ namespace SWBF2Admin.Utility
             s = FormatString(s,
                "{g:nr}", game.DatabaseId.ToString());
 
+            //these db queries can be quite expensive -> only query if we really have to
+            //TODO: figure something out to cache total points/kills/deaths
+            if (s.Contains("{stats:totalpoints}")) s = FormatString(s, "{stats:totalpoints}", core.Database.GetTotalPoints().ToString());
+            if (s.Contains("{stats:totalkills}")) s = FormatString(s, "{stats:totalkills}", core.Database.GetTotalKills().ToString());
+            if (s.Contains("{stats:totaldeaths}")) s = FormatString(s, "{stats:totaldeaths}", core.Database.GetTotalDeaths().ToString());
+            if (s.Contains("{stats:totalplayers}")) s = FormatString(s, "{stats:totalplayers}", core.Database.GetTotalPlayers().ToString());
+            if (s.Contains("{stats:totalmatches}")) s = FormatString(s, "{stats:totalmatches}", core.Database.GetTotalMatches().ToString());
+
             //banner for generous folks
             s = FormatString(s, "{banner}", $"{GetProductName()} v{GetProductVersion()} ({GetProductAuthor()})");
 

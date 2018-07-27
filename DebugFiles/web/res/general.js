@@ -61,7 +61,8 @@ function General() {
                 GamePort: $("#general_input_gameport").val(),
                 RconPort: $("#general_input_rconport").val(),
                 Lan: $("#general_select_lan").val(),
-                Bandwidth: $("#general_select_bandwidth").val()
+                Bandwidth: $("#general_select_bandwidth").val(),
+				AutoAnnouncePeriod: $("#general_input_spawntimer").val()
             }
         };
 
@@ -92,12 +93,13 @@ function General() {
         $("#general_input_rconport").val(s.RconPort);
         $("#general_select_lan").val(s.Lan.toString());
         $("#general_select_bandwidth").val(s.Bandwidth);
+		$("#general_input_spawntimer").val(s.AutoAnnouncePeriod);
 
         if ($("#general_select_ipa option:selected").length < 1) {
             $("#general_select_ipa option:first").prop('selected', true);
         }
     };
-
+	
     this.updateSettings = function () {
         $.post({
             url: GeneralUrl,

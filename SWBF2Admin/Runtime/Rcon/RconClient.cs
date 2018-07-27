@@ -187,7 +187,7 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "SendPacket failed. ({0})", e.ToString());
+                Logger.Log(running ? LogLevel.Warning : LogLevel.Verbose, "SendPacket failed. ({0})", e.ToString());
                 return;
             }
 
@@ -201,7 +201,7 @@ namespace SWBF2Admin.Runtime.Rcon
                 }
                 else
                 {
-                    Logger.Log(LogLevel.Warning, "Rcon packet timeout. (running {0})", packet.Command);
+                    Logger.Log(running ? LogLevel.Warning : LogLevel.Verbose, "Rcon packet timeout. (running {0})", packet.Command);
                     return;
                 }
             }
@@ -320,7 +320,6 @@ namespace SWBF2Admin.Runtime.Rcon
                     bytesRead = 0;
                     message = string.Empty;
                 }
-
             }
             catch (Exception e)
             {
