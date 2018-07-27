@@ -55,7 +55,7 @@
     - LogToFile:        Write console output to file (true/false)
     - LogFileName:      Path to logfile. Use ./path/to/fb.sqlite for relative file access.
   -->
-  <LogMinimumLevel>VerboseSQL</LogMinimumLevel>
+  <LogMinimumLevel>Info</LogMinimumLevel>
   <LogToFile>false</LogToFile>
   <LogFileName>./log.txt</LogFileName>
 
