@@ -177,9 +177,19 @@ namespace SWBF2Admin.Gameserver
                 Logger.Log(LogLevel.Info, "Stopping Server...");
                 status = ServerStatus.Stopping;
                 //Note: moved this from SP_Exited to give runtime advanced notice so we dont cause exceptions
-                InvokeEvent(ServerStopped, this, new EventArgs());
-                serverProcess.Kill();
+                if (Core.Config.EnableRuntime)
+                {
+                    Core.Scheduler.PushTask(() => { Core.Rcon.SendCommand("shutdown"); });
+                    Core.Scheduler.PushDelayedTask(KillServer, 1000);
+                }
+                else KillServer();
             }
+        }
+
+        private void KillServer()
+        {
+            InvokeEvent(ServerStopped, this, new EventArgs());
+            serverProcess.Kill();
         }
 
         private void ServerProcess_Exited(object sender, EventArgs e)
