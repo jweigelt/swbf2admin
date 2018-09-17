@@ -758,7 +758,6 @@ namespace SWBF2Admin.Database
             return null;
         }
 
-
         public GameInfo ReadMatch(DbDataReader reader)
         {
             return new GameInfo(

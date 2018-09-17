@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DllLoader", "DllLoader\DllL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RconServer", "RconServer\RconServer.vcxproj", "{894AD1F5-174E-4653-998B-6F8092D0F265}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SWBF2Admin.Discord", "SWBF2Admin.Discord\SWBF2Admin.Discord.csproj", "{AD52BA2B-4219-4B4D-9A11-C78C262195F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,18 @@ Global
 		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|x64.Build.0 = Release|x64
 		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|x86.ActiveCfg = Release|Win32
 		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|x86.Build.0 = Release|Win32
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x64.Build.0 = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x64.ActiveCfg = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x64.Build.0 = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

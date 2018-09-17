@@ -43,7 +43,7 @@ namespace SWBF2Admin.Config
         /// if it doesn't exist yet
         /// </summary>
         /// <param name="fileName">(absolute) path to file</param>
-        private void CreateDirectoryStructure(string fileName)
+        public void CreateDirectoryStructure(string fileName)
         {
             int idx = 0;
             while ((idx = fileName.IndexOfAny(new char[] { '/', '\\' }, ++idx)) > 0)
@@ -240,6 +240,16 @@ namespace SWBF2Admin.Config
             return res;
         }
 
+        public FileInfo[] GetFiles(string fileName, string exp = "*")
+        {
+            fileName = ParseFileName(fileName);
+            string[] files = Directory.GetFiles(fileName, exp);
+            FileInfo[] res = new FileInfo[files.Length];
+            for (int i = 0; i < files.Length; i++) res[i] = new FileInfo(files[i]);
+            return res;
+        }
+
+
         public FileStream OpenStream(string fileName)
         {
 
@@ -274,6 +284,12 @@ namespace SWBF2Admin.Config
         {
             fileName = ParseFileName(fileName);
             return File.Exists(fileName);
+        }
+
+        public bool DirectoryExists(string fileName)
+        {
+            fileName = ParseFileName(fileName);
+            return Directory.Exists(fileName);
         }
     }
 }

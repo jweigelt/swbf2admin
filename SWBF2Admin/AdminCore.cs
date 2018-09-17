@@ -33,6 +33,8 @@ using SWBF2Admin.Runtime.Announce;
 using SWBF2Admin.Runtime.Commands;
 using SWBF2Admin.Runtime.ApplyMods;
 
+using SWBF2Admin.Plugins;
+
 namespace SWBF2Admin
 {
     public class AdminCore
@@ -54,6 +56,7 @@ namespace SWBF2Admin
         public CommandDispatcher Commands { get; }
         public LvlWriter Mods { get; }
         public IngameServerController IngameController { get; }
+        public PluginManager Plugins { get; }
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
 
@@ -93,6 +96,7 @@ namespace SWBF2Admin
             Commands = new CommandDispatcher(this);
             Mods = new LvlWriter(this);
             IngameController = new IngameServerController(this);
+            Plugins = new PluginManager(this);
         }
 
         public void Run(string[] args)
@@ -106,6 +110,7 @@ namespace SWBF2Admin
             components.Add(Database);
             components.Add(Server);
             components.Add(WebAdmin);
+            components.Add(Plugins);
 
             if (config.EnableSteamMode || config.EnableGOGMode)
             {
