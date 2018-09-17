@@ -17,7 +17,7 @@
  */
 namespace SWBF2Admin.Structures
 {
-    class ChatMessage
+    public class ChatMessage
     {
         public bool IsSystem { get; }
         public string Message { get; }

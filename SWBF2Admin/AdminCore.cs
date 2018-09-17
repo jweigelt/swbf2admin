@@ -75,9 +75,7 @@ namespace SWBF2Admin
                 confirmPwd = Console.ReadLine();
 
                 if (!pwd.Equals(confirmPwd))
-                    Console.WriteLine("Password don't match.");
-
-
+                    Console.WriteLine("Passwords don't match.");
             } while (!pwd.Equals(confirmPwd));
 
             Database.InsertWebUser(new WebUser(name, Util.Md5(pwd)));

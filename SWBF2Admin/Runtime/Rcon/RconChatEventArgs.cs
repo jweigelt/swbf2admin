@@ -19,7 +19,7 @@ using System;
 using SWBF2Admin.Structures;
 namespace SWBF2Admin.Runtime.Rcon
 {
-    class RconChatEventArgs : EventArgs
+    public class RconChatEventArgs : EventArgs
     {
     
         public ChatMessage Message { get; }

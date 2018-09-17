@@ -19,7 +19,7 @@ using System;
 namespace SWBF2Admin.Config
 {
     [AttributeUsage(AttributeTargets.Class)]
-    class ConfigFileInfo : Attribute
+    public class ConfigFileInfo : Attribute
     {
         public virtual bool HasTemplate { get { return (Template != null); } }
         public string FileName { get; set; }
