@@ -24,15 +24,10 @@ namespace SWBF2Admin.Gameserver
     [ConfigFileInfo(fileName: "./cfg/ingameservercontroller.xml"/*,template: "SWBF2Admin.Resources.cfg.announce.xml"*/)]
     public class IngameServerControllerConfiguration
     {
-        public int TcpTimeout { get; set; } = 100;
         public int StartupTime { get; set; } = 60000;
         public int NotRespondingCheckInterval { get; set; } = 5000;
         public int NotRespondingMaxCount { get; set; } = 2;
-        public int ReadTimeout { get; set; } = 50;
-        public int MapHangTimeout { get; set; } = 20000;
-        public int FreezeTime { get; set; } = 6000;
-        public int FreezesBeforeKill { get; set; } = 5;
-        public int RdpCloseDelay {get; set;} = 2000;
+        public int MapCheckInterval { get; set; } = 50;
 
         public string ServerHostname { get; set; } = "127.0.0.1:1138";
 

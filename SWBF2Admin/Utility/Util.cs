@@ -25,7 +25,7 @@ using System.Diagnostics;
 
 namespace SWBF2Admin.Utility
 {
-    class Util
+    public class Util
     {
         public static byte[] StrToBytes(string str)
         {
@@ -76,28 +76,32 @@ namespace SWBF2Admin.Utility
 
             //server status
             ServerInfo info = core.Game.LatestInfo;
-            s = FormatString(s,
-                "{s:map}", info.CurrentMap,
-                "{s:ff}", info.FFEnabled,
-                "{s:gm}", info.GameMode,
-                "{s:heroes}", info.Heroes,
-                "{s:maxplayers}", info.MaxPlayers,
-                "{s:nextmap}", info.NextMap,
-                "{s:password}", info.Password,
-                "{s:players}", info.Players,
-                "{s:ip}", info.ServerIP,
-                "{s:name}", info.ServerName,
-                "{s:t1score}", info.Team1Score.ToString(),
-                "{s:t2score}", info.Team2Score.ToString(),
-                "{s:t1tickets}", info.Team1Tickets.ToString(),
-                "{s:t2tickets}", info.Team1Score.ToString(),
-                "{s:version}", info.Version);
-
+            if (info != null)
+            {
+                s = FormatString(s,
+                    "{s:map}", info.CurrentMap,
+                    "{s:ff}", info.FFEnabled,
+                    "{s:gm}", info.GameMode,
+                    "{s:heroes}", info.Heroes,
+                    "{s:maxplayers}", info.MaxPlayers,
+                    "{s:nextmap}", info.NextMap,
+                    "{s:password}", info.Password,
+                    "{s:players}", info.Players,
+                    "{s:ip}", info.ServerIP,
+                    "{s:name}", info.ServerName,
+                    "{s:t1score}", info.Team1Score.ToString(),
+                    "{s:t2score}", info.Team2Score.ToString(),
+                    "{s:t1tickets}", info.Team1Tickets.ToString(),
+                    "{s:t2tickets}", info.Team1Score.ToString(),
+                    "{s:version}", info.Version);
+            }
             //game nr
             GameInfo game = core.Game.LatestGame;
-            s = FormatString(s,
-               "{g:nr}", game.DatabaseId.ToString());
-
+            if (game != null)
+            {
+                s = FormatString(s,
+                   "{g:nr}", game.DatabaseId.ToString());
+            }
             //these db queries can be quite expensive -> only query if we really have to
             //TODO: figure something out to cache total points/kills/deaths
             if (s.Contains("{stats:totalpoints}")) s = FormatString(s, "{stats:totalpoints}", core.Database.GetTotalPoints().ToString());

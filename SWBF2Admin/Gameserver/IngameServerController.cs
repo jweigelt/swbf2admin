@@ -97,12 +97,10 @@ namespace SWBF2Admin.Gameserver
         {
             if (steamMode || gogMode)
             {
-                UpdateInterval = config.ReadTimeout;
+                UpdateInterval = config.MapCheckInterval;
                 Core.Scheduler.PushRepeatingTask(() => CheckResponding(), config.NotRespondingCheckInterval);
             }
         }
-
-   
 
         public override void OnServerStart(EventArgs e)
         {
@@ -253,8 +251,6 @@ namespace SWBF2Admin.Gameserver
         {
             if (ReadMapStatus() != 0)
             {
-
-                mapHangTime += UpdateInterval;
                 if (!isLoading)
                 {
                     isLoading = true;
@@ -263,31 +259,16 @@ namespace SWBF2Admin.Gameserver
             }
             else
             {
-                mapHangTime = 0;
-                freezeCount = 0;
+                byte b = ReadByte(OFFSET_MAPFIX_STATUS_GOG);
                 if (isLoading)
                 {
-                    byte b = ReadByte(OFFSET_MAPFIX_STATUS_GOG);
                     WriteByte(OFFSET_MAPFIX_STATUS_GOG, 0);
                     Logger.Log(LogLevel.Info, "Server finished loading - mapfix status: {0}", b.ToString());
-
                     isLoading = false;
+                }else if (b > 0) {
+                    WriteByte(OFFSET_MAPFIX_STATUS_GOG, 0);
+                    Logger.Log(LogLevel.Warning, "Missed map reload - resetting mapfix");
                 }
-            }
-
-            if (mapHangTime > config.MapHangTimeout && freezeCount < config.FreezesBeforeKill)
-            {
-                Logger.Log(LogLevel.Info, "Server seems to be stuck...");
-                freezeCount++;
-                mapHangTime = 0;
-                //TryFreezeUnfreeze();
-            }
-
-            else if (freezeCount >= config.FreezesBeforeKill)
-            {
-                Logger.Log(LogLevel.Info, "Server doesn't seem to resume. Shutting it down.");
-                Core.Server.ServerProcess.Kill(); //"crash" the server so ServerManager will restart it
-                freezeCount = 0;
             }
         }
         ~IngameServerController()
