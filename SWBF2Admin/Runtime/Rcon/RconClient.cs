@@ -37,6 +37,7 @@ namespace SWBF2Admin.Runtime.Rcon
         private const byte LOGIN_MAGIC = 0x64;
         private const byte SLEEP = 5;
         private const string STATUS_MESSAGE_GAME_HAS_ENDED = "Game has ended";
+        private const int CHAR_LIMIT = 120; // Really its 128
 
         public RconClient(AdminCore core) : base(core) { }
 
@@ -217,7 +218,10 @@ namespace SWBF2Admin.Runtime.Rcon
         public void Say(string message)
         {
             ChatOutput.Invoke(this, new RconChatEventArgs(new ChatMessage(message)));
-            SendCommand("say", message);
+            foreach (var segment in Util.SegmentString(message, CHAR_LIMIT))
+            {
+                SendCommand("say", segment);
+            }
         }
 
         /// <summary>
@@ -229,7 +233,10 @@ namespace SWBF2Admin.Runtime.Rcon
         public void Pm(string message, Player player)
         {
             ChatOutput.Invoke(this, new RconChatEventArgs(new ChatMessage($"[=> {player.Name}] {message}")));
-            SendCommand("warn", player.Slot.ToString(), message);
+            foreach (var segment in Util.SegmentString(message, CHAR_LIMIT))
+            {
+                SendCommand("warn", player.Slot.ToString(), segment);
+            }
         }
 
         /// <summary>
