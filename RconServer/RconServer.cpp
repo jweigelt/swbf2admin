@@ -9,7 +9,7 @@ RconServer::RconServer(uint16_t maxClients)
 	//sprintf_s(r, sizeof(r), "%" PRIu16 "\n", (uint16_t)bf2server_get_gameport());
 	//MessageBoxA(NULL, r, "abcde", 0);
 
-	bf2server_set_details(1);
+	//bf2server_set_details(1);
 }
 
 RconServer::~RconServer()

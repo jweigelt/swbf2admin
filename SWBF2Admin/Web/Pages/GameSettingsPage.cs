@@ -79,17 +79,18 @@ namespace SWBF2Admin.Web.Pages
             {
                 case "game_get":
                     ServerSettings s = Core.Server.Settings;
-                    //TODO hacky way to pass "floats using  ints"
-                    int tmp = s.AutoAnnouncePeriod;
+
+                    //TODO hacky way to pass "floats using ints"
+                    int st = s.AutoAnnouncePeriod;
                     s.AutoAnnouncePeriod = (int)I2f(s.AutoAnnouncePeriod);
                     WebAdmin.SendHtml(ctx, ToJson(new GameSettingsResponse(s)));
-                    s.AutoAnnouncePeriod = tmp;
+                    s.AutoAnnouncePeriod = st;
+
                     break;
 
                 case "game_set":
                     //NOTE: hacky way of passing spawnvalue
                     p.Settings.AutoAnnouncePeriod = F2i(p.Settings.AutoAnnouncePeriod);
-
                     Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GAME);
                     try
                     {

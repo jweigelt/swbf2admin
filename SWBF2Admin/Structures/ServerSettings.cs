@@ -175,6 +175,9 @@ namespace SWBF2Admin.Structures
         [ConfigSection(ConfigSection.GAME)]
         public int AutoAnnouncePeriod { get; set; } = 0x41700000;
 
+        //NOTE: using this to pass ups
+        [ConfigSection(ConfigSection.GENERAL)]
+        public int ForgiveTKs { get; set; } = 0x3dcccccd;
         #endregion
 
         #region Maps

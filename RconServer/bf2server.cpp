@@ -12,8 +12,10 @@ void bf2server_init() {
 std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t* message, DWORD responseOutput) {
 	//NOTE: function might not be threadsafe
 	DWORD aa = moduleBase + OFFSET_LOGGED_IN;
+	DWORD da = moduleBase + OFFSET_COMMAND_DETAILS;
 	DWORD addr = moduleBase + OFFSET_CHATINPUT;
 	*(BYTE*)aa = 1;
+	*(BYTE*)da = 1;
 	__asm {
 		push messageType
 		push sender
@@ -23,6 +25,7 @@ std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t* me
 		add esp, 8
 	}
 	*(BYTE*)aa = 0;
+	*(BYTE*)da = 0;
 	addr = moduleBase + OFFSET_RESBUFFER;
 	return string((char*)(addr));
 }

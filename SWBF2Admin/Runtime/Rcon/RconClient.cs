@@ -310,6 +310,7 @@ namespace SWBF2Admin.Runtime.Rcon
 
                         message += Util.BytesToStr(buffer, rowLen);
                         message = message.Substring(0, message.Length - 1);
+
                         if (i + 1 < rows) message = message + "\n";
 
                         bytesRead = 0;

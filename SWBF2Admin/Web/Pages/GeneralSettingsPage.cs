@@ -77,6 +77,19 @@ namespace SWBF2Admin.Web.Pages
         }
 
 
+
+        private int F2i(float f)
+        {
+            byte[] fb = BitConverter.GetBytes(f);
+            return BitConverter.ToInt32(fb, 0);
+        }
+
+        private float I2f(int i)
+        {
+            byte[] fb = BitConverter.GetBytes(i);
+            return BitConverter.ToSingle(fb, 0);
+        }
+
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
         {
             GeneralSettingsApiParams p = null;
@@ -85,10 +98,15 @@ namespace SWBF2Admin.Web.Pages
             switch (p.Action)
             {
                 case "general_get":
-                    WebAdmin.SendHtml(ctx, ToJson(new GeneralSettingsResponse(Core.Server.Settings, GetNetworkDevices())));
+                    ServerSettings s = Core.Server.Settings;
+                    int ups = s.ForgiveTKs;
+                    s.ForgiveTKs = (int)(1.0f / I2f(s.ForgiveTKs));
+                    WebAdmin.SendHtml(ctx, ToJson(new GeneralSettingsResponse(s, GetNetworkDevices())));
+                    s.ForgiveTKs = ups;
                     break;
 
                 case "general_set":
+                    p.Settings.ForgiveTKs = F2i(1.0f / p.Settings.ForgiveTKs);
                     Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GENERAL);
                     try
                     {

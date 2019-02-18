@@ -10,38 +10,45 @@ namespace SWBF2Admin.Discord.Services
 {
     public class CommandHandlingService
     {
-        private readonly CommandService _commands;
-        private readonly DiscordSocketClient _discord;
-        private readonly IServiceProvider _services;
+        private readonly CommandService commands;
+        private readonly DiscordSocketClient discord;
+        private readonly IServiceProvider services;
+        private readonly DiscordPlugin plugin;
 
         public CommandHandlingService(IServiceProvider services)
         {
-            _commands = services.GetRequiredService<CommandService>();
-            _discord = services.GetRequiredService<DiscordSocketClient>();
-            _services = services;
-
-            _discord.MessageReceived += MessageReceivedAsync;
+            this.services = services;
+            commands = services.GetRequiredService<CommandService>();
+            discord = services.GetRequiredService<DiscordSocketClient>();
+            plugin = services.GetRequiredService<DiscordPlugin>();
+            discord.MessageReceived += MessageReceivedAsync;
         }
 
         public async Task InitializeAsync()
         {
-            await _commands.AddModuleAsync<SWBFModule>();
-            //NOTE: doesnt seem to work...
-            //await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            await commands.AddModuleAsync<SWBFModule>();
+        }
+
+        private bool IsChannelBound(IChannel channel)
+        {
+            foreach (ChannelBind b in plugin.Config.Channels)
+            {
+                //TODO: guildID not required?
+                if (channel.Id == b.Channel) return true;
+            }
+            return false;
         }
 
         public async Task MessageReceivedAsync(SocketMessage rawMessage)
         {
-            // Ignore system messages, or messages from other bots
             if (!(rawMessage is SocketUserMessage message)) return;
             if (message.Source != MessageSource.User) return;
-
-            // This value holds the offset where the prefix ends
             var argPos = 0;
-            if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos)) return;
+            if (!message.HasStringPrefix(plugin.Config.BotPrefix + " ", ref argPos)) return;
+            //if (!IsChannelBound(message.Channel)) return;
 
-            var context = new SocketCommandContext(_discord, message);
-            var result = await _commands.ExecuteAsync(context, argPos, _services);
+            var context = new SocketCommandContext(discord, message);
+            var result = await commands.ExecuteAsync(context, argPos, services);
 
             if (result.Error.HasValue &&
                 result.Error.Value != CommandError.UnknownCommand) // it's bad practice to send 'unknown command' errors

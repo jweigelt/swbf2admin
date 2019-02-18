@@ -40,7 +40,13 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
                 return;
             }
 
-            string[] rows = response.Split('\n');
+            List<string> rows = new List<string>();
+
+            for (int i = 0; i < response.Length; i+= 90)
+            {
+                if (response.Length >= i + 89)
+                rows.Add(response.Substring(i, 89));
+            }
 
             foreach (string r in rows)
             {

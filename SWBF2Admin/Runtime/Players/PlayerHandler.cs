@@ -32,7 +32,7 @@ namespace SWBF2Admin.Runtime.Players
         /// </summary>
         public virtual List<Player> PlayerList { get { return playerList; } }
 
-        private List<Player> playerList;
+        private List<Player> playerList = new List<Player>();
         private PlayerHandlerConfiguration config;
 
         public PlayerHandler(AdminCore core) : base(core) { }

@@ -69,7 +69,7 @@ namespace SWBF2Admin.Gameserver
         private bool gogMode;				//gog mode enabled?
         private int notRespondingCount = 0; //times the server process didn't respond
         private int mapHangTime = 0;        //time since game ended
-        private int freezeCount = 0;        //times we tried to freeze-unfreeze
+        private int freezeCount = 0;        //times we tried to freeze-unfreez
 
         private IngameServerControllerConfiguration config;
 
