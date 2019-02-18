@@ -1,5 +1,8 @@
 # SWBF2Admin
 
+## Important
+This documentation is outdated. An updated readme is WIP.
+
 A modern, easy-to-use server manager for Star Wars Battlefront II (2005) dedicated servers
 
 ## Getting Started
