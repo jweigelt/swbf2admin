@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+
+using System.Collections.Concurrent;
 using SWBF2Admin.Utility;
 using SWBF2Admin.Structures;
 
@@ -31,6 +33,8 @@ namespace SWBF2Admin.Runtime.Commands
         public bool Enabled { get; set; } = true;
         public string Alias { get; set; } = "change me";
         public string Usage { get; set; } = "change me";
+
+        private bool shouldSendToConsole;
 
         [XmlIgnore]
         public AdminCore Core { get; set; }
@@ -54,6 +58,18 @@ namespace SWBF2Admin.Runtime.Commands
 
         public abstract bool Run(Player player, string commandLine, string[] parameters);
 
+        public bool Handle(Player player, string commandLine, string[] parameters)
+        {
+            /*
+             * For use in SendFormatted.
+             * This is only reliable if commands cant be executed in parallel.
+             * Ideally, the player would be send to each SendFormatted, but thats a major refactor that Im not sure
+             * we want to do
+             */
+            shouldSendToConsole = player.isSuperuser();
+            return Run(player, commandLine, parameters);
+        }
+
         protected string FormatString(string message, params string[] tags)
         {
             for (int i = 0; i < tags.Length; i++)
@@ -74,11 +90,27 @@ namespace SWBF2Admin.Runtime.Commands
         protected void SendFormatted(string message, Player player, params string[] tags)
         {
             message = FormatString(message, tags);
-            if (player == null) Core.Rcon.Say(message); else Core.Rcon.Pm(message, player);
+
+            /*
+             * Ideally this would *only* send to the console, but if we want this to work with webadmin,
+             * then we have to send to both console and RCON to handle both when superuser came from console
+             * and from webadmin. In the future webadmin wont use superuser, so we can fix this
+             */
+            if (shouldSendToConsole)
+                Logger.Log(LogLevel.Info, message);
+
+            if (player == null)
+                Core.Rcon.Say(message);
+            else
+                Core.Rcon.Pm(message, player);
         }
 
         public virtual bool HasPermission(Player player)
         {
+            if (player.isSuperuser())
+            {
+                return true;
+            }
             return Core.Database.HasPermission(player, Permission);
         }
     }

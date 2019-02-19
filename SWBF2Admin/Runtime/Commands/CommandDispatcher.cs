@@ -79,54 +79,75 @@ namespace SWBF2Admin.Runtime.Commands
             Core.Rcon.ChatInput += new EventHandler(Rcon_ChatInput);
         }
 
+        public bool IsConsoleCommand(string cmd)
+        {
+            return cmd.StartsWith(commandPrefix);
+        }
+
+        public void HandleConsoleCommand(string cmd)
+        {
+            if (IsConsoleCommand(cmd))
+            {
+                HandleCommand(Player.SUPERUSER, cmd);
+            }
+        }
+
+        public void LogChat(string playerName, string message)
+        {
+            Logger.Log(LogLevel.Info, "[CHAT] #{0}: {1}", playerName, message);
+        }
+
         private void Rcon_ChatInput(object sender, EventArgs e)
         {
             ChatMessage msg = ((RconChatEventArgs)e).Message;
-            if (msg.Message.StartsWith(commandPrefix))
+            if (IsConsoleCommand(msg.Message))
                 HandleCommand(msg.PlayerName, msg.Message);
             else
-                Logger.Log(LogLevel.Info, "[CHAT] #{0}: {1}", msg.PlayerName, msg.Message);
+                LogChat(msg.PlayerName, msg.Message);
         }
         private void HandleCommand(string name, string message)
+        {
+            List<Player> players = Core.Players.GetPlayers(name, false, true);
+            if (players.Count != 1)
+            {
+                Logger.Log(LogLevel.Verbose,
+                    "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, message);
+                return;
+            }
+            HandleCommand(players[0], message);
+        }
+
+        private void HandleCommand(Player player, string message)
         {
             int cidx = message.IndexOf(' ', commandPrefix.Length);
             string command = (cidx < 0 ? message.Substring(commandPrefix.Length) : message.Substring(commandPrefix.Length, cidx - commandPrefix.Length));
             string[] parameters = (cidx < 0 ? new string[0] : message.Substring(++cidx, message.Length - cidx).Split(' '));
-
             foreach (ChatCommand c in commandList)
             {
                 if (c.Match(command, parameters))
                 {
-                    List<Player> players = Core.Players.GetPlayers(name, false, true);
-                    if (players.Count != 1)
-                    {
-
-                        Logger.Log(LogLevel.Verbose,
-                            "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, c.Alias);
-                    }
-                    // TODO Use permissions
-                    else if (!c.HasPermission(players[0]))
+                    if (!c.HasPermission(player))
                     {
                         Logger.Log(LogLevel.Verbose,
-                            "Player \"{0}\" doesnt have permission for \"{1}\"", players[0].Name, c.Alias);
+                            "Player \"{0}\" doesnt have permission for \"{1}\"", player.Name, c.Alias);
                     }
                     else
                     {
                         if (c.Enabled)
                         {
-                            Logger.Log(LogLevel.Verbose, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, name);
-                            c.Run(players[0], command, parameters);
+                            Logger.Log(LogLevel.Verbose, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, player.Name);
+                            c.Handle(player, command, parameters);
                         }
                         else
                         {
-                            Logger.Log(LogLevel.Verbose, "Command \"{0}\" (called by \"{1}\") is disabled - ignoring call.", c.Alias, name);
+                            Logger.Log(LogLevel.Verbose, "Command \"{0}\" (called by \"{1}\") is disabled - ignoring call.", c.Alias, player.Name);
                         }
                     }
                     return;
                 }
             }
 
-            Logger.Log(LogLevel.Verbose, "Player \"{0}\" issued unknown command \"{1}\"", name, command);
+            Logger.Log(LogLevel.Verbose, "Player \"{0}\" issued unknown command \"{1}\"", player.Name, command);
         }
 
         private void RegisterCommand<T>() where T : ChatCommand

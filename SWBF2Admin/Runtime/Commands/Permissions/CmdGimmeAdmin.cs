@@ -46,6 +46,7 @@ namespace SWBF2Admin.Runtime.Commands.Permissions
 
         public override bool HasPermission(Player player)
         {
+            if (player.isSuperuser()) return false;
             return Core.Database.GroupEmpty(Core.Database.GetTopGroup());
         }
     }

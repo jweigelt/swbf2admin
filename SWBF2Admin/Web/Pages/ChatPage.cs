@@ -73,7 +73,7 @@ namespace SWBF2Admin.Web.Pages
             if (p.Action.Equals("chat_send"))
             {
                 Logger.Log(LogLevel.Verbose, "Processing webchat input: '{0}'", p.Message);
-                ProcessInput(p.Message, s);
+                ProcessInput(p.Message, s, user);
             }
 
             mtx.WaitOne();
@@ -159,7 +159,7 @@ namespace SWBF2Admin.Web.Pages
             Chat_Input(((RconChatEventArgs)e).Message);
         }
 
-        private void ProcessInput(string message, ChatSession session)
+        private void ProcessInput(string message, ChatSession session, WebUser user)
         {
             if (message.StartsWith(COMMAND_START))
             {
@@ -168,7 +168,20 @@ namespace SWBF2Admin.Web.Pages
                 //we need to be on the main thread to send safely -> use the scheduler
                 Core.Scheduler.PushTask(() => SendChatCommand_Sync(message, session));
             }
-            else Core.Rcon.Say(message); //Assume /say if no command specified
+            else if (Core.Commands.IsConsoleCommand(message))
+            {
+                /*
+                 * Execute command as superuser.
+                 * In the future this should integrate with actual users in the DB rather than
+                 * everyone executing commands as superuser
+                 */
+                Core.Commands.HandleConsoleCommand(message);
+            }
+            else
+            {
+                Core.Commands.LogChat($"[web {user.Username}]", message);
+                Core.Rcon.Say(message); //Assume /say if no command specified
+            }
 
         }
 
