@@ -181,6 +181,10 @@ namespace SWBF2Admin
                 {
                     Database.ImportMaps(ServerMap.ReadServerMapConfig(this));
                 }
+                else if (Commands.IsConsoleCommand(cmd))
+                {
+                    Commands.HandleConsoleCommand(cmd);
+                }
             }
 
             Scheduler.Stop();

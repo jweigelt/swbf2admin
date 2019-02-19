@@ -49,7 +49,7 @@ namespace SWBF2Admin.Runtime.Commands.Misc
                 return false;
             }
 
-            if (CheckLevel && (player.MainGroup == null || (player.MainGroup.Level <= group.Level)))
+            if (CheckLevel && !player.isSuperuser() && (player.MainGroup == null || (player.MainGroup.Level <= group.Level)))
             {
                 SendFormatted(OnInvalidLevel, "{group}", group.Name);
                 return false;

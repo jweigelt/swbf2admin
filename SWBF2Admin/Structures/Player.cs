@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+
 using System.Net;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -53,6 +54,8 @@ namespace SWBF2Admin.Structures
 
         public int DatabaseId { get; set; }
 
+        public static Player SUPERUSER = new Player(-1, 0, 0, 0, "superuser", "", "");
+
         [MoonSharpHidden]
         public Player(byte slot, ushort ping, int kills, int deaths, int score, string name, string keyhash, string team, IPAddress remoteAddress)
         {
@@ -83,6 +86,12 @@ namespace SWBF2Admin.Structures
         public Player(byte slot)
         {
             Slot = slot;
+        }
+
+        public bool isSuperuser()
+        {
+            return DatabaseId == SUPERUSER.DatabaseId &&
+                   Name == SUPERUSER.Name;
         }
 
         #region Condition Tracker

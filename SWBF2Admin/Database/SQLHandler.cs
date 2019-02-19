@@ -536,7 +536,8 @@ namespace SWBF2Admin.Database
                     "admin_id, " +
                     "player_id, " +
                     "prefix_players.player_last_name, " +
-                    "prefix_players_admins.player_last_name AS admin_last_name, " +
+                    // If banned by the supseruser, swbf_players_admins.player_last_name will be null
+                    "COALESCE(swbf_players_admins.player_last_name, 'superuser') AS admin_last_name," +
                     "prefix_players.player_keyhash, " +
                     "prefix_players.player_last_ip " +
                 "FROM " +
@@ -545,7 +546,8 @@ namespace SWBF2Admin.Database
                     "LEFT JOIN prefix_players AS prefix_players_admins ON prefix_players_admins.id = prefix_bans.admin_id " +
                 "WHERE " +
                     "prefix_players.player_last_name LIKE @player_exp AND " +
-                    "prefix_players_admins.player_last_name LIKE @admin_exp AND " +
+                    // Banned by either a player or the superuser
+                    "(prefix_players_admins.player_last_name LIKE @admin_exp OR swbf_bans.admin_id=@superuser_id) AND " +
                     "ban_reason LIKE @reason_exp AND " +
                     "(ban_timestamp) > @date_timestamp";
 
@@ -559,6 +561,7 @@ namespace SWBF2Admin.Database
             using (DbDataReader reader = Query(sql,
                 "@player_exp", playerExp,
                 "@admin_exp", adminExp,
+                "@superuser_id", Player.SUPERUSER.DatabaseId,
                 "@reason_exp", reasonExp,
                 "@timestamp", GetTimestamp(),
                 "@max_rows", maxRows,
