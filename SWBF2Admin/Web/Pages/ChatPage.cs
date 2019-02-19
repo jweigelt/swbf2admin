@@ -175,14 +175,13 @@ namespace SWBF2Admin.Web.Pages
                  * In the future this should integrate with actual users in the DB rather than
                  * everyone executing commands as superuser
                  */
-                Core.Commands.HandleConsoleCommand(message);
+                Core.Scheduler.PushTask(() => { Core.Commands.HandleConsoleCommand(message); });
             }
             else
             {
                 Core.Commands.LogChat($"[web {user.Username}]", message);
-                Core.Rcon.Say(message); //Assume /say if no command specified
+                Core.Scheduler.PushTask(() => { Core.Rcon.Say(message); }); //Assume /say if no command specified
             }
-
         }
 
         private void SendChatCommand_Sync(string command, ChatSession session)

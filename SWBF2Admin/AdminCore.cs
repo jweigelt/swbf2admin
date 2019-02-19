@@ -183,7 +183,8 @@ namespace SWBF2Admin
                 }
                 else if (Commands.IsConsoleCommand(cmd))
                 {
-                    Commands.HandleConsoleCommand(cmd);
+                    //using the scheduler to execute so we dont have to worry about concurrency
+                    Scheduler.PushTask(() => { Commands.HandleConsoleCommand(cmd); });      
                 }
             }
 
