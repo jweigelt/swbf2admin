@@ -46,6 +46,11 @@ namespace SWBF2Admin.Runtime.Commands.Map
             }
 
             string shortExp = (parameters[0].Length > 3 ? parameters[0].Substring(0, 3) : parameters[0]);
+            // If the map name had a number suffix (eg. tat2), include it in the search
+            if (parameters[0].Length > 3 && int.TryParse(parameters[0][3].ToString(), out _))
+            {
+                shortExp += parameters[0][3];
+            }
             string gamemode;
 
             if (parameters.Length < 2)
