@@ -16,6 +16,7 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography;
@@ -143,6 +144,12 @@ namespace SWBF2Admin.Utility
             }
 
             return segments;
+        }
+
+        public static string HtmlEncode(string html)
+        {
+            //TODO: verify that WebUtility.HtmlEncode() is effective enough
+            return WebUtility.HtmlEncode(html);
         }
     }
 }

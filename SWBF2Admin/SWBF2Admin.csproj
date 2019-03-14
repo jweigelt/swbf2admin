@@ -209,6 +209,7 @@
     <Compile Include="Utility\Log.cs" />
     <Compile Include="Utility\Util.cs" />
     <Compile Include="Web\ApiRequestParams.cs" />
+    <Compile Include="Web\EncodeHtmlResolver.cs" />
     <Compile Include="Web\Pages\AboutPage.cs" />
     <Compile Include="Web\Pages\ChatPage.cs" />
     <Compile Include="Web\Pages\BansPage.cs" />
