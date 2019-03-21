@@ -12,13 +12,12 @@ void RconClient::Stop()
 {
 	connected = false;
 	closesocket(socket);
-	workThread->join();
-	delete workThread;
+	workThread.join();
 }
 
 void RconClient::Start()
 {
-	workThread = new std::thread(&RconClient::HandleConnection, this);
+	workThread = thread(&RconClient::HandleConnection, this);
 }
 
 void RconClient::OnChatInput(std::string const & msg)
@@ -37,9 +36,7 @@ bool RconClient::CheckLogin()
 	if (recv(socket, &magic, 1, 0) != 1) return false;
 	if (magic != 0x64) return false;
 
-
 	string pwdHash = md5(bf2server_get_adminpwd());
-
 
 	if (pwdHash.compare(pwd) == 0) {
 		Logger.Log(LogLevel_VERBOSE, "Client logged in.", pwd);
@@ -51,20 +48,26 @@ bool RconClient::CheckLogin()
 	}
 
 	send(socket, &res, 1, 0);
-	bf2server_login();
 	return (res == 1);
 }
 
 void RconClient::HandleCommand(std::string const & command)
 {
-	string res = bf2server_command(MESSAGETYPE_COMMAND, SENDER_REMOTE, bf2server_s2ws(command).c_str(), OUTPUT_BUFFER);
+	string res;
+	if (bf2server_idle()) {
+		res = bf2server_command(MESSAGETYPE_COMMAND, SENDER_REMOTE, bf2server_s2ws(command).c_str(), OUTPUT_BUFFER);
+	}
+	else {
+		res = "busy\n";
+	}
+
 	vector<string> rows = vector<string>();
 	size_t op = 0;
 	size_t np = 0;
 
 	while ((np = res.find('\n', np)) != string::npos) {
 		string r = res.substr(op, np - op);
-		rows.push_back(r);
+		rows.emplace_back(r);
 		op = ++np;
 	}
 	Send(rows);
@@ -72,23 +75,24 @@ void RconClient::HandleCommand(std::string const & command)
 
 void RconClient::Send(vector<string> &response)
 {
-	lock_guard<mutex> lg(mtx);
-
 	unsigned char rowLen = 0;
 	unsigned char rows = (unsigned char)response.size();
-	send(socket, (char*)&rows, 1, 0);
 
-	for (string row : response) {
-		rowLen = (unsigned char)row.length() + 1;
-		send(socket, (char*)&rowLen, 1, 0);
-		send(socket, row.c_str(), rowLen, 0);
+	{
+		unique_lock<mutex> lg(mtx);
+		send(socket, (char*)&rows, 1, 0);
+
+		for (string row : response) {
+			rowLen = (unsigned char)row.length() + 1;
+			send(socket, (char*)&rowLen, 1, 0);
+			send(socket, row.c_str(), rowLen, 0);
+		}
 	}
 }
 
 void RconClient::HandleConnection()
 {
 	unsigned char rows, sz, bytesRead, fragment;
-	char* buffer;
 	bool err = false;
 
 	if (!(connected = CheckLogin())) {
@@ -100,22 +104,21 @@ void RconClient::HandleConnection()
 		if (recv(socket, (char*)&rows, 1, 0) != 1) break;
 		if (recv(socket, (char*)&sz, 1, 0) != 1) break;
 
-		buffer = new char[sz];
-	
+		auto buffer = make_unique<char[]>(sz);
+
 		while (sz > bytesRead) {
-			if ((fragment = recv(socket, buffer + bytesRead, sz - bytesRead, 0)) == SOCKET_ERROR) {
+			if ((fragment = recv(socket, buffer.get() + bytesRead, sz - bytesRead, 0)) == SOCKET_ERROR) {
 				err = true;
 				break;
 			}
-			buffer[sz - 1] = 0;
+			buffer.get()[sz - 1] = 0;
 			bytesRead += (char)fragment;
 		}
 
-		if (err) break;
-
-		Logger.Log(LogLevel_VERBOSE, "Received command: %s", buffer);
-		HandleCommand(string(buffer));
-		delete[] buffer;
+		if (!err) {
+			Logger.Log(LogLevel_VERBOSE, "Received command: %s", buffer.get());
+			HandleCommand(string(buffer.get()));
+		}
 	}
 
 	Logger.Log(LogLevel_VERBOSE, "Closing connection.");
@@ -125,4 +128,10 @@ void RconClient::HandleConnection()
 		connected = false;
 	}
 	onDisconnect(this);
+}
+
+void RconClient::ReportEndgame() {
+	auto v = vector<string>();
+	v.emplace_back("Game has ended");
+	Send(v);
 }

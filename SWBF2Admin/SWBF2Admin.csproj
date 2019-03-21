@@ -131,8 +131,6 @@
     <Compile Include="AdminCore.cs" />
     <Compile Include="Config\ConfigFileInfo.cs" />
     <Compile Include="Export\StatisticsReportGenerator.cs" />
-    <Compile Include="Gameserver\IngameServerController.cs" />
-    <Compile Include="Gameserver\IngameServerControllerConfiguration.cs" />
     <Compile Include="Gameserver\StartEventArgs.cs" />
     <Compile Include="Plugins\SWBF2AdminPlugin.cs" />
     <Compile Include="Plugins\PluginManager.cs" />

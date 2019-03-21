@@ -20,9 +20,15 @@ using System.Xml.Serialization;
 
 using SWBF2Admin.Database;
 using SWBF2Admin.Utility;
-
 namespace SWBF2Admin.Config
 {
+    public enum GameserverType
+    {
+        GoG,
+        Steam,
+        Gamespy
+    }
+
     [ConfigFileInfo(fileName: "./cfg/core.xml", template: "SWBF2Admin.Resources.cfg.core.xml")]
     public class CoreConfiguration
     {
@@ -32,31 +38,14 @@ namespace SWBF2Admin.Config
         #endregion
 
         #region "gameserver"
-        public bool ManageServer { get; set; } = true;
         public bool AutoLaunchServer { get; set; } = false;
         public bool AutoRestartServer { get; set; } = true;
         public string ServerPath { get; set; } = @"G:\Programme\SteamLibrary\steamapps\common\Star Wars Battlefront II\GameData";
         public string ServerArgs { get; set; } = "/win /norender /nosound /autonet dedicated /resolution 640 480";
 
-        public bool EnableRuntime { get; set; } = false;
-        public bool EnableSteamMode { get; set; } = false;
-        public bool EnableGOGMode { get; set; } = false;
         public bool EnableHighPriority { get; set; } = true;
-        #endregion
-
-        #region "rcon"
-        public string RconHostname { get; set; } = "192.168.188.123:4658";
-        public string RconPassword { get; set; } = "specialsauce";
-
-        [XmlIgnore]
-        public virtual IPEndPoint GetRconIPEP
-        {
-            get
-            {
-                string[] cc = RconHostname.Split(':');
-                return new IPEndPoint(IPAddress.Parse(cc[0]), (cc.Length > 1 ? int.Parse(cc[1]) : 4658));
-            }
-        }
+        public bool EnableRuntime { get; set; } = false;
+        public GameserverType ServerType { get; set; } = GameserverType.GoG;
         #endregion
 
         #region "SQL"

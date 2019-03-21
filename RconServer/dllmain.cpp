@@ -14,13 +14,23 @@ DWORD WINAPI Run(LPVOID p) {
 
 #ifdef _DEBUG
 	Logger.SetMinLevelFile(LogLevel_VERBOSE);
-	while (!(GetAsyncKeyState(VK_ESCAPE) && GetAsyncKeyState(VK_BACK))) {
-		Sleep(1000);
-	}
 #else
 	Logger.SetMinLevelFile(LogLevel_ERROR);
-	while (dllmain_running) Sleep(100);
 #endif
+
+	MapStatus prevStatus = MAP_IDLE;
+	MapStatus newStatus = MAP_IDLE;
+	while (dllmain_running) {
+		newStatus = bf2server_get_map_status();
+		if (newStatus != prevStatus && newStatus != MAP_IDLE) {
+			dllmain_server->ReportEndgame();
+		}
+		prevStatus = newStatus;
+		Sleep(10);
+#ifdef _DEBUG
+		if (GetAsyncKeyState(VK_ESCAPE) && GetAsyncKeyState(VK_BACK)) dllmain_running = false;
+#endif
+	}
 
 	dllmain_server->Stop();
 	delete dllmain_server;
@@ -30,10 +40,11 @@ DWORD WINAPI Run(LPVOID p) {
 }
 
 BOOL WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, IN LPVOID dwReserved) {
-
 	switch (dwReason)
 	{
 	case DLL_PROCESS_ATTACH:
+		//bf2server_init is the first thing we do so we can apply crash patches before server crashes
+		bf2server_init();
 		dllmain_running = true;
 		dllmain_hThread = CreateThread(0, 0, Run, hModule, 0, 0);
 		break;

@@ -37,6 +37,7 @@ namespace SWBF2Admin.Runtime.Rcon
         private const byte LOGIN_MAGIC = 0x64;
         private const byte SLEEP = 5;
         private const string STATUS_MESSAGE_GAME_HAS_ENDED = "Game has ended";
+        private const string STATUS_MESSAGE_SERVER_IS_BUSY = "busy";
         private const int CHAR_LIMIT = 120; // Really its 128
 
         public RconClient(AdminCore core) : base(core) { }
@@ -51,12 +52,6 @@ namespace SWBF2Admin.Runtime.Rcon
         public override void OnServerStop()
         {
             Stop();
-        }
-
-        public override void Configure(CoreConfiguration config)
-        {
-            ServerPassword = config.RconPassword;
-            ServerIPEP = config.GetRconIPEP;
         }
 
         public override void OnDeInit()
@@ -207,7 +202,14 @@ namespace SWBF2Admin.Runtime.Rcon
                 }
             }
 
-            packet.HandleResponse(lastMessage);
+            if (lastMessage == STATUS_MESSAGE_SERVER_IS_BUSY)
+            {
+                Logger.Log(LogLevel.Verbose, "Server is busy - dropping rcon packet");
+            }
+            else
+            {
+                packet.HandleResponse(lastMessage);
+            }
             lastMessage = null;
         }
 

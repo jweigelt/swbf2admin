@@ -53,10 +53,6 @@ namespace SWBF2Admin.Runtime.Game
         public override void OnInit()
         {
             Core.Rcon.GameEnded += new EventHandler(Server_GameEnded);
-            if (Core.Config.EnableSteamMode || Core.Config.EnableGOGMode)
-            {
-                Core.IngameController.GameEnded += new EventHandler(Server_GameEnded);
-            }
         }
 
         public override void OnServerStart(EventArgs e)

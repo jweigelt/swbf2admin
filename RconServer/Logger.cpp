@@ -10,7 +10,7 @@ _Logger::~_Logger()
 
 void _Logger::Log(LogLevel level, const char* msg, ...) {
 
-	/*lock_guard <mutex> lg(mtx);
+	unique_lock <mutex> lg(mtx);
 
 	if (minLevelStdout <= level) {
 		printf(LOG_LEVELS[level]);
@@ -24,7 +24,7 @@ void _Logger::Log(LogLevel level, const char* msg, ...) {
 	if (minLevelFile <= level) {
 		//TODO: fix me
 		LogToFile(msg);
-	}*/
+	}
 }
 
 void _Logger::SetMinLevelStdout(LogLevel level)
