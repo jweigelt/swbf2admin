@@ -161,6 +161,7 @@
     <Compile Include="Runtime\Commands\CommandDispatcher.cs" />
     <Compile Include="Runtime\Commands\Dynamic\DynamicCommand.cs" />
     <Compile Include="Runtime\Commands\Dynamic\LuaApi.cs" />
+    <Compile Include="Runtime\Commands\Misc\CmdEndgame.cs" />
     <Compile Include="Runtime\Commands\Permissions\CmdGimmeAdmin.cs" />
     <Compile Include="Runtime\Commands\Permissions\CmdRmGroup.cs" />
     <Compile Include="Runtime\Commands\Permissions\CmdPutGroup.cs" />
