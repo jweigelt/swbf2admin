@@ -8,21 +8,21 @@ RconServer::RconServer(uint16_t maxClients)
 
 RconServer::~RconServer()
 {
-	if (running) Stop();
+	if (running) stop();
 }
 
-void RconServer::Start()
+void RconServer::start()
 {
 	WSADATA wsaData;
 	int err = NO_ERROR;
 
 	if ((err = WSAStartup(MAKEWORD(2, 2), &wsaData)) != NO_ERROR) {
-		Logger.Log(LogLevel_ERROR, "WSAStartup failed with error: %ld", err);
+		Logger.log(LogLevel_ERROR, "WSAStartup failed with error: %ld", err);
 		return;
 	}
 
 	if ((listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
-		Logger.Log(LogLevel_ERROR, "socket failed with error: %ld", WSAGetLastError());
+		Logger.log(LogLevel_ERROR, "socket failed with error: %ld", WSAGetLastError());
 		WSACleanup();
 		return;
 	}
@@ -33,24 +33,24 @@ void RconServer::Start()
 	service.sin_port = htons(port);
 
 	if ((err = ::bind(listenSocket, (SOCKADDR *)&service, sizeof(service))) == SOCKET_ERROR) {
-		Logger.Log(LogLevel_ERROR, "bind failed with error %u", WSAGetLastError());
+		Logger.log(LogLevel_ERROR, "bind failed with error %u", WSAGetLastError());
 		closesocket(listenSocket);
 		WSACleanup();
 		return;
 	}
 
-	if (listen(listenSocket, maxClients) == SOCKET_ERROR) {
-		Logger.Log(LogLevel_ERROR, "listen failed with error %u", WSAGetLastError());
+	if (::listen(listenSocket, maxClients) == SOCKET_ERROR) {
+		Logger.log(LogLevel_ERROR, "listen failed with error %u", WSAGetLastError());
 		closesocket(listenSocket);
 		WSACleanup();
 		return;
 	}
 	running = true;
-	workThread = thread(&RconServer::Listen, this);
-	bf2server_set_chat_cb(std::bind(&RconServer::OnChatInput, this, std::placeholders::_1));
+	workThread = thread(&RconServer::listen, this);
+	bf2server_set_chat_cb(std::bind(&RconServer::onChatInput, this, std::placeholders::_1));
 }
 
-void RconServer::Stop()
+void RconServer::stop()
 {
 	bf2server_set_chat_cb(NULL);
 	running = false;
@@ -58,31 +58,31 @@ void RconServer::Stop()
 	workThread.join();
 }
 
-void RconServer::Listen()
+void RconServer::listen()
 {
-	Logger.Log(LogLevel_INFO, "Listening...");
+	Logger.log(LogLevel_INFO, "Listening...");
 
 	while (running) {
 		SOCKET clientSocket;
 		if ((clientSocket = accept(listenSocket, NULL, NULL)) == INVALID_SOCKET) {
-			Logger.Log(LogLevel_WARNING, "Client connect failed with %ld", WSAGetLastError());
+			Logger.log(LogLevel_WARNING, "Client connect failed with %ld", WSAGetLastError());
 		}
 		else {
-			auto client = make_shared<RconClient>(clientSocket, std::bind(&RconServer::OnClientDisconnect, this, std::placeholders::_1));
+			auto client = make_shared<RconClient>(clientSocket, std::bind(&RconServer::onClientDisconnect, this, std::placeholders::_1));
 
 			unique_lock<mutex> lg(mtx);
 			clients.push_back(client);
 			lg.unlock();
 
-			Logger.Log(LogLevel_INFO, "Client connected. %zu clients connected.", clients.size());
-			client->Start();
+			Logger.log(LogLevel_INFO, "Client connected. %zu clients connected.", clients.size());
+			client->start();
 		}
 	}
 
 	unique_lock<mutex> lg(mtx);
 	for (auto &c : clients)
 	{
-		c->Stop();
+		c->stop();
 	}
 	clients.clear();
 	lg.unlock();
@@ -95,7 +95,7 @@ void RconServer::Listen()
 	WSACleanup();
 }
 
-void RconServer::OnClientDisconnect(RconClient * client)
+void RconServer::onClientDisconnect(RconClient * client)
 {
 	size_t idx = 0;
 	unique_lock<mutex> lg(mtx);
@@ -110,17 +110,17 @@ void RconServer::OnClientDisconnect(RconClient * client)
 	delete client;
 }
 
-void RconServer::OnChatInput(string const & msg)
+void RconServer::onChatInput(string const & msg)
 {
 	unique_lock<mutex> lg(mtx);
 	for (auto &c : clients) {
-		c->OnChatInput(msg);
+		c->onChatInput(msg);
 	}
 }
 
-void RconServer::ReportEndgame() {
+void RconServer::reportEndgame() {
 	unique_lock<mutex> lg(mtx);
 	for (auto &c : clients) {
-		c->ReportEndgame();
+		c->reportEndgame();
 	}
 }

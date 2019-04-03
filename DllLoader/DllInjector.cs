@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -43,7 +44,25 @@ namespace DllLoader
                 Console.WriteLine("No process matching {0} found.",processName);
                 return;
             }
-            Process proc = procs[0];
+
+            Process proc = null;
+            DirectoryInfo myDir = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+            foreach (Process p in procs)
+            {
+                DirectoryInfo d = new DirectoryInfo(Path.GetDirectoryName(p.MainModule.FileName));
+                if (d.FullName == myDir.FullName)
+                {
+                    proc = p;
+                }
+            }
+
+            if(proc == null)
+            {
+                Console.WriteLine("No process matching {0} found.", processName);
+                return;
+            }
+
             IntPtr hProc = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, proc.Id);
             if(hProc == IntPtr.Zero)
             {

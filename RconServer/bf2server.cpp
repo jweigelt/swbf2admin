@@ -1,25 +1,55 @@
 #include "bf2server.h"
 
-DWORD moduleBase, chatCCAddr;
+DWORD moduleBase;
+
+//chat
+DWORD chatCCAddr;
+
+//mapfix
+DWORD tickAddr, mapfixRetnAddr;
+BYTE mapfixTicks;
+
+FLOAT spawnValue = 15.0f;
+DWORD spawnValueAddr;
+
 function<void(string const &msg)> chatCB;
 
 void bf2server_init() {
 	moduleBase = (DWORD)GetModuleHandle(L"BattlefrontII.exe");
+	mapfixRetnAddr = OFFSET_MAPFIX_RETN + moduleBase;
+	tickAddr = (DWORD)&mapfixTicks;
+
 	bf2server_patch_norender();
+	bf2server_patch_password();
 	bf2server_patch_votekick_exploit();
+	bf2server_patch_maphang();
+
+	bf2server_patch_dedicated();
 
 	chatCCAddr = (DWORD)&bf2server_chat_cc;
 	bf2server_set_chat_cc();
+
+	spawnValueAddr = (DWORD)&spawnValue;
+	bf2server_patch_spawnvalue();
 }
 
 void bf2server_patch_norender()
 {
 	BYTE patch[] = {
-		0x90, 0x90, 0x90,				//push [ebp+8]	-> nop	
-		0x8B, 0xCE,						//mov ecx, esi
-		0x90, 0x90, 0x90, 0x90, 0x90,	//call 0x6bb440 -> nop
-		0x30, 0xc0,						//test al, al	-> xor al, al
-		0x90, 0x90						//jnz 0x6BB3A6  -> nop
+		//push [ebp+8] -> nop
+		0x90, 0x90, 0x90,
+
+		//mov ecx, esi
+		0x8B, 0xCE,
+
+		//call 0x6bb440 -> nop
+		0x90, 0x90, 0x90, 0x90, 0x90,
+
+		//test al, al -> xor al, al
+		0x30, 0xc0,
+
+		//jnz 0x6BB3A6 -> nop
+		0x90, 0x90
 	};
 
 	bf2server_patch_asm(OFFSET_NORENDER_FIX, (void*)patch, sizeof(patch));
@@ -28,11 +58,16 @@ void bf2server_patch_norender()
 void bf2server_patch_votekick_exploit()
 {
 	BYTE crashPatch[] = {
-		0x32, 0xC9, 0x90	//mov cl, byte ptr[ebp]  -> xor cl, cl
+		//mov cl, byte ptr[ebp]
+		//-> xor cl, cl
+		//-> nop
+		0x32, 0xC9,
+		0x90
 	};
 
 	BYTE kickPatch[] = {
-		0x90, 0x90, 0x90, 0x90, 0x90	//call 0x005A22A0 -> nop
+		//call 005A22A0 -> nop
+		0x90, 0x90, 0x90, 0x90, 0x90
 	};
 
 	bf2server_patch_asm(OFFSET_VOTECRASH_FIX, (void*)crashPatch, sizeof(crashPatch));
@@ -41,12 +76,84 @@ void bf2server_patch_votekick_exploit()
 
 void bf2server_patch_password()
 {
-	//TODO
 	BYTE patch[] = {
-		0x90, 0x90,						//push 0x01 -> nop
-		0x90, 0x90, 0x90, 0x90, 0x90,	//push 0x80 -> nop
+		//push 0x01 -> nop
+		0x90, 0x90,
+
+		//push 0x80 -> nop
+		0x90, 0x90, 0x90, 0x90, 0x90,
+
+		//lea edx, [ebp-AC]
+		//mov ecx, offset 007AA3F8
+		//-> nop
+		//-> lea eax, ds:1e31c40
+		0x90, 0x90, 0x90, 0x90, 0x90,
+		0x8D, 0x05, 0x40, 0x1c, 0xe3, 0x01,
+
+		//call 005A2380 -> nop
+		0x90, 0x90, 0x90, 0x90, 0x90,
+
+		//lea eax, [ebp-AC] -> nop
+		0x90, 0x90, 0x90, 0x90, 0x90, 0x90
 	};
 
+	*(DWORD*)&patch[14] = OFFSET_PASSWORD_PLAIN + moduleBase;
+
+	bf2server_patch_asm(OFFSET_PASSWORD_FIX, (void*)patch, sizeof(patch));
+}
+
+void bf2server_patch_dedicated()
+{
+	BYTE numPlayersPatch[] = {
+		//push[esp + 0D0h + var_B8]
+		//-> push 1
+		//-> inc edi
+		//-> nop
+		0x6A, 0x01,
+		0x47,
+		0x90
+	};
+
+	BYTE serverTypePatch[] = {
+		//push 1
+		//-> push 2
+		0x6A, 0x02
+	};
+
+	bf2server_patch_asm(OFFSET_NUMPLAYERS_MOD, (void*)numPlayersPatch, sizeof(numPlayersPatch));
+	bf2server_patch_asm(OFFSET_DEDICATED_FIX, (void*)serverTypePatch, sizeof(serverTypePatch));
+}
+
+void __declspec(naked) bf2server_mapfix_cc() {
+	__asm {
+		mov eax, dword ptr[tickAddr]
+		inc byte ptr[eax]
+
+		cmp byte ptr[eax], MAPFIX_IDLE_TIMEOUT
+		jge loc_force
+
+		loc_retn:
+			mov eax, dword ptr[mapfixRetnAddr]
+			jmp eax
+
+		loc_force :
+			xor eax, eax
+			jmp loc_retn
+	}
+}
+
+void bf2server_patch_maphang()
+{
+	BYTE detourPatch[] = {
+		//movzx eax, offset 01E64359
+		//-> mov eax, <ccAddr>
+		//jmp eax
+		0xB8, 0x00, 0x00, 0x00, 0x00,
+		0xff, 0xe0
+	};
+
+	*(DWORD*)&detourPatch[1] = (DWORD)&bf2server_mapfix_cc;
+	bf2server_patch_asm(OFFSET_MAPFIX_DETOUR, detourPatch, sizeof(detourPatch));
 }
 
 void bf2server_patch_asm(DWORD offset, void * patch, size_t patchSize)
@@ -82,7 +189,7 @@ std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t* me
 void bf2server_set_chat_cc() {
 	DWORD addr = (DWORD)&chatCCAddr;
 	//replace function pointer to snprintf with our own
-	bf2server_patch_asm(OFFSET_CHATSNPRINTF, (void*)&addr, sizeof(addr));
+	bf2server_patch_asm(OFFSET_CHATSNPRINTF, (void*)&addr, sizeof(DWORD));
 }
 
 int __cdecl bf2server_chat_cc(char* buf, size_t sz, const char* fmt, ...) {
@@ -92,7 +199,7 @@ int __cdecl bf2server_chat_cc(char* buf, size_t sz, const char* fmt, ...) {
 	va_start(args, fmt);
 	ret = vsnprintf(buf, sz, fmt, args);
 	va_end(args);
-	Logger.Log(LogLevel_VERBOSE, buf);
+	Logger.log(LogLevel_VERBOSE, buf);
 	if (chatCB != NULL) chatCB(std::string(buf));
 	return ret;
 }
@@ -101,12 +208,6 @@ std::string bf2server_get_adminpwd()
 {
 	DWORD addr = moduleBase + OFFSET_ADMINPW;
 	return std::string((char*)addr);
-}
-
-void bf2server_set_details(BYTE mode)
-{
-	DWORD addr = moduleBase + OFFSET_COMMAND_DETAILS;
-	*(BYTE*)addr = mode;
 }
 
 wstring bf2server_s2ws(string const & s)
@@ -141,4 +242,16 @@ MapStatus bf2server_get_map_status()
 bool bf2server_idle() {
 	DWORD addr = moduleBase + OFFSET_IDLE;
 	return 	(*(BYTE*)addr) == 1;
+}
+
+void bf2server_mapfix_tick()
+{
+	if (bf2server_get_map_status() == MAP_IDLE && mapfixTicks > 0) {
+		mapfixTicks = 0;
+	}
+}
+
+void bf2server_patch_spawnvalue()
+{
+	bf2server_patch_asm(OFFSET_SPAWNVALUE_MOD_FLOAT, (void*)&spawnValueAddr, sizeof(DWORD));
 }

@@ -23,10 +23,10 @@ class RconServer
 public:
 	RconServer(uint16_t maxClients);
 	~RconServer();
-	void Start();
-	void Stop();
-	void Listen();
-	void ReportEndgame();
+	void start();
+	void stop();
+	void listen();
+	void reportEndgame();
 
 private:
 	bool running = false;
@@ -36,8 +36,8 @@ private:
 
 	uint16_t port;
 	uint16_t maxClients;
-	void OnClientDisconnect(RconClient *client);
-	void OnChatInput(string const & msg);
+	void onClientDisconnect(RconClient *client);
+	void onChatInput(string const & msg);
 
 	thread workThread;
 };

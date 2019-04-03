@@ -10,12 +10,12 @@ HANDLE dllmain_hThread;
 
 DWORD WINAPI Run(LPVOID p) {
 	dllmain_server = new RconServer(MAX_CONNECTIONS);
-	dllmain_server->Start();
+	dllmain_server->start();
 
 #ifdef _DEBUG
 	Logger.SetMinLevelFile(LogLevel_VERBOSE);
 #else
-	Logger.SetMinLevelFile(LogLevel_ERROR);
+	Logger.setMinLevelFile(LogLevel_ERROR);
 #endif
 
 	MapStatus prevStatus = MAP_IDLE;
@@ -23,16 +23,17 @@ DWORD WINAPI Run(LPVOID p) {
 	while (dllmain_running) {
 		newStatus = bf2server_get_map_status();
 		if (newStatus != prevStatus && newStatus != MAP_IDLE) {
-			dllmain_server->ReportEndgame();
+			dllmain_server->reportEndgame();
 		}
 		prevStatus = newStatus;
+		bf2server_mapfix_tick();
 		Sleep(10);
 #ifdef _DEBUG
 		if (GetAsyncKeyState(VK_ESCAPE) && GetAsyncKeyState(VK_BACK)) dllmain_running = false;
 #endif
 	}
 
-	dllmain_server->Stop();
+	dllmain_server->stop();
 	delete dllmain_server;
 
 	FreeLibraryAndExitThread((HMODULE)p, 0);

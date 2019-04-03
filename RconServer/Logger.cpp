@@ -8,7 +8,7 @@ _Logger::~_Logger()
 {
 }
 
-void _Logger::Log(LogLevel level, const char* msg, ...) {
+void _Logger::log(LogLevel level, const char* msg, ...) {
 
 	unique_lock <mutex> lg(mtx);
 
@@ -23,16 +23,16 @@ void _Logger::Log(LogLevel level, const char* msg, ...) {
 
 	if (minLevelFile <= level) {
 		//TODO: fix me
-		LogToFile(msg);
+		logToFile(msg);
 	}
 }
 
-void _Logger::SetMinLevelStdout(LogLevel level)
+void _Logger::setMinLevelStdout(LogLevel level)
 {
 	minLevelStdout = level;
 }
 
-void _Logger::SetMinLevelFile(LogLevel level)
+void _Logger::setMinLevelFile(LogLevel level)
 {
 	minLevelFile = level;
 }
@@ -42,7 +42,7 @@ void _Logger::SetFileName(string const & fileName)
 	logFile = fileName;
 }
 
-void _Logger::LogToFile(string const &  s)
+void _Logger::logToFile(string const &  s)
 {
 	ofstream f;
 	f.open(logFile, f.app);

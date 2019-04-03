@@ -20,20 +20,20 @@ class RconClient
 public:
 	RconClient(SOCKET &socket, function<void(RconClient *c)> onDisconnect);
 	~RconClient();
-	void Stop();
-	void Start();
-	void OnChatInput(string const & msg);
-	void ReportEndgame();
+	void stop();
+	void start();
+	void onChatInput(string const & msg);
+	void reportEndgame();
 
 private:
 	SOCKET socket;
-	bool CheckLogin();
+	bool checkLogin();
 	bool connected;
 	function<void(RconClient *c)> onDisconnect = NULL;
 	thread workThread;
 	mutex mtx;
 
-	void HandleCommand(string const & command);
-	void Send(vector<string> &response);
-	void HandleConnection();
+	void handleCommand(string const & command);
+	void send(vector<string> &response);
+	void handleConnection();
 };

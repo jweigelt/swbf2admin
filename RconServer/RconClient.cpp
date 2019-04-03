@@ -8,26 +8,26 @@ RconClient::RconClient(SOCKET & socket, std::function<void(RconClient*c)> onDisc
 
 RconClient::~RconClient() { }
 
-void RconClient::Stop()
+void RconClient::stop()
 {
 	connected = false;
 	closesocket(socket);
 	workThread.join();
 }
 
-void RconClient::Start()
+void RconClient::start()
 {
-	workThread = thread(&RconClient::HandleConnection, this);
+	workThread = thread(&RconClient::handleConnection, this);
 }
 
-void RconClient::OnChatInput(std::string const & msg)
+void RconClient::onChatInput(std::string const & msg)
 {
 	std::vector<std::string> rows = std::vector<std::string>();
 	rows.push_back(msg);
-	Send(rows);
+	send(rows);
 }
 
-bool RconClient::CheckLogin()
+bool RconClient::checkLogin()
 {
 	char pwd[33], magic, res;
 	pwd[32] = 0x00;
@@ -39,19 +39,19 @@ bool RconClient::CheckLogin()
 	string pwdHash = md5(bf2server_get_adminpwd());
 
 	if (pwdHash.compare(pwd) == 0) {
-		Logger.Log(LogLevel_VERBOSE, "Client logged in.", pwd);
+		Logger.log(LogLevel_VERBOSE, "Client logged in.", pwd);
 		res = 1;
 	}
 	else {
-		Logger.Log(LogLevel_VERBOSE, "Client sent wrong password '%s'", pwd);
+		Logger.log(LogLevel_VERBOSE, "Client sent wrong password '%s'", pwd);
 		res = 0;
 	}
 
-	send(socket, &res, 1, 0);
+	::send(socket, &res, 1, 0);
 	return (res == 1);
 }
 
-void RconClient::HandleCommand(std::string const & command)
+void RconClient::handleCommand(std::string const & command)
 {
 	string res;
 	if (bf2server_idle()) {
@@ -70,33 +70,33 @@ void RconClient::HandleCommand(std::string const & command)
 		rows.emplace_back(r);
 		op = ++np;
 	}
-	Send(rows);
+	send(rows);
 }
 
-void RconClient::Send(vector<string> &response)
+void RconClient::send(vector<string> &response)
 {
 	unsigned char rowLen = 0;
 	unsigned char rows = (unsigned char)response.size();
 
 	{
 		unique_lock<mutex> lg(mtx);
-		send(socket, (char*)&rows, 1, 0);
+		::send(socket, (char*)&rows, 1, 0);
 
 		for (string row : response) {
 			rowLen = (unsigned char)row.length() + 1;
-			send(socket, (char*)&rowLen, 1, 0);
-			send(socket, row.c_str(), rowLen, 0);
+			::send(socket, (char*)&rowLen, 1, 0);
+			::send(socket, row.c_str(), rowLen, 0);
 		}
 	}
 }
 
-void RconClient::HandleConnection()
+void RconClient::handleConnection()
 {
 	unsigned char rows, sz, bytesRead, fragment;
 	bool err = false;
 
-	if (!(connected = CheckLogin())) {
-		Logger.Log(LogLevel_VERBOSE, "Client login failed.");
+	if (!(connected = checkLogin())) {
+		Logger.log(LogLevel_VERBOSE, "Client login failed.");
 	}
 
 	while (connected) {
@@ -116,12 +116,12 @@ void RconClient::HandleConnection()
 		}
 
 		if (!err) {
-			Logger.Log(LogLevel_VERBOSE, "Received command: %s", buffer.get());
-			HandleCommand(string(buffer.get()));
+			Logger.log(LogLevel_VERBOSE, "Received command: %s", buffer.get());
+			handleCommand(string(buffer.get()));
 		}
 	}
 
-	Logger.Log(LogLevel_VERBOSE, "Closing connection.");
+	Logger.log(LogLevel_VERBOSE, "Closing connection.");
 
 	if (connected) {
 		closesocket(socket);
@@ -130,8 +130,8 @@ void RconClient::HandleConnection()
 	onDisconnect(this);
 }
 
-void RconClient::ReportEndgame() {
+void RconClient::reportEndgame() {
 	auto v = vector<string>();
 	v.emplace_back("Game has ended");
-	Send(v);
+	send(v);
 }
