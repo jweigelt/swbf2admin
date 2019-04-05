@@ -42,6 +42,15 @@ namespace SWBF2Admin.Plugins
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Warning, "[PI ] Failed to load plugin \"{0}\" - disabling it ({1})", f.Name, e.Message);
+                if (e is ReflectionTypeLoadException)
+                {
+                    var ex = (ReflectionTypeLoadException)e;
+                    foreach (var le in ex.LoaderExceptions)
+                    {
+                        Logger.Log(LogLevel.Warning, le.Message + "\n");
+                    }
+        
+                }
             }
         }
 
@@ -51,6 +60,8 @@ namespace SWBF2Admin.Plugins
                 Core.Files.CreateDirectoryStructure(DIR_PLUGINS + "/");
 
             FileInfo[] plugins = Core.Files.GetFiles(DIR_PLUGINS, "*.dll");
+            //AppDomain.CurrentDomain.AppendPrivatePath("plugins/dependencies");
+
             foreach (FileInfo f in plugins)
             {
                 //TODO: fix

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AnnounceHandlerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Enable>true</Enable>
+  
+  <!--broadcast interval in seconds (360s => 10min)-->
+  <Interval>360</Interval>
+  
+  <!--
+    set EnableParser to true to enable tag replacements
+    {s:map} - current map
+    {s:ff} - friendly fire enabled (0/1)
+    {s:gm} - gamemode
+    {s:heroes} - heroes enabled (0/1)
+    {s:maxplayers} - max. players
+    {s:nextmap} - next map
+    {s:password} - server password
+    {s:players}	- current playercount
+    {s:ip} - server's ip-address
+    {s:name} - servers name
+    {s:t1score}	- team 1's score (CTF)
+    {s:t2score}	- team 2's score (CTF)
+    {s:t1tickets}	team 1's reinforcements (CON/ASS/HUNT)
+    {s:t2tickets}	team 2's reinforcements (CON/ASS/HUNT)
+    {s:version}	- server's version
+    {g:nr} - current game's id
+    {banner} - SWBF2Admin's version infos
+    {t:(format)} - current time formatted by given format string
+    
+    when using the time tag, the format string has to be in .NET-style time format
+  -->
+  
+  <AnnounceList>
+    <!--if you're feeling generous today, you might leave this one :-)-->
+    <Announce EnableParser="true" Message="Running {banner}" />
+  </AnnounceList>  
+</AnnounceHandlerConfiguration>

@@ -54,7 +54,7 @@ bool RconClient::checkLogin()
 void RconClient::handleCommand(std::string const & command)
 {
 	string res;
-	if (bf2server_idle()) {
+	if (bf2server_idle() && bf2server_get_map_status() == MAP_IDLE) {
 		res = bf2server_command(MESSAGETYPE_COMMAND, SENDER_REMOTE, bf2server_s2ws(command).c_str(), OUTPUT_BUFFER);
 	}
 	else {

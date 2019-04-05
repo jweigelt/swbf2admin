@@ -1,62 +1,81 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<CoreConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-  <!--
-    WebAdmin configuration:
-    - WebAdminEnable: enable WebAdmin
-    - WebAdminPrefix: URL ("prefix") of the webserver.
-    Using https:
-    - install your cert into your local cert store
-    - run netsh http add sslcert ipport=<WebAdminPrefix> certhash=<certhash> appid={02639d71-0935-35e8-9d1b-9dd1a2a34627}
-  --> 
+<CoreConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+  <!--enable web management-->
   <WebAdminEnable>true</WebAdminEnable>
+  <!--
+    webadmin's bind address
+    You can use either your server's IP-Address or a domain which points to your server.
+    Use localhost or 127.0.0.1 to limit access to the local machine.
+    The url has to end with a tailing '/'!
+  -->
   <WebAdminPrefix>http://localhost:8080/</WebAdminPrefix>
 
   <!--
-    Server options:
-    - ManageServer:       act as the server manager and not as a client
-    - AutoLaunchServer:   launch server on startup
-    - AutoRestartServer:  restart server automatically if it crashes
-    - ServerPath:         Path to gameserver directory. Use ./path/to/server for relative file access.
-  -->  
-  <ManageServer>true</ManageServer>
-  <AutoLaunchServer>false</AutoLaunchServer>
-  <AutoRestartServer>true</AutoRestartServer>
+    server installation's "type"
+    Available options:
+    - Gamespy (default server package)
+    - GoG (GOG Galaxy variant)
+    - Steam (Steam variant)
+  -->
+  <ServerType>GoG</ServerType>
+  <!--
+    path to your server's GameData folder
+    - use ./ for file access relative to swbf2admin.exe
+  -->
   <ServerPath>./server</ServerPath>
-  <EnableSteamMode>false</EnableSteamMode>
-  <EnableGOGMode>false</EnableGOGMode>
-  <!--NOTE: if you set EnableRuntime to true, make sure you're the first one to enter !gimmeadmin in chat!-->
+  <!--automatically start the server when swbf2admin is launched-->
+  <AutoLaunchServer>false</AutoLaunchServer>
+  <!--automatically restart the server when it crashes-->
+  <AutoRestartServer>true</AutoRestartServer>
+  <!--command line arguments passed to BattlefrontII.exe-->
+  <ServerArgs>/win /norender /nosound /autonet dedicated /resolution 640 480</ServerArgs>
+  <!--
+    set the server's cpu priority to high
+    - improve performance by reducing cpu latency on slow machines
+  -->
+  <EnableHighPriority>false</EnableHighPriority>
+  
+  <!--
+    enable rcon (commands, broadcasts, statistics logging ...)
+    CAUTION:
+      should you choose to enable runtime, make sure you are the first person to execute "!gimmeadmin"
+      !gimmeadmin will put the first user to execute the command into user group "Admin"
+  -->
   <EnableRuntime>false</EnableRuntime>
+  <!--prefix for ingame chat-commands-->
+  <CommandPrefix>!</CommandPrefix>
+  <!--enable lua user scripted commands-->
+  <CommandEnableDynamic>true</CommandEnableDynamic>
 
   <!--
-    Database:
-    - SQLEngine:        Database backend (SQLite or MySQL)
-    - SQLiteFileName:   Path to sqlitedb when using SQLite. Use ./path/to/fb.sqlite for relative file access.
-    - MySQLHostname:    Format: <host>:<port> mysql server's IP address or hostname and port
-    - MySQLUsername:    MySQL server's username
-    - MySQLUsername:    MySQL user's password    
+    SQL-database type:
+    Available options:
+    - SQLite (default)
+    - MySQL
   -->
   <SQLType>SQLite</SQLType>
+  <!--SQLite database file (ignored in MySQL mode)-->
   <SQLiteFileName>./SWBF2Admin.sqlite</SQLiteFileName>
-  <MySQLHostname>localhost:3306</MySQLHostname>
-  <MySQLUsername>root</MySQLUsername>
+
+  <!--MySQL server configuration (ignored in SQLite mode)-->
   <MySQLDatabaseName>swbf2</MySQLDatabaseName>
-  <MySQLPassword />
+  <MySQLHostname>localhost:3306</MySQLHostname>
+  <MySQLUsername>swbf2admin</MySQLUsername>
+  <MySQLPassword>1234</MySQLPassword>
 
   <!--
-    CommandHandler:
-    - CommandPrefix: Prefix that initiates a command
-  -->
-  <CommandPrefix>!</CommandPrefix>
-
-  <!--
-    Event logging:
-    - LogMinimumLevel:  Minium level for messages to be logged
-    - LogToFile:        Write console output to file (true/false)
-    - LogFileName:      Path to logfile. Use ./path/to/fb.sqlite for relative file access.
-  -->
+    lowest event severity to be logged
+    Available options:   
+    VerboseSQL - output debug info including all SQL queries
+    Verbose - output debug info
+    Info - output common server events
+    Warning - output unusual server events
+    Error - output errors which will impact functionality
+  --> 
   <LogMinimumLevel>Info</LogMinimumLevel>
+  <!--write console output to file-->
   <LogToFile>false</LogToFile>
   <LogFileName>./log.txt</LogFileName>
-
+  
 </CoreConfiguration>

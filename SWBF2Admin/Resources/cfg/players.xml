@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PlayerHandlerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--message shown in chat when a banned player gets removed from the session-->
+  <OnPlayerAutoKickBanned>Auto-kicking {player} - player banned.</OnPlayerAutoKickBanned>
+  
+  <!--enable statistics logging-->
+  <EnablePlayerStatsLogging>false</EnablePlayerStatsLogging>
+  
+  <!--
+    conditional admin broadcasts
+    
+    available triggers:
+      - ScoreSinceLastKillGreaterThan
+      - ScoreSinceLastDeathGreaterThan
+      - KillsSinceLastScoreGreaterThan
+      - KillsSinceLastDeathGreaterThan
+      - DeathsSinceLastKillGreaterThan
+      - DeathsSinceLastScoreGreaterThan
+      - TotalKillsGreatherThan
+      - TotalScoreGreaterThan
+      - TotalDeathsGreaterThan
+      
+    available reset conditions:
+     - OnScore
+     - OnKill
+     - OnDeath
+     - OnSlotReset (player leaves the server)
+     
+    MessagePool:
+    - the message pool holds a collection of possible broadcasts
+    - when a trigger condition is observed, a message from the pool is selected at random 
+  -->
+  
+  <ConditionalMessages>
+    <!--examples-->
+    <!--
+    <ConditionalMessage Trigger="KillsSinceLastDeathGreaterThan" ResetCondition="OnDeath" Threshold="1">
+      <MessagePool>
+        <string>{player}: DoubleKill!</string>
+        <string>{player} just killed two players! Be afraid!</string>
+      </MessagePool>
+    </ConditionalMessage>
+    -->
+    <!--
+    <ConditionalMessage Trigger="DeathsSinceLastKillGreaterThan" ResetCondition="OnKill" Threshold="4">
+      <MessagePool>
+        <string>{player}: 5 deaths, no kill :((</string>
+      </MessagePool>
+    </ConditionalMessage>
+    -->
+  </ConditionalMessages>
+</PlayerHandlerConfiguration>

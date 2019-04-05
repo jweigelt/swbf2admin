@@ -133,10 +133,10 @@ void __declspec(naked) bf2server_mapfix_cc() {
 		jge loc_force
 
 		loc_retn:
-			mov eax, dword ptr[mapfixRetnAddr]
-			jmp eax
+			mov ecx, dword ptr[mapfixRetnAddr]
+			jmp ecx
 
-		loc_force :
+		loc_force:
 			xor eax, eax
 			jmp loc_retn
 	}

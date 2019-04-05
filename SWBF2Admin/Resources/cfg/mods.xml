@@ -109,56 +109,81 @@
         <HexEdit FileName="mission.lvl" StartAddress="0000C2BB" PatchedBytes= "80" OriginalBytes="00" />
       </HexEdits>
     </LvlMod>
-	
+
     <LvlMod Name="soft_tank">
       <HexEdits>
-		<!--cis_hover_aat-->
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="823ECC" PatchedString= "2" OriginalString="8"/>	
-		<!--cis_walk_spider-->
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="1173698" PatchedString= "2500.00" OriginalString="20000.0"/>	
-		<!--cis_tread_snailtank-->
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="1072B90" PatchedString= "2" OriginalString="8"/>			
-		<!--rep_hover_fightertank-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="A45460" PatchedString= "2" OriginalString="8"/>	
-		<!--rep_walk_oneman_atst-->		
-	    <HexEdit FileName="SIDE/rep.lvl" StartAddress="1979E04" PatchedString= "2" OriginalString="4"/>	
-		<!--rep_walk_atte-->		
-	    <HexEdit FileName="SIDE/rep.lvl" StartAddress="17BB758" PatchedString= "5000.00" OriginalString="40000.0"/>		
-		<!--imp_hover_fightertank-->
-        <HexEdit FileName="SIDE/imp.lvl" StartAddress="48C9C0" PatchedString= "2" OriginalString="8"/>	
-		<!--rep_walk_oneman_atst-->		
-	    <HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString= "2" OriginalString="4"/>		
-		<!--all_hover_combatspeeder-->		
-	    <HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString= "2" OriginalString="0"/>
-					
-		</HexEdits>
+        <!--cis_hover_aat-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="823ECC" PatchedString= "1" OriginalString="8"/>
+        <!--cis_walk_spider-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="1173698" PatchedString= "2500.00" OriginalString="20000.0"/>
+        <!--cis_tread_snailtank-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="1072B90" PatchedString= "1" OriginalString="8"/>
+        <!--rep_hover_fightertank-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="A45460" PatchedString= "1" OriginalString="8"/>
+        <!--rep_walk_oneman_atst-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="1979E04" PatchedString= "1" OriginalString="4"/>
+        <!--rep_walk_atte-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="17BB758" PatchedString= "5000.00" OriginalString="40000.0"/>
+        <!--imp_hover_fightertank-->
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="48C9C0" PatchedString= "1" OriginalString="8"/>
+        <!--rep_walk_oneman_atst-->
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString= "1" OriginalString="4"/>
+        <!--all_hover_combatspeeder-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString= "1" OriginalString="0"/>
+
+      </HexEdits>
     </LvlMod>
+
+    <LvlMod Name="no_tank">
+      <HexEdits>
+        <!--cis_hover_aat-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="823ECC" PatchedString= "0" OriginalString="8"/>
+        <!--cis_walk_spider-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="1173698" PatchedString= "0000.00" OriginalString="20000.0"/>
+        <!--cis_tread_snailtank-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="1072B90" PatchedString= "0" OriginalString="8"/>
+        <!--rep_hover_fightertank-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="A45460" PatchedString= "0" OriginalString="8"/>
+        <!--rep_walk_oneman_atst-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="1979E04" PatchedString= "0" OriginalString="4"/>
+        <!--rep_walk_atte-->
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="17BB758" PatchedString= "0000.00" OriginalString="40000.0"/>
+        <!--imp_hover_fightertank-->
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="48C9C0" PatchedString= "0" OriginalString="8"/>
+        <!--rep_walk_oneman_atst-->
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString= "0" OriginalString="4"/>
+        <!--all_hover_combatspeeder-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString= "0" OriginalString="0"/>
+
+      </HexEdits>
+    </LvlMod>
+
     <LvlMod Name="fusion_range">
       <HexEdits>
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="BAD454" PatchedString= "1E3" OriginalString="4.0"/>	
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="DB5970" PatchedString= "1E3" OriginalString="4.0"/>	
-        
-		<HexEdit FileName="SIDE/rep.lvl" StartAddress="BB03EC" PatchedString= "1E3" OriginalString="4.0"/>			
-		<HexEdit FileName="SIDE/rep.lvl" StartAddress="D509A0" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/rep.lvl" StartAddress="E6DEFC" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/rep.lvl" StartAddress="11CE88C" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/rep.lvl" StartAddress="135BD60" PatchedString= "1E3" OriginalString="4.0"/>	
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="BAD454" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="DB5970" PatchedString= "1E3" OriginalString="4.0"/>
 
-		<HexEdit FileName="SIDE/imp.lvl" StartAddress="6A409C" PatchedString= "1E3" OriginalString="4.0"/>			
-		<HexEdit FileName="SIDE/imp.lvl" StartAddress="709428" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/imp.lvl" StartAddress="965570" PatchedString= "1E3" OriginalString="4.0"/>	
-		
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="A96C" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="4605C8" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="4DA4C4" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="6FA218" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="A02798" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="A919FC" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="B20C68" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="BAFFC0" PatchedString= "1E3" OriginalString="4.0"/>	
-		<HexEdit FileName="SIDE/all.lvl" StartAddress="E3FBF0" PatchedString= "1E3" OriginalString="4.0"/>	
-						
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="BB03EC" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="D509A0" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="E6DEFC" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="11CE88C" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="135BD60" PatchedString= "1E3" OriginalString="4.0"/>
+
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="6A409C" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="709428" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="965570" PatchedString= "1E3" OriginalString="4.0"/>
+
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="A96C" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="4605C8" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="4DA4C4" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="6FA218" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="A02798" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="A919FC" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="B20C68" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="BAFFC0" PatchedString= "1E3" OriginalString="4.0"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="E3FBF0" PatchedString= "1E3" OriginalString="4.0"/>
+
       </HexEdits>
-    </LvlMod>  
+    </LvlMod>
   </Mods>
 </LvlWriterConfig>

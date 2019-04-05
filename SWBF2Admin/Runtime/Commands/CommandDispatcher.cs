@@ -110,7 +110,7 @@ namespace SWBF2Admin.Runtime.Commands
             List<Player> players = Core.Players.GetPlayers(name, false, true);
             if (players.Count != 1)
             {
-                Logger.Log(LogLevel.Verbose,
+                Logger.Log(LogLevel.Info,
                     "Player \"{0}\" could not be identified. Blocking access to \"{1}\"", name, message);
                 return;
             }
@@ -128,26 +128,26 @@ namespace SWBF2Admin.Runtime.Commands
                 {
                     if (!c.HasPermission(player))
                     {
-                        Logger.Log(LogLevel.Verbose,
+                        Logger.Log(LogLevel.Info,
                             "Player \"{0}\" doesnt have permission for \"{1}\"", player.Name, c.Alias);
                     }
                     else
                     {
                         if (c.Enabled)
                         {
-                            Logger.Log(LogLevel.Verbose, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, player.Name);
+                            Logger.Log(LogLevel.Info, "Running command \"{0}\", invoked by \"{1}\"", c.Alias, player.Name);
                             c.Handle(player, command, parameters);
                         }
                         else
                         {
-                            Logger.Log(LogLevel.Verbose, "Command \"{0}\" (called by \"{1}\") is disabled - ignoring call.", c.Alias, player.Name);
+                            Logger.Log(LogLevel.Warning, "Command \"{0}\" (called by \"{1}\") is disabled - ignoring call.", c.Alias, player.Name);
                         }
                     }
                     return;
                 }
             }
 
-            Logger.Log(LogLevel.Verbose, "Player \"{0}\" issued unknown command \"{1}\"", player.Name, command);
+            Logger.Log(LogLevel.Info, "Player \"{0}\" issued unknown command \"{1}\"", player.Name, command);
         }
 
         private void RegisterCommand<T>() where T : ChatCommand

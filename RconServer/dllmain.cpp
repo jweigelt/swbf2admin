@@ -27,7 +27,7 @@ DWORD WINAPI Run(LPVOID p) {
 		}
 		prevStatus = newStatus;
 		bf2server_mapfix_tick();
-		Sleep(10);
+		Sleep(50);
 #ifdef _DEBUG
 		if (GetAsyncKeyState(VK_ESCAPE) && GetAsyncKeyState(VK_BACK)) dllmain_running = false;
 #endif

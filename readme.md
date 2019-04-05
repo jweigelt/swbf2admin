@@ -1,91 +1,79 @@
 # SWBF2Admin
-
-## Important
-This documentation is outdated. An updated readme is WIP.
-
 A modern, easy-to-use server manager for Star Wars Battlefront II (2005) dedicated servers
 
 ## Getting Started
-
 These instructions will get you a minimal SWBF2Admin setup up and running.
-SWBF2Admin is highly configurable - if you're interested in customizing your SWBF2Admin installation, please also check out "Advanced configuration" for further information.
+SWBF2Admin is highly configurable - for advanced configuration techniques or more detailed instructions, please also check out the "Advanced" section of the document.
 
 ### Prerequisites
+SWBF2Admin requires the following software to be installed on the host machine:
 
-SWBF2Admin requires .NET Framework(or equivalent) v4.6.1 or newer. .NET Framework can be downloaded at
-https://www.microsoft.com/net/download/windows
+- .NET Framework(or equivalent) v4.6.1 or newer (https://www.microsoft.com/net/download/windows)
+- Visual C++ Redistributable x86 2015: (https://www.microsoft.com/en-us/download/details.aspx?id=48145)
 
-### Creating a working server installation:
-
-As SWBF2Admin is only a server management tool, the gameserver has to be installed first.
-
-If you want to host a SWBFSpy dedicated server:
-
-- Download dedicated server files from http://www.moddb.com/games/star-wars-battlefront-ii/downloads/star-wars-battlefront-ii-v11-dedicated-server
-- Download multiplayer server binaries from http://info.swbfspy.com/
-- Replace the server executable with the one downloaded from swbfspy
-
-If you want to host a Steam (GoG) server:
-
-- Install Steam on your server machine
-- Install the latest Star Wars Battlefront II (Classic, 2005) version
-- Right click the game in your steam library, set launch options to /autonet /win /nointro <map name (e.g tat2g_eli)>
-- Download dedicated server files from http://www.moddb.com/games/star-wars-battlefront-ii/downloads/star-wars-battlefront-ii-v11-dedicated-server
-- Copy the data folder from the dedicated server installation to your SWBF2 installation. Replace all files except shell.lvl!
-- Copy the contents of the GameData folder that came with SWBF2Admin to your server's GameData folder
+If you are planning on hosting a GoG/Steam server you will also need a GOG Galaxy account which has SWBF2 in it's library.
 
 ### Minimal setup
-
-Extract all files to a folder of your choice
-- EITHER Copy your server installation to <yourfolder>/server (BattlefrontII.exe has to be in that folder)
-- OR run SWBF2Admin.exe once, close it again, open core.xml, set  <ServerPath> to the (absolute) path to your server installation
-
-- If you want to host a Steam Server: open core.xml, set SteamMode
+Extract all files to a destination of your choice, run SWBF2Admin.exe. You will be prompted to set webadmin credentials. Enter username and password of your choice. Close SWBF2Admin afterwards.
+```
+NOTE: should you ever forget your credentials, run reset_webcreds.bat. This will delete all webadmin accounts and prompt you for new default credentials.
+```
+##### Optional: using the original server package
+If you want to run the old dedicated server, open core.xml,set
 ```xml
-<EnableSteamMode>true</EnableSteamMode>
+  <ServerType>Gamespy</ServerType>
 ```
 
-- If you want to enable ingame commands / player list / web chat etc.: set EnableRuntime
+##### Optional: allowing remote access to webadmin
+By default, the web panel will only be accessible from the local machine. To change this, open core.xml and adjust
 ```xml
-<EnableRuntime>true</EnableRuntime>
+  <WebAdminPrefix>http://localhost:8080/</WebAdminPrefix>
 ```
+If you do not have a domain pointing to your server, you can also just use the server's IP-Address, for example
+```xml
+  <WebAdminPrefix>http://192.168.1.234:8080/</WebAdminPrefix>
+```
+If you have any active firewall, the webadmin port (8080 TCP in this case) has to be unblocked.
 
-- Run SWBF2Admin.exe
-- You will be asked to enter credentials which will be used to access the web panel later on. Enter credentials of your choice.
-- Access the web panel and start your server (see Using the web panel)
-- Join your server and enter !gimmeadmin in chat
+##### Optional: enabling runtime managament
+If you want to use features like ingame commands, announce broadcast, statistics ..., runtime management has be enabled.
+To enable runtime management, open core.xml, set
+```xml
+  <EnableRuntime>true</EnableRuntime>
+```
+```
+CAUTION: when using runtime management, the !gimmeadmin command will add the first user to execute it to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.
+```
+### Preparing the gameserver
 
-### Steam ingame server sustainer
+Depending on which platform you want to use, EITHER follow the "GoG / Steam" OR the Gamespy / "Swbfspy" guide.
 
-If you want to use the Steam version in Remote Desktop mode (required for most rental machines), you have to to a bit of extra setup 
-to keep it from crashing.
+##### GoG / Steam
+```
+NOTE: GOG Galaxy does not work over Windows RD. You can use tools like VNC or Chrome Remote Desktop instead.
+```
+1) Install GOG Galaxy (https://www.gog.com/galaxy)
+2) Using GOG Galaxy, download Star Wars Battlefront II
+3) In GOG Galaxy, open Battlefront II in your library. Click on "More" -> "Manage installation" -> "Show folder"
+4) A Explorer Window will open, open "GameData" and copy all contents to the "server" folder in SWBF2Admin's installation directory
 
-- Create an additional account on your server machine
-- log in to your new account
-- Run Remote Desktop and connect to your gameserver account, save user name and password.
-- Get IngameControllerServer.exe from your SWBF2Admin installation, run it and leave it open
+Do not uninstall the original game or GOG Galaxy after copying the data.
 
-IngameControllerServer.exe does not have to be located in the SWBF2Admin installation folder,
-so you can move it to a new location if you like.
+##### Gamespy / "Swbfspy"
+1) Install the original dedicated server package
+2) Copy the contents of it's installation folder (the one containing BattlefrontII.exe) to the "server" folder in SWBF2Admin's installation directory 
+
+### First launch
+1) Start SWBF2Admin.exe
+2) Using your web browser, open the web panel. By default, the web panel is accessible at http://localhost:8080/
+3) Go to "Server Settings" -> "General", adjust server settings to your liking. Make sure that a Network Adapter is selected under "bind address"
+4) Go to "Server Settings" -> "Map rotation". Add maps using drag&drop.
+5) Go to "Dashboard", click on "Server status" -> "Start"
+6) If you chose to enable runtime management, join your server in game and enter "!gimmeadmin" in chat
+
+## Advanced
 
 ## Using the web panel
-
-### Accessing the panel
-By default, your web panel's URL is set to http://localhost:8080/ and can only be accessed locally.
-If you want to access your panel from a remote computer, you can adjust the panel's URL in ./cfg/core.xml.
-
-```xml
-<WebAdminPrefix>http://localhost:8080/</WebAdminPrefix>
-```
-
-Notes:
-- If you're using a address different from localhost, SWBF2Admin will ask for admin permissions during the first startup using the new URL. This is done because each URL has to be registered before it can be used. SWBF2Admin will register your new URL and continue operation in user Mode.
-- HTTPS is supported if a valid certificate is installed and assigned to SWBF2Admin's application id (see https://stackoverflow.com/questions/11403333/httplistener-with-https-support)
-- If you want to access your web panel from WAN, I'd recommend using a non-standard port in the high range
-
-User authentication is done via HTTP basic auth. You'll be prompted for a username and password. 
-If you forget your credentials, running "SWBF2admin.exe --reset-webcredentials" will reset all web credentials.
-
 ### Dashboard
 
 The dashboard page show status information on your server. It also provides the big not-so-red button which is used to start and stop your server.
@@ -146,8 +134,7 @@ TODO
 
 This page let's you adjust your servers map rotation.
 Simply grab the map you want to add from the table on the left. Drag&drop it to the table on the right.
-A dialog will open, asking you to select the game modes you want to add. After doing so, click OK and the maps will be added.
-If you want to cancel the dialog, just click on the red cross in the top right corner. This will leave your map rotation untouched.
+A dialog will open, asking you to select the game modes you want to add. After doing so, click OK and the maps will be added. If you want to cancel the dialog, just click on the red cross in the top right corner. This will leave your map rotation untouched.
 
 If you want to remove a map from the rotation, just drag&drop it from the right table to the left table.
 
@@ -167,32 +154,19 @@ If you chose create or edit, a dialog box will open which lets you edit the user
 Notes:
 - The delete option won't appear for your own account
 
-## Ingame commands
+## Statistics tracking
+To enable statistics tracking, open game.xml, set
+```
+<EnableGameStatsLogging>true</EnableGameStatsLogging>
+```
+if you want to track player statistics as well, open players.xml, set
+```
+<EnablePlayerStatsLogging>false</EnablePlayerStatsLogging>
+```
 
-### Getting permissions
+## Automatic announce broadcasts
 
-After you freshly installed SWBF2Admin, join your server and enter !gimmeadmin in chat. This will add your player account to the Administrator group.
-
-TODO
-
-## Authors
-
-This project was written by Jan "LeKeks" Weigelt (https://github.com/jweigelt), Yoni (https://github.com/yonilerner) and AsLan (https://github.com/SWBF2AsLan).
-
-## License
-
-This project is licensed under the GNU Public License (GPL) - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Third party software
-
-SWBF2Admin uses several pieces of third party software.
-All licenses for third party software can be found in the licenses folder supplied with SWBF2Admin.
-
-## Advanced configuration
-
-### Automatic announce broadcasts
-
-#### Configuring the scheduler
+### Configuring the announce scheduler
 Open ./cfg/announce.xml
 - Set Enable to true to enable automatic announce scheduling
 - Adjust Interval to configure the delay between broadcasts
@@ -204,10 +178,10 @@ Announces must have the following format:
 <Announce EnableParser="true/false" Message="YourMessage"/>
 ```
 
-#### Variables
+### Variables
 
 If EnableParser is set to true, the Announce is parsed before broadcasting it.
-The following tags are available:
+The following tags are replaced:
 ```
 {s:map}			current map
 {s:ff}			friendly fire enabled (0/1)
@@ -229,23 +203,34 @@ The following tags are available:
 {t:(format)}	current time formatted by given format string
 ```
 
-#### Using the {t:(format)} tag:
+##### Using the {t:(format)} tag
 
-The {t:(format)} tag can be used to display the current time.
-Replace (format) with a format string.
-The given formatter has to be a .NET-style format string. (see https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings)
+The {t:(format)} tag can be used to display the current time. Replace (format) with a format string.
+The given formatter has to be a .NET-style format string. (see https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings for reference)
 
 Example for a broadcast displaying the current time in HH:mm:ss format:
 ```xml
 <Announce EnableParser="true" Message="Current time {t:HH:mm:ss}"/>
 ```
 
-## Command configuration
+## Automatic conditional broadcasts
+
+TODO (see players.xml -> ConditionalMessages)
+
+## Ingame commands
+
+### Getting permissions
+
+After you freshly installed SWBF2Admin, join your server and enter !gimmeadmin in chat. This will add your player account to the Administrator group.
+
+TODO
+
+### Command configuration
 Every command has it's own XML configuration. The files are located in ./cfg/cmd.
 
 TODO
 
-## Custom commands
+### Custom commands
 To create a custom command, navigate to ./cfg/dyncmd and create a new folder for your command.
 Create an empty XML and LUA file in that folder. Rename both files so their names match your folder's name.
 
@@ -263,6 +248,7 @@ Use the following template for your XML file:
 <DynamicCommand xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Enabled>true</Enabled>
   <Alias>youralias</Alias>
+  <Permission>yourpermission</Permission>
   <Usage>youralias (param1) (param2) ...</Usage>
   <UserConfig>
 	<CustomConfig>...</CustomConfig>
@@ -293,8 +279,42 @@ player: (Player) player who invoked your command
 command: (string) your command alias
 params: (table(of string)) paramaters given by the player
 
-LUA object definitions
+### LUA API documentation
+The API is exported to LUA as a superglobal called "api".
 
+```
+Table<Player> GetPlayers() - Gets a table containing all connected players
+Table<Player> FindPlayers(string exp, bool ignoreCase = true, bool exact = false) - Gets a table containg all players whose names match the given expression 
+void KickPlayer(Player player) - boots a player from the server
+void SwapPlayer(Player player) - changes a players team
+void Pm(string message, Player player, params string[] p) - sends a private message to a player (!: sending PMs too fast might slow down or freeze the chat)
+Table<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, number timestamp, number maxRows)
+void InsertBan(Player player, Player admin, string reason, bool ip, number duration = -1)
+
+ServerInfo GetServerInfo()
+GameInfo GetGameInfo()
+
+string SendCommand(string cmd, params string[] args)
+void SendCommandNoResponse(string cmd, params string[] args)
+void Say(string message, params string[] p)
+
+string GetConfig(string name)
+string GetUsage()
+string GetAlias()
+
+(const number)LogLevel_Verbose 
+(const number)LogLevel_Info 
+(const number)LogLevel_Warning 
+(const number)LogLevel_Error 
+void Log(number level, string message, params string[] p)
+
+Table<LvlMod> GetMods()
+void ApplyMod(LvlMod mod)
+void RevertMod(LvlMod mod)
+void RevertAllMods()
+```
+
+##### LUA object definitions
 Player
 ```
 (number)Slot - player's slot (shown in /admin /players)
@@ -351,8 +371,6 @@ PlayerBan
 (number)AdminDatabaseId - admin's unique database id
 ```
 
-TODO
-
 ServerStatus
 ```
 Online = 0
@@ -394,35 +412,15 @@ GameInfo
 (number)DatabaseId
 ```
 
-The API is exported to LUA as a superglobal called "api".
-```
-Table<Player> GetPlayers() - Gets a table containing all connected players
-Table<Player> FindPlayers(string exp, bool ignoreCase = true, bool exact = false) - Gets a table containg all players whose names match the given expression 
-void KickPlayer(Player player) - boots a player from the server
-void SwapPlayer(Player player) - changes a players team
-void Pm(string message, Player player, params string[] p) - sends a private message to a player (!: sending PMs too fast might slow down or freeze the chat)
-Table<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, number timestamp, number maxRows)
-void InsertBan(Player player, Player admin, string reason, bool ip, number duration = -1)
+## Authors
 
-ServerInfo GetServerInfo()
-GameInfo GetGameInfo()
+This project was written by Jan "LeKeks" Weigelt (https://github.com/jweigelt), Yoni (https://github.com/yonilerner) and AsLan (https://github.com/SWBF2AsLan).
 
-string SendCommand(string cmd, params string[] args)
-void SendCommandNoResponse(string cmd, params string[] args)
-void Say(string message, params string[] p)
+## License
 
-string GetConfig(string name)
-string GetUsage()
-string GetAlias()
+This project is licensed under the GNU Public License (GPL) - see the [LICENSE.md](LICENSE.md) file for details.
 
-(const number)LogLevel_Verbose 
-(const number)LogLevel_Info 
-(const number)LogLevel_Warning 
-(const number)LogLevel_Error 
-void Log(number level, string message, params string[] p)
+## Third party software
 
-Table<LvlMod> GetMods()
-void ApplyMod(LvlMod mod)
-void RevertMod(LvlMod mod)
-void RevertAllMods()
-```
+SWBF2Admin uses several pieces of third party software.
+All licenses for third party software can be found in the licenses folder supplied with SWBF2Admin.

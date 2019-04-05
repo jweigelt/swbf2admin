@@ -163,7 +163,6 @@ namespace SWBF2Admin
             Scheduler.Start();
             if (Config.AutoLaunchServer) Scheduler.PushTask(Server.Start);
 
-
             string cmd = string.Empty;
 
             while ((cmd = Console.ReadLine()) != "quit")
