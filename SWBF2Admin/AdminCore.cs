@@ -55,7 +55,6 @@ namespace SWBF2Admin
         public GameHandler Game { get; }
         public CommandDispatcher Commands { get; }
         public LvlWriter Mods { get; }
-        //public IngameServerController IngameController { get; }
         public PluginManager Plugins { get; }
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
@@ -93,7 +92,6 @@ namespace SWBF2Admin
             Game = new GameHandler(this);
             Commands = new CommandDispatcher(this);
             Mods = new LvlWriter(this);
-            //IngameController = new IngameServerController(this);
             Plugins = new PluginManager(this);
         }
 
@@ -104,16 +102,13 @@ namespace SWBF2Admin
             config = Files.ReadConfig<CoreConfiguration>();
             Logger.Log(LogLevel.Info, Log.CORE_READ_CONFIG_OK);
             Logger.MinLevel = config.LogMinimumLevel;
+            Logger.LogToFile = config.LogToFile;
+            Logger.LogFile = config.LogFileName;
 
             components.Add(Database);
             components.Add(Server);
             components.Add(WebAdmin);
             components.Add(Plugins);
-
-            /*if (config.EnableSteamMode || config.EnableGOGMode)
-            {
-            components.Add(IngameController);
-            }*/
 
             if (config.EnableRuntime)
             {

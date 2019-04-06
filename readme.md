@@ -3,7 +3,7 @@ A modern, easy-to-use server manager for Star Wars Battlefront II (2005) dedicat
 
 ## Getting Started
 These instructions will get you a minimal SWBF2Admin setup up and running.
-SWBF2Admin is highly configurable - for advanced configuration techniques or more detailed instructions, please also check out the "Advanced" section of the document.
+SWBF2Admin is highly configurable - for advanced configuration techniques or more detailed instructions, please also check out the "Advanced" section of this document.
 
 ### Prerequisites
 SWBF2Admin requires the following software to be installed on the host machine:
@@ -11,12 +11,12 @@ SWBF2Admin requires the following software to be installed on the host machine:
 - .NET Framework(or equivalent) v4.6.1 or newer (https://www.microsoft.com/net/download/windows)
 - Visual C++ Redistributable x86 2015: (https://www.microsoft.com/en-us/download/details.aspx?id=48145)
 
-If you are planning on hosting a GoG/Steam server you will also need a GOG Galaxy account which has SWBF2 in it's library.
+If you are planning on hosting a GoG/Steam server you will also need a GOG Galaxy account owning SWBF2.
 
 ### Minimal setup
 Extract all files to a destination of your choice, run SWBF2Admin.exe. You will be prompted to set webadmin credentials. Enter username and password of your choice. Close SWBF2Admin afterwards.
 ```
-NOTE: should you ever forget your credentials, run reset_webcreds.bat. This will delete all webadmin accounts and prompt you for new default credentials.
+NOTE: Should you ever forget your credentials, run reset_webcredentials.bat. This will delete all webadmin accounts and prompt you for new default credentials.
 ```
 ##### Optional: using the original server package
 If you want to run the old dedicated server, open core.xml,set
