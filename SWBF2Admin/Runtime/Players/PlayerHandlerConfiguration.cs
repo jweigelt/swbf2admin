@@ -24,7 +24,7 @@ namespace SWBF2Admin.Runtime.Players
     /// Configuration class for player-related stuff
     /// (templates etc.)
     /// </summary>
-    [ConfigFileInfo(fileName: "./cfg/players.xml")]
+    [ConfigFileInfo(fileName: "./cfg/players.xml", template: "SWBF2Admin.Resources.cfg.players.xml")]
     public class PlayerHandlerConfiguration
     {
 

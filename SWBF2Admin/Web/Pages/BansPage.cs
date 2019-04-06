@@ -78,6 +78,7 @@ namespace SWBF2Admin.Web.Pages
             {
                 case "bans_update":
                     List<PlayerBan> banList = Core.Database.GetBans(p.PlayerNameExp, p.AdminNameExp, p.ReasonExp, p.Expired, p.Type, p.StartDate, 25);
+    
                     WebAdmin.SendHtml(ctx, ToJson(banList));
                     break;
 

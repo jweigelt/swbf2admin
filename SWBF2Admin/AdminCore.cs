@@ -55,7 +55,6 @@ namespace SWBF2Admin
         public GameHandler Game { get; }
         public CommandDispatcher Commands { get; }
         public LvlWriter Mods { get; }
-        public IngameServerController IngameController { get; }
         public PluginManager Plugins { get; }
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
@@ -93,7 +92,6 @@ namespace SWBF2Admin
             Game = new GameHandler(this);
             Commands = new CommandDispatcher(this);
             Mods = new LvlWriter(this);
-            IngameController = new IngameServerController(this);
             Plugins = new PluginManager(this);
         }
 
@@ -104,16 +102,13 @@ namespace SWBF2Admin
             config = Files.ReadConfig<CoreConfiguration>();
             Logger.Log(LogLevel.Info, Log.CORE_READ_CONFIG_OK);
             Logger.MinLevel = config.LogMinimumLevel;
+            Logger.LogToFile = config.LogToFile;
+            Logger.LogFile = config.LogFileName;
 
             components.Add(Database);
             components.Add(Server);
             components.Add(WebAdmin);
             components.Add(Plugins);
-
-            if (config.EnableSteamMode || config.EnableGOGMode)
-            {
-                components.Add(IngameController);
-            }
 
             if (config.EnableRuntime)
             {
@@ -161,17 +156,7 @@ namespace SWBF2Admin
             }
 
             Scheduler.Start();
-
-            if (Config.ManageServer)
-            {
-                Logger.Log(LogLevel.Info, "Acting as server manager");
-                if (Config.AutoLaunchServer) Scheduler.PushTask(Server.Start);
-            }
-            else
-            {
-                Logger.Log(LogLevel.Info, "Acting as client");
-                //Scheduler.PushTask(new SchedulerTask(Server_Started));
-            }
+            if (Config.AutoLaunchServer) Scheduler.PushTask(Server.Start);
 
             string cmd = string.Empty;
 
@@ -184,7 +169,7 @@ namespace SWBF2Admin
                 else if (Commands.IsConsoleCommand(cmd))
                 {
                     //using the scheduler to execute so we dont have to worry about concurrency
-                    Scheduler.PushTask(() => { Commands.HandleConsoleCommand(cmd); });      
+                    Scheduler.PushTask(() => { Commands.HandleConsoleCommand(cmd); });
                 }
             }
 

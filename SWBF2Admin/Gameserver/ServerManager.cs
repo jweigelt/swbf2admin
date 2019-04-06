@@ -36,6 +36,7 @@ namespace SWBF2Admin.Gameserver
 
     public class ServerManager : ComponentBase
     {
+        private const string DLLLOADER_FILENAME = "dllloader.exe";
         private const string SERVERPROC_NAME = "BattlefrontII";
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
         private const int STEAMMODE_MAX_RETRY = 30;
@@ -55,15 +56,16 @@ namespace SWBF2Admin.Gameserver
         public virtual Process ServerProcess { get { return serverProcess; } }
 
         private int steamLaunchRetryCount = 0;
-        private bool steamMode = false;
+        GameserverType serverType;
 
         public ServerManager(AdminCore core) : base(core) { }
 
         public override void Configure(CoreConfiguration config)
         {
             ServerPath = Core.Files.ParseFileName(config.ServerPath);
-            steamMode = config.EnableSteamMode;
-            ServerArgs = (steamMode ? string.Empty : config.ServerArgs);
+            serverType = config.ServerType;
+
+            ServerArgs = (serverType == GameserverType.Steam ? string.Empty : config.ServerArgs);
 
             UpdateInterval = STEAMMODE_PDECT_TIMEOUT; //updates for detecting steam startup
         }
@@ -124,7 +126,8 @@ namespace SWBF2Admin.Gameserver
                 status = ServerStatus.Online;
 
                 InvokeEvent(ServerStarted, this, new StartEventArgs(!starting));
-                if(Core.Config.EnableHighPriority)
+                if (starting) InjectRconDllIfRequired();
+                if (Core.Config.EnableHighPriority)
                 {
                     serverProcess.PriorityClass = ProcessPriorityClass.High;
                 }
@@ -145,7 +148,7 @@ namespace SWBF2Admin.Gameserver
 
 
                 //if we're in steam mode, steam will start at launcher exe prior to the actual game
-                if (steamMode)
+                if (serverType == GameserverType.Steam)
                 {
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
                     steamLaunchRetryCount = 0;
@@ -166,6 +169,7 @@ namespace SWBF2Admin.Gameserver
 
                     status = ServerStatus.Online;
                     InvokeEvent(ServerStarted, this, new StartEventArgs(false));
+                    InjectRconDllIfRequired();
                 }
             }
         }
@@ -199,11 +203,6 @@ namespace SWBF2Admin.Gameserver
 
             if (status != ServerStatus.Stopping && status != ServerStatus.SteamPending)
             {
-                //try 
-                //{
-                //    serverProcess.Kill();
-                //}
-                //catch { }
                 Logger.Log(LogLevel.Warning, "Server has crashed.");
                 status = ServerStatus.Offline;
                 InvokeEvent(ServerCrashed, this, new EventArgs());
@@ -216,7 +215,24 @@ namespace SWBF2Admin.Gameserver
             else
             {
                 Logger.Log(LogLevel.Info, "Server stopped.");
-                status = ServerStatus.Offline;            
+                status = ServerStatus.Offline;
+            }
+        }
+
+        private void InjectRconDllIfRequired()
+        {
+            if (serverType != GameserverType.Gamespy)
+            {
+                string loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME}";
+                if (File.Exists(loader))
+                {
+                    Process.Start(loader, string.Format("--pid {0} --dll {1}", serverProcess.Id, "RconServer.dll"));
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Error, "Can't find {0}", loader);
+                }
+                return;
             }
         }
     }

@@ -5,6 +5,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include <memory>
 #include <inttypes.h>
 #include "RconClient.h"
 #include "Logger.h"
@@ -13,27 +14,30 @@ using std::string;
 using std::vector;
 using std::thread;
 using std::mutex;
-using std::lock_guard;
+using std::unique_lock;
+using std::shared_ptr;
+using std::make_shared;
 
 class RconServer
 {
 public:
 	RconServer(uint16_t maxClients);
 	~RconServer();
-	void Start();
-	void Stop();
-	void Listen();
+	void start();
+	void stop();
+	void listen();
+	void reportEndgame();
 
 private:
 	bool running = false;
 	mutex mtx;
-	vector<RconClient*> clients = vector<RconClient*>();
+	vector<shared_ptr<RconClient>> clients;
 	SOCKET listenSocket;
 
 	uint16_t port;
 	uint16_t maxClients;
-	void OnClientDisconnect(RconClient *client);
-	void OnChatInput(string const & msg);
+	void onClientDisconnect(RconClient *client);
+	void onChatInput(string const & msg);
 
-	std::thread* workThread;
+	thread workThread;
 };

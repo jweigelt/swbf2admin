@@ -11,8 +11,7 @@
 using std::string;
 using std::ofstream;
 using std::mutex;
-using std::lock_guard;
-
+using std::unique_lock;
 
 enum LogLevel {
 	LogLevel_VERBOSE = 0,
@@ -34,17 +33,17 @@ class _Logger
 public:
 	_Logger();
 	~_Logger();
-	void Log(LogLevel level, const char* msg, ...);
-	void SetMinLevelStdout(LogLevel level);
-	void SetMinLevelFile(LogLevel level);
+	void log(LogLevel level, const char* msg, ...);
+	void setMinLevelStdout(LogLevel level);
+	void setMinLevelFile(LogLevel level);
 	void SetFileName(string const &fileName);
 
 private:
-	void LogToFile(const string &s);
+	void logToFile(const string &s);
 	LogLevel minLevelStdout = LogLevel_ERROR;
 	LogLevel minLevelFile = LogLevel_ERROR;
 	mutex mtx;
-	string logFile = "C:\\Users\\Jan\\Desktop\\log.txt";
+	string logFile = "./log.txt";
 };
 
 static _Logger Logger;

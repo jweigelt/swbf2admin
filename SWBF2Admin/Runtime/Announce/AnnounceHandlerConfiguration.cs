@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using SWBF2Admin.Config;
 namespace SWBF2Admin.Runtime.Announce
 {
-    [ConfigFileInfo(fileName: "./cfg/announce.xml"/*,template: "SWBF2Admin.Resources.cfg.announce.xml"*/)]
+    [ConfigFileInfo(fileName: "./cfg/announce.xml",template: "SWBF2Admin.Resources.cfg.announce.xml")]
     public class AnnounceHandlerConfiguration
     {
         /// <summary>

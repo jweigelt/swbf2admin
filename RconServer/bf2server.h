@@ -30,16 +30,35 @@ using std::function;
 #endif
 */
 
-
 #ifdef GALAXY
-#define OFFSET_CHATINPUT 0x005B0030 - 0x00401000 + 0x1000
-#define OFFSET_CHATSNPRINTF 0x005B2F67 - 0x00401000 + 0x1000
-#define OFFSET_RESBUFFER 0x01FA39D0 - 0x00401000 + 0x1000
-#define OFFSET_COMMAND_DETAILS 0x01E58EBC - 0x00401000 + 0x1000
-#define OFFSET_ADMINPW 0x01E64330 - 0x00401000 + 0x1000
-#define OFFSET_LOGGED_IN 0x01F9C2E2 - 0x00401000 + 0x1000
+//GoG Version
+#define OFFSET_NORENDER_FIX 0x006BB37F - 0x400000
+#define OFFSET_VOTECRASH_FIX 0x005D2282 - 0x400000
+#define OFFSET_VOTEKICK_FIX 0x00599B11 - 0x400000
+
+#define OFFSET_PASSWORD_FIX 0x00599BC5 - 0x400000
+#define OFFSET_PASSWORD_PLAIN 0x01E31C40 - 0x400000
+
+#define OFFSET_NUMPLAYERS_MOD 0x005D7F31 - 0x400000
+#define OFFSET_DEDICATED_FIX  0x005D800F - 0x400000
+
+#define OFFSET_SPAWNVALUE_MOD_FLOAT 0x0058D605 - 0x400000 + 4
+
+#define OFFSET_MAPFIX_DETOUR 0x005B6076 - 0x400000
+#define OFFSET_MAPFIX_RETN 0x005B607D- 0x400000
+#define OFFSET_MAP_STATUS 0x01EB1054 - 0x00400000
+#define MAPFIX_IDLE_TIMEOUT 0x64
+
+#define OFFSET_CHATINPUT 0x005B0030 - 0x00400000
+#define OFFSET_CHATSNPRINTF 0x005B2F67 - 0x00400000 + 2
+#define OFFSET_RESBUFFER 0x01FA39D0 - 0x00400000 
+#define OFFSET_COMMAND_DETAILS 0x01E58EBC - 0x00400000
+#define OFFSET_ADMINPW 0x01E64330 - 0x00400000 
+#define OFFSET_LOGGED_IN 0x01F9C2E2 - 0x00400000 
+
 #define OFFSET_GAMEPORT 0x3E9EF4
-//1A64330 00400000
+#define OFFSET_IDLE 0x01E58EBD - 0x400000;
+
 #else
 //Steam Version
 #define OFFSET_CHATINPUT 0x005AF090 - 0x00401000 + 0x1000
@@ -48,28 +67,80 @@ using std::function;
 #define OFFSET_COMMAND_DETAILS 0x01E57A0C - 0x00401000 + 0x1000
 #define OFFSET_ADMINPW 0x1A57A10
 #define OFFSET_LOGGED_IN 0x01F9AE32 - 0x00401000 + 0x1000
-
 #endif
-
-#define ASM_NOP 0x90
-#define ASM_JMP 0xE9
-#define ASM_CALL 0xFF
-#define ASM_DWORD_PTR 0x15
 
 #define MESSAGETYPE_CHAT 1
 #define MESSAGETYPE_COMMAND 0
-#define DETAILS_VERBOSE 1
-#define DETAILS_NORMAL 0
 
 #define OUTPUT_CHAT 0
 #define OUTPUT_BUFFER -1
+
 #define SENDER_SELF 1
 #define SENDER_REMOTE 0
+
+enum MapStatus : BYTE {
+	MAP_IDLE = 0x00,
+	MAP_LOADING_ENDGAME = 0x06,
+	MAP_LOADING_WIN = 0x02
+};
 
 /**
  *	Initializes server-access
  **/
 void bf2server_init();
+
+/**
+*	Fixes the /norender arg which normally crashes with the gog/steam binaries
+**/
+void bf2server_patch_norender();
+
+/**
+*	Fixes the infamous ScriptCB_.... votekick exploit
+**/
+void bf2server_patch_votekick_exploit();
+
+/**
+*	Fixes lobby passwords which are broken in the gog/steam binaries
+**/
+void bf2server_patch_password();
+
+/**
+*	Sets servermode to dedicated, increments playercount by 1
+**/
+void bf2server_patch_dedicated();
+
+/**
+*	Installs map-hanging monitor codecave
+**/
+void bf2server_patch_maphang();
+
+/**
+*	Patches SetSpawnDelay() so it uses our own spawn value per default
+**/
+void bf2server_patch_spawnvalue();
+
+/**
+*	Installs an asm patch
+*	@param offset instruction offset from module base
+*	@param patch
+*	@param patchSize
+**/
+void bf2server_patch_asm(DWORD offset, void* patch, size_t patchSize);
+
+/**
+*	Gets the current game (map) status
+**/
+MapStatus bf2server_get_map_status();
+
+/**
+* Checks whether the server is busy loading
+**/
+bool bf2server_idle();
+
+/**
+*	Checks mapfix status and resets if required
+**/
+void bf2server_mapfix_tick();
 
 /**
  *	Calls swbf2's chat/command handling function.
@@ -96,16 +167,6 @@ int __cdecl bf2server_chat_cc(char* buf, size_t sz, const char* fmt, ...);
 string bf2server_get_adminpwd();
 
 /**
- *	Authenticate admin session
- **/
-bool bf2server_login();
-
-/**
- *	Enables / Disables detailed command out
- **/
-void bf2server_set_details(BYTE mode);
-
-/**
  *	Converts string to wstring
  **/
 wstring bf2server_s2ws(string const & s);
@@ -115,4 +176,7 @@ wstring bf2server_s2ws(string const & s);
  **/
 void bf2server_set_chat_cb(function<void(string const &msg)> onChat);
 
+/**
+*	Gets the server gameport (set via /gameport)
+**/
 USHORT bf2server_get_gameport();

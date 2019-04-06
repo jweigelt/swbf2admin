@@ -19,6 +19,7 @@ using System;
 using System.Net;
 using System.IO;
 
+
 using Newtonsoft.Json;
 
 using SWBF2Admin.Utility;
@@ -27,6 +28,12 @@ namespace SWBF2Admin.Web.Pages
 {
     abstract class AjaxPage : WebPage
     {
+        protected static JsonSerializerSettings jsonEncodeSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new EncodeHtmlResolver(),
+            Formatting = Formatting.Indented
+        };
+
         protected string Template { get; }
 
         public AjaxPage(AdminCore core, string url, string template) : base(core, url)
@@ -93,8 +100,7 @@ namespace SWBF2Admin.Web.Pages
 
         protected string ToJson<T>(T obj)
         {
-            return JsonConvert.SerializeObject(obj);
+            return JsonConvert.SerializeObject(obj, jsonEncodeSettings);
         }
-
     }
 }
