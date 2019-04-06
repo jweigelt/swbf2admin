@@ -22,6 +22,7 @@ namespace SWBF2Admin.Structures
 {
     public class ServerMap
     {
+        //TODO: clean this entire class up, maybe use a static collection to hold gamemodes
         private enum MapFlags
         {
             GCWCon = (1 << 0),
@@ -30,13 +31,15 @@ namespace SWBF2Admin.Structures
             GCWHunt = (1 << 3),
             GCWEli = (1 << 4),
             GCWAss = (1 << 5),
+            GCWXL = (1 << 6),
 
             CWCon = (1 << 10),
             CWCTF = (1 << 11),
             CW1Flag = (1 << 12),
             CWHunt = (1 << 13),
             CWEli = (1 << 14),
-            CWAss = (1 << 15)
+            CWAss = (1 << 15),
+            CWXL = (1 << 16)
         }
         public ServerMap(long databaseId, string name, string niceName, long flags)
         {
@@ -66,6 +69,8 @@ namespace SWBF2Admin.Structures
         public virtual bool HasGCWEli { get { return (Flags & (int)MapFlags.GCWEli) > 0; } set { if (value) Flags |= (int)MapFlags.GCWEli; else Flags &= ~(int)MapFlags.GCWEli; } }
         [JsonIgnore]
         public virtual bool HasGCWAss { get { return (Flags & (int)MapFlags.GCWAss) > 0; } set { if (value) Flags |= (int)MapFlags.GCWAss; else Flags &= ~(int)MapFlags.GCWAss; } }
+        [JsonIgnore]
+        public virtual bool HasGCWXL { get { return (Flags & (int)MapFlags.GCWXL) > 0; } set { if (value) Flags |= (int)MapFlags.GCWXL; else Flags &= ~(int)MapFlags.GCWXL; } }
 
         [JsonIgnore]
         public virtual bool HasCWCon { get { return (Flags & (int)MapFlags.CWCon) > 0; } set { if (value) Flags |= (int)MapFlags.CWCon; else Flags &= ~(int)MapFlags.CWCon; } }
@@ -79,6 +84,8 @@ namespace SWBF2Admin.Structures
         public virtual bool HasCWEli { get { return (Flags & (int)MapFlags.CWEli) > 0; } set { if (value) Flags |= (int)MapFlags.CWEli; else Flags &= ~(int)MapFlags.CWEli; } }
         [JsonIgnore]
         public virtual bool HasCWAss { get { return (Flags & (int)MapFlags.CWAss) > 0; } set { if (value) Flags |= (int)MapFlags.CWAss; else Flags &= ~(int)MapFlags.CWAss; } }
+        [JsonIgnore]
+        public virtual bool HasCWXL { get { return (Flags & (int)MapFlags.CWXL) > 0; } set { if (value) Flags |= (int)MapFlags.CWXL; else Flags &= ~(int)MapFlags.CWXL; } }
 
         public static List<string> ReadMapRotation(AdminCore core)
         {
@@ -187,6 +194,10 @@ namespace SWBF2Admin.Structures
                         if (gcw) m.HasGCWAss = true;
                         else m.HasCWAss = true;
                         break;
+                    case "xl":
+                        if (gcw) m.HasGCWXL = true;
+                        else m.HasCWXL = true;
+                        break;
                 }
                 cnt++;
             }
@@ -196,36 +207,56 @@ namespace SWBF2Admin.Structures
         public List<string> GetCWGameModes()
         {
             List<string> modes = new List<string>();
-            if (HasCW1Flag) modes.Add("1flag");
-            if (HasCWAss) modes.Add("ass");
-            if (HasCWCon) modes.Add("con");
-            if (HasCWCTF) modes.Add("ctf");
-            if (HasCWEli) modes.Add("eli");
-            if (HasCWHunt) modes.Add("hunt");
-
+            if (HasCW1Flag) modes.Add("c_1flag");
+            if (HasCWAss) modes.Add("c_ass");
+            if (HasCWCon) modes.Add("c_con");
+            if (HasCWCTF) modes.Add("c_ctf");
+            if (HasCWEli) modes.Add("c_eli");
+            if (HasCWHunt) modes.Add("c_hunt");
+            if (HasCWXL) modes.Add("c_xl");
             return modes;
         }
 
         public List<string> GetGCWGameModes()
         {
             List<string> modes = new List<string>();
-            if (HasGCW1Flag) modes.Add("1flag");
-            if (HasGCWAss) modes.Add("ass");
-            if (HasGCWCon) modes.Add("con");
-            if (HasGCWCTF) modes.Add("ctf");
-            if (HasGCWEli) modes.Add("eli");
-            if (HasGCWHunt) modes.Add("hunt");
+            if (HasGCW1Flag) modes.Add("g_1flag");
+            if (HasGCWAss) modes.Add("g_ass");
+            if (HasGCWCon) modes.Add("g_con");
+            if (HasGCWCTF) modes.Add("g_ctf");
+            if (HasGCWEli) modes.Add("g_eli");
+            if (HasGCWHunt) modes.Add("g_hunt");
+            if (HasGCWXL) modes.Add("g_xl");
 
             return modes;
         }
 
-        //TODO
         public bool HasMode(string mode)
         {
-            return true;
+            switch (mode)
+            {
+                case "g_con": return HasGCWCon;
+                case "c_con": return HasCWCon;
+
+                case "g_1flag": return HasGCW1Flag;
+                case "c_1flag": return HasCW1Flag;
+
+                case "g_ctf": return HasGCWCTF;
+                case "c_ctf": return HasCWCTF;
+
+                case "g_ass": return HasGCWAss;
+                case "c_ass": return HasCWAss;
+
+                case "g_eli": return HasGCWEli;
+                case "c_eli": return HasCWEli;
+
+                case "g_hunt": return HasGCWHunt;
+                case "c_hunt": return HasCWHunt;
+
+                case "g_xl": return HasGCWXL;
+                case "c_xl": return HasCWXL;
+                default: return false;
+            }
         }
-
-
-    
     }
 }

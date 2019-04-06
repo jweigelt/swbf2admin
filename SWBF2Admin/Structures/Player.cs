@@ -54,6 +54,7 @@ namespace SWBF2Admin.Structures
 
         public int DatabaseId { get; set; }
 
+        [JsonIgnore]
         public static Player SUPERUSER = new Player(-1, 0, 0, 0, "superuser", "", "");
 
         [MoonSharpHidden]

@@ -226,7 +226,7 @@ namespace SWBF2Admin.Gameserver
                 string loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME}";
                 if (File.Exists(loader))
                 {
-                    Process.Start(loader);
+                    Process.Start(loader, string.Format("--pid {0} --dll {1}", serverProcess.Id, "RconServer.dll"));
                 }
                 else
                 {

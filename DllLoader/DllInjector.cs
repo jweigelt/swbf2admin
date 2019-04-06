@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -36,52 +35,31 @@ namespace DllLoader
         [DllImport("kernel32.dll")]
         static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
 
-        public static void Inject(string processName, string dllName)
+        public static void Inject(int pid, string dllName)
         {
-            Process[] procs = Process.GetProcessesByName(processName);
-            if(procs.Length < 1)
-            {
-                Console.WriteLine("No process matching {0} found.",processName);
-                return;
-            }
-
-            Process proc = null;
-            DirectoryInfo myDir = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-            foreach (Process p in procs)
-            {
-                DirectoryInfo d = new DirectoryInfo(Path.GetDirectoryName(p.MainModule.FileName));
-                if (d.FullName == myDir.FullName)
-                {
-                    proc = p;
-                }
-            }
+            Process proc = Process.GetProcessById(pid);
 
             if(proc == null)
             {
-                Console.WriteLine("No process matching {0} found.", processName);
-                return;
+                throw new Exception(string.Format("No process matching id {0} found.", pid));          
             }
 
             IntPtr hProc = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, proc.Id);
             if(hProc == IntPtr.Zero)
             {
-                Console.WriteLine("OpenProcess() failed.");
-                return;
+                throw new Exception("OpenProcess() failed.");
             }
 
             IntPtr hLL = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
             if (hLL == IntPtr.Zero)
             {
-                Console.WriteLine("GetProcAddress() failed.");
-                return;
+                throw new Exception("GetProcAddress() failed.");
             }
 
             IntPtr allocMemAddress = VirtualAllocEx(hProc, IntPtr.Zero, (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
             if (allocMemAddress == IntPtr.Zero)
             {
-                Console.WriteLine("VirtualAllocEx() failed.");
-                return;
+               throw new Exception("VirtualAllocEx() failed.");
             }
 
             UIntPtr bytesWritten;
@@ -89,8 +67,7 @@ namespace DllLoader
 
             if (bytesWritten == UIntPtr.Zero)
             {
-                Console.WriteLine("WriteProcessMemory() failed.");
-                return;
+                throw new Exception("WriteProcessMemory() failed.");
             }
 
             CreateRemoteThread(hProc, IntPtr.Zero, 0, hLL, allocMemAddress, 0, IntPtr.Zero);

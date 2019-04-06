@@ -13,7 +13,7 @@ DWORD WINAPI Run(LPVOID p) {
 	dllmain_server->start();
 
 #ifdef _DEBUG
-	Logger.SetMinLevelFile(LogLevel_VERBOSE);
+	Logger.setMinLevelFile(LogLevel_VERBOSE);
 #else
 	Logger.setMinLevelFile(LogLevel_ERROR);
 #endif

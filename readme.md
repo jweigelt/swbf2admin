@@ -9,14 +9,18 @@ SWBF2Admin is highly configurable - for advanced configuration techniques or mor
 SWBF2Admin requires the following software to be installed on the host machine:
 
 - .NET Framework(or equivalent) v4.6.1 or newer (https://www.microsoft.com/net/download/windows)
-- Visual C++ Redistributable x86 2015: (https://www.microsoft.com/en-us/download/details.aspx?id=48145)
+- Visual C++ Redistributable x86 2015: (https://www.microsoft.com/en-us/download/details.aspx?id=48145)s
 
 If you are planning on hosting a GoG/Steam server you will also need a GOG Galaxy account owning SWBF2.
 
 ### Minimal setup
 Extract all files to a destination of your choice, run SWBF2Admin.exe. You will be prompted to set webadmin credentials. Enter username and password of your choice. Close SWBF2Admin afterwards.
+
+Navigate to the "server" folder in SWBF2Admin's installation directory. Right click "RconServer.dll" -> "Properties". Check the "Unblock" option in the lower section of the dialog. Do the same for "dlloader.exe".
+
 ```
-NOTE: Should you ever forget your credentials, run reset_webcredentials.bat. This will delete all webadmin accounts and prompt you for new default credentials.
+NOTE: Should you ever forget your credentials, run reset_webcredentials.bat.
+This will delete all webadmin accounts and prompt you for new default credentials.
 ```
 ##### Optional: using the original server package
 If you want to run the old dedicated server, open core.xml,set
@@ -42,7 +46,8 @@ To enable runtime management, open core.xml, set
   <EnableRuntime>true</EnableRuntime>
 ```
 ```
-CAUTION: when using runtime management, the !gimmeadmin command will add the first user to execute it to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.
+CAUTION: when using runtime management, the !gimmeadmin command will add the first user to execute it
+to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.
 ```
 ### Preparing the gameserver
 
@@ -66,7 +71,7 @@ Do not uninstall the original game or GOG Galaxy after copying the data.
 ### First launch
 1) Start SWBF2Admin.exe
 2) Using your web browser, open the web panel. By default, the web panel is accessible at http://localhost:8080/
-3) Go to "Server Settings" -> "General", adjust server settings to your liking. Make sure that a Network Adapter is selected under "bind address"
+3) Go to "Server Settings" -> "General", adjust server settings to your liking. Make sure that a network adapter is selected under "bind address"
 4) Go to "Server Settings" -> "Map rotation". Add maps using drag&drop.
 5) Go to "Dashboard", click on "Server status" -> "Start"
 6) If you chose to enable runtime management, join your server in game and enter "!gimmeadmin" in chat

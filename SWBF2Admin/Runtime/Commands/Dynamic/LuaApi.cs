@@ -25,7 +25,7 @@ using SWBF2Admin.Runtime.ApplyMods;
 
 using MoonSharp.Interpreter;
 namespace SWBF2Admin.Runtime.Commands.Dynamic
-{ 
+{
     /// <summary>
     /// API-class exposed to LUA-scripts
     /// </summary>
@@ -92,7 +92,6 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         {
             return core.Database.GetPlayerStats(player);
         }
-
         #endregion
 
         #region Game
@@ -158,6 +157,37 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         public void RevertAllMods()
         {
             core.Mods.RevertAll();
+        }
+        #endregion
+
+        #region Signaling
+        struct EventListener
+        {
+            public string eventName;
+            public Closure callback;
+
+            public EventListener(string eventName, Closure callback)
+            {
+                this.eventName = eventName;
+                this.callback = callback;
+            }
+        }
+
+        private List<EventListener> eventListeners = new List<EventListener>();
+
+        public void RegisterEventListener(string eventName, Closure callback)
+        {
+            eventListeners.Add(new EventListener(eventName, callback));
+        }
+        public void InvokeEvent(string eventName, object eventArgs)
+        {
+            foreach (EventListener listener in eventListeners)
+            {
+                if (listener.eventName.Equals(eventName))
+                {
+                    listener.callback.Call(eventArgs);
+                }
+            }
         }
         #endregion
     }
