@@ -197,7 +197,7 @@ namespace SWBF2Admin.Runtime.Rcon
                 }
                 else
                 {
-                    Logger.Log(running ? LogLevel.Warning : LogLevel.Verbose, "Rcon packet timeout. (running {0})", packet.Command);
+                    Logger.Log(LogLevel.Verbose, "Rcon packet timeout. (running {0})", packet.Command);
                     return;
                 }
             }

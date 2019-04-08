@@ -78,11 +78,11 @@ namespace SWBF2Admin.Web.Pages
             {
                 case "bans_update":
                     List<PlayerBan> banList = Core.Database.GetBans(p.PlayerNameExp, p.AdminNameExp, p.ReasonExp, p.Expired, p.Type, p.StartDate, 25);
-    
                     WebAdmin.SendHtml(ctx, ToJson(banList));
                     break;
 
                 case "bans_delete":
+                    WebServer.LogAudit(user, "deleted ban {0}", p.DatabaseId.ToString());
                     Core.Database.DeleteBan(p.DatabaseId);
                     WebAdmin.SendHtml(ctx, ToJson(new BanAdminResponse(true)));
                     break;

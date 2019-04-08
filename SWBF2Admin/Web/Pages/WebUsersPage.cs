@@ -42,12 +42,15 @@ namespace SWBF2Admin.Web.Pages
                 case "users_get":
                     break;
                 case "users_create":
+                    WebServer.LogAudit(user, "created user {0}", p.Username);
                     Core.Database.InsertWebUser(new WebUser(p.Username, Util.Md5(p.SpaceInvaders)));
                     break;
                 case "users_edit":
+                    WebServer.LogAudit(user, "modified user {0}", p.Username);
                     Core.Database.UpdateWebUser(new WebUser(p.Id, p.Username, Util.Md5(p.SpaceInvaders)), p.UpdateSpaceInvaders);
                     break;
                 case "users_delete":
+                    WebServer.LogAudit(user, "deleted user {0}", p.Username);
                     Core.Database.DeleteWebUser(new WebUser(p.Id));
                     break;
             }

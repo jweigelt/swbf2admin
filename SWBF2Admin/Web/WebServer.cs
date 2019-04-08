@@ -258,6 +258,7 @@ namespace SWBF2Admin.Web
                     Core.Database.UpdateLastSeen(user);
                 }
             }
+            user.IPEP = ctx.Request.RemoteEndPoint;
             return user;
         }
 
@@ -297,6 +298,11 @@ namespace SWBF2Admin.Web
         public byte[] LoadBinary(string fileName)
         {
             return Core.Files.ReadFileBytes(Constants.WEB_DIR_ROOT + "/" + fileName);
+        }
+
+        public static void LogAudit(WebUser user, string message, params string[] p)
+        {
+            Logger.Log(LogLevel.Info, "[AUDIT] {0} ({1}) {2}", user.Username, user.IPEP.ToString(), string.Format(message, p));
         }
     }
 }

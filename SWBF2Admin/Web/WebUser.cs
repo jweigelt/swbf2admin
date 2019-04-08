@@ -16,6 +16,7 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Net;
 using Newtonsoft.Json;
 
 namespace SWBF2Admin.Web
@@ -26,6 +27,9 @@ namespace SWBF2Admin.Web
         public string Username { get; }
         [JsonIgnore]
         public DateTime LastVisit { get; }
+
+        [JsonIgnore]
+        public IPEndPoint IPEP { get; set; }
 
         public virtual string LastVisitStr { get { return LastVisit.ToString(); } }
         public string PasswordHash { get; }

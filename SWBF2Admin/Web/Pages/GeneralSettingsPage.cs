@@ -106,6 +106,8 @@ namespace SWBF2Admin.Web.Pages
                     break;
 
                 case "general_set":
+                    WebServer.LogAudit(user, "modified general settings");
+
                     p.Settings.ForgiveTKs = F2i(1.0f / p.Settings.ForgiveTKs);
                     Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GENERAL);
                     try

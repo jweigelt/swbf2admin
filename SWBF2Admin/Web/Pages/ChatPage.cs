@@ -161,6 +161,7 @@ namespace SWBF2Admin.Web.Pages
 
         private void ProcessInput(string message, ChatSession session, WebUser user)
         {
+            WebServer.LogAudit(user, "sent chat: {0}'", message);
             if (message.StartsWith(COMMAND_START))
             {
                 //Chat_Input(new ChatMessage(message));

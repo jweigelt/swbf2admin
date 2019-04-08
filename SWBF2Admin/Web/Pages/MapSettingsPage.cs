@@ -92,6 +92,7 @@ namespace SWBF2Admin.Web.Pages
                     break;
 
                 case "maps_save":
+                    WebServer.LogAudit(user, "modified the map rotation");
                     WebAdmin.SendHtml(ctx, ToJson(SaveMapRot(p)));
                     break;
 

@@ -79,6 +79,7 @@ namespace SWBF2Admin.Web.Pages
             {
                 case "game_get":
                     ServerSettings s = Core.Server.Settings;
+                    WebServer.LogAudit(user, "modified game settings");
 
                     //TODO hacky way to pass "floats using ints"
                     int st = s.AutoAnnouncePeriod;

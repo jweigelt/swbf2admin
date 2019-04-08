@@ -58,14 +58,17 @@ namespace SWBF2Admin.Web.Pages
                     WebAdmin.SendHtml(ctx, ToJson(Core.Players.GetPlayers_s()));
                     break;
                 case "players_swap":
+                    WebServer.LogAudit(user, "swapped slot #{0}", p.PlayerId.ToString());
                     WebAdmin.SendHtml(ctx, ToJson(new QuickAdminResponse()));
                     Core.Scheduler.PushTask(() => Core.Players.Swap(new Player(p.PlayerId)));
                     break;
                 case "players_kick":
+                    WebServer.LogAudit(user, "kicked slot #{0}", p.PlayerId.ToString());
                     WebAdmin.SendHtml(ctx, ToJson(new QuickAdminResponse()));
                     Core.Scheduler.PushTask(() => Core.Players.Kick(new Player(p.PlayerId)));
                     break;
                 case "players_ban":
+                    WebServer.LogAudit(user, "banned slot #{0}", p.PlayerId.ToString());
                     WebAdmin.SendHtml(ctx, ToJson(new QuickAdminResponse()));
                     Player player;
                     if ((player = Core.Players.GetPlayerBySlot(p.PlayerId)) != null)
