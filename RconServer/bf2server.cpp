@@ -1,3 +1,6 @@
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
 #include "bf2server.h"
 
 DWORD moduleBase;
@@ -9,7 +12,7 @@ DWORD chatCCAddr;
 DWORD tickAddr, mapfixRetnAddr;
 BYTE mapfixTicks;
 
-FLOAT spawnValue = 15.0f;
+FLOAT spawnValue;
 DWORD spawnValueAddr;
 
 function<void(string const &msg)> chatCB;
@@ -28,6 +31,18 @@ void bf2server_init() {
 
 	chatCCAddr = (DWORD)&bf2server_chat_cc;
 	bf2server_set_chat_cc();
+
+	char* buff = nullptr;
+	size_t sz;
+	errno_t err = _dupenv_s(&buff, &sz, "SPAWN_TIMER");
+	if (err) {
+		spawnValue = 15.0f;
+	}
+	else
+	{
+		spawnValue = atof(buff);
+	}
+	free(buff);
 
 	spawnValueAddr = (DWORD)&spawnValue;
 	bf2server_patch_spawnvalue();
