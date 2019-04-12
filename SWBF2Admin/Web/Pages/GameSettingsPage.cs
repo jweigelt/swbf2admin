@@ -19,6 +19,7 @@ using System;
 using System.Net;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Structures.Attributes;
+using SWBF2Admin.Utility;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -58,17 +59,6 @@ namespace SWBF2Admin.Web.Pages
         {
             ReturnTemplate(ctx);
         }
-        private int F2i(float f)
-        {
-            byte[] fb = BitConverter.GetBytes(f);
-            return BitConverter.ToInt32(fb, 0);
-        }
-
-        private float I2f(int i)
-        {
-            byte[] fb = BitConverter.GetBytes(i);
-            return BitConverter.ToSingle(fb, 0);
-        }
 
         public override void HandlePost(HttpListenerContext ctx, WebUser user, string postData)
         {
@@ -83,7 +73,7 @@ namespace SWBF2Admin.Web.Pages
 
                     //TODO hacky way to pass "floats using ints"
                     int st = s.AutoAnnouncePeriod;
-                    s.AutoAnnouncePeriod = (int)I2f(s.AutoAnnouncePeriod);
+                    s.AutoAnnouncePeriod = (int) Util.I2f(s.AutoAnnouncePeriod);
                     WebAdmin.SendHtml(ctx, ToJson(new GameSettingsResponse(s)));
                     s.AutoAnnouncePeriod = st;
 
@@ -91,7 +81,7 @@ namespace SWBF2Admin.Web.Pages
 
                 case "game_set":
                     //NOTE: hacky way of passing spawnvalue
-                    p.Settings.AutoAnnouncePeriod = F2i(p.Settings.AutoAnnouncePeriod);
+                    p.Settings.AutoAnnouncePeriod = Util.F2i(p.Settings.AutoAnnouncePeriod);
                     Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GAME);
                     try
                     {

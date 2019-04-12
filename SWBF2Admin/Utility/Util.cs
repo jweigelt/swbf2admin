@@ -151,5 +151,17 @@ namespace SWBF2Admin.Utility
             //TODO: verify that WebUtility.HtmlEncode() is effective enough
             return WebUtility.HtmlEncode(html);
         }
+
+        public static int F2i(float f)
+        {
+            byte[] fb = BitConverter.GetBytes(f);
+            return BitConverter.ToInt32(fb, 0);
+        }
+
+        public static float I2f(int i)
+        {
+            byte[] fb = BitConverter.GetBytes(i);
+            return BitConverter.ToSingle(fb, 0);
+        }
     }
 }
