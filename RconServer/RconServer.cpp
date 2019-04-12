@@ -107,7 +107,6 @@ void RconServer::onClientDisconnect(RconClient * client)
 	}
 	clients.erase(clients.begin() + idx);
 	lg.unlock();
-	delete client;
 }
 
 void RconServer::onChatInput(string const & msg)

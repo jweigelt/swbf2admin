@@ -182,14 +182,17 @@ namespace SWBF2Admin
         {
 
             Logger.Log(LogLevel.Verbose, "Starting runtime management...");
-            try
+            Scheduler.PushDelayedTask(() =>
             {
-                foreach (ComponentBase h in components) h.OnServerStart(e);
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogLevel.Error, "Failed to start runtime management ({0})", ex.Message);
-            }
+                try
+                {
+                    foreach (ComponentBase h in components) h.OnServerStart(e);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(LogLevel.Error, "Failed to start runtime management ({0})", ex.Message);
+                }
+            }, config.RuntimeStartDelay);
         }
         private void Server_Stopped(object sender, EventArgs e)
         {

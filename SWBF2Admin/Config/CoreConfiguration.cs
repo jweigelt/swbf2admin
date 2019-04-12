@@ -70,6 +70,7 @@ namespace SWBF2Admin.Config
 
         #region "misc"
         public int TickDelay { get; set; } = 10;
+        public int RuntimeStartDelay { get; set; } = 500;
         #endregion
     }
 }
