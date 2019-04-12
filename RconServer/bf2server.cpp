@@ -1,6 +1,4 @@
 #include <cstdlib>
-#include <iostream>
-#include <fstream>
 #include "bf2server.h"
 
 DWORD moduleBase;
