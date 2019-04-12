@@ -30,17 +30,18 @@ void bf2server_init() {
 	chatCCAddr = (DWORD)&bf2server_chat_cc;
 	bf2server_set_chat_cc();
 
-	char* buff = nullptr;
-	size_t sz;
-	errno_t err = _dupenv_s(&buff, &sz, "SPAWN_TIMER");
-	if (err) {
+	char* env_buffer = nullptr;
+	size_t env_size;
+	errno_t err = _dupenv_s(&env_buffer, &env_size, "SPAWN_TIMER");
+	if (err || env_buffer == nullptr)
+	{
 		spawnValue = 15.0f;
 	}
 	else
 	{
-		spawnValue = atof(buff);
+		spawnValue = atof(env_buffer);
 	}
-	free(buff);
+	free(env_buffer);
 
 	spawnValueAddr = (DWORD)&spawnValue;
 	bf2server_patch_spawnvalue();
