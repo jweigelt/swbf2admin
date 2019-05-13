@@ -68,7 +68,21 @@ namespace SWBF2Admin.Web.Pages
             }
             else if (ctx.Request.HttpMethod == "POST")
             {
-                string postData = new StreamReader(ctx.Request.InputStream).ReadToEnd();
+                string postData;
+                try
+                {
+                    postData = new StreamReader(ctx.Request.InputStream).ReadToEnd();
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogLevel.Verbose,
+                        "http post read from {0} failed - {1}",
+                        ctx.Request.RemoteEndPoint.ToString(), e.ToString());
+
+                    WebAdmin.SendHttpStatus(ctx, HttpStatusCode.InternalServerError);
+                    return;
+                }
+
                 HandlePost(ctx, user, postData);
             }
         }

@@ -275,8 +275,16 @@ namespace SWBF2Admin.Web
 
             using (Stream stream = ctx.Response.OutputStream)
             {
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Close();
+                try
+                {
+                    stream.Write(buffer, 0, buffer.Length);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogLevel.Verbose,
+                        "http write error: couldn't send to {0} - {1}",
+                        ctx.Request.RemoteEndPoint.ToString(), e.ToString());
+                }
             }
         }
 
