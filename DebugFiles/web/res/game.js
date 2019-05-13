@@ -63,6 +63,7 @@ function Game() {
                 Awards: $("#game_input_awards_enable").prop("checked"),
                 Shownames: $("#game_input_names_enable").prop("checked"),
                 AutoAssignTeams: $("#game_select_teams").val(),
+				Difficulty: $("#game_select_difficulty").val(),
                 PreGameTime: $("#game_input_warmup").val(),
                 Spawn: $("#game_input_spawn").val(),
 
@@ -112,6 +113,7 @@ function Game() {
         $("#game_input_awards_enable").prop("checked", s.Awards);
         $("#game_input_names_enable").prop("checked", s.Shownames);
         $("#game_select_teams").val(s.AutoAssignTeams.toString());
+		$("#game_select_difficulty").val(s.Difficulty);
         $("#game_input_warmup").val(s.PreGameTime);
         $("#game_input_spawn").val(s.Spawn);
 
