@@ -27,6 +27,10 @@ void bf2server_init() {
 
 	bf2server_patch_dedicated();
 
+#ifdef EXPERIMENTAL_UPS
+	bf2server_patch_ups();
+#endif
+
 	chatCCAddr = (DWORD)&bf2server_chat_cc;
 	bf2server_set_chat_cc();
 
@@ -39,12 +43,23 @@ void bf2server_init() {
 	}
 	else
 	{
-		spawnValue = atof(env_buffer);
+		spawnValue = static_cast<float>(atof(env_buffer));
 	}
 	free(env_buffer);
 
 	spawnValueAddr = (DWORD)&spawnValue;
 	bf2server_patch_spawnvalue();
+}
+
+void bf2server_patch_ups()
+{
+	BYTE patch[] = {
+		//jmp     short loop 
+		//-> nop
+		0x90, 0x90
+	};
+
+	bf2server_patch_asm(OFFSET_UPS_LIMITER, (void*)patch, sizeof(patch));
 }
 
 void bf2server_patch_norender()

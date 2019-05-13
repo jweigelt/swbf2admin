@@ -4,3 +4,9 @@
 
 /* max. connections to the rcon server */
 #define MAX_CONNECTIONS 100
+
+/*
+ * disables update rate limiter
+ * CAUTION: can cause uncontrolled UDP output, only for testing purposes
+ */
+#define EXPERIMENTAL_UPS

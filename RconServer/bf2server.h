@@ -32,6 +32,9 @@ using std::function;
 
 #ifdef GALAXY
 //GoG Version
+
+#define OFFSET_UPS_LIMITER 0x005C9D16- 0x400000
+
 #define OFFSET_NORENDER_FIX 0x006BB37F - 0x400000
 #define OFFSET_VOTECRASH_FIX 0x005D2282 - 0x400000
 #define OFFSET_VOTEKICK_FIX 0x00599B11 - 0x400000
@@ -88,6 +91,11 @@ enum MapStatus : BYTE {
  *	Initializes server-access
  **/
 void bf2server_init();
+
+/**
+*	Patches update timing routine
+**/
+void bf2server_patch_ups();
 
 /**
 *	Fixes the /norender arg which normally crashes with the gog/steam binaries
