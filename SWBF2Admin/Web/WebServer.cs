@@ -258,7 +258,12 @@ namespace SWBF2Admin.Web
                     Core.Database.UpdateLastSeen(user);
                 }
             }
-            user.IPEP = ctx.Request.RemoteEndPoint;
+
+            if (user != null)
+            {
+                user.IPEP = ctx.Request.RemoteEndPoint;
+            }
+
             return user;
         }
 
