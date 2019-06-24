@@ -242,10 +242,12 @@ namespace SWBF2Admin.Web
                     user = Core.Database.GetWebUser(identity.Name, identity.Password);
                     if (user != null)
                     {
-
                         authCache.Remove(user.Username);
                         authCache.Add(user.Username, user);
                         Core.Database.UpdateLastSeen(user);
+                    }else
+                    {
+                        Logger.Log(LogLevel.Info, "User {0} ({1}): invalid login (cached/password mismatch)", identity.Name, ctx.Request.RemoteEndPoint.ToString());
                     }
                 }
             }
@@ -256,6 +258,9 @@ namespace SWBF2Admin.Web
                 {
                     authCache.Add(user.Username, user);
                     Core.Database.UpdateLastSeen(user);
+                }else
+                {
+                    Logger.Log(LogLevel.Info, "User {0} ({1}): invalid login (db/password mismatch)", identity.Name, ctx.Request.RemoteEndPoint.ToString());
                 }
             }
 
