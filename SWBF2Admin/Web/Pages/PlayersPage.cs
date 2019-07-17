@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+using System;
 using System.Net;
 using Newtonsoft.Json;
 using SWBF2Admin.Structures;
@@ -73,11 +74,30 @@ namespace SWBF2Admin.Web.Pages
                     Player player;
                     if ((player = Core.Players.GetPlayerBySlot(p.PlayerId)) != null)
                     {
+                        PlayerBan ban;
                         //TODO: figure something out for adminId
-                        Core.Database.InsertBan(new PlayerBan(player.Name, player.KeyHash, player.RemoteAddress.ToString(), "WebAdmin", "WebAdmin", p.BanType, player.DatabaseId, 1));
+                        string adminName = "WebAdmin";
+                        string reason = "WebAdmin";
+                        int adminDBId = 1;
+
+                        if(p.BanDuration < 0) {
+                            ban = new PlayerBan(player.Name, player.KeyHash, player.RemoteAddress.ToString(), adminName, reason, p.BanType, player.DatabaseId, adminDBId);
+                        } else
+                        {
+                            TimeSpan duration = new TimeSpan(0, 0, p.BanDuration);
+                            ban = new PlayerBan(player.Name, player.KeyHash, player.RemoteAddressStr, adminName, reason, duration, p.BanType, player.DatabaseId, adminDBId);
+                        }
+
+                        Core.Database.InsertBan(ban);
+
+
+
+                       
                         Core.Scheduler.PushTask(() => Core.Players.Kick(player));
                     }
                  
+                   
+
                     break;
             }
         }
