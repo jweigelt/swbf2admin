@@ -13,6 +13,11 @@ BYTE mapfixTicks;
 FLOAT spawnValue;
 DWORD spawnValueAddr;
 
+FLOAT updateRate;
+DWORD updateRateAddr;
+
+DWORD netUpdateClientLimit = 1024;
+
 function<void(string const &msg)> chatCB;
 
 void bf2server_init() {
@@ -24,11 +29,12 @@ void bf2server_init() {
 	bf2server_patch_password();
 	bf2server_patch_votekick_exploit();
 	bf2server_patch_maphang();
-
 	bf2server_patch_dedicated();
 
+	updateRate = 0.001;
+	updateRateAddr = (DWORD)&updateRate;
 #ifdef EXPERIMENTAL_UPS
-	bf2server_patch_ups();
+	bf2server_patch_netupdate();
 #endif
 
 	chatCCAddr = (DWORD)&bf2server_chat_cc;
@@ -47,20 +53,11 @@ void bf2server_init() {
 	}
 	free(env_buffer);
 
+
 	spawnValueAddr = (DWORD)&spawnValue;
 	bf2server_patch_spawnvalue();
 }
 
-void bf2server_patch_ups()
-{
-	BYTE patch[] = {
-		//jmp     short loop 
-		//-> nop
-		0x90, 0x90
-	};
-
-	bf2server_patch_asm(OFFSET_UPS_LIMITER, (void*)patch, sizeof(patch));
-}
 
 void bf2server_patch_norender()
 {
@@ -161,12 +158,12 @@ void __declspec(naked) bf2server_mapfix_cc() {
 		cmp byte ptr[eax], MAPFIX_IDLE_TIMEOUT
 		jge loc_force
 
-		loc_retn:
-			mov ecx, dword ptr[mapfixRetnAddr]
+		loc_retn :
+		mov ecx, dword ptr[mapfixRetnAddr]
 			jmp ecx
 
-		loc_force:
-			xor eax, eax
+			loc_force :
+		xor eax, eax
 			jmp loc_retn
 	}
 }
@@ -283,4 +280,33 @@ void bf2server_mapfix_tick()
 void bf2server_patch_spawnvalue()
 {
 	bf2server_patch_asm(OFFSET_SPAWNVALUE_MOD_FLOAT, (void*)&spawnValueAddr, sizeof(DWORD));
+}
+
+void bf2server_patch_netupdate()
+{
+	BYTE ratePatch[] = {
+		//movss xmm0, ds:float_0_1 ; <- 1/update rate
+		0xF3, 0x0F, 0x10, 0x05, 0xD8, 0x2E, 0x7B, 0x00
+	};
+
+	BYTE clientLimitPatch[] = {
+		//cdq
+		//sub eax, edx
+		//sar eax, 1
+		//-> mov eax, 0x40
+		0xb8, 0x40, 0x00, 0x00, 0x00
+	};
+
+	*(DWORD*)&ratePatch[4] = updateRateAddr;
+	*(DWORD*)&clientLimitPatch[1] = netUpdateClientLimit;
+	bf2server_patch_asm(OFFSET_UPS_RATE, ratePatch, sizeof(ratePatch));
+	bf2server_patch_asm(OFFSET_UPS_CLIENT_LIMITER, clientLimitPatch, sizeof(clientLimitPatch));
+	
+	BYTE patch[] = {
+		//jmp     short loop 
+		//-> nop
+		0x90, 0x90
+	};
+
+	bf2server_patch_asm(OFFSET_UPS_LIMITER, (void*)patch, sizeof(patch));
 }

@@ -62,6 +62,9 @@ using std::function;
 #define OFFSET_GAMEPORT 0x3E9EF4
 #define OFFSET_IDLE 0x01E58EBD - 0x400000;
 
+#define OFFSET_UPS_RATE 0x005D2E21 - 0x400000
+#define OFFSET_UPS_CLIENT_LIMITER 0x005C9C19  - 0x400000
+
 #else
 //Steam Version
 #define OFFSET_CHATINPUT 0x005AF090 - 0x00401000 + 0x1000
@@ -126,6 +129,12 @@ void bf2server_patch_maphang();
 *	Patches SetSpawnDelay() so it uses our own spawn value per default
 **/
 void bf2server_patch_spawnvalue();
+
+/**
+*	Patches the server's update timing
+**/
+void bf2server_patch_netupdate();
+
 
 /**
 *	Installs an asm patch
