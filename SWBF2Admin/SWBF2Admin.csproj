@@ -132,6 +132,10 @@
     <Compile Include="Config\ConfigFileInfo.cs" />
     <Compile Include="Export\StatisticsReportGenerator.cs" />
     <Compile Include="Gameserver\StartEventArgs.cs" />
+    <Compile Include="Maps\AddmeReader.cs" />
+    <Compile Include="Maps\Lua\LuaFunction.cs" />
+    <Compile Include="Maps\Lua\LuaInstruction.cs" />
+    <Compile Include="Maps\Lua\LuaVM.cs" />
     <Compile Include="Plugins\SWBF2AdminPlugin.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Runtime\Announce\Announce.cs" />
