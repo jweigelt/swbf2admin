@@ -80,10 +80,6 @@ void RconServer::listen()
 	}
 
 	unique_lock<mutex> lg(mtx);
-	for (auto &c : clients)
-	{
-		c->stop();
-	}
 	clients.clear();
 	lg.unlock();
 

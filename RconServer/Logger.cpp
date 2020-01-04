@@ -1,20 +1,14 @@
+//
+// Created by jan on 8/16/18.
+//
+
 #include "Logger.h"
 
-_Logger::_Logger()
-{
-}
-
-_Logger::~_Logger()
-{
-}
-
-void _Logger::log(LogLevel level, const char* msg, ...) {
-
-	unique_lock <mutex> lg(mtx);
+void _Logger::log(LogLevel level, const char *msg, ...) {
+	va_list args;
 
 	if (minLevelStdout <= level) {
-		printf(LOG_LEVELS[level]);
-		va_list args;
+		printf("%s", LOG_LEVELS[level]);
 		va_start(args, msg);
 		vprintf(msg, args);
 		va_end(args);
@@ -22,30 +16,34 @@ void _Logger::log(LogLevel level, const char* msg, ...) {
 	}
 
 	if (minLevelFile <= level) {
-		//TODO: fix me
-		logToFile(msg);
+		va_start(args, msg);
+		auto len = (size_t)vsnprintf(nullptr, 0, msg, args) + 1;
+		va_end(args);
+
+		auto buffer = make_unique<char[]>(len);
+		va_start(args, msg);
+		vsnprintf(buffer.get(), len, msg, args);
+		va_end(args);
+		LogToFile(buffer.get());
 	}
 }
 
-void _Logger::setMinLevelStdout(LogLevel level)
-{
+void _Logger::SetMinLevelStdout(LogLevel level) {
 	minLevelStdout = level;
 }
 
-void _Logger::setMinLevelFile(LogLevel level)
-{
+void _Logger::SetMinLevelFile(LogLevel level) {
 	minLevelFile = level;
 }
 
-void _Logger::SetFileName(string const & fileName)
-{
+void _Logger::SetFileName(const string &fileName) {
 	logFile = fileName;
 }
 
-void _Logger::logToFile(string const &  s)
-{
+void _Logger::LogToFile(const char *s) {
+	unique_lock<mutex> lg(mtx);
 	ofstream f;
-	f.open(logFile, f.app);
-	f << s.c_str() << "\n";
+	f.open(logFile, std::ofstream::app);
+	f << s << "\n";
 	f.close();
 }

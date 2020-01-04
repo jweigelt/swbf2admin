@@ -6,7 +6,9 @@ RconClient::RconClient(SOCKET & socket, std::function<void(RconClient*c)> onDisc
 	this->onDisconnect = onDisconnect;
 }
 
-RconClient::~RconClient() { }
+RconClient::~RconClient() {
+	stop();
+}
 
 void RconClient::stop()
 {
@@ -56,8 +58,10 @@ void RconClient::handleCommand(std::string const & command)
 	string res;
 	if (bf2server_idle() && bf2server_get_map_status() == MAP_IDLE) {
 		res = bf2server_command(MESSAGETYPE_COMMAND, SENDER_REMOTE, bf2server_s2ws(command).c_str(), OUTPUT_BUFFER);
+		Logger.log(LogLevel_VERBOSE, "Executed command '%s', result: '%s'", command.c_str(), res.c_str());
 	}
 	else {
+		Logger.log(LogLevel_VERBOSE, "Server is busy - telling the client...'");
 		res = "busy\n";
 	}
 
@@ -124,7 +128,6 @@ void RconClient::handleConnection()
 	Logger.log(LogLevel_VERBOSE, "Closing connection.");
 
 	if (connected) {
-		closesocket(socket);
 		connected = false;
 	}
 	onDisconnect(this);

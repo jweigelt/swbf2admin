@@ -1,4 +1,9 @@
+//
+// Created by jan on 8/16/18.
+//
+
 #pragma once
+
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
@@ -6,10 +11,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <mutex>
 
-using std::string;
 using std::ofstream;
+using std::string;
+using std::unique_ptr;
+using std::make_unique;
 using std::mutex;
 using std::unique_lock;
 
@@ -17,33 +25,33 @@ enum LogLevel {
 	LogLevel_VERBOSE = 0,
 	LogLevel_INFO = 1,
 	LogLevel_WARNING = 2,
-	LogLevel_ERROR = 3
+	LogLevel_ERROR = 3,
+	LOGLEVEL_CRITICAL = 4
 };
 
 static const char* LOG_LEVELS[] =
 {
-	"DEBUG | ",
-	"INFO  | ",
-	"WARN  | ",
-	"ERROR | "
+		"DEBUG | ",
+		"INFO  | ",
+		"WARN  | ",
+		"ERROR | ",
+		"CRASH | "
 };
 
 class _Logger
 {
 public:
-	_Logger();
-	~_Logger();
-	void log(LogLevel level, const char* msg, ...);
-	void setMinLevelStdout(LogLevel level);
-	void setMinLevelFile(LogLevel level);
-	void SetFileName(string const &fileName);
+	void log(LogLevel, const char*, ...);
+	void SetMinLevelStdout(LogLevel);
+	void SetMinLevelFile(LogLevel);
+	void SetFileName(const string&);
 
 private:
-	void logToFile(const string &s);
-	LogLevel minLevelStdout = LogLevel_ERROR;
-	LogLevel minLevelFile = LogLevel_ERROR;
+	void LogToFile(const char* s);
+	LogLevel minLevelStdout = LogLevel_WARNING;
+	LogLevel minLevelFile = LogLevel_WARNING;
+	string logFile = "./rconserver_log.txt";
 	mutex mtx;
-	string logFile = "./log.txt";
 };
 
 static _Logger Logger;

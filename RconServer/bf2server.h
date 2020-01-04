@@ -3,6 +3,7 @@
 #error Please compile the RconServer project for x86 architecture
 #endif
 
+#include <functional>
 #include <Windows.h>
 #include "Logger.h"
 #include "config.h"

@@ -40,6 +40,8 @@ namespace SWBF2Admin.Runtime.Rcon
         private const string STATUS_MESSAGE_SERVER_IS_BUSY = "busy";
         private const int CHAR_LIMIT = 120; // Really its 128
 
+        private readonly object rxLock = new object();
+
         public RconClient(AdminCore core) : base(core) { }
 
         public override void OnServerStart(EventArgs e)
@@ -176,6 +178,12 @@ namespace SWBF2Admin.Runtime.Rcon
         /// <param name="packet"></param>
         public void SendPacket(RconPacket packet)
         {
+            string lastMessageTemp;
+            lock (rxLock)
+            {
+                lastMessage = null;
+            }
+
             try
             {
                 Logger.Log(LogLevel.Verbose, "Sending command: '{0}'", packet.Command);
@@ -187,9 +195,8 @@ namespace SWBF2Admin.Runtime.Rcon
                 return;
             }
 
-            lastMessage = null;
             DateTime start = DateTime.Now;
-            while (lastMessage == null)
+            do
             {
                 if ((DateTime.Now - start).TotalMilliseconds < PacketTimeout)
                 {
@@ -197,20 +204,29 @@ namespace SWBF2Admin.Runtime.Rcon
                 }
                 else
                 {
-                    Logger.Log(LogLevel.Verbose, "Rcon packet timeout. (running {0})", packet.Command);
+                    Logger.Log(LogLevel.Warning, "Rcon packet timeout. (running {0})", packet.Command);
                     return;
                 }
-            }
 
-            if (lastMessage == STATUS_MESSAGE_SERVER_IS_BUSY)
+                lock (rxLock)
+                {
+                    lastMessageTemp = lastMessage;
+                }
+            } while (lastMessageTemp == null);
+
+            if (lastMessageTemp == STATUS_MESSAGE_SERVER_IS_BUSY)
             {
                 Logger.Log(LogLevel.Verbose, "Server is busy - dropping rcon packet");
             }
             else
             {
-                packet.HandleResponse(lastMessage);
+                packet.HandleResponse(lastMessageTemp);
             }
-            lastMessage = null;
+
+            lock (rxLock)
+            {
+                lastMessage = null;
+            }
         }
 
         /// <summary>
@@ -324,7 +340,7 @@ namespace SWBF2Admin.Runtime.Rcon
 
                         bytesRead = 0;
                     }
-
+                   // Logger.Log(LogLevel.Verbose, "Read rcon message: {0} bytes", message.Length.ToString());
                     ProcessMessage(message);
 
                     bytesRead = 0;
@@ -355,10 +371,15 @@ namespace SWBF2Admin.Runtime.Rcon
                 if (HandleStatusMessage(message)) return;
             }
 
-            lastMessage = message;
+            lock (rxLock)
+            {
+                lastMessage = message;
+            }
+
+            string lastMessageTemp;
 
             DateTime start = DateTime.Now;
-            while (lastMessage != null)
+            do
             {
                 if ((DateTime.Now - start).TotalMilliseconds < PacketTimeout)
                 {
@@ -369,7 +390,11 @@ namespace SWBF2Admin.Runtime.Rcon
                     Logger.Log(LogLevel.Warning, "Rcon response was not processed in time, dropping it.");
                     return;
                 }
-            }
+                lock (rxLock)
+                {
+                    lastMessageTemp = lastMessage;
+                }
+            } while (lastMessageTemp != null);
         }
 
         /// <summary>

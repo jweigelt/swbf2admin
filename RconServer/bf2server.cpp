@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include "bf2server.h"
 
 DWORD moduleBase;
@@ -21,6 +20,8 @@ DWORD netUpdateClientLimit = 1024;
 function<void(string const &msg)> chatCB;
 
 void bf2server_init() {
+	Logger.log(LogLevel_VERBOSE, "Patching BattlefrontII process...");
+
 	moduleBase = (DWORD)GetModuleHandle(L"BattlefrontII.exe");
 	mapfixRetnAddr = OFFSET_MAPFIX_RETN + moduleBase;
 	tickAddr = (DWORD)&mapfixTicks;
@@ -31,7 +32,7 @@ void bf2server_init() {
 	bf2server_patch_maphang();
 	bf2server_patch_dedicated();
 
-	updateRate = 0.001;
+	updateRate = 0.001f;
 	updateRateAddr = (DWORD)&updateRate;
 #ifdef EXPERIMENTAL_UPS
 	bf2server_patch_netupdate();
@@ -53,9 +54,9 @@ void bf2server_init() {
 	}
 	free(env_buffer);
 
-
 	spawnValueAddr = (DWORD)&spawnValue;
 	bf2server_patch_spawnvalue();
+	Logger.log(LogLevel_VERBOSE, "All patches applied.");
 }
 
 
