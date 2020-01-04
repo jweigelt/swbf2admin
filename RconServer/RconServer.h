@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 #include <memory>
+#include <algorithm>
 #include <inttypes.h>
 #include "RconClient.h"
 #include "Logger.h"
@@ -31,7 +32,7 @@ public:
 private:
 	bool running = false;
 	mutex mtx;
-	vector<shared_ptr<RconClient>> clients;
+	vector<RconClient*> clients;
 	SOCKET listenSocket;
 
 	uint16_t port;
@@ -39,5 +40,5 @@ private:
 	void onClientDisconnect(RconClient *client);
 	void onChatInput(string const & msg);
 
-	thread workThread;
+	shared_ptr<thread> workThread;
 };

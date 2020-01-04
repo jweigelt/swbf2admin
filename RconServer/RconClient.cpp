@@ -1,25 +1,22 @@
 #include "RconClient.h"
 
-RconClient::RconClient(SOCKET & socket, std::function<void(RconClient*c)> onDisconnect)
+RconClient::RconClient(SOCKET & socket, std::function<void(RconClient*c)> disconnectCB)
 {
 	this->socket = socket;
-	this->onDisconnect = onDisconnect;
+	this->disconnectCB = disconnectCB;
 }
 
-RconClient::~RconClient() {
-	stop();
-}
+RconClient::~RconClient() { }
 
 void RconClient::stop()
 {
 	connected = false;
-	closesocket(socket);
-	workThread.join();
 }
 
 void RconClient::start()
 {
-	workThread = thread(&RconClient::handleConnection, this);
+	workThread = make_shared<thread>(&RconClient::handleConnection, this);
+	workThread->detach();
 }
 
 void RconClient::onChatInput(std::string const & msg)
@@ -113,6 +110,7 @@ void RconClient::handleConnection()
 		while (sz > bytesRead) {
 			if ((fragment = recv(socket, buffer.get() + bytesRead, sz - bytesRead, 0)) == SOCKET_ERROR) {
 				err = true;
+				connected = false;
 				break;
 			}
 			buffer.get()[sz - 1] = 0;
@@ -126,11 +124,8 @@ void RconClient::handleConnection()
 	}
 
 	Logger.log(LogLevel_VERBOSE, "Closing connection.");
-
-	if (connected) {
-		connected = false;
-	}
-	onDisconnect(this);
+	closesocket(socket);
+	disconnectCB(this);
 }
 
 void RconClient::reportEndgame() {

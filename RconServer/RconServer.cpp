@@ -46,7 +46,7 @@ void RconServer::start()
 		return;
 	}
 	running = true;
-	workThread = thread(&RconServer::listen, this);
+	workThread = make_shared<thread>(&RconServer::listen, this);
 	bf2server_set_chat_cb(std::bind(&RconServer::onChatInput, this, std::placeholders::_1));
 }
 
@@ -55,7 +55,7 @@ void RconServer::stop()
 	bf2server_set_chat_cb(NULL);
 	running = false;
 	closesocket(listenSocket);
-	workThread.join();
+	workThread->join();
 }
 
 void RconServer::listen()
@@ -68,7 +68,7 @@ void RconServer::listen()
 			Logger.log(LogLevel_WARNING, "Client connect failed with %ld", WSAGetLastError());
 		}
 		else {
-			auto client = make_shared<RconClient>(clientSocket, std::bind(&RconServer::onClientDisconnect, this, std::placeholders::_1));
+			auto client = new RconClient(clientSocket, std::bind(&RconServer::onClientDisconnect, this, std::placeholders::_1));
 
 			unique_lock<mutex> lg(mtx);
 			clients.push_back(client);
@@ -80,7 +80,9 @@ void RconServer::listen()
 	}
 
 	unique_lock<mutex> lg(mtx);
-	clients.clear();
+	for(auto c : clients) {
+		c->stop();
+	}
 	lg.unlock();
 
 	if (running) {
@@ -93,16 +95,11 @@ void RconServer::listen()
 
 void RconServer::onClientDisconnect(RconClient * client)
 {
-	size_t idx = 0;
 	unique_lock<mutex> lg(mtx);
-	for (size_t i = 0; i < clients.size(); i++) {
-		if (clients.at(i).get() == client) {
-			idx = i;
-			break;
-		}
-	}
-	clients.erase(clients.begin() + idx);
-	lg.unlock();
+	clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end());
+	client->stop();
+	delete client;
+	Logger.log(LogLevel_INFO, "Client removed. %zu clients connected.", clients.size());
 }
 
 void RconServer::onChatInput(string const & msg)
