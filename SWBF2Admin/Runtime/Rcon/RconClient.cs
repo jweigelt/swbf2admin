@@ -258,6 +258,15 @@ namespace SWBF2Admin.Runtime.Rcon
         }
 
         /// <summary>
+        /// Runs lua code in the server's ingame scripting context
+        /// </summary>
+        /// <param name="lua">lua code to run</param>
+        public void IngameLua(string lua)
+        {
+            SendCommand("lua", lua);
+        }
+
+        /// <summary>
         /// Sends a command to the server but does not retrieve the response
         /// <note>
         /// Only use this method if your command doesn't output anything,

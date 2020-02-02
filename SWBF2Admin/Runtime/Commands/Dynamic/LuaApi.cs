@@ -112,6 +112,10 @@ namespace SWBF2Admin.Runtime.Commands.Dynamic
         {
             core.Rcon.Say(Util.FormatString(message, p));
         }
+        public void IngameLua(string lua)
+        {
+            core.Rcon.IngameLua(lua);
+        }
         #endregion
 
         #region I/O
