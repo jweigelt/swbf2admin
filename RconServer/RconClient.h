@@ -22,6 +22,11 @@ using std::atomic;
 using std::make_shared;
 using std::shared_ptr;
 
+#define COMMAND_LUA "/lua "
+#define RETURN_EPARAM "invalid parameters\n"
+#define RETURN_OK "ok\n"
+#define RETURN_BUSY "busy\n"
+
 class RconClient
 {
 public:
@@ -43,4 +48,5 @@ private:
 	void handleCommand(string const & command);
 	void send(vector<string> &response);
 	void handleConnection();
+	bool dispatchInternal(string const &command, string &res);
 };

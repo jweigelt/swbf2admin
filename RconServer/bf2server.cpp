@@ -260,6 +260,8 @@ USHORT bf2server_get_gameport()
 	return 	*(USHORT*)addr;
 }
 
+
+
 MapStatus bf2server_get_map_status()
 {
 	DWORD addr = moduleBase + OFFSET_MAP_STATUS;
@@ -310,4 +312,40 @@ void bf2server_patch_netupdate()
 	};
 
 	bf2server_patch_asm(OFFSET_UPS_LIMITER, (void*)patch, sizeof(patch));
+}
+
+int bf2server_lua_dostring(string const & code)
+{
+	auto s = reinterpret_cast<DWORD>(code.c_str());
+	auto l = static_cast<DWORD>(code.size());
+	auto L = *(reinterpret_cast<DWORD*>(moduleBase + OFFSET_LUA_STATE));
+	DWORD luaL_loadbuffer = moduleBase + OFFSET_LUA_LOAD_BUFFER;
+	DWORD lua_pcall = moduleBase + OFFSET_LUA_PCALL;
+	DWORD res;
+
+	__asm {
+		push 0
+		push l
+		push s
+		push L
+		call dword ptr [luaL_loadbuffer]
+		add esp, 16
+		mov res, eax
+	}
+
+	if (res == LUA_OK) {
+		__asm {
+			push 0
+			push 0
+			push 0
+			push L
+			call dword ptr [lua_pcall]
+			add esp, 16
+			mov res, eax
+		}
+		Logger.log(LogLevel_VERBOSE, "lua finished with result: %i", res);
+	}
+	else {
+		Logger.log(LogLevel_VERBOSE, "lua parse failed: %i", res);
+	}
 }

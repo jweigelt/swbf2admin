@@ -54,12 +54,15 @@ void RconClient::handleCommand(std::string const & command)
 {
 	string res;
 	if (bf2server_idle() && bf2server_get_map_status() == MAP_IDLE) {
-		res = bf2server_command(MESSAGETYPE_COMMAND, SENDER_REMOTE, bf2server_s2ws(command).c_str(), OUTPUT_BUFFER);
-		Logger.log(LogLevel_VERBOSE, "Executed command '%s', result: '%s'", command.c_str(), res.c_str());
+		
+		if(!dispatchInternal(command, res)) {
+			res = bf2server_command(MESSAGETYPE_COMMAND, SENDER_REMOTE, bf2server_s2ws(command).c_str(), OUTPUT_BUFFER);
+			Logger.log(LogLevel_VERBOSE, "Executed command '%s', result: '%s'", command.c_str(), res.c_str());
+		}
 	}
 	else {
 		Logger.log(LogLevel_VERBOSE, "Server is busy - telling the client...'");
-		res = "busy\n";
+		res = RETURN_BUSY;
 	}
 
 	vector<string> rows = vector<string>();
@@ -126,6 +129,22 @@ void RconClient::handleConnection()
 	Logger.log(LogLevel_VERBOSE, "Closing connection.");
 	closesocket(socket);
 	disconnectCB(this);
+}
+
+bool RconClient::dispatchInternal(string const & command, string &res)
+{
+	if (command.rfind(COMMAND_LUA, 0) == 0) {
+		auto ll = strlen(COMMAND_LUA);
+		if(command.size() > ll) {
+			auto lr = bf2server_lua_dostring(command.substr(ll));
+			res = RETURN_OK;
+		}
+		else {
+			res = RETURN_EPARAM;
+		}
+		return true;
+	}
+	return false;
 }
 
 void RconClient::reportEndgame() {

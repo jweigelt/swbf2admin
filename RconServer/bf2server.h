@@ -66,6 +66,9 @@ using std::function;
 #define OFFSET_UPS_RATE 0x005D2E21 - 0x400000
 #define OFFSET_UPS_CLIENT_LIMITER 0x005C9C19  - 0x400000
 
+#define OFFSET_LUA_STATE 0x01E58E50 - 0x400000
+#define OFFSET_LUA_LOAD_BUFFER 0x0069C0C0 - 0x400000
+#define OFFSET_LUA_PCALL 0x0069CF40- 0x400000
 #else
 //Steam Version
 #define OFFSET_CHATINPUT 0x005AF090 - 0x00401000 + 0x1000
@@ -75,6 +78,8 @@ using std::function;
 #define OFFSET_ADMINPW 0x1A57A10
 #define OFFSET_LOGGED_IN 0x01F9AE32 - 0x00401000 + 0x1000
 #endif
+
+#define LUA_OK 0
 
 #define MESSAGETYPE_CHAT 1
 #define MESSAGETYPE_COMMAND 0
@@ -198,3 +203,8 @@ void bf2server_set_chat_cb(function<void(string const &msg)> onChat);
 *	Gets the server gameport (set via /gameport)
 **/
 USHORT bf2server_get_gameport();
+
+/**
+*	Executes lua code in the ingame context of the server
+**/
+int bf2server_lua_dostring(string const &code);
