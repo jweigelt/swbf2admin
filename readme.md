@@ -284,6 +284,14 @@ player: (Player) player who invoked your command
 command: (string) your command alias
 params: (table(of string)) paramaters given by the player
 
+### Invoking ingame lua
+SWBF2Admin's command system allows to run lua code in in-game context. This allows to invoke all game-specific lua functions externally without having to munge files.
+Simply use
+```lua
+api.IngameLua("<lua code here>")
+```
+in your custom command script. (Example command: !boom)
+
 ### LUA API documentation
 The API is exported to LUA as a superglobal called "api".
 
@@ -302,6 +310,7 @@ GameInfo GetGameInfo()
 string SendCommand(string cmd, params string[] args)
 void SendCommandNoResponse(string cmd, params string[] args)
 void Say(string message, params string[] p)
+void IngameLua(string lua)
 
 string GetConfig(string name)
 string GetUsage()
