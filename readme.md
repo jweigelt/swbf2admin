@@ -8,20 +8,23 @@ SWBF2Admin is highly configurable - for advanced configuration techniques or mor
 ### Prerequisites
 SWBF2Admin requires the following software to be installed on the host machine:
 
-- .NET Framework(or equivalent) v4.6.1 or newer (https://www.microsoft.com/net/download/windows)
-- Visual C++ Redistributable x86 2015: (https://www.microsoft.com/en-us/download/details.aspx?id=48145)s
+- .NET Framework(or equivalent) v4.6.1 or newer (<https://www.microsoft.com/net/download/windows>)
+- Visual C++ Redistributable x86 2015: (<https://www.microsoft.com/en-us/download/details.aspx?id=48145>)
 
 If you are planning on hosting a GoG/Steam server you will also need a GOG Galaxy account owning SWBF2.
+
+```diff
+- Using the Steam client for hosting is currently not supported.
+```
 
 ### Minimal setup
 Extract all files to a destination of your choice, run SWBF2Admin.exe. You will be prompted to set webadmin credentials. Enter username and password of your choice. Close SWBF2Admin afterwards.
 
 Navigate to the "server" folder in SWBF2Admin's installation directory. Right click "RconServer.dll" -> "Properties". Check the "Unblock" option in the lower section of the dialog. Do the same for "dlloader.exe".
 
-```
-NOTE: Should you ever forget your credentials, run reset_webcredentials.bat.
-This will delete all webadmin accounts and prompt you for new default credentials.
-```
+**Should you ever forget your credentials, run reset_webcredentials.bat.
+This will delete all web admin accounts and prompt you for new default credentials.**
+
 ##### Optional: using the original server package
 If you want to run the old dedicated server, open core.xml,set
 ```xml
@@ -45,19 +48,23 @@ To enable runtime management, open core.xml, set
 ```xml
   <EnableRuntime>true</EnableRuntime>
 ```
+```diff
+! When using runtime management, the !gimmeadmin command will add the first user to execute
+! it to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.
 ```
-CAUTION: when using runtime management, the !gimmeadmin command will add the first user to execute it
-to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.
+```diff
+! When using the GOG version, set GamePort & RconPort in Server Settings to the same value.
 ```
+
 ### Preparing the gameserver
 
 Depending on which platform you want to use, EITHER follow the "GoG / Steam" OR the Gamespy / "Swbfspy" guide.
 
 ##### GoG / Steam
+```diff
+! GOG Galaxy does not work over Windows Remote Desktop. You can use tools like VNC or Chrome Remote Desktop instead.
 ```
-NOTE: GOG Galaxy does not work over Windows RD. You can use tools like VNC or Chrome Remote Desktop instead.
-```
-1) Install GOG Galaxy (https://www.gog.com/galaxy)
+1) Install GOG Galaxy (<https://www.gog.com/galaxy>)
 2) Using GOG Galaxy, download Star Wars Battlefront II
 3) In GOG Galaxy, open Battlefront II in your library. Click on "More" -> "Manage installation" -> "Show folder"
 4) A Explorer Window will open, open "GameData" and copy all contents to the "server" folder in SWBF2Admin's installation directory
@@ -104,6 +111,7 @@ If "permanent" is selected, the duration field will be ignored.
 ### Chat
 
 The chat page provides you a live feed of the server's ingame chat. You can also send messages which will be shown ingame.
+Add a /admin prefix to send administrative commands. The command output is sent back to your browser.
 
 ### Bans
 
@@ -129,11 +137,10 @@ Settings are also saved immediately if you change to another page, so you don't 
 
 This page lets you change your server's basic parameters.
 
-TODO
 
 ### Settings / Game
 
-TODO
+This page lets you change your parameters adjusting the gameplay.
 
 ### Settings / Map Rotation
 
@@ -143,13 +150,9 @@ A dialog will open, asking you to select the game modes you want to add. After d
 
 If you want to remove a map from the rotation, just drag&drop it from the right table to the left table.
 
-### Groups
-
-TODO 
-
 ### Users
 
-If you want to edit your web admin username / password or want to add additional users, you can do so on this page.
+If you want to edit your webadmin username / password or want to add additional users, you can do so on this page.
 Right-clicking on any user will give you the options to delete or edit a user or create a new one.
 
 If you're editing an existing user but don't want to change his password, leave the password fields untouched.
@@ -220,7 +223,11 @@ Example for a broadcast displaying the current time in HH:mm:ss format:
 
 ## Automatic conditional broadcasts
 
-TODO (see players.xml -> ConditionalMessages)
+Conditional broadcasts can be used to trigger custom messages if a special event is observed. Special events can for example be a player reaching a specific number of kills without dying.
+
+SWBF2Admin lets you specify unlimited messages for one event. When the event is triggered, one line is chosen from the message pool at random.
+
+(see players.xml -> ConditionalMessages for setup syntax)
 
 ## Ingame commands
 
@@ -228,12 +235,80 @@ TODO (see players.xml -> ConditionalMessages)
 
 After you freshly installed SWBF2Admin, join your server and enter !gimmeadmin in chat. This will add your player account to the Administrator group.
 
-TODO
+By default SWBF2Admin has three user groups configured:
+- Player
+- Moderator
+- Admin
+
+To add players to a specific group use the putgroup command:
+
+```
+!putgroup <name> <group>
+```
+
+If you want to remove a player from a specific group, you can do so using the !rmgroup command
+```
+!rmgroup <name> <group>
+```
+
+Each user group is assigned a hierarchy value ("group level"). By default SWBF2Admin will not allow users to add players to or remove players from groups that a higher in hierarchy than the highest ranking group the acting user is a member of.
+This behaviour can be disabled by setting
+```xml
+<CheckLevel>false</CheckLevel>
+```
+in ./cfg/cmd/putgroup.xml and ./cfg/cmd/rmgroup.xml.
+
+### Basic administrative commands
+SWBF2Admin supports all basic administrative commands.
+All commands that expect a player name to be given feature automatic player name detection. This means that you only have to enter parts of a player's name. If the expression provided is ambiguous, the -n \<number\> argument can be used. This will kick the n-th matching player from the score board list.
+|Command syntax|Description|
+|--------------|-----------|
+|!swap \<player\> [\<reason\>]|Changes the player's team|
+|!kick \<player\> [\<reason\>]|Kicks the player from the server|
+|!ban \<player\> [\<reason\>]|(Permanently) bans the player from the server|
+|!ipban \<player\> [\<reason\>]|Bans the player's IP-address (does not work on GoG)|
+|!tempban \<player\> \<duration\> [\<reason\>]|Bans the player for a specific amount of time. (Give time in seconds)|
+|!tempipban \<player\> \<duration\> [\<reason\>]|Bans the player for a specific amount of time.<br/>The ban is IP-Address based. (Give time in seconds, does not work on GoG)|
+
+### Map commands
+Like player commands, all map commands also feature automatic name completion.<br/>
+A map can be specified using the following format:
+```
+<map name> <era>_<mode>
+```
+You can either use the 3-letter code of the map or a part of the "nice" name of a map.
+Map names and 3-letter codes can also be viewed in web admin.
+
+|Command syntax|Description|
+|--------------|-----------|
+|!map \<map\>|Adds the map to the map rotation (if it is not contained already)<br/>and immediately switches to the new map|
+|!addmap \<map\>|Adds the map to the map rotation (if it is not contained already)|
+|!removemap \<map\>|Removes the map to the map rotation|
+|!setnextmap \<map\>|Adds the map to the map rotation (if it is not contained already). Sets the next map to the new map|
+
+### Misc commands
+|Command syntax|Description|
+|--------------|-----------|
+|!endgane|Ends the current game and loads the next map|
+|!applymods \<enable/disable\> \<mod\>|Applies/Removes the given hexedit mod to/from the server's local level files|
+|!bots \<count\>|Adjusts the number of AI players to the given value|
+|!timer \<value\>|Sets the map timer to the given value|
+|!score \<value\>|Adjusts the ticket count / score limit / flag limit for the current map|
+|!boom|Spawns a grid of time bombs around (0, 0, 0)|
+
+### Public commands
+The following commands are configured to be available to anyone playing on the server.
+|Command syntax|Description|
+|--------------|-----------|
+|!nextmap|Prints the next map in chat|
+|!calc|An ingame calculator - never need to TAB out to calculate your K/D again|
+|!stats \<section\>|Prints a player's own statistics<br/>Game & Player statistics tracking has to be enabled|
+|!hello|Greets a player|
 
 ### Command configuration
 Every command has it's own XML configuration. The files are located in ./cfg/cmd.
 
-TODO
+All templates are kept configurable so you can adjust ingame messages to your liking.
 
 ### Custom commands
 To create a custom command, navigate to ./cfg/dyncmd and create a new folder for your command.
@@ -290,43 +365,36 @@ Simply use
 ```lua
 api.IngameLua("<lua code here>")
 ```
-in your custom command script. (Example command: !boom)
+in your custom command script. (Example command: !boom, see ./cfg/dyncmd/boom.lua)
+For additional information on how to write ingame lua scripts consult the mod tools documentation or <https://github.com/marth8880/SWBF2-Lua-API>.
 
 ### LUA API documentation
 The API is exported to LUA as a superglobal called "api".
 
-```
-Table<Player> GetPlayers() - Gets a table containing all connected players
-Table<Player> FindPlayers(string exp, bool ignoreCase = true, bool exact = false) - Gets a table containg all players whose names match the given expression 
-void KickPlayer(Player player) - boots a player from the server
-void SwapPlayer(Player player) - changes a players team
-void Pm(string message, Player player, params string[] p) - sends a private message to a player (!: sending PMs too fast might slow down or freeze the chat)
-Table<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, number timestamp, number maxRows)
-void InsertBan(Player player, Player admin, string reason, bool ip, number duration = -1)
+|function name| returns | description | arguments |
+|-------------|---------|-------------|-----------|
+|GetPlayers() |Table\<Player\>|Gets a table containing all connected players||
+|FindPlayers  |Table\<Player\>|Gets a table containg all players whose names match the given expression|string expression<br/>bool ignoreCase = true<br/>bool exact = false|
+|KickPlayer||Boots a player from the server|Player player|
+|SwapPlayer||Changes a players team|Player player|
+|Pm||Sends a private message to a player<br /> **Sending PMs too fast can slow down or freeze the chat**
+|GetBans|Table\<PlayerBan\>|Gets a list of bans from the database filtered by the given parameters|string playerExp<br/> string adminExp<br/>string reasonExp<br/>bool expired<br/>int banType<br/>number timestamp<br/>number maxRows|
+|InsertBan||Saves a ban in the database. The ban is enabled immediately.|Player player<br/>Player admin<br/>string reason<br/>bool ip<br/>number duration = -1</br>(-1: permanent ban)|
+|GetServerInfo|ServerInfo|Gets the gameservers current status||
+|GameInfo|GetGameInfo|Gets information about the current game||
+|SendCommand|string|Sends a command to the server's remote console "rcon". The server's response is returned.|string cmd<br/>params string[] args||
+|SendCommandNoResponse||Sends a command to the server's remote console "rcon" SWBF2Admin will not wait for a response from the server. Use this method for commands that do not return any text.|string cmd<br/>params string[] args||
+|Say||Broadcasts a message in the server|string message|
+|IngameLua||Executes lua code in the gameserver's lua context|string lua|
+|GetConfig|string|Gets a parameter from the command.xml user configuration section|string name|
+|GetUsage|string|Gets the usage field from the command configuration file||
+|GetAlias|string|Gets the alias field from the command configuration file||
+|Log||Passes a log message to SWBF2Admin's event logging system<br/>Available levels are: LogLevel_Verbose, LogLevel_Info, LogLevel_Warning, LogLevel_Error|number level<br/>string message<br/>params string[] p|
+|GetMods|Table\<LvlMod\>|Gets a list of available hex-edit mods||
+|ApplyMod||Applies the given mod to the servers local level files.|LvlMod mod|
+|RevertModd||Removes the given mod to the servers local level files.|LvlMod mod|
+|RevertAllMods||Removes all hex edit mods from the servers local level files.||
 
-ServerInfo GetServerInfo()
-GameInfo GetGameInfo()
-
-string SendCommand(string cmd, params string[] args)
-void SendCommandNoResponse(string cmd, params string[] args)
-void Say(string message, params string[] p)
-void IngameLua(string lua)
-
-string GetConfig(string name)
-string GetUsage()
-string GetAlias()
-
-(const number)LogLevel_Verbose 
-(const number)LogLevel_Info 
-(const number)LogLevel_Warning 
-(const number)LogLevel_Error 
-void Log(number level, string message, params string[] p)
-
-Table<LvlMod> GetMods()
-void ApplyMod(LvlMod mod)
-void RevertMod(LvlMod mod)
-void RevertAllMods()
-```
 
 ##### LUA object definitions
 Player
