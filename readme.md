@@ -190,26 +190,26 @@ Announces must have the following format:
 
 If EnableParser is set to true, the Announce is parsed before broadcasting it.
 The following tags are replaced:
-```
-{s:map}			current map
-{s:ff}			friendly fire enabled (0/1)
-{s:gm}			gamemode
-{s:heroes}		heroes enabled (0/1)
-{s:maxplayers}	max. players
-{s:nextmap}		next map
-{s:password}	server password
-{s:players}		current playercount
-{s:ip}			server's ip-address
-{s:name}		servers name
-{s:t1score}		team 1's score (CTF)
-{s:t2score}		team 2's score (CTF)
-{s:t1tickets}	team 1's reinforcements (CON/ASS/HUNT)
-{s:t2tickets}	team 2's reinforcements (CON/ASS/HUNT)
-{s:version}		server's version
-{g:nr}			current game's id
-{banner}		SWBF2Admin's version infos
-{t:(format)}	current time formatted by given format string
-```
+|Tag|Description|
+|------|------|
+|{s:map}|current map|
+|{s:ff}|friendly fire enabled (0/1)|
+|{s:gm}|gamemode|
+|{s:heroes}|heroes enabled (0/1)|
+|{s:maxplayers}|max. players|
+|{s:nextmap}|next map|
+|{s:password}|server password|
+|{s:players}|current playercount|
+|{s:ip}	|server's ip-address|
+|{s:name}|servers name|
+|{s:t1score}|team 1's score (CTF)|
+|{s:t2score}|team 2's score (CTF)|
+|{s:t1tickets}|team 1's reinforcements (CON/ASS/HUNT)|
+|{s:t2tickets}|team 2's reinforcements (CON/ASS/HUNT)|
+|{s:version}|server's version|
+|{g:nr}|current game's id|
+|{banner}|SWBF2Admin's version infos|
+|{t:(format)}|current time formatted by given format string|
 
 ##### Using the {t:(format)} tag
 
@@ -261,6 +261,7 @@ in ./cfg/cmd/putgroup.xml and ./cfg/cmd/rmgroup.xml.
 ### Basic administrative commands
 SWBF2Admin supports all basic administrative commands.
 All commands that expect a player name to be given feature automatic player name detection. This means that you only have to enter parts of a player's name. If the expression provided is ambiguous, the -n \<number\> argument can be used. This will kick the n-th matching player from the score board list.
+
 |Command syntax|Description|
 |--------------|-----------|
 |!swap \<player\> [\<reason\>]|Changes the player's team|
