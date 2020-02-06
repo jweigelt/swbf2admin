@@ -13,20 +13,18 @@ SWBF2Admin requires the following software to be installed on the host machine:
 
 If you are planning on hosting a GoG/Steam server you will also need a GOG Galaxy account owning SWBF2.
 
-```diff
-- Using the Steam client for hosting is currently not supported.
-```
+> Using the Steam client for hosting is currently not supported.
 
 ### Minimal setup
 Extract all files to a destination of your choice, run SWBF2Admin.exe. You will be prompted to set webadmin credentials. Enter username and password of your choice. Close SWBF2Admin afterwards.
 
-Navigate to the "server" folder in SWBF2Admin's installation directory. Right click "RconServer.dll" -> "Properties". Check the "Unblock" option in the lower section of the dialog. Do the same for "dlloader.exe".
+Navigate to the `./server` folder in SWBF2Admin's installation directory. Right click `RconServer.dll -> Properties`. Check the `Unblock` option in the lower section of the dialog. Do the same for `dlloader.exe`.
 
-**Should you ever forget your credentials, run reset_webcredentials.bat.
-This will delete all web admin accounts and prompt you for new default credentials.**
+> Should you ever forget your credentials, run reset_webcredentials.bat.
+> This will delete all web admin accounts and prompt you for new default credentials.
 
 ##### Optional: using the original server package
-If you want to run the old dedicated server, open core.xml,set
+If you want to run the old dedicated server, open `./cfg/core.xml`, set
 ```xml
   <ServerType>Gamespy</ServerType>
 ```
@@ -44,7 +42,7 @@ If you have any active firewall, the webadmin port (8080 TCP in this case) has t
 
 ##### Optional: enabling runtime managament
 If you want to use features like ingame commands, announce broadcast, statistics ..., runtime management has be enabled.
-To enable runtime management, open core.xml, set
+To enable runtime management, open `./cfg/core.xml`, set
 ```xml
   <EnableRuntime>true</EnableRuntime>
 ```
@@ -66,22 +64,22 @@ Depending on which platform you want to use, EITHER follow the "GoG / Steam" OR 
 ```
 1) Install GOG Galaxy (<https://www.gog.com/galaxy>)
 2) Using GOG Galaxy, download Star Wars Battlefront II
-3) In GOG Galaxy, open Battlefront II in your library. Click on "More" -> "Manage installation" -> "Show folder"
-4) A Explorer Window will open, open "GameData" and copy all contents to the "server" folder in SWBF2Admin's installation directory
+3) In GOG Galaxy, open Battlefront II in your library. Click on `More -> Manage installation -> Show folder`
+4) A Explorer Window will open, open `GameData` and copy all contents to the `./server` folder in SWBF2Admin's installation directory
 
 Do not uninstall the original game or GOG Galaxy after copying the data.
 
 ##### Gamespy / "Swbfspy"
 1) Install the original dedicated server package
-2) Copy the contents of it's installation folder (the one containing BattlefrontII.exe) to the "server" folder in SWBF2Admin's installation directory 
+2) Copy the contents of it's installation folder (the one containing `BattlefrontII.exe`) to the `server` folder in SWBF2Admin's installation directory 
 
 ### First launch
-1) Start SWBF2Admin.exe
+1) Start `SWBF2Admin.exe`
 2) Using your web browser, open the web panel. By default, the web panel is accessible at http://localhost:8080/
-3) Go to "Server Settings" -> "General", adjust server settings to your liking. Make sure that a network adapter is selected under "bind address"
-4) Go to "Server Settings" -> "Map rotation". Add maps using drag&drop.
-5) Go to "Dashboard", click on "Server status" -> "Start"
-6) If you chose to enable runtime management, join your server in game and enter "!gimmeadmin" in chat
+3) Go to `Server Settings -> General`, adjust server settings to your liking. Make sure that a network adapter is selected under `bind address`
+4) Go to `Server Settings -> Map rotation`. Add maps using drag&drop.
+5) Go to `Dashboard`, click on `Server status -> "Start`
+6) If you chose to enable runtime management, join your server in game and enter `!gimmeadmin` in chat
 
 ## Advanced
 
@@ -163,11 +161,11 @@ Notes:
 - The delete option won't appear for your own account
 
 ## Statistics tracking
-To enable statistics tracking, open game.xml, set
+To enable statistics tracking, open `./cfg/game.xml`, set
 ```
 <EnableGameStatsLogging>true</EnableGameStatsLogging>
 ```
-if you want to track player statistics as well, open players.xml, set
+if you want to track player statistics as well, open `./cfg/players.xml`, set
 ```
 <EnablePlayerStatsLogging>false</EnablePlayerStatsLogging>
 ```
@@ -175,11 +173,11 @@ if you want to track player statistics as well, open players.xml, set
 ## Automatic announce broadcasts
 
 ### Configuring the announce scheduler
-Open ./cfg/announce.xml
-- Set Enable to true to enable automatic announce scheduling
-- Adjust Interval to configure the delay between broadcasts
+Open `./cfg/announce.xml`
+- Set `Enable` to true to enable automatic announce scheduling
+- Adjust `Interval` to configure the delay between broadcasts
 
-You can now add as many announces as you like to the "AnnounceList" attribute.
+You can now add as many announces as you like to the `<AnnounceList>` attribute.
 Announces must have the following format:
 
 ```xml
@@ -190,6 +188,7 @@ Announces must have the following format:
 
 If EnableParser is set to true, the Announce is parsed before broadcasting it.
 The following tags are replaced:
+
 |Tag|Description|
 |------|------|
 |{s:map}|current map|
@@ -213,8 +212,8 @@ The following tags are replaced:
 
 ##### Using the {t:(format)} tag
 
-The {t:(format)} tag can be used to display the current time. Replace (format) with a format string.
-The given formatter has to be a .NET-style format string. (see https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings for reference)
+The `{t:(format)}` tag can be used to display the current time. Replace `(format)` with a format string.
+The given formatter has to be a .NET-style format string. (see <https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings> for reference)
 
 Example for a broadcast displaying the current time in HH:mm:ss format:
 ```xml
@@ -227,13 +226,13 @@ Conditional broadcasts can be used to trigger custom messages if a special event
 
 SWBF2Admin lets you specify unlimited messages for one event. When the event is triggered, one line is chosen from the message pool at random.
 
-(see players.xml -> ConditionalMessages for setup syntax)
+(see `./cfg/players.xml -> ConditionalMessages` for setup syntax)
 
 ## Ingame commands
 
 ### Getting permissions
 
-After you freshly installed SWBF2Admin, join your server and enter !gimmeadmin in chat. This will add your player account to the Administrator group.
+After you freshly installed SWBF2Admin, join your server and enter `!gimmeadmin` in chat. This will add your player account to the Administrator group.
 
 By default SWBF2Admin has three user groups configured:
 - Player
@@ -256,11 +255,11 @@ This behaviour can be disabled by setting
 ```xml
 <CheckLevel>false</CheckLevel>
 ```
-in ./cfg/cmd/putgroup.xml and ./cfg/cmd/rmgroup.xml.
+in `./cfg/cmd/putgroup.xml` and `./cfg/cmd/rmgroup.xml.`
 
 ### Basic administrative commands
 SWBF2Admin supports all basic administrative commands.
-All commands that expect a player name to be given feature automatic player name detection. This means that you only have to enter parts of a player's name. If the expression provided is ambiguous, the -n \<number\> argument can be used. This will kick the n-th matching player from the score board list.
+All commands that expect a player name to be given feature automatic player name detection. This means that you only have to enter parts of a player's name. If the expression provided is ambiguous, the `-n <number>` argument can be used. This will kick the n-th matching player from the score board list.
 
 |Command syntax|Description|
 |--------------|-----------|
@@ -355,10 +354,12 @@ end
 ```
 
 The init function is called once when SWBF2Admin has finished parsing your script.
+```
 run() is called everytime your command is invoked.
 player: (Player) player who invoked your command
 command: (string) your command alias
 params: (table(of string)) paramaters given by the player
+```
 
 ### Invoking ingame lua
 SWBF2Admin's command system allows to run lua code in in-game context. This allows to invoke all game-specific lua functions externally without having to munge files.
@@ -366,7 +367,7 @@ Simply use
 ```lua
 api.IngameLua("<lua code here>")
 ```
-in your custom command script. (Example command: !boom, see ./cfg/dyncmd/boom.lua)
+in your custom command script. (Example command: `!boom`, see `./cfg/dyncmd/boom.lua`)
 For additional information on how to write ingame lua scripts consult the mod tools documentation or <https://github.com/marth8880/SWBF2-Lua-API>.
 
 ### LUA API documentation

@@ -10,4 +10,4 @@
  * CAUTION: can cause uncontrolled UDP output, only for testing purposes
  *			crashes clients to desktop	
  */
-#define EXPERIMENTAL_UPS
+//#define EXPERIMENTAL_UPS
