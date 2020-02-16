@@ -60,7 +60,7 @@ Depending on which platform you want to use, EITHER follow the "GoG / Steam" OR 
 
 ##### GoG / Steam
 ```diff
-! GOG Galaxy does not work over Windows Remote Desktop. You can use tools like VNC or Chrome Remote Desktop instead.
+! Neither the GOG communications server nor GOG Galaxy works over Windows Remote Desktop. You can use tools like VNC or Chrome Remote Desktop instead. Launching any part of the server over Windows Remote Desktop causes it to not show up in the server listing.
 ```
 1) Install GOG Galaxy (<https://www.gog.com/galaxy>)
 2) Using GOG Galaxy, download Star Wars Battlefront II
