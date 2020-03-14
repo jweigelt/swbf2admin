@@ -10,6 +10,7 @@ function EventDisplay(container) {
   
   this.container = $(container);
   this.container.addClass("item");
+  this.container.addClass("event");
   this.container.hide();
   
   this.timeout = null;
@@ -39,7 +40,7 @@ function EventDisplay(container) {
       base.container.removeClass("info"); 
       base.container.addClass(cls);
       base.txt.html(msg);
-      if(r) base.container.fadeIn(); else base.container.slideDown();       
+      if(r) base.container.fadeIn(); else base.container.slideDown();     
     }
     
     if(base.timeout != null) clearTimeout(base.timeout);

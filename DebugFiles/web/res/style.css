@@ -38,6 +38,18 @@ body {
 }
 
 /**
+ *	Events
+ **/
+div.event {
+	position: fixed;
+	z-index: 10;
+	top: 0;
+	right: 0;
+	background: #f0f0f0;
+	min-width: 25%;
+}
+
+/**
  *  Frame
  **/
 td#account {
