@@ -25,6 +25,7 @@ using SWBF2Admin.Config;
 using SWBF2Admin.Utility;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Runtime.Rcon.Packets;
+using System.Collections.Generic;
 
 namespace SWBF2Admin.Runtime.Rcon
 {
@@ -266,6 +267,48 @@ namespace SWBF2Admin.Runtime.Rcon
             SendCommand("lua", lua);
         }
 
+        public bool UpdateServerSettings(List<ServerSettings.ServerSetting> settings)
+        {
+            Logger.Log(LogLevel.Verbose, "Updating {0} setting(s)", settings.Count.ToString());
+            foreach (var setting in settings)
+            {
+                SendPacket(new UpdateSettingPacket(setting));
+            }
+            return false;
+        }
+
+        public void UpdateMapList(List<string> newMapList)
+        {
+            var mp = new MapListPacket();
+            SendPacket(mp);
+            if (!mp.PacketOk)
+            {
+                Logger.Log(LogLevel.Error, "Map update failed - invalid /maps response");
+                return;
+            }
+
+            int added = 0;
+            int dropped = 0;
+            foreach (var s in mp.MapList)
+            {
+                if (!newMapList.Contains(s))
+                {
+                    SendCommand("dropmap", s);
+                    dropped++;
+                }
+            }
+
+            foreach (var s in newMapList)
+            {
+                if (!mp.MapList.Contains(s))
+                {
+                    SendCommand("addmap", s);
+                    added++;
+                }
+            }
+            Logger.Log(LogLevel.Verbose, "Added {0} maps, dropped {1} maps", added.ToString(), dropped.ToString());
+        }
+
         /// <summary>
         /// Sends a command to the server but does not retrieve the response
         /// <note>
@@ -349,7 +392,7 @@ namespace SWBF2Admin.Runtime.Rcon
 
                         bytesRead = 0;
                     }
-                   // Logger.Log(LogLevel.Verbose, "Read rcon message: {0} bytes", message.Length.ToString());
+                    // Logger.Log(LogLevel.Verbose, "Read rcon message: {0} bytes", message.Length.ToString());
                     ProcessMessage(message);
 
                     bytesRead = 0;

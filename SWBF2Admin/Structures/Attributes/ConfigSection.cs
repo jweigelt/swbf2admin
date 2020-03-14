@@ -28,28 +28,28 @@ namespace SWBF2Admin.Structures.Attributes
         public const int MAPS = 1 << 3;
 
         public int Type { get; set; }
-        private bool canUpdate;
-        private bool needsReload;
+        public virtual bool CanUpdate { get; }
+        public virtual bool NeedsReload { get; }
         public bool YesNoBool { get; } //used for swbf's /command /nocommand parameters
 
         public ConfigSection(int type, bool canUpdate, bool needsReload)
         {
             Type = type;
-            this.canUpdate = canUpdate;
-            this.needsReload = needsReload;
+            CanUpdate = canUpdate;
+            NeedsReload = needsReload;
             YesNoBool = false;
         }
 
         public ConfigSection(int type)
         {
             Type = type;
-            canUpdate = needsReload = YesNoBool = false;
+            CanUpdate = NeedsReload = YesNoBool = false;
         }
 
         public ConfigSection(int type, bool yesNoBool)
         {
             Type = type;
-            canUpdate = needsReload = false;
+            CanUpdate = NeedsReload = false;
             YesNoBool = yesNoBool;
         }
     }

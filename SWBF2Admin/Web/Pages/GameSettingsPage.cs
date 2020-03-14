@@ -19,7 +19,7 @@ using System;
 using System.Net;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Structures.Attributes;
-using SWBF2Admin.Utility;
+using SWBF2Admin.Gameserver;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -43,6 +43,7 @@ namespace SWBF2Admin.Web.Pages
         {
             public bool Ok { get; set; }
             public string Error { get; set; }
+            public bool NeedsReload { get; set; }
             public GameSettingsSaveResponse(Exception e)
             {
                 Ok = false;
@@ -52,7 +53,6 @@ namespace SWBF2Admin.Web.Pages
             {
                 Ok = true;
             }
-
         }
 
         public override void HandleGet(HttpListenerContext ctx, WebUser user)
@@ -69,20 +69,18 @@ namespace SWBF2Admin.Web.Pages
             {
                 case "game_get":
                     ServerSettings s = Core.Server.Settings;
-                    WebServer.LogAudit(user, "modified game settings");
-
-                    //TODO hacky way to pass "floats using ints"
-                    int st = s.AutoAnnouncePeriod;
-                    s.AutoAnnouncePeriod = (int) Util.I2f(s.AutoAnnouncePeriod);
                     WebAdmin.SendHtml(ctx, ToJson(new GameSettingsResponse(s)));
-                    s.AutoAnnouncePeriod = st;
-
                     break;
 
                 case "game_set":
-                    //NOTE: hacky way of passing spawnvalue
-                    p.Settings.AutoAnnouncePeriod = Util.F2i(p.Settings.AutoAnnouncePeriod);
-                    Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GAME);
+                    WebServer.LogAudit(user, "modified game settings");
+                    var changes = Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GAME);
+
+                    if (Core.Config.EnableRuntime && Core.Server.Status == ServerStatus.Online)
+                    {
+                        Core.Scheduler.PushTask(() => Core.Rcon.UpdateServerSettings(changes));
+                    }
+
                     try
                     {
                         Core.Server.Settings.WriteToFile(Core);

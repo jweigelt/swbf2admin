@@ -106,6 +106,7 @@ namespace SWBF2Admin.Structures
             }
             return res;
         }
+
         public static void SaveMapRotation(AdminCore core, List<string> maps)
         {
             string sr = string.Empty;
@@ -160,8 +161,10 @@ namespace SWBF2Admin.Structures
                 }
                 if (m == null)
                 {
-                    m = new ServerMap();
-                    m.Name = name;
+                    m = new ServerMap
+                    {
+                        Name = name
+                    };
                     maps.Add(m);
                 }
 

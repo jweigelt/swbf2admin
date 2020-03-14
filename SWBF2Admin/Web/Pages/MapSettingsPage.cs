@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using SWBF2Admin.Structures;
 using System.Threading;
 using System;
+using SWBF2Admin.Gameserver;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -110,12 +111,22 @@ namespace SWBF2Admin.Web.Pages
             try
             {
                 ServerMap.SaveMapRotation(Core, mapRot);
-                //theres a good chance that only maps were updated
+
+                if (Core.Config.EnableRuntime && Core.Server.Status == ServerStatus.Online)
+                {
+                    Core.Scheduler.PushTask(() => Core.Rcon.UpdateMapList(mapRot));
+                }
+
+                //there's a good chance that only maps were updated
                 //in this case we dont want to re-write ServerSettings.cfg -> check if Randomize changed
                 if (Core.Server.Settings.Randomize != p.Randomize)
                 {
                     Core.Server.Settings.Randomize = p.Randomize;
                     Core.Server.Settings.WriteToFile(Core);
+                    if (Core.Config.EnableRuntime && Core.Server.Status == ServerStatus.Online)
+                    {
+                        Core.Scheduler.PushTask(() => Core.Rcon.SendCommand("randomize", p.Randomize ? "1" : "0")); 
+                    }
                 }
                 r = new MapSaveResponse();
             }

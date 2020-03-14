@@ -16,6 +16,7 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 using SWBF2Admin.Structures.Attributes;
@@ -34,7 +35,7 @@ namespace SWBF2Admin.Structures
         [ConfigSection(ConfigSection.GENERAL)]
         public string Password { get; set; } = "";
 
-        [ConfigSection(ConfigSection.GENERAL, true, false)]
+        [ConfigSection(ConfigSection.GENERAL, canUpdate: true, needsReload: false)]
         public string AdminPw { get; set; } = "";
 
         [ConfigSection(ConfigSection.GENERAL)]
@@ -46,7 +47,7 @@ namespace SWBF2Admin.Structures
         [ConfigSection(ConfigSection.GENERAL)]
         public ushort RconPort { get; set; } = 4658;
 
-        [ConfigSection(ConfigSection.GENERAL)]
+        [ConfigSection(ConfigSection.GENERAL, canUpdate: true, needsReload: true)]
         public ushort Tps { get; set; } = 30;
 
         [ConfigSection(ConfigSection.GENERAL)]
@@ -113,79 +114,70 @@ namespace SWBF2Admin.Structures
         public ushort ConAiperTeam { get; set; } = 0;
         #endregion
         #region "CTF"
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort CTFScoreLimit { get; set; } = 5;
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort CTFTimeLimit { get; set; } = 0;
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort CTFAiPerTeam { get; set; } = 0;
         #endregion
         #region "HUNT"
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort HuntScoreLimit { get; set; } = 0;
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort HunTimeLimit { get; set; } = 0;
         #endregion
         #region "ASS"
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort AssScoreLimit { get; set; } = 0;
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort AssReinforcements { get; set; } = 0;
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort AssAiPerTeam { get; set; } = 0;
         #endregion
         #region "ELI"
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort EliTimeLimit { get; set; } = 0;
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort EliAiPerTeam { get; set; } = 0;
         #endregion
 
         [ConfigSection(ConfigSection.GAME)]
         public bool Shownames { get; set; } = true;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public bool TeamDamage { get; set; } = true;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public bool Awards { get; set; } = true;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public bool AutoAssignTeams { get; set; } = false;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort Difficulty { get; set; } = 3;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort Spawn { get; set; } = 0;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort PreGameTime { get; set; } = 0;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort KickVoteThreshold { get; set; } = 0;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort TeamVoteThreshold { get; set; } = 0;
 
-        [ConfigSection(ConfigSection.GAME)]
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public bool AimAssist { get; set; } = false;
-
-        //NOTE: using this to pass spawnvalue
-        [ConfigSection(ConfigSection.GAME)]
-        public int AutoAnnouncePeriod { get; set; } = 0x41700000;
-
-        //NOTE: using this to pass ups
-        [ConfigSection(ConfigSection.GENERAL)]
-        public int ForgiveTKs { get; set; } = 0x3dcccccd;
         #endregion
 
         #region Maps
-        [ConfigSection(ConfigSection.MAPS)]
+        [ConfigSection(ConfigSection.MAPS, canUpdate: true, needsReload: false)]
         public bool Randomize { get; set; } = false;
         #endregion
 
-        //Attention: messy code ahead
         public static ServerSettings FromSettingsFile(AdminCore core, string path)
         {
             ServerSettings settings = new ServerSettings();
@@ -249,8 +241,7 @@ namespace SWBF2Admin.Structures
 
                         if (p.PropertyType.IsEquivalentTo(typeof(ushort)))
                         {
-                            ushort s = 0;
-                            if (!ushort.TryParse(dat[1], out s))
+                            if (!ushort.TryParse(dat[1], out ushort s))
                             {
                                 Logger.Log(LogLevel.Warning, "Invalid server setting '{0}'. Expecting valid integer - skipping.", r);
                                 break;
@@ -259,8 +250,7 @@ namespace SWBF2Admin.Structures
                         }
                         else if (p.PropertyType.IsEquivalentTo(typeof(int)))
                         {
-                            int i = 0;
-                            if (!int.TryParse(dat[1], out i))
+                            if (!int.TryParse(dat[1], out int i))
                             {
                                 Logger.Log(LogLevel.Warning, "Invalid server setting '{0}'. Expecting valid integer - skipping.", r);
                                 break;
@@ -343,17 +333,50 @@ namespace SWBF2Admin.Structures
             }
         }
 
-        public void UpdateFrom(ServerSettings s, int type)
+
+        public struct ServerSetting
         {
+            public ServerSetting(bool canUpdate, bool needsReload, string settingName, string settingValue, bool yesNoBool) : this()
+            {
+                CanUpdate = canUpdate;
+                NeedsReload = needsReload;
+                Name = settingName;
+                Value = settingValue;
+                YesNoBool = yesNoBool;
+            }
+
+            public bool CanUpdate { get; }
+            public bool NeedsReload { get; }
+            public string Name { get; }
+            public string Value { get; }
+            public bool YesNoBool { get; }
+            public string RconCommand
+            {
+                get
+                {
+                    return YesNoBool ? (Value == "true" ? "" : "no") + Name.ToLower() :
+                         Name.ToLower() + " " + Value.ToLower();
+                }
+            }
+        }
+
+        public List<ServerSetting> UpdateFrom(ServerSettings s, int type)
+        {
+            var changes = new List<ServerSetting>();
             PropertyInfo[] props = typeof(ServerSettings).GetProperties();
             foreach (PropertyInfo p in props)
             {
                 ConfigSection[] attr = (ConfigSection[])p.GetCustomAttributes(typeof(ConfigSection), false);
                 if (attr.Length > 0)
                 {
-                    if ((attr[0].Type & type) > 0) p.SetValue(this, p.GetValue(s));
+                    if ((attr[0].Type & type) > 0 && p.GetValue(this).ToString() != p.GetValue(s).ToString())
+                    {
+                        changes.Add(new ServerSetting(attr[0].CanUpdate, attr[0].NeedsReload, p.Name, p.GetValue(s).ToString(), attr[0].YesNoBool));
+                        p.SetValue(this, p.GetValue(s));
+                    }
                 }
             }
+            return changes;
         }
     }
 }

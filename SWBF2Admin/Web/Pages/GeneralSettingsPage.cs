@@ -22,6 +22,7 @@ using System.Collections.Generic;
 
 using SWBF2Admin.Structures;
 using SWBF2Admin.Structures.Attributes;
+using SWBF2Admin.Gameserver;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -99,17 +100,18 @@ namespace SWBF2Admin.Web.Pages
             {
                 case "general_get":
                     ServerSettings s = Core.Server.Settings;
-                    int ups = s.ForgiveTKs;
-                    s.ForgiveTKs = (int)(1.0f / I2f(s.ForgiveTKs));
                     WebAdmin.SendHtml(ctx, ToJson(new GeneralSettingsResponse(s, GetNetworkDevices())));
-                    s.ForgiveTKs = ups;
                     break;
 
                 case "general_set":
                     WebServer.LogAudit(user, "modified general settings");
+                    var changes = Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GENERAL);
 
-                    p.Settings.ForgiveTKs = F2i(1.0f / p.Settings.ForgiveTKs);
-                    Core.Server.Settings.UpdateFrom(p.Settings, ConfigSection.GENERAL);
+                    if (Core.Config.EnableRuntime && Core.Server.Status == ServerStatus.Online)
+                    {
+                        Core.Scheduler.PushTask(() => Core.Rcon.UpdateServerSettings(changes));
+                    }
+
                     try
                     {
                         Core.Server.Settings.WriteToFile(Core);
