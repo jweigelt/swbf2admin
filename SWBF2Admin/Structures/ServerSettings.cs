@@ -178,6 +178,12 @@ namespace SWBF2Admin.Structures
         public bool Randomize { get; set; } = false;
         #endregion
 
+        #region Custom
+        //TODO: using unused setting "autoannounceperiod" to store spawn timer
+        [ConfigSection(ConfigSection.GAME, canUpdate: false, needsReload: true)]
+        public int AutoAnnouncePeriod { get; set; } = 15;
+        #endregion
+
         public static ServerSettings FromSettingsFile(AdminCore core, string path)
         {
             ServerSettings settings = new ServerSettings();

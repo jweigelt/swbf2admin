@@ -143,8 +143,7 @@ namespace SWBF2Admin.Gameserver
                 Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ServerArgs);
                 status = ServerStatus.Starting;
 
-                //TODO
-                //Environment.SetEnvironmentVariable("SPAWN_TIMER", "" + Util.I2f(Core.Server.Settings.AutoAnnouncePeriod));
+                Environment.SetEnvironmentVariable("SPAWN_TIMER", Core.Server.Settings.AutoAnnouncePeriod.ToString());
 
                 ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerPath + "/BattlefrontII.exe"), ServerArgs)
                 {
