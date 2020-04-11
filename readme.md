@@ -375,31 +375,34 @@ For additional information on how to write ingame lua scripts consult the mod to
 ### LUA API documentation
 The API is exported to LUA as a superglobal called "api".
 
-|function name| returns | description | arguments |
-|-------------|---------|-------------|-----------|
-|GetPlayers() |Table\<Player\>|Gets a table containing all connected players||
-|FindPlayers  |Table\<Player\>|Gets a table containg all players whose names match the given expression|string expression<br/>bool ignoreCase = true<br/>bool exact = false|
-|KickPlayer||Boots a player from the server|Player player|
-|SwapPlayer||Changes a players team|Player player|
-|Pm||Sends a private message to a player<br /> **Sending PMs too fast can slow down or freeze the chat**
-|GetBans|Table\<PlayerBan\>|Gets a list of bans from the database filtered by the given parameters|string playerExp<br/> string adminExp<br/>string reasonExp<br/>bool expired<br/>int banType<br/>number timestamp<br/>number maxRows|
-|InsertBan||Saves a ban in the database. The ban is enabled immediately.|Player player<br/>Player admin<br/>string reason<br/>bool ip<br/>number duration = -1</br>(-1: permanent ban)|
-|GetServerInfo|ServerInfo|Gets the gameservers current status||
-|GameInfo|GetGameInfo|Gets information about the current game||
-|SendCommand|string|Sends a command to the server's remote console "rcon". The server's response is returned.|string cmd<br/>params string[] args||
-|SendCommandNoResponse||Sends a command to the server's remote console "rcon" SWBF2Admin will not wait for a response from the server. Use this method for commands that do not return any text.|string cmd<br/>params string[] args||
-|Say||Broadcasts a message in the server|string message|
-|IngameLua||Executes lua code in the gameserver's lua context|string lua|
-|GetConfig|string|Gets a parameter from the command.xml user configuration section|string name|
-|GetUsage|string|Gets the usage field from the command configuration file||
-|GetAlias|string|Gets the alias field from the command configuration file||
-|Log||Passes a log message to SWBF2Admin's event logging system<br/>Available levels are: LogLevel_Verbose, LogLevel_Info, LogLevel_Warning, LogLevel_Error|number level<br/>string message<br/>params string[] p|
-|GetMods|Table\<LvlMod\>|Gets a list of available hex-edit mods||
-|ApplyMod||Applies the given mod to the servers local level files.|LvlMod mod|
-|RevertModd||Removes the given mod to the servers local level files.|LvlMod mod|
-|RevertAllMods||Removes all hex edit mods from the servers local level files.||
-
-
+|function name| returns | description |
+|-------------|---------|-------------|
+|`GetPlayers` |`Table<Player>`|Gets a table containing all connected players|
+|`FindPlayers`  |`Table<Player>`|Gets a table containg all players whose names match the given expression<br/>Arguments:<br/>`string expression`<br/>`bool ignoreCase = true`<br/>`bool exact = false`|
+|`KickPlayer`||Boots a player from the server<br/>Arguments:<br/>`Player player`|
+|`SwapPlayer`||Changes a players team<br/>Arguments:<br/>`Player player`|
+|`Pm`||Sends a private message to a player<br /> **Sending PMs too fast can slow down or freeze the chat**|
+|`GetBans`|`Table<PlayerBan>`|Gets a list of bans from the database filtered by the given parameters<br/>Arguments:<br/>`string playerExp`<br/>`string adminExp`<br/>`string reasonExp`<br/>`bool expired`<br/>`number banType`<br/>`number timestamp`<br/>`number maxRows`|
+|`InsertBan`||Saves a ban in the database. The ban is enabled immediately.<br/>Arguments:<br/>`Player player`<br/>`Player admin`<br/>`string reason`<br/>`bool ip`<br/>`number duration = -1` (-1: permanent ban)|
+|`GetServerInfo`|`ServerInfo`|Gets the gameservers current status|
+|`GameInfo`|`GetGameInfo`|Gets information about the current game|
+|`SendCommand`|`string`|Sends a command to the server's remote console "rcon". The server's response is returned.<br/>Arguments:<br/>`string cmd`<br/>`params string[] args`|
+|`SendCommandNoResponse`||Sends a command to the server's remote console "rcon" SWBF2Admin will not wait for a response from the server. Use this method for commands that do not return any text.<br/>Arguments:<br/>`string cmd`<br/>`params string[] args`|
+|`Say`||Broadcasts a message in the server<br/>Arguments:<br/>`string message`|
+|`IngameLua`||Executes lua code in the gameserver's lua context<br/>Arguments:<br/>`string lua`|
+|`GetConfig`|`string`|Gets a parameter from the command.xml user configuration section<br/>Arguments:<br/>`string name`|
+|`GetUsage`|`string`|Gets the usage field from the command configuration file|
+|`GetAlias`|`string`|Gets the alias field from the command configuration file|
+|`Log`||Passes a log message to SWBF2Admin's event logging system<br/>Available levels are: LogLevel_Verbose, LogLevel_Info, LogLevel_Warning, LogLevel_Error|<br/>Arguments:<br/>`number level`<br/>`string message`<br/>`params string[] p`|
+|`GetMods`|`Table<LvlMod>`|Gets a list of available hex-edit mods|
+|`ApplyMod`||Applies the given mod to the servers local level files.<br/>Arguments:<br/>`LvlMod mod`|
+|`RevertMod`||Removes the given mod to the servers local level files.<br/>Arguments:<br/>`LvlMod mod`|
+|`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
+|`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
+|`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
+|`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
+|`RegisterEventListener`||Associates a closure with a given event name. Event names can user-defined.<br/>Arguments:<br/>`string eventName`<br/>`Closure callback`|
+|`InvokeEvent`||Invokes a given event. Args are forwarded to the registered closure.<br/>Arguments:<br/>`string eventName`<br/>`params object[] args`|
 ##### LUA object definitions
 Player
 ```
