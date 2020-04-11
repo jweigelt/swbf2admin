@@ -131,6 +131,8 @@
     <Compile Include="AdminCore.cs" />
     <Compile Include="Config\ConfigFileInfo.cs" />
     <Compile Include="Export\StatisticsReportGenerator.cs" />
+    <Compile Include="Gameserver\StopEventArgs.cs" />
+    <Compile Include="Runtime\Watchdog\EmptyRestart.cs" />
     <Compile Include="Gameserver\StartEventArgs.cs" />
     <Compile Include="Maps\AddmeReader.cs" />
     <Compile Include="Maps\Lua\LuaFunction.cs" />

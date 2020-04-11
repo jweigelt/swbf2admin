@@ -32,12 +32,12 @@ namespace SWBF2Admin.Config
     [ConfigFileInfo(fileName: "./cfg/core.xml", template: "SWBF2Admin.Resources.cfg.core.xml")]
     public class CoreConfiguration
     {
-        #region "webAdmin"
+        #region Web Admin
         public bool WebAdminEnable { get; set; } = true;
         public string WebAdminPrefix { get; set; } = "http://localhost:8080/";
         #endregion
 
-        #region "gameserver"
+        #region Gameserver
         public bool AutoLaunchServer { get; set; } = false;
         public bool AutoRestartServer { get; set; } = true;
         public string ServerPath { get; set; } = @"G:\Programme\SteamLibrary\steamapps\common\Star Wars Battlefront II\GameData";
@@ -46,9 +46,13 @@ namespace SWBF2Admin.Config
         public bool EnableHighPriority { get; set; } = true;
         public bool EnableRuntime { get; set; } = false;
         public GameserverType ServerType { get; set; } = GameserverType.GoG;
+
+        public bool EnableEmptyRestart { get; set; } = true;
+        public int EmptyRestartThreshold { get; set; } = 3600;
+        public int EmptyRestartCheckInterval { get; set; } = 30000;
         #endregion
 
-        #region "SQL"
+        #region SQL
         public DbType SQLType { get; set; } = DbType.SQLite;
         public string SQLiteFileName { get; set; } = "./SWBF2Admin.sqlite";
         public string MySQLDatabaseName { get; set; } = "swbf2";
@@ -57,18 +61,18 @@ namespace SWBF2Admin.Config
         public string MySQLPassword { get; set; } = "";
         #endregion
 
-        #region "commands"
+        #region Commands
         public string CommandPrefix { get; set; } = "!";
         public bool CommandEnableDynamic { get; set; } = true;
         #endregion
 
-        #region "logger"
+        #region Logger
         public LogLevel LogMinimumLevel { get; set; } = LogLevel.VerboseSQL;
         public bool LogToFile { get; set; } = false;
         public string LogFileName { get; set; } = "./log.txt";
         #endregion
 
-        #region "misc"
+        #region Misc
         public int TickDelay { get; set; } = 10;
         public int RuntimeStartDelay { get; set; } = 500;
         #endregion

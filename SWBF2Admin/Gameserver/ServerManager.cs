@@ -150,7 +150,6 @@ namespace SWBF2Admin.Gameserver
                     WorkingDirectory = Core.Files.ParseFileName(ServerPath)
                 };
 
-
                 //if we're in steam mode, steam will start at launcher exe prior to the actual game
                 if (serverType == GameserverType.Steam)
                 {
@@ -178,7 +177,7 @@ namespace SWBF2Admin.Gameserver
             }
         }
 
-        public void Stop()
+        public void Stop(ServerStopReason reason = ServerStopReason.STOP_EXIT)
         {
             if (serverProcess != null)
             {
@@ -188,16 +187,24 @@ namespace SWBF2Admin.Gameserver
                 if (Core.Config.EnableRuntime)
                 {
                     Core.Scheduler.PushTask(() => { Core.Rcon.SendCommand("shutdown"); });
-                    Core.Scheduler.PushDelayedTask(KillServer, 1000);
+                    Core.Scheduler.PushDelayedTask(() => KillServer(reason), 1000);
                 }
-                else KillServer();
+                else KillServer(reason);
             }
         }
 
-        private void KillServer()
+        public void Restart()
         {
-            InvokeEvent(ServerStopped, this, new EventArgs());
-            serverProcess.Kill();
+            Stop(ServerStopReason.STOP_RESTART);
+        }
+
+        private void KillServer(ServerStopReason reason)
+        {
+            if (!serverProcess.HasExited)
+            {
+                serverProcess.Kill();
+            }
+            InvokeEvent(ServerStopped, this, new StopEventArgs(reason));
         }
 
         private void ServerProcess_Exited(object sender, EventArgs e)

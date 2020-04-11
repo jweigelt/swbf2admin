@@ -3,6 +3,7 @@
   
   <!--enable web management-->
   <WebAdminEnable>true</WebAdminEnable>
+  
   <!--
     webadmin's bind address
     You can use either your server's IP-Address or a domain which points to your server.
@@ -16,20 +17,30 @@
     Available options:
     - Gamespy (default server package)
     - GoG (GOG Galaxy variant)
-    - Steam (Steam variant)
   -->
   <ServerType>GoG</ServerType>
+  
   <!--
-    path to your server's GameData folder
+    path to server's GameData folder
     - use ./ for file access relative to swbf2admin.exe
   -->
   <ServerPath>./server</ServerPath>
+  
   <!--automatically start the server when swbf2admin is launched-->
   <AutoLaunchServer>false</AutoLaunchServer>
   <!--automatically restart the server when it crashes-->
   <AutoRestartServer>true</AutoRestartServer>
+
+  <!--utomatically restart server if it has been empty for a given amount of time-->
+  <EnableEmptyRestart>true</EnableEmptyRestart>
+  <!--time (in seconds) the server has to be empty before it is restarted-->
+  <EmptyRestartThreshold>3600</EmptyRestartThreshold>
+  <!--time (in milliseconds) between checks-->
+  <EmptyRestartCheckInterval>30000</EmptyRestartCheckInterval> 
+
   <!--command line arguments passed to BattlefrontII.exe-->
   <ServerArgs>/win /norender /nosound /autonet dedicated /resolution 640 480</ServerArgs>
+  
   <!--
     set the server's cpu priority to high
     - improve performance by reducing cpu latency on slow machines
@@ -67,11 +78,11 @@
   <!--
     lowest event severity to be logged
     Available options:   
-    VerboseSQL - output debug info including all SQL queries
-    Verbose - output debug info
-    Info - output common server events
-    Warning - output unusual server events
-    Error - output errors which will impact functionality
+    - VerboseSQL (output debug info including all SQL queries)
+    - Verbose (output debug info)
+    - Info (output common server events)
+    - Warning (output unusual server events)
+    - Error (output errors which will impact functionality)
   --> 
   <LogMinimumLevel>Info</LogMinimumLevel>
   <!--write console output to file-->
