@@ -34,6 +34,7 @@ void bf2server_init() {
 
 	updateRate = 0.001f;
 	updateRateAddr = (DWORD)&updateRate;
+
 #ifdef EXPERIMENTAL_UPS
 	bf2server_patch_netupdate();
 #endif
@@ -285,6 +286,7 @@ void bf2server_patch_spawnvalue()
 	bf2server_patch_asm(OFFSET_SPAWNVALUE_MOD_FLOAT, (void*)&spawnValueAddr, sizeof(DWORD));
 }
 
+#ifdef EXPERIMENTAL_UPS
 void bf2server_patch_netupdate()
 {
 	BYTE ratePatch[] = {
@@ -313,6 +315,8 @@ void bf2server_patch_netupdate()
 
 	bf2server_patch_asm(OFFSET_UPS_LIMITER, (void*)patch, sizeof(patch));
 }
+#endif
+
 
 int bf2server_lua_dostring(string const & code)
 {
