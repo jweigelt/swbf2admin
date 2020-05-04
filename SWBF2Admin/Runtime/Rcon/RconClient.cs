@@ -401,7 +401,8 @@ namespace SWBF2Admin.Runtime.Rcon
             }
             catch (Exception e)
             {
-                if (running) Logger.Log(LogLevel.Warning, "Rcon disconnected. {0}", e.ToString());
+                //TODO: clean that up
+                if (Core.Server.Status == Gameserver.ServerStatus.Online) Logger.Log(LogLevel.Warning, "Rcon disconnected. {0}", e.ToString());
             }
             reader.Close();
             writer.Close();

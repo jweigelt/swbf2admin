@@ -52,6 +52,7 @@ namespace SWBF2Admin.Gameserver
         private Process serverProcess = null;
         private ServerStatus status = ServerStatus.Offline;
         public ServerStatus Status { get { return status; } }
+        private ServerStopReason stopReason = ServerStopReason.STOP_EXIT;
         public ServerSettings Settings { get; set; }
         public virtual Process ServerProcess { get { return serverProcess; } }
 
@@ -150,7 +151,7 @@ namespace SWBF2Admin.Gameserver
                     WorkingDirectory = Core.Files.ParseFileName(ServerPath)
                 };
 
-                //if we're in steam mode, steam will start at launcher exe prior to the actual game
+                //if we're in steam mode, steam will start a launcher exe prior to the actual game
                 if (serverType == GameserverType.Steam)
                 {
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
@@ -183,13 +184,15 @@ namespace SWBF2Admin.Gameserver
             {
                 Logger.Log(LogLevel.Info, "Stopping Server...");
                 status = ServerStatus.Stopping;
-                //Note: moved this from SP_Exited to give runtime advanced notice so we dont cause exceptions
+                stopReason = reason;
+
                 if (Core.Config.EnableRuntime)
                 {
+                    Logger.Log(LogLevel.Verbose, "Asking server to stop");
                     Core.Scheduler.PushTask(() => { Core.Rcon.SendCommand("shutdown"); });
-                    Core.Scheduler.PushDelayedTask(() => KillServer(reason), 1000);
+                    Core.Scheduler.PushDelayedTask(() => KillServer(), 1000);
                 }
-                else KillServer(reason);
+                else KillServer();
             }
         }
 
@@ -198,13 +201,14 @@ namespace SWBF2Admin.Gameserver
             Stop(ServerStopReason.STOP_RESTART);
         }
 
-        private void KillServer(ServerStopReason reason)
+        private void KillServer()
         {
             if (!serverProcess.HasExited)
             {
+                Logger.Log(LogLevel.Verbose, "Stopping process...");
                 serverProcess.Kill();
+                serverProcess = null;
             }
-            InvokeEvent(ServerStopped, this, new StopEventArgs(reason));
         }
 
         private void ServerProcess_Exited(object sender, EventArgs e)
@@ -227,6 +231,7 @@ namespace SWBF2Admin.Gameserver
             {
                 Logger.Log(LogLevel.Info, "Server stopped.");
                 status = ServerStatus.Offline;
+                InvokeEvent(ServerStopped, this, new StopEventArgs(stopReason));
             }
         }
 
@@ -243,7 +248,6 @@ namespace SWBF2Admin.Gameserver
                 {
                     Logger.Log(LogLevel.Error, "Can't find {0}", loader);
                 }
-                return;
             }
         }
     }

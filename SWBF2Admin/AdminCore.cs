@@ -201,20 +201,25 @@ namespace SWBF2Admin
                 }
             }, config.RuntimeStartDelay);
         }
+
         private void Server_Stopped(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
             foreach (ComponentBase h in components) h.OnServerStop();
-            var se = (StopEventArgs)e;
-            if(se.Reason == ServerStopReason.STOP_RESTART)
+            if (e != null)
             {
-                Logger.Log(LogLevel.Verbose, "Restarting server...");
-                Server.Start();
-            }
+                var se = (StopEventArgs)e;
+                if (se.Reason == ServerStopReason.STOP_RESTART)
+                {
+                    Logger.Log(LogLevel.Verbose, "Restarting server...");
+                    Server.Start();
+                }
+           }
         }
+
         private void Server_Crashed(object sender, EventArgs e)
         {
-            Server_Stopped(sender, e);
+            Server_Stopped(sender, null);
             if (Config.AutoRestartServer)
             {
                 Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restarting server...");
