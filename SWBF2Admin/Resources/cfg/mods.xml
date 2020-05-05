@@ -34,7 +34,6 @@
       <HexEdits>
         <!--speed-->
         <HexEdit FileName="ingame.lvl" StartAddress="002e7630" PatchedString= "0.1" OriginalString="1.0"/>
-
         <!--heal power-->
         <HexEdit FileName="ingame.lvl" StartAddress="002e7640" PatchedString= "1000.0" OriginalString="25.000"/>
       </HexEdits>
@@ -42,65 +41,61 @@
 
     <LvlMod Name="no_chewie">
       <HexEdits>
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "24" OriginalString="00"/>
         <!--chewie-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0042DB24" PatchedString= "00" OriginalString="24"/>
       </HexEdits>
     </LvlMod>
 
     <LvlMod Name="no_gunner">
       <HexEdits>
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "24" OriginalString="00"/>
         <!--chewie-->
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "15" OriginalString="00"/>
-        <!--han 1-->
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="0029784C8" PatchedString= "15" OriginalString="00"/>
-        <!--han 2-->
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="0019D9EA0" PatchedString= "12" OriginalString="00"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0042DB24" PatchedString= "00" OriginalString="24"/>
+        <!--han-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "00" OriginalString="15"/>
         <!--leia-->
-        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002B3FAC" PatchedString= "12" OriginalString="00"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="00518EAC" PatchedString= "00" OriginalString="15"/>
         <!--boba-->
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="007994A8" PatchedString= "12" OriginalString="00"/>
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002B3FAC" PatchedString= "00" OriginalString="12"/>
         <!--jango-->
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="007994A8" PatchedString= "12" OriginalString="00"/>
-        <!--jango-->
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="007994A8" PatchedString= "00" OriginalString="12"/>
+        <!--leia-->
+        <!--can't disable leia using default files (-> has default hp)-->
       </HexEdits>
     </LvlMod>
 
     <LvlMod Name="no_force">
       <HexEdits>
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0052471C" PatchedString= "0" OriginalString="1"/>
         <!--choke-->
-        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003012E0" PatchedString= "0" OriginalString="1"/>
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0052471C" PatchedString= "0" OriginalString="1"/>
         <!--choke 1-->
-        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003A07E4" PatchedString= "0" OriginalString="1"/>
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003012E0" PatchedString= "0" OriginalString="1"/>
         <!--choke 3-->
-
-        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003A00E4" PatchedString= "0" OriginalString="1"/>
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003A07E4" PatchedString= "0" OriginalString="1"/>
         <!--lightning ord 1-->
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0052401C" PatchedString= "0" OriginalString="1"/>
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003A00E4" PatchedString= "0" OriginalString="1"/>
         <!--lightning ord 2-->
-
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00581CF4" PatchedString= "0" OriginalString="1"/>
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0052401C" PatchedString= "0" OriginalString="1"/>
         <!--pull ord 1-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0072A1D8" PatchedString= "0" OriginalString="1"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00581CF4" PatchedString= "0" OriginalString="1"/>
         <!--pull ord 2-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00958FF4" PatchedString= "0" OriginalString="1"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0072A1D8" PatchedString= "0" OriginalString="1"/>
         <!--pull ord 3-->
-
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="007B75B0" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00958FF4" PatchedString= "0" OriginalString="1"/>
         <!--push ord 1-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00843518" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="007B75B0" PatchedString= "0" OriginalString="4"/>
         <!--push ord 2-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="008CAC88" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00843518" PatchedString= "0" OriginalString="4"/>
         <!--push ord 3-->
-        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00959548" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="008CAC88" PatchedString= "0" OriginalString="4"/>
         <!--push ord 4-->
-        <HexEdit FileName="SIDE/cis.lvl" StartAddress="005B8128" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00959548" PatchedString= "0" OriginalString="4"/>
         <!--push ord 5-->
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="001BF2D88" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="005B8128" PatchedString= "0" OriginalString="4"/>
         <!--push ord 6-->
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="002020570" PatchedString= "0" OriginalString="4"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005B0500" PatchedString= "0" OriginalString="4"/>
         <!--push ord 7-->
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="00618FB8" PatchedString= "0" OriginalString="4"/>
+
       </HexEdits>
     </LvlMod>
 
