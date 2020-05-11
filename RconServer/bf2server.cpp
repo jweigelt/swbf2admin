@@ -56,6 +56,8 @@ void bf2server_init() {
 
 	spawnValueAddr = (DWORD)&spawnValue;
 	bf2server_patch_spawnvalue();
+
+
 	Logger.log(LogLevel_VERBOSE, "All patches applied.");
 }
 
@@ -311,6 +313,7 @@ void bf2server_patch_netupdate()
 		0x90, 0x90
 	};
 
+
 	bf2server_patch_asm(OFFSET_UPS_LIMITER, (void*)patch, sizeof(patch));
 }
 
@@ -347,5 +350,35 @@ int bf2server_lua_dostring(string const & code)
 	}
 	else {
 		Logger.log(LogLevel_VERBOSE, "lua parse failed: %i", res);
+	}
+}
+
+int __cdecl bf2server_lua_invoke_event(lua_State *L)
+{
+	Logger.log(LogLevel_ERROR, "Hello from lua");
+	return LUA_OK;
+}
+
+void bf2server_lua_register(const string & name, lua_CFunction fn)
+{
+	auto L = *(reinterpret_cast<DWORD*>(moduleBase + OFFSET_LUA_STATE));
+	DWORD lua_pushcclosure = moduleBase + OFFSET_LUA_PUSHCCLOSURE;
+	DWORD lua_setglobal = moduleBase + OFFSET_LUA_SETGLOBAL;
+	auto n = name.c_str();
+	DWORD res;
+
+	__asm {
+		push 0
+		push fn
+		push L
+		call dword ptr[lua_pushcclosure]
+		add esp, 12
+	}
+
+	__asm {
+		push n
+		push L
+		call dword ptr[lua_setglobal]
+		add esp, 8
 	}
 }

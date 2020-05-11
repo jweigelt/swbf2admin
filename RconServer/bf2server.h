@@ -69,6 +69,10 @@ using std::function;
 #define OFFSET_LUA_STATE 0x01E58E50 - 0x400000
 #define OFFSET_LUA_LOAD_BUFFER 0x0069C0C0 - 0x400000
 #define OFFSET_LUA_PCALL 0x0069CF40- 0x400000
+
+#define OFFSET_LUA_PUSHCCLOSURE 0x0069CFC0 - 0x400000
+#define OFFSET_LUA_SETGLOBAL 0x0069D110 - 0x400000
+
 #else
 //Steam Version
 #define OFFSET_CHATINPUT 0x005AF090 - 0x00401000 + 0x1000
@@ -89,6 +93,9 @@ using std::function;
 
 #define SENDER_SELF 1
 #define SENDER_REMOTE 0
+
+typedef void* lua_State;
+typedef int(*lua_CFunction) (lua_State *L);
 
 enum MapStatus : BYTE {
 	MAP_IDLE = 0x00,
@@ -208,3 +215,11 @@ USHORT bf2server_get_gameport();
 *	Executes lua code in the ingame context of the server
 **/
 int bf2server_lua_dostring(string const &code);
+
+/**
+*	Registers a global C function in lua context
+**/
+void bf2server_lua_register(const string &name, lua_CFunction fn);
+
+
+int __cdecl bf2server_lua_invoke_event(lua_State *L);

@@ -19,6 +19,10 @@ DWORD WINAPI Run(LPVOID p) {
 	dllmain_server = new RconServer(MAX_CONNECTIONS);
 	dllmain_server->start();
 
+
+	Sleep(15000);
+	bf2server_lua_register("SWBF2Admin_HelloWorld", bf2server_lua_invoke_event);
+
 	MapStatus prevStatus = MAP_IDLE;
 	MapStatus newStatus = MAP_IDLE;
 	while (dllmain_running) {
