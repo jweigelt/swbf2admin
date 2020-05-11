@@ -398,9 +398,6 @@ The API is exported to LUA as a superglobal called "api".
 |`ApplyMod`||Applies the given mod to the servers local level files.<br/>Arguments:<br/>`LvlMod mod`|
 |`RevertMod`||Removes the given mod to the servers local level files.<br/>Arguments:<br/>`LvlMod mod`|
 |`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
-|`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
-|`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
-|`RevertAllMods`||Removes all hex edit mods from the servers local level files.||
 |`RegisterEventListener`||Associates a closure with a given event name. Event names can user-defined.<br/>Arguments:<br/>`string eventName`<br/>`Closure callback`|
 |`InvokeEvent`||Invokes a given event. Args are forwarded to the registered closure.<br/>Arguments:<br/>`string eventName`<br/>`params object[] args`|
 ##### LUA object definitions
