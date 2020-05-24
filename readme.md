@@ -169,7 +169,7 @@ To enable statistics tracking, open `./cfg/game.xml`, set
 ```
 if you want to track player statistics as well, open `./cfg/players.xml`, set
 ```
-<EnablePlayerStatsLogging>false</EnablePlayerStatsLogging>
+<EnablePlayerStatsLogging>true</EnablePlayerStatsLogging>
 ```
 
 ## Automatic announce broadcasts
