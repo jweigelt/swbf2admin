@@ -39,7 +39,7 @@
   <EmptyRestartCheckInterval>30000</EmptyRestartCheckInterval> 
 
   <!--command line arguments passed to BattlefrontII.exe-->
-  <ServerArgs>/win /norender /nosound /autonet dedicated /resolution 640 480</ServerArgs>
+  <ServerArgs>/win /norender /nosound  /nointro /autonet dedicated /resolution 640 480</ServerArgs>
   
   <!--
     set the server's cpu priority to high
