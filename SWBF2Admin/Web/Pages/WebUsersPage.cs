@@ -17,6 +17,7 @@
  */
 using System.Net;
 using SWBF2Admin.Utility;
+using SWBF2Admin.Database;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -43,11 +44,11 @@ namespace SWBF2Admin.Web.Pages
                     break;
                 case "users_create":
                     WebServer.LogAudit(user, "created user {0}", p.Username);
-                    Core.Database.InsertWebUser(new WebUser(p.Username, Util.Md5(p.SpaceInvaders)));
+                    Core.Database.InsertWebUser(new WebUser(p.Username, PBKDF2.HashPassword(Util.Md5(p.SpaceInvaders))));
                     break;
                 case "users_edit":
                     WebServer.LogAudit(user, "modified user {0}", p.Username);
-                    Core.Database.UpdateWebUser(new WebUser(p.Id, p.Username, Util.Md5(p.SpaceInvaders)), p.UpdateSpaceInvaders);
+                    Core.Database.UpdateWebUser(new WebUser(p.Id, p.Username, PBKDF2.HashPassword(Util.Md5(p.SpaceInvaders))), p.UpdateSpaceInvaders);
                     break;
                 case "users_delete":
                     WebServer.LogAudit(user, "deleted user {0}", p.Username);

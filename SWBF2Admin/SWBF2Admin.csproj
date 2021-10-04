@@ -225,6 +225,7 @@
     <Compile Include="Web\Pages\GroupSettingsPage.cs" />
     <Compile Include="Web\Pages\MapSettingsPage.cs" />
     <Compile Include="Web\Pages\GeneralSettingsPage.cs" />
+    <Compile Include="Database\PBKDF2.cs" />
     <Compile Include="Web\WebPage.cs" />
     <Compile Include="Web\WebServer.cs" />
     <Compile Include="Web\Pages\PlayersPage.cs" />

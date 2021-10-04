@@ -27,6 +27,8 @@ using SWBF2Admin.Utility;
 using SWBF2Admin.Web.Pages;
 using SWBF2Admin.Config;
 
+using SWBF2Admin.Database;
+
 namespace SWBF2Admin.Web
 {
     public class WebServer : ComponentBase
@@ -237,7 +239,7 @@ namespace SWBF2Admin.Web
 
             if (authCache.TryGetValue(identity.Name, out WebUser user))
             {
-                if (!Util.Md5(identity.Password).Equals(user.PasswordHash))
+                if (!PBKDF2.VerifyPassword(Util.Md5(identity.Password), user.PasswordHash))
                 {
                     user = Core.Database.GetWebUser(identity.Name, identity.Password);
                     if (user != null)
@@ -245,7 +247,8 @@ namespace SWBF2Admin.Web
                         authCache.Remove(user.Username);
                         authCache.Add(user.Username, user);
                         Core.Database.UpdateLastSeen(user);
-                    }else
+                    }
+                    else
                     {
                         Logger.Log(LogLevel.Info, "User {0} ({1}): invalid login (cached/password mismatch)", identity.Name, ctx.Request.RemoteEndPoint.ToString());
                     }
@@ -253,12 +256,14 @@ namespace SWBF2Admin.Web
             }
             else
             {
-                user = Core.Database.GetWebUser(identity.Name, identity.Password);
+                user = Core.Database.GetWebUser(identity.Name, Util.Md5(identity.Password));
+
                 if (user != null)
                 {
                     authCache.Add(user.Username, user);
                     Core.Database.UpdateLastSeen(user);
-                }else
+                }
+                else
                 {
                     Logger.Log(LogLevel.Info, "User {0} ({1}): invalid login (db/password mismatch)", identity.Name, ctx.Request.RemoteEndPoint.ToString());
                 }
