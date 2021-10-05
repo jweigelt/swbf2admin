@@ -180,5 +180,138 @@
 
       </HexEdits>
     </LvlMod>
+
+    <!--Disable all powerups except Ammo-->
+    <LvlMod Name="no_powerups">
+      <HexEdits>
+        <!--Defense-->
+        <HexEdit FileName="ingame.lvl" StartAddress="0034F32C" OriginalString="0.02" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="003D00C4" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004403C8" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004BA2C4" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0051B380" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="00575838" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005DE2E8" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="006DA018" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="004EA340" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0057B8CC" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0062A880" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="006F4580" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D420" OriginalString="0.02" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="00237D48" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002C71B4" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="00366488" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00544950" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="005DB85C" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006633DC" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006EEBA8" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0077B9A0" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00808DD0" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00890548" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0091EBF4" OriginalString="0.15" PatchedString="0.00" />
+        <!--Dual-->
+        <HexEdit FileName="ingame.lvl" StartAddress="0034F3C0" OriginalString="0.08" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="003CFFE4" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004402E8" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004BA1E4" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0051B2A0" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="00575758" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005DE208" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="006D9F38" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="004EA260" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0057B7EC" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0062A7A0" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="006F44A0" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D344" OriginalString="0.08" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="00237C68" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002C70D4" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003663A8" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00544870" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="005DB77C" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006632FC" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006EEAC8" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0077B8C0" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00808CF0" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00890468" OriginalString="0.20" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0091EB14" OriginalString="0.20" PatchedString="0.00" />
+        <!--Energy-->
+        <HexEdit FileName="ingame.lvl" StartAddress="0034F408" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="003D002C" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="00440330" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004BA22C" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0051B2E8" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005757A0" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005DE250" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="006D9F80" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="004EA2A8" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0057B834" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0062A7E8" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="006F44E8" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D388" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="00237CB0" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002C711C" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="003663F0" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="005448B8" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="005DB7C4" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00663344" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006EEB10" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0077B908" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00808D38" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="008904B0" OriginalString="0.10" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0091EB5C" OriginalString="0.10" PatchedString="0.00" />
+        <!--Health 25-->
+        <HexEdit FileName="ingame.lvl" StartAddress="0034F294" OriginalString="0.15" PatchedString="0.00" />
+        <!--Health 100-->
+        <HexEdit FileName="ingame.lvl" StartAddress="0034F378" OriginalString="0.08" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="003CFF9C" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004402A0" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004BA19C" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0051B258" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="00575710" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005DE1C0" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="006D9EF0" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="004EA218" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0057B7A4" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0062A758" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="006F4458" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D300" OriginalString="0.08" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="00237C20" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002C708C" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="00366360" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00544828" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="005DB734" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006632B4" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006EEA80" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0077B878" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00808CA8" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00890420" OriginalString="0.05" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0091EACC" OriginalString="0.05" PatchedString="0.00" />
+        <!--Offense-->
+        <HexEdit FileName="ingame.lvl" StartAddress="0034F2E0" OriginalString="0.02" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="003D0078" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0044037C" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="004BA278" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0051B334" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005757EC" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="005DE29C" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="006D9FCC" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="004EA2F4" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0057B880" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0062A834" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="006F4534" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D3D4" OriginalString="0.02" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="00237CFC" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="002C7168" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/imp.lvl" StartAddress="0036643C" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00544904" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="005DB810" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00663390" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="006EEB5C" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0077B954" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="00808D84" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="008904FC" OriginalString="0.15" PatchedString="0.00" />
+        <HexEdit FileName="SIDE/rep.lvl" StartAddress="0091EBA8" OriginalString="0.15" PatchedString="0.00" />
+      </HexEdits>
+    </LvlMod>
   </Mods>
 </LvlWriterConfig>
