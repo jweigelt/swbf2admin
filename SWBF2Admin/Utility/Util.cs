@@ -49,6 +49,15 @@ namespace SWBF2Admin.Utility
             return b.ToString().ToLower();
         }
 
+        public static string Sha256(string s)
+        {
+            byte[] hash = null;
+            StringBuilder b = new StringBuilder();
+            using (SHA256 sha256 = SHA256.Create()) hash = sha256.ComputeHash(Encoding.ASCII.GetBytes(s));
+            for (int i = 0; i < hash.Length; i++) b.Append(hash[i].ToString("X2"));
+            return b.ToString().ToLower();
+        }
+
         public static string FormatString(string message, params string[] tags)
         {
             for (int i = 0; i < tags.Length; i++)

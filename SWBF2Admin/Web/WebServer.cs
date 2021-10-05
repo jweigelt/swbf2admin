@@ -237,7 +237,7 @@ namespace SWBF2Admin.Web
 
             if (authCache.TryGetValue(identity.Name, out WebUser user))
             {
-                if (!Util.Md5(identity.Password).Equals(user.PasswordHash))
+                if (!Util.Sha256(identity.Password).Equals(user.PasswordHash))
                 {
                     user = Core.Database.GetWebUser(identity.Name, identity.Password);
                     if (user != null)

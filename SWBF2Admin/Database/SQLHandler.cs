@@ -916,7 +916,7 @@ namespace SWBF2Admin.Database
                 "prefix_web_users " +
                 "WHERE user_name = @username AND user_password = @password";
 
-            using (DbDataReader reader = Query(sql, "@username", username, "@password", Util.Md5(password)))
+            using (DbDataReader reader = Query(sql, "@username", username, "@password", Util.Sha256(password)))
             {
                 if (reader.Read())
                 {
