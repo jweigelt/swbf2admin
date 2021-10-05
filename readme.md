@@ -40,6 +40,8 @@ If you do not have a domain pointing to your server, you can also just use the s
 ```
 If you have any active firewall, the webadmin port (8080 TCP in this case) has to be unblocked.
 
+If you prefer to use an encrypted connection, you may change the protocol specified in `WebAdminPrefix` from `http://` to `https://`. Note that when using HTTPS, a matching SSL certificate has to be installed into your machine's certificate store.
+
 ##### Optional: enabling runtime managament
 If you want to use features like ingame commands, announce broadcast, statistics ..., runtime management has be enabled.
 To enable runtime management, open `./cfg/core.xml`, set
