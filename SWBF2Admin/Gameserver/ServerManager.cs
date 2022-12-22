@@ -161,6 +161,7 @@ namespace SWBF2Admin.Gameserver
                         serverProcess = Process.Start(startInfo);
                         serverProcess.EnableRaisingEvents = true;
                         serverProcess.Exited += new EventHandler(ServerProcess_Exited);
+                        serverProcess.PriorityClass = ProcessPriorityClass.High;
                     }
                     , 5000);
                     status = ServerStatus.SteamPending;
@@ -170,6 +171,7 @@ namespace SWBF2Admin.Gameserver
                     serverProcess = Process.Start(startInfo);
                     serverProcess.EnableRaisingEvents = true;
                     serverProcess.Exited += new EventHandler(ServerProcess_Exited);
+                    serverProcess.PriorityClass = ProcessPriorityClass.High;
 
                     status = ServerStatus.Online;
                     InvokeEvent(ServerStarted, this, new StartEventArgs(false));
