@@ -31,6 +31,7 @@ void bf2server_init() {
 	bf2server_patch_votekick_exploit();
 	bf2server_patch_maphang();
 	bf2server_patch_dedicated();
+	bf2server_patch_distance_lag();
 
 	updateRate = 0.001f;
 	updateRateAddr = (DWORD)&updateRate;
@@ -181,6 +182,34 @@ void bf2server_patch_maphang()
 
 	*(DWORD*)&detourPatch[1] = (DWORD)&bf2server_mapfix_cc;
 	bf2server_patch_asm(OFFSET_MAPFIX_DETOUR, detourPatch, sizeof(detourPatch));
+}
+
+void bf2server_patch_distance_lag()
+{
+	BYTE checkFakeWorldPatch[] = {
+		//test ecx,ecx -> nop
+		0x90, 0x90
+	};
+
+	BYTE fakeWorldPatch[] = {
+		//call offset 1D4000 -> nop
+		0x90, 0x90, 0x90, 0x90, 0x90
+	};
+
+	BYTE playerMovesPatch[] = {
+		//0x05 -> 0x20
+		0x20
+	};
+
+	BYTE distanceLagPatch[] = {
+		//0x0400 -> 0x1fa0
+		0xa0, 0x1f, 0x00, 0x00
+	};
+
+	bf2server_patch_asm(0x001bbefd, (void*)checkFakeWorldPatch, sizeof(checkFakeWorldPatch));
+	bf2server_patch_asm(0x001bbf29, (void*)fakeWorldPatch, sizeof(fakeWorldPatch));
+	bf2server_patch_asm(0x001d38b8, (void*)playerMovesPatch, sizeof(playerMovesPatch));
+	bf2server_patch_asm(0x003e9268, (void*)distanceLagPatch, sizeof(distanceLagPatch));
 }
 
 void bf2server_patch_asm(DWORD offset, void * patch, size_t patchSize)
