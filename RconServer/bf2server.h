@@ -132,6 +132,11 @@ void bf2server_patch_dedicated();
 void bf2server_patch_maphang();
 
 /**
+*	Distance lag patch by @donhomerj
+**/
+void bf2server_patch_distance_lag();
+
+/**
 *	Patches SetSpawnDelay() so it uses our own spawn value per default
 **/
 void bf2server_patch_spawnvalue();
