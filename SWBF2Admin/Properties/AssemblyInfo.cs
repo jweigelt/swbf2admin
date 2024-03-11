@@ -1,16 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-// Allgemeine Informationen über eine Assembly werden über die folgenden 
-// Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
-// die einer Assembly zugeordnet sind.
-[assembly: AssemblyTitle("SWBF2Admin")]
-[assembly: AssemblyDescription("SWBF2 server manager")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("LeKeks, Yoni, AsLan")]
-[assembly: AssemblyProduct("SWBF2Admin")]
-[assembly: AssemblyCopyright("Copyright ©  2017-2019 Jan Weigelt")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,16 +11,3 @@ using System.Runtime.InteropServices;
 
 // Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
 [assembly: Guid("9374428c-e0d6-408a-b740-c5e839ce5336")]
-
-// Versionsinformationen für eine Assembly bestehen aus den folgenden vier Werten:
-//
-//      Hauptversion
-//      Nebenversion 
-//      Buildnummer
-//      Revision
-//
-// Sie können alle Werte angeben oder die standardmäßigen Build- und Revisionsnummern 
-// übernehmen, indem Sie "*" eingeben:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]

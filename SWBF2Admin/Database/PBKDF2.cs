@@ -14,12 +14,12 @@ namespace SWBF2Admin.Database
         {
             var buffer = new byte[saltLength];
 
-            using (var rng = new RNGCryptoServiceProvider())
+            using (var rng = RandomNumberGenerator.Create())
             {
                 rng.GetBytes(buffer);
             }
 
-            using (var pbkdf2 = new Rfc2898DeriveBytes(text, buffer, iterations))
+            using (var pbkdf2 = new Rfc2898DeriveBytes(text, buffer, iterations, HashAlgorithmName.SHA1))
             {
                 Array.Resize(ref buffer, buffer.Length + hashLength);
                 Array.Copy(pbkdf2.GetBytes(hashLength), 0, buffer, saltLength, hashLength);
@@ -42,7 +42,7 @@ namespace SWBF2Admin.Database
             Array.Copy(buffer, 0, salt, 0, salt.Length);
             Array.Copy(buffer, salt.Length, hash, 0, hash.Length);
 
-            using (var pbkdf2 = new Rfc2898DeriveBytes(text, salt, iterations))
+            using (var pbkdf2 = new Rfc2898DeriveBytes(text, salt, iterations, HashAlgorithmName.SHA1))
             {
                 return (pbkdf2.GetBytes(hashLength).SequenceEqual(hash));
             }

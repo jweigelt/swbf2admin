@@ -131,7 +131,7 @@ namespace SWBF2Admin.Utility
 
         public static string GetProductAuthor()
         {
-            return FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).CompanyName;
+            return "LeKeks, Yoni, AsLan";
         }
 
         public static List<string> SegmentString(string str, int maxSegmentSize)
