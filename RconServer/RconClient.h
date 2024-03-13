@@ -11,17 +11,6 @@
 #include "bf2server.h"
 #include "md5.h"
 
-using std::string;
-using std::vector;
-using std::thread;
-using std::mutex;
-using std::unique_lock;
-using std::make_unique;
-using std::function;
-using std::atomic;
-using std::make_shared;
-using std::shared_ptr;
-
 #define COMMAND_LUA "/lua "
 #define RETURN_EPARAM "invalid parameters\n"
 #define RETURN_OK "ok\n"
@@ -30,23 +19,23 @@ using std::shared_ptr;
 class RconClient
 {
 public:
-	RconClient(SOCKET &socket, function<void(RconClient *c)> disconnectCB);
+	RconClient(SOCKET &socket, std::function<void(RconClient *c)> disconnectCB);
 	~RconClient();
 	void stop();
 	void start();
-	void onChatInput(string const & msg);
+	void onChatInput(std::string const & msg);
 	void reportEndgame();
 
 private:
 	SOCKET socket;
 	bool checkLogin();
-	atomic<bool> connected;
-	function<void(RconClient *c)> disconnectCB;
-	shared_ptr<thread> workThread;
-	mutex mtx;
+    std::atomic<bool> connected;
+    std::function<void(RconClient *c)> disconnectCB;
+    std::shared_ptr<std::thread> workThread;
+    std::mutex mtx;
 
-	void handleCommand(string const & command);
-	void send(vector<string> &response);
+	void handleCommand(std::string const & command);
+	void send(std::vector<std::string> &response);
 	void handleConnection();
-	bool dispatchInternal(string const &command, string &res);
+	bool dispatchInternal(std::string const &command, std::string &res);
 };

@@ -11,14 +11,6 @@
 #include "RconClient.h"
 #include "Logger.h"
 
-using std::string;
-using std::vector;
-using std::thread;
-using std::mutex;
-using std::unique_lock;
-using std::shared_ptr;
-using std::make_shared;
-
 class RconServer
 {
 public:
@@ -31,14 +23,14 @@ public:
 
 private:
 	bool running = false;
-	mutex mtx;
-	vector<RconClient*> clients;
+    std::mutex mtx;
+	std::vector<RconClient*> clients;
 	SOCKET listenSocket;
 
 	uint16_t port;
 	uint16_t maxClients;
 	void onClientDisconnect(RconClient *client);
-	void onChatInput(string const & msg);
+	void onChatInput(std::string const & msg);
 
-	shared_ptr<thread> workThread;
+    std::shared_ptr<std::thread> workThread;
 };

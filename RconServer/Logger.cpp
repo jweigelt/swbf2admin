@@ -20,7 +20,7 @@ void _Logger::log(LogLevel level, const char *msg, ...) {
 		auto len = (size_t)vsnprintf(nullptr, 0, msg, args) + 1;
 		va_end(args);
 
-		auto buffer = make_unique<char[]>(len);
+		auto buffer = std::make_unique<char[]>(len);
 		va_start(args, msg);
 		vsnprintf(buffer.get(), len, msg, args);
 		va_end(args);
@@ -36,13 +36,13 @@ void _Logger::SetMinLevelFile(LogLevel level) {
 	minLevelFile = level;
 }
 
-void _Logger::SetFileName(const string &fileName) {
+void _Logger::SetFileName(const std::string &fileName) {
 	logFile = fileName;
 }
 
 void _Logger::LogToFile(const char *s) {
-	unique_lock<mutex> lg(mtx);
-	ofstream f;
+    std::unique_lock<std::mutex> lg(mtx);
+    std::ofstream f;
 	f.open(logFile, std::ofstream::app);
 	f << s << "\n";
 	f.close();

@@ -8,9 +8,8 @@
 #include "Logger.h"
 #include "config.h"
 
-using std::string;
-using std::wstring;
-using std::function;
+
+typedef DWORD windows_ptr_t;
 
 /*
 //LEGACY
@@ -153,7 +152,7 @@ void bf2server_patch_netupdate();
 *	@param patch
 *	@param patchSize
 **/
-void bf2server_patch_asm(DWORD offset, void* patch, size_t patchSize);
+void bf2server_patch_asm(DWORD_PTR offset, void* patch, size_t patchSize);
 
 /**
 *	Gets the current game (map) status
@@ -177,7 +176,7 @@ void bf2server_mapfix_tick();
  *	@param message command or chat message
  *	@param responseOutput 0 (chat) or -1 (buffer)
  **/
-string bf2server_command(DWORD messageType, DWORD sender, const wchar_t* message, DWORD responseOutput);
+std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t* message, DWORD responseOutput);
 
 /**
  *	Attaches a codecave to swbf2's chat-output
@@ -192,17 +191,17 @@ int __cdecl bf2server_chat_cc(char* buf, size_t sz, const char* fmt, ...);
 /**
  *	Gets the server's admin password
  **/
-string bf2server_get_adminpwd();
+std::string bf2server_get_adminpwd();
 
 /**
  *	Converts string to wstring
  **/
-wstring bf2server_s2ws(string const & s);
+std::wstring bf2server_s2ws(std::string const & s);
 
 /**
  *	Sets Chat-callback
  **/
-void bf2server_set_chat_cb(function<void(string const &msg)> onChat);
+void bf2server_set_chat_cb(std::function<void(std::string const &msg)> onChat);
 
 /**
 *	Gets the server gameport (set via /gameport)
@@ -212,4 +211,4 @@ USHORT bf2server_get_gameport();
 /**
 *	Executes lua code in the ingame context of the server
 **/
-int bf2server_lua_dostring(string const &code);
+int bf2server_lua_dostring(std::string const &code);

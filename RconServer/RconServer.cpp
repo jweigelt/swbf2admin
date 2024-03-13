@@ -46,13 +46,13 @@ void RconServer::start()
 		return;
 	}
 	running = true;
-	workThread = make_shared<thread>(&RconServer::listen, this);
+	workThread = std::make_shared<std::thread>(&RconServer::listen, this);
 	bf2server_set_chat_cb(std::bind(&RconServer::onChatInput, this, std::placeholders::_1));
 }
 
 void RconServer::stop()
 {
-	bf2server_set_chat_cb(NULL);
+	bf2server_set_chat_cb(nullptr);
 	running = false;
 	closesocket(listenSocket);
 	workThread->join();
@@ -64,13 +64,13 @@ void RconServer::listen()
 
 	while (running) {
 		SOCKET clientSocket;
-		if ((clientSocket = accept(listenSocket, NULL, NULL)) == INVALID_SOCKET) {
+		if ((clientSocket = accept(listenSocket, nullptr, nullptr)) == INVALID_SOCKET) {
 			Logger.log(LogLevel_WARNING, "Client connect failed with %ld", WSAGetLastError());
 		}
 		else {
 			auto client = new RconClient(clientSocket, std::bind(&RconServer::onClientDisconnect, this, std::placeholders::_1));
 
-			unique_lock<mutex> lg(mtx);
+            std::unique_lock<std::mutex> lg(mtx);
 			clients.push_back(client);
 			lg.unlock();
 
@@ -79,7 +79,7 @@ void RconServer::listen()
 		}
 	}
 
-	unique_lock<mutex> lg(mtx);
+    std::unique_lock<std::mutex> lg(mtx);
 	for(auto c : clients) {
 		c->stop();
 	}
@@ -95,23 +95,23 @@ void RconServer::listen()
 
 void RconServer::onClientDisconnect(RconClient * client)
 {
-	unique_lock<mutex> lg(mtx);
+    std::unique_lock<std::mutex> lg(mtx);
 	clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end());
 	client->stop();
 	delete client;
 	Logger.log(LogLevel_INFO, "Client removed. %zu clients connected.", clients.size());
 }
 
-void RconServer::onChatInput(string const & msg)
+void RconServer::onChatInput(std::string const & msg)
 {
-	unique_lock<mutex> lg(mtx);
+    std::unique_lock<std::mutex> lg(mtx);
 	for (auto &c : clients) {
 		c->onChatInput(msg);
 	}
 }
 
 void RconServer::reportEndgame() {
-	unique_lock<mutex> lg(mtx);
+    std::unique_lock<std::mutex> lg(mtx);
 	for (auto &c : clients) {
 		c->reportEndgame();
 	}
