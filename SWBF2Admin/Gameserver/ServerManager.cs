@@ -37,7 +37,6 @@ namespace SWBF2Admin.Gameserver
     public class ServerManager : ComponentBase
     {
         private const string DLLLOADER_FILENAME = "dllloader.exe";
-        private const string SERVERPROC_NAME = "BattlefrontII";
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
         private const int STEAMMODE_MAX_RETRY = 30;
 
@@ -46,8 +45,10 @@ namespace SWBF2Admin.Gameserver
         public event EventHandler ServerStopped;
         public event EventHandler SteamServerStarting;
 
+        public string ServerExecutable { get; set; } = "BattlefrontII.exe";
+        public string ServerProcessName { get; set; } = "BattlefrontII";
         public string ServerPath { get; set; } = "./server";
-        public string ServerArgs { get; set; } = "/win /norender /nosound /autonet dedicated /resolution 640 480";
+        public string ServerArgs { get; set; } = "/win /norender /nosound /nointro /autonet dedicated /resolution 640 480";
 
         private Process serverProcess = null;
         private ServerStatus status = ServerStatus.Offline;
@@ -65,9 +66,25 @@ namespace SWBF2Admin.Gameserver
         {
             ServerPath = Core.Files.ParseFileName(config.ServerPath);
             serverType = config.ServerType;
+            
+            if (serverType == GameserverType.Steam)
+            {
+                ServerExecutable = ServerPath + "/BattlefrontII.exe";
+                ServerArgs = string.Empty;
+            }
+            if (serverType == GameserverType.Aspyr)
+            {
+                ServerExecutable = config.SteamPath + "/steam.exe";
+                ServerArgs = "-applaunch 2446550 " +  config.ServerArgs;
+                ServerProcessName = "Battlefront";
+            }
+            else
+            {
+                ServerExecutable = ServerPath + "/BattlefrontII.exe";
+                ServerArgs = config.ServerArgs;
+            }
 
-            ServerArgs = (serverType == GameserverType.Steam ? string.Empty : config.ServerArgs);
-
+         
             UpdateInterval = STEAMMODE_PDECT_TIMEOUT; //updates for detecting steam startup
         }
 
@@ -119,7 +136,7 @@ namespace SWBF2Admin.Gameserver
 
         private bool Attach(bool starting)
         {
-            serverProcess = FindProcess(SERVERPROC_NAME);
+            serverProcess = FindProcess(ServerProcessName);
             if (serverProcess != null)
             {
                 serverProcess.EnableRaisingEvents = true;
@@ -146,13 +163,13 @@ namespace SWBF2Admin.Gameserver
 
                 Environment.SetEnvironmentVariable("SPAWN_TIMER", Core.Server.Settings.AutoAnnouncePeriod.ToString());
 
-                ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerPath + "/BattlefrontII.exe"), ServerArgs)
+                ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerExecutable), ServerArgs)
                 {
                     WorkingDirectory = Core.Files.ParseFileName(ServerPath)
                 };
 
                 //if we're in steam mode, steam will start a launcher exe prior to the actual game
-                if (serverType == GameserverType.Steam)
+                if (serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
                 {
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
                     steamLaunchRetryCount = 0;
@@ -239,7 +256,7 @@ namespace SWBF2Admin.Gameserver
 
         private void InjectRconDllIfRequired()
         {
-            if (serverType != GameserverType.Gamespy)
+            if (serverType == GameserverType.GoG || serverType == GameserverType.Steam)
             {
                 string loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME}";
                 if (File.Exists(loader))

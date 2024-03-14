@@ -17,14 +17,16 @@
     Available options:
     - Gamespy (default server package)
     - GoG (GOG Galaxy variant)
+    - Aspyr (2024 Aspyr Release)
   -->
-  <ServerType>GoG</ServerType>
+  <ServerType>Aspyr</ServerType>
   
   <!--
     path to server's GameData folder
     - use ./ for file access relative to swbf2admin.exe
   -->
-  <ServerPath>./server</ServerPath>
+  <ServerPath>C:\Program Files (x86)\Steam\steamapps\common\Battle</ServerPath>
+  <SteamPath>C:\Program Files (x86)\Steam</SteamPath>
   
   <!--automatically start the server when swbf2admin is launched-->
   <AutoLaunchServer>false</AutoLaunchServer>
