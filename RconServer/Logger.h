@@ -13,14 +13,6 @@
 #include <fstream>
 #include <memory>
 #include <mutex>
-
-using std::ofstream;
-using std::string;
-using std::unique_ptr;
-using std::make_unique;
-using std::mutex;
-using std::unique_lock;
-
 enum LogLevel {
 	LogLevel_VERBOSE = 0,
 	LogLevel_INFO = 1,
@@ -44,14 +36,14 @@ public:
 	void log(LogLevel, const char*, ...);
 	void SetMinLevelStdout(LogLevel);
 	void SetMinLevelFile(LogLevel);
-	void SetFileName(const string&);
+	void SetFileName(const std::string&);
 
 private:
 	void LogToFile(const char* s);
 	LogLevel minLevelStdout = LogLevel_WARNING;
 	LogLevel minLevelFile = LogLevel_WARNING;
-	string logFile = "./rconserver_log.txt";
-	mutex mtx;
+    std::string logFile = "./rconserver_log.txt";
+    std::mutex mtx;
 };
 
 static _Logger Logger;

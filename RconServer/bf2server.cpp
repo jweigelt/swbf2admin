@@ -1,28 +1,25 @@
 #include "bf2server.h"
 
-DWORD moduleBase;
+#include <utility>
+
+DWORD_PTR moduleBase;
 
 //chat
-DWORD chatCCAddr;
+DWORD_PTR chatCCAddr;
 
 //mapfix
 DWORD tickAddr, mapfixRetnAddr;
 BYTE mapfixTicks;
 
 FLOAT spawnValue;
-DWORD spawnValueAddr;
+DWORD_PTR spawnValueAddr;
 
-FLOAT updateRate;
-DWORD updateRateAddr;
-
-DWORD netUpdateClientLimit = 1024;
-
-function<void(string const &msg)> chatCB;
+std::function<void(std::string const &msg)> chatCB;
 
 void bf2server_init() {
 	Logger.log(LogLevel_VERBOSE, "Patching BattlefrontII process...");
 
-	moduleBase = (DWORD)GetModuleHandle(L"BattlefrontII.exe");
+	moduleBase = (DWORD)GetModuleHandleA("BattlefrontII.exe");
 	mapfixRetnAddr = OFFSET_MAPFIX_RETN + moduleBase;
 	tickAddr = (DWORD)&mapfixTicks;
 
@@ -32,14 +29,9 @@ void bf2server_init() {
 	bf2server_patch_maphang();
 	bf2server_patch_dedicated();
 	bf2server_patch_distance_lag();
+	//bf2server_patch_netupdate();
 
-	updateRate = 0.001f;
-	updateRateAddr = (DWORD)&updateRate;
-#ifdef EXPERIMENTAL_UPS
-	bf2server_patch_netupdate();
-#endif
-
-	chatCCAddr = (DWORD)&bf2server_chat_cc;
+	chatCCAddr = reinterpret_cast<DWORD>(&bf2server_chat_cc);
 	bf2server_set_chat_cc();
 
 	char* env_buffer = nullptr;
@@ -55,11 +47,10 @@ void bf2server_init() {
 	}
 	free(env_buffer);
 
-	spawnValueAddr = (DWORD)&spawnValue;
+	spawnValueAddr = reinterpret_cast<DWORD>(&spawnValue);
 	bf2server_patch_spawnvalue();
 	Logger.log(LogLevel_VERBOSE, "All patches applied.");
 }
-
 
 void bf2server_patch_norender()
 {
@@ -212,7 +203,7 @@ void bf2server_patch_distance_lag()
 	bf2server_patch_asm(0x003e9268, (void*)distanceLagPatch, sizeof(distanceLagPatch));
 }
 
-void bf2server_patch_asm(DWORD offset, void * patch, size_t patchSize)
+void bf2server_patch_asm(DWORD_PTR offset, void * patch, size_t patchSize)
 {
 	DWORD op, np;
 	DWORD addr = moduleBase + offset;
@@ -239,11 +230,11 @@ std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t* me
 	*(BYTE*)adminAccessAddr = 0;
 	*(BYTE*)outputDetailsAddr = 0;
 	addr = moduleBase + OFFSET_RESBUFFER;
-	return string((char*)(addr));
+	return std::string((char*)(addr));
 }
 
 void bf2server_set_chat_cc() {
-	DWORD addr = (DWORD)&chatCCAddr;
+	auto addr = reinterpret_cast<DWORD>(&chatCCAddr);
 	//replace function pointer to snprintf with our own
 	bf2server_patch_asm(OFFSET_CHATSNPRINTF, (void*)&addr, sizeof(DWORD));
 }
@@ -266,21 +257,21 @@ std::string bf2server_get_adminpwd()
 	return std::string((char*)addr);
 }
 
-wstring bf2server_s2ws(string const & s)
+std::wstring bf2server_s2ws(std::string const & s)
 {
 	int len;
 	int slength = (int)s.length() + 1;
 	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
+	auto* buf = new wchar_t[len];
 	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
 	std::wstring r(buf);
 	delete[] buf;
 	return r;
 }
 
-void bf2server_set_chat_cb(function<void(string const&msg)> onChat)
+void bf2server_set_chat_cb(std::function<void(std::string const&msg)> onChat)
 {
-	chatCB = onChat;
+	chatCB = std::move(onChat);
 }
 
 USHORT bf2server_get_gameport()
@@ -288,8 +279,6 @@ USHORT bf2server_get_gameport()
 	DWORD addr = moduleBase + OFFSET_GAMEPORT;
 	return 	*(USHORT*)addr;
 }
-
-
 
 MapStatus bf2server_get_map_status()
 {
@@ -316,34 +305,51 @@ void bf2server_patch_spawnvalue()
 
 void bf2server_patch_netupdate()
 {
-	BYTE ratePatch[] = {
-		//movss xmm0, ds:float_0_1 ; <- 1/update rate
-		0xF3, 0x0F, 0x10, 0x05, 0xD8, 0x2E, 0x7B, 0x00
-	};
+    // Configure IsSendWindowOpen to resend
+    // faster on dropped packet
+    BYTE send_window_patch[] = {
+            //0F 86 9C 00 00 00 -> 90 90 90 90 90 90
+            0x90, 0x90,0x90, 0x90,0x90, 0x90
+    };
 
-	BYTE clientLimitPatch[] = {
-		//cdq
-		//sub eax, edx
-		//sar eax, 1
-		//-> mov eax, 0x40
-		0xb8, 0x40, 0x00, 0x00, 0x00
-	};
+    bf2server_patch_asm(0x005D30FB-0x400000,
+                        reinterpret_cast<void*>(send_window_patch),
+                        sizeof(send_window_patch));
 
-	*(DWORD*)&ratePatch[4] = updateRateAddr;
-	*(DWORD*)&clientLimitPatch[1] = netUpdateClientLimit;
-	bf2server_patch_asm(OFFSET_UPS_RATE, ratePatch, sizeof(ratePatch));
-	bf2server_patch_asm(OFFSET_UPS_CLIENT_LIMITER, clientLimitPatch, sizeof(clientLimitPatch));
-	
-	BYTE patch[] = {
-		//jmp     short loop 
-		//-> nop
-		0x90, 0x90
-	};
+    // Remote per Client outbound bandwidth limiter
+    BYTE pipe_full_patch[] = {
+            //EB 80 -> 90 90
+            0x90, 0x90
+    };
 
-	bf2server_patch_asm(OFFSET_UPS_LIMITER, (void*)patch, sizeof(patch));
+    bf2server_patch_asm(0x005C9D2F-0x400000,
+                        reinterpret_cast<void*>(pipe_full_patch),
+                        sizeof(pipe_full_patch));
+
+    // set next update timestamp in SentUpdate so we
+    // can immediately tx in next server tick
+    BYTE send_update_patch[] = {
+            //03 4D E8 -> 81 C1 01
+            0x83, 0xC1, 0x01
+    };
+
+    bf2server_patch_asm(0x005D2E8F-0x400000,
+                        reinterpret_cast<void*>(send_update_patch),
+                        sizeof(send_update_patch));
+
+    BYTE cur_players_patch[] = {
+            //cdq
+            //sub eax, edx
+            //sar eax, 1
+            //-> mov eax, 0x40
+            0xb8, 0x40, 0x00, 0x00, 0x00
+    };
+    *(DWORD*)&cur_players_patch[1] = 1024;
+    bf2server_patch_asm(OFFSET_UPS_CLIENT_LIMITER, cur_players_patch, sizeof(cur_players_patch));
+
 }
 
-int bf2server_lua_dostring(string const & code)
+int bf2server_lua_dostring(std::string const & code)
 {
 	auto s = reinterpret_cast<DWORD>(code.c_str());
 	auto l = static_cast<DWORD>(code.size());

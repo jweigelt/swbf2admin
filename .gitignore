@@ -16,3 +16,5 @@ packages
 .tmp
 .idea
 *.user
+cmake-build-debug
+cmake-build-release
