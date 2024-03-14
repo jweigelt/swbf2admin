@@ -20,7 +20,7 @@ using System.Data;
 using System.Data.Common;
 
 using System.Collections.Generic;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 
 using MySql.Data.MySqlClient;
 
@@ -76,7 +76,7 @@ namespace SWBF2Admin.Database
             Logger.Log(LogLevel.Verbose, "[SQL] Opening database connection...");
 
             if (SQLType == DbType.SQLite)
-                connection = new SQLiteConnection(string.Format("Data Source={0};", SQLiteFileName));
+                connection = new SqliteConnection(string.Format("Data Source={0};", SQLiteFileName));
             else
                 connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3}", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
 
@@ -156,7 +156,7 @@ namespace SWBF2Admin.Database
             query = query.Replace("prefix_", SQLTablePrefix);
             DbCommand command;
             if (SQLType == DbType.SQLite)
-                command = new SQLiteCommand(query, (SQLiteConnection)connection);
+                command = new SqliteCommand(query, (SqliteConnection)connection);
             else
                 command = new MySqlCommand(query, (MySqlConnection)connection);
 

@@ -31,6 +31,7 @@ using SWBF2Admin.Runtime.Commands.Permissions;
 using SWBF2Admin.Runtime.Commands.Dynamic;
 
 using MoonSharp.Interpreter;
+using System.Reflection;
 
 namespace SWBF2Admin.Runtime.Commands
 {
@@ -73,7 +74,7 @@ namespace SWBF2Admin.Runtime.Commands
 
             if (enableDynamic)
             {
-                UserData.RegisterAssembly();
+                UserData.RegisterAssembly(Assembly.GetCallingAssembly());
                 LoadDynCommands();
             }
             Core.Rcon.ChatInput += new EventHandler(Rcon_ChatInput);
