@@ -95,7 +95,7 @@ namespace SWBF2Admin.Runtime.Rcon
         /// <summary>
         /// max. time (in ms) before a packet is dropped if the server doesn't respond
         /// </summary>
-        public int PacketTimeout { get; set; } = 500;
+        public int PacketTimeout { get; set; } = 1500;
 
         private bool running = false;
 
