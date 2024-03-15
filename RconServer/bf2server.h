@@ -1,8 +1,4 @@
 #pragma once
-#ifndef _M_IX86
-#error Please compile the RconServer project for x86 architecture
-#endif
-
 #include <functional>
 #include <Windows.h>
 #include "Logger.h"
@@ -152,7 +148,7 @@ void bf2server_patch_netupdate();
 *	@param patch
 *	@param patchSize
 **/
-void bf2server_patch_asm(DWORD_PTR offset, void* patch, size_t patchSize);
+void bf2server_patch_asm(DWORD_PTR offset, LPVOID patch, size_t patchSize);
 
 /**
 *	Gets the current game (map) status

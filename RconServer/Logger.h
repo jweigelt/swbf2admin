@@ -41,7 +41,7 @@ public:
 private:
 	void LogToFile(const char* s);
 	LogLevel minLevelStdout = LogLevel_WARNING;
-	LogLevel minLevelFile = LogLevel_WARNING;
+	LogLevel minLevelFile = LogLevel_INFO;
     std::string logFile = "./rconserver_log.txt";
     std::mutex mtx;
 };
