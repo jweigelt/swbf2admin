@@ -11,6 +11,7 @@ RconServer/Debug
 RconServer/Release
 RconServer/x64
 RconServer/x86
+RconServer/out
 packages
 .vs
 .tmp

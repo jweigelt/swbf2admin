@@ -20,7 +20,7 @@ void bf2server_patch_netupdate()
     BYTE send_window_patch[] = {
             //.text:000000018022B6A0 0F 86 A0 00 00 jbe loc_18022B746
             //.text:000000018022B6A0 0F 86 A0 00 00 nop
-            0x90, 0x90,0x90, 0x90,0x90, 0x90
+            0x90, 0x90, 0x90, 0x90, 0x90, 0x90
     };
 
     bf2server_patch_asm(0x000000018022B6A0-0x0000000180000000,
