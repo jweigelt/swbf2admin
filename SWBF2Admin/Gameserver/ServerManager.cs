@@ -263,7 +263,7 @@ namespace SWBF2Admin.Gameserver
 
         private void InjectRconDllIfRequired()
         {
-            if (serverType == GameserverType.GoG || serverType == GameserverType.Steam)
+            if (serverType == GameserverType.GoG || serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
             {
                 string loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME}";
                 if (File.Exists(loader))
