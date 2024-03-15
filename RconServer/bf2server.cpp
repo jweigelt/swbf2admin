@@ -10,7 +10,7 @@ void bf2server_init() {
         Sleep(10);
     }
     bf2server_patch_netupdate();
-    bf2server_patch_chatcrash
+    bf2server_patch_chatcrash();
 }
 
 void bf2server_patch_netupdate()
