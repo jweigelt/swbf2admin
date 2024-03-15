@@ -56,6 +56,7 @@ namespace SWBF2Admin.Gameserver
         private ServerStopReason stopReason = ServerStopReason.STOP_EXIT;
         public ServerSettings Settings { get; set; }
         public virtual Process ServerProcess { get { return serverProcess; } }
+        private string ProcessArgs;
 
         private int steamLaunchRetryCount = 0;
         GameserverType serverType;
@@ -158,12 +159,18 @@ namespace SWBF2Admin.Gameserver
         {
             if (serverProcess == null)
             {
-                Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ServerArgs);
+                ProcessArgs = ServerArgs;
+                if (serverType == GameserverType.Aspyr && !string.IsNullOrEmpty(Core.Server.Settings.Password))
+                {
+                    ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
+                }
+
+                Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ProcessArgs);
                 status = ServerStatus.Starting;
 
                 Environment.SetEnvironmentVariable("SPAWN_TIMER", Core.Server.Settings.AutoAnnouncePeriod.ToString());
 
-                ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerExecutable), ServerArgs)
+                ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerExecutable), ProcessArgs)
                 {
                     WorkingDirectory = Core.Files.ParseFileName(ServerPath)
                 };
@@ -171,12 +178,6 @@ namespace SWBF2Admin.Gameserver
                 //if we're in steam mode, steam will start a launcher exe prior to the actual game
                 if (serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
                 {
-                    //Set the password as a launch option
-                    if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
-                    {
-                        ServerArgs += $" /password \"{Core.Server.Settings.Password}\"";
-                    }
-
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
                     steamLaunchRetryCount = 0;
                     Core.Scheduler.PushDelayedTask(() =>
