@@ -60,6 +60,15 @@ void bf2server_patch_netupdate()
     bf2server_patch_asm(0x00000001802380F8-0x0000000180000000,
                         reinterpret_cast<void*>(cur_players_patch),
                         sizeof(cur_players_patch));
+
+
+    BYTE distance_lag_fix[] = {
+            //.text:000000018024156C C7 44 24 30 05 00 00 00 mov [rsp+2C8h+var_298], 5
+            0xC7, 0x44, 0x24 ,0x30 ,0x20, 0x00, 0x00, 0x00
+    };
+    bf2server_patch_asm(0x000000018024156C-0x0000000180000000,
+                        reinterpret_cast<void*>(distance_lag_fix),
+                        sizeof(distance_lag_fix));
 }
 
 void bf2server_patch_asm(DWORD_PTR offset, LPVOID patch, size_t patchSize)
