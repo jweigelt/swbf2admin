@@ -175,7 +175,6 @@ namespace SWBF2Admin.Gameserver
                     if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
                     {
                         ServerArgs += $" /password \"{Core.Server.Settings.Password}\"";
-                        Logger.Log(LogLevel.Info, ServerArgs);
                     }
 
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
