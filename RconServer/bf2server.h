@@ -142,6 +142,8 @@ void bf2server_patch_spawnvalue();
 void bf2server_patch_netupdate();
 
 
+void bf2server_patch_chatcrash();
+
 /**
 *	Installs an asm patch
 *	@param offset instruction offset from module base

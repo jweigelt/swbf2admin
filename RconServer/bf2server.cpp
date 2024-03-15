@@ -10,6 +10,7 @@ void bf2server_init() {
         Sleep(10);
     }
     bf2server_patch_netupdate();
+    bf2server_patch_chatcrash
 }
 
 void bf2server_patch_netupdate()
@@ -68,4 +69,15 @@ void bf2server_patch_asm(DWORD_PTR offset, LPVOID patch, size_t patchSize)
     VirtualProtect(addr, patchSize, PAGE_EXECUTE_READWRITE, &op);
     memcpy(addr, patch, patchSize);
     VirtualProtect(addr, patchSize, op, &np);
+}
+
+void bf2server_patch_chatcrash() {
+    BYTE chat_crash_patch[] = {
+            //.text:0000000180222D54 E8 E7 44 00 00 call  sub_180227240
+            //.text:0000000180222D54 E8 E7 44 00 00 nop
+            0x90, 0x90,0x90,0x90,0x90
+    };
+    bf2server_patch_asm(0x0000000180222D54-0x0000000180000000,
+                        reinterpret_cast<void*>(chat_crash_patch),
+                        sizeof(chat_crash_patch));
 }
