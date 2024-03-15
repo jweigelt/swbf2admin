@@ -62,6 +62,7 @@ function General() {
                 RconPort: $("#general_input_rconport").val(),
                 Lan: $("#general_select_lan").val(),
                 Bandwidth: $("#general_select_bandwidth").val(),
+                NetRegion: $("#general_select_netregion").val(),
 
                 LagVersion: $("#general_input_lagversion").val(),                  
                 SplitUpdate: $("#general_input_splitupdate_enable").prop("checked"),
@@ -97,6 +98,7 @@ function General() {
         $("#general_input_rconport").val(s.RconPort);
         $("#general_select_lan").val(s.Lan.toString());
         $("#general_select_bandwidth").val(s.Bandwidth);
+        $("#general_select_netregion").val(s.NetRegion);
 
         $("#general_input_lagversion").val(s.LagVersion);        
         $("#general_input_splitupdate_enable").prop("checked", s.SplitUpdate);

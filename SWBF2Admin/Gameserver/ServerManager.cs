@@ -75,7 +75,7 @@ namespace SWBF2Admin.Gameserver
             if (serverType == GameserverType.Aspyr)
             {
                 ServerExecutable = config.SteamPath + "/steam.exe";
-                ServerArgs = "-applaunch 2446550 " +  config.ServerArgs;
+                ServerArgs = "-applaunch 2446550 " + config.ServerArgs;
                 ServerProcessName = "Battlefront";
             }
             else
@@ -171,6 +171,12 @@ namespace SWBF2Admin.Gameserver
                 //if we're in steam mode, steam will start a launcher exe prior to the actual game
                 if (serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
                 {
+                    //Set the password as a launch option
+                    if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
+                    {
+                        ServerArgs += $" /password \"{Core.Server.Settings.Password}\"";
+                    }
+
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
                     steamLaunchRetryCount = 0;
                     Core.Scheduler.PushDelayedTask(() =>
