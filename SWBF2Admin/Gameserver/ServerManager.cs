@@ -160,9 +160,13 @@ namespace SWBF2Admin.Gameserver
             if (serverProcess == null)
             {
                 ProcessArgs = ServerArgs;
-                if (serverType == GameserverType.Aspyr && !string.IsNullOrEmpty(Core.Server.Settings.Password))
+                if (serverType == GameserverType.Aspyr)
                 {
-                    ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
+                    ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
+                    if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
+                    {
+                        ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
+                    }
                 }
 
                 Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ProcessArgs);
