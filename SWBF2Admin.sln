@@ -4,7 +4,7 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SWBF2Admin", "SWBF2Admin\SWBF2Admin.csproj", "{9374428C-E0D6-408A-B740-C5E839CE5336}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DllLoader", "DllLoader\DllLoader.csproj", "{E6F07CF4-2B80-4134-8D0D-52562FA16B8F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DllLoader", "DllLoader\DllLoader.csproj", "{E6F07CF4-2B80-4134-8D0D-52562FA16B8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
