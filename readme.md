@@ -25,6 +25,7 @@ Open `./cfg/core.xml` and adjust `ServerType` to match your target platform:
   <ServerType>your_platform</ServerType>
 ```
 Available platforms:
+- `Aspyr` for the 2024 `Battlefront Classic Collection` release
 - `GoG` for the 2017 `BattlefrontII Classic` release
 - `Gamespy` for the original 2005 `Star Wars BattlefrontII`  release
 
@@ -43,7 +44,7 @@ If you have any active firewall, the web admin port (8080 TCP in this case) has 
 If you prefer to use an encrypted connection, you may change the protocol specified in `WebAdminPrefix` from `http://` to `https://`. Note that when using HTTPS, a matching SSL certificate has to be installed into your machine's certificate store.
 
 #### Optional: enabling runtime managament
-
+*Do not enable runtime management when running the 2024 Aspyr `Battlefront Classic Collection` release.*
 
 If you want to use features like ingame commands or announce broadcasts, runtime management has be enabled.
 To enable runtime management, open `./cfg/core.xml`, set
@@ -58,6 +59,27 @@ To enable runtime management, open `./cfg/core.xml`, set
 ### Preparing the gameserver
 
 Follow one of the following guides below that matches your target platform.
+
+#### 2024 Aspyr Release (Battlefront Classic Collection)
+*Using the 2024 Aspyr Release requires one bought copy of the game for each server you are planning to host. It is only possible to run a single dedicated server per host machine. Player based permissions are currently not supported.*
+
+**1. Preparing Game Files**<br/>
+Install and download the `Battlefront Classic Collection`. Keep the Steam client application open. Copy the contents of the `./server` folder supplied with `SWBF2Admin` to the game's installation directory. By default the game will be installed to `C:\Program Files (x86)\Steam\steamapps\common\Battle`. <br/>
+
+**2. Set Installation Paths**<br/>
+Open `./settings/core.xml` and adjust
+```xml
+  <ServerPath>your_game_path</ServerPath>
+```
+to match the game's installation folder. The default installation folder is
+`C:\Program Files (x86)\Steam\steamapps\common\Battle`.
+Adjust
+```xml
+  <SteamPath>your_steam_path</SteamPath>
+```
+to match Steam's installation folder. Steam's default installation path is
+`C:\Program Files (x86)\Steam`.
+
 
 #### 2017 GoG Release (BattlefrontII Classic)
 *Neither the GOG communications server nor GOG Galaxy works over Windows Remote Desktop.  You can use tools like VNC, Chrome Remote Desktop or a physical KVM instead. Launching any part of the server over Windows Remote Desktop causes it to not show up in the server listing.*
