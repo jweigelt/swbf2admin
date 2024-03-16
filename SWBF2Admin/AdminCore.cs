@@ -223,7 +223,7 @@ namespace SWBF2Admin
             if (Config.AutoRestartServer)
             {
                 Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restarting server...");
-                Server.Start();
+                Scheduler.PushDelayedTask(() => Server.Start(), 90000);
             }
         }
 
