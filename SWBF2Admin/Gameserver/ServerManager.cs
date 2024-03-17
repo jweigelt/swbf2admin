@@ -36,7 +36,8 @@ namespace SWBF2Admin.Gameserver
 
     public class ServerManager : ComponentBase
     {
-        private const string DLLLOADER_FILENAME = "dllloader.exe";
+        private const string DLLLOADER_FILENAME_32 = "dllloader_32.exe";
+        private const string DLLLOADER_FILENAME_64 = "dllloader_64.exe";
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
         private const int STEAMMODE_MAX_RETRY = 30;
 
@@ -162,6 +163,7 @@ namespace SWBF2Admin.Gameserver
                 ProcessArgs = ServerArgs;
                 if (serverType == GameserverType.Aspyr)
                 {
+                    ProcessArgs += " /bf2";
                     ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
                     if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
                     {
@@ -269,10 +271,22 @@ namespace SWBF2Admin.Gameserver
         {
             if (serverType == GameserverType.GoG || serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
             {
-                string loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME}";
+                string loader;
+                string dll;
+                if (serverType == GameserverType.Aspyr)
+                {
+                    loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_64}";
+                    dll = "rconserver_64.dll";
+                }
+                else
+                {
+                    loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_32}";
+                    dll = "rconserver_32.dll";
+                }
+                
                 if (File.Exists(loader))
                 {
-                    Process.Start(loader, string.Format("--pid {0} --dll {1}", serverProcess.Id, "RconServer.dll"));
+                    Process.Start(loader, string.Format("--pid {0} --dll {1}", serverProcess.Id, dll));
                 }
                 else
                 {
