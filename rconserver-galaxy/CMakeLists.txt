@@ -15,4 +15,4 @@ set(SOURCES
 
 add_library(rconserver_32 SHARED ${SOURCES})
 target_compile_definitions(rconserver_32 PRIVATE RCONSERVER_EXPORTS _WINDOWS _USRDLL)
-set_property(TARGET rconserver PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedRelease")
+set_property(TARGET rconserver_32 PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedRelease")
