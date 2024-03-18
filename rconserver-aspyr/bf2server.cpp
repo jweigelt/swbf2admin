@@ -9,7 +9,7 @@ void bf2server_init() {
 	while(!(moduleBase = (LPVOID)GetModuleHandleW(L"Battlefront2.dll"))) {
         Sleep(10);
     }
-    bf2server_patch_netupdate();
+    //bf2server_patch_netupdate();
     bf2server_patch_chatcrash();
 }
 
