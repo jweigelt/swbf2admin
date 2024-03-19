@@ -76,8 +76,13 @@ namespace SWBF2Admin.Gameserver
             }
             if (serverType == GameserverType.Aspyr)
             {
-                ServerExecutable = config.SteamPath + "/steam.exe";
-                ServerArgs = "-applaunch 2446550 " + config.ServerArgs;
+                ServerExecutable = config.ServerPath + "/Battlefront.exe";
+                //ServerArgs = "-applaunch 2446550 " + config.ServerArgs;
+                var appid_txt = Path.GetFullPath(ServerPath + "/steam_appid.txt");
+                if (!File.Exists(appid_txt))
+                {
+                    Core.Files.WriteFileText(appid_txt, "2446550");
+                }
                 ServerProcessName = "Battlefront";
             }
             else
@@ -182,7 +187,7 @@ namespace SWBF2Admin.Gameserver
                 };
 
                 //if we're in steam mode, steam will start a launcher exe prior to the actual game
-                if (serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
+                if (serverType == GameserverType.Steam)
                 {
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
                     steamLaunchRetryCount = 0;

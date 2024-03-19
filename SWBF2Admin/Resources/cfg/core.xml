@@ -25,10 +25,11 @@
     path to server's GameData folder
     - use ./ for file access relative to swbf2admin.exe
   -->
-  <ServerPath>C:\Program Files (x86)\Steam\steamapps\common\Battle</ServerPath>
+  <ServerPath>./server</ServerPath>
+
   <SteamPath>C:\Program Files (x86)\Steam</SteamPath>
-  
-  <!--automatically start the server when swbf2admin is launched-->
+
+<!--automatically start the server when swbf2admin is launched-->
   <AutoLaunchServer>false</AutoLaunchServer>
   <!--automatically restart the server when it crashes-->
   <AutoRestartServer>true</AutoRestartServer>
