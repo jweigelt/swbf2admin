@@ -164,7 +164,7 @@ namespace SWBF2Admin.Gameserver
                 if (serverType == GameserverType.Aspyr)
                 {
                     ProcessArgs += " /bf2";
-                    #ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
+                    //ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
                     if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
                     {
                         ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
