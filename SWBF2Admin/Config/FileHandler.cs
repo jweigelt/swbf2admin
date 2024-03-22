@@ -175,7 +175,7 @@ namespace SWBF2Admin.Config
         /// T's standard constructor
         /// </para>
         /// </summary>
-        public T ReadConfig<T>(string fileName = "")
+        public T ReadConfig<T>(string fileName = "", string template = "")
         {
             if (fileName == "")
             {
@@ -184,8 +184,15 @@ namespace SWBF2Admin.Config
             }
             else
             {
-                if (!File.Exists(fileName))
-                    WriteConfigDefault<T>(fileName);
+                if (template == "")
+                {
+                    if (!File.Exists(fileName))
+                        WriteConfigDefault<T>(fileName);
+                }
+                else
+                {
+                    UnpackResource(fileName, template);
+                }
             }
             return ReadXmlFile<T>(fileName);
         }

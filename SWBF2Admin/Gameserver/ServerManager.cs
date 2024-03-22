@@ -60,7 +60,7 @@ namespace SWBF2Admin.Gameserver
         private string ProcessArgs;
 
         private int steamLaunchRetryCount = 0;
-        GameserverType serverType;
+        private GameserverType serverType;
 
         public ServerManager(AdminCore core) : base(core) { }
 

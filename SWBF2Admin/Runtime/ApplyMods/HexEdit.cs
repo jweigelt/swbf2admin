@@ -30,6 +30,9 @@ namespace SWBF2Admin.Runtime.ApplyMods
         public string FileName { get; set; }
 
         [XmlAttribute]
+        public string LevelDir { get; set; } = "";
+
+        [XmlAttribute]
         public string StartAddress
         {
             get
@@ -72,16 +75,17 @@ namespace SWBF2Admin.Runtime.ApplyMods
                 io.WriteBytes(stream, startAddress, buf);
             }
         }
-         
 
-        public void Revert(FileHandler io, string levelDir)
+        public void Revert(FileHandler io, string serverDir)
         {
-            WriteHex(io, OriginalBytes, levelDir);
+            serverDir += LevelDir;
+            WriteHex(io, OriginalBytes, serverDir);
         }
 
-        public void Apply(FileHandler io, string levelDir)
+        public void Apply(FileHandler io, string serverDir)
         {
-            WriteHex(io, PatchedBytes, levelDir);
+            serverDir += LevelDir;
+            WriteHex(io, PatchedBytes, serverDir);
         }
     }
 }

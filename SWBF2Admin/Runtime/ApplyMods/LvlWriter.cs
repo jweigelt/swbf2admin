@@ -24,15 +24,34 @@ namespace SWBF2Admin.Runtime.ApplyMods
 {
     public class LvlWriter : ComponentBase
     {
-        private string levelDir;
+        private string serverDir;
         private LvlWriterConfig config;
         public LvlWriter(AdminCore core) : base(core) { }
         public virtual List<LvlMod> Mods { get { return config.Mods; } }
 
         public override void Configure(CoreConfiguration config)
         {
-            this.config = Core.Files.ReadConfig<LvlWriterConfig>();
-            levelDir = Core.Files.ParseFileName(config.ServerPath) + this.config.LvlDir;
+            if (config.ServerType == GameserverType.Aspyr)
+            {
+                //Unpack the Aspyr mods
+                this.config = Core.Files.ReadConfig<LvlWriterConfig>("./cfg/mods.aspyr.xml", "SWBF2Admin.Resources.cfg.mods.aspyr.xml");
+            } else
+            {
+                this.config = Core.Files.ReadConfig<LvlWriterConfig>();
+            }
+            serverDir = Core.Files.ParseFileName(config.ServerPath);
+
+            //Handle legacy mods.xml
+            foreach (LvlMod mod in this.config.Mods)
+            {
+                foreach (HexEdit he in mod.HexEdits)
+                {
+                    if (string.IsNullOrEmpty(he.LevelDir))
+                    {
+                        he.LevelDir = this.config.LvlDir;
+                    }
+                }
+            }
         }
 
         public override void OnInit()
@@ -53,7 +72,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
         {
             try
             {
-                mod.Apply(Core.Files, levelDir);
+                mod.Apply(Core.Files, serverDir);
             }
             catch (Exception e)
             {
@@ -65,7 +84,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
         {
             try
             {
-                mod.Revert(Core.Files, levelDir);
+                mod.Revert(Core.Files, serverDir);
             }
             catch (Exception e)
             {
