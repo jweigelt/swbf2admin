@@ -184,14 +184,16 @@ namespace SWBF2Admin.Config
             }
             else
             {
-                if (template == "")
+                if (!File.Exists(fileName))
                 {
-                    if (!File.Exists(fileName))
+                    if (template == "")
+                    {
                         WriteConfigDefault<T>(fileName);
-                }
-                else
-                {
-                    UnpackResource(fileName, template);
+                    }
+                    else
+                    {
+                        UnpackResource(fileName, template);
+                    }
                 }
             }
             return ReadXmlFile<T>(fileName);
