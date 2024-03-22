@@ -15,20 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Config;
-
 namespace SWBF2Admin.Runtime.Commands.Admin
 {
-    [ConfigFileInfo(fileName: "./cfg/cmd/tempipban.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.kick.xml"*/)]
-    public class CmdTempIpBan : CmdTempBan
+    [ConfigFileInfo(fileName: "./cfg/cmd/aliasban.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.ban.xml"*/)]
+    public class CmdAliasBan : CmdBan
     {
-        public CmdTempIpBan() : base("tempipban", "tempban") { }
-
-        public override void BanPlayer(Player p, Player admin, TimeSpan duration, string reason = "")
+        public CmdAliasBan() : base("aliasban", "ban") { }
+        public override void BanPlayer(Player p, Player admin, string reason = "")
         {
-            PlayerBan b = new PlayerBan(p.Name, p.KeyHash, p.RemoteAddressStr, admin.Name, reason, duration, BanType.IPAddress, p.DatabaseId, admin.DatabaseId);
+            PlayerBan b = new PlayerBan(p.Name, p.KeyHash, p.RemoteAddressStr, admin.Name, reason, BanType.Alias, p.DatabaseId, admin.DatabaseId);
             Core.Database.InsertBan(b);
         }
     }

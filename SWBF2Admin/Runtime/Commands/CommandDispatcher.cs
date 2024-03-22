@@ -42,12 +42,14 @@ namespace SWBF2Admin.Runtime.Commands
         private List<ChatCommand> commandList = new List<ChatCommand>();
         private string commandPrefix;
         private bool enableDynamic;
+        private GameserverType serverType;
 
         public CommandDispatcher(AdminCore core) : base(core) { }
         public override void Configure(CoreConfiguration config)
         {
             commandPrefix = config.CommandPrefix;
             enableDynamic = config.CommandEnableDynamic;
+            serverType = config.ServerType;
         }
         public override void OnInit()
         {
@@ -55,9 +57,19 @@ namespace SWBF2Admin.Runtime.Commands
             RegisterCommand<CmdSwap>();
             RegisterCommand<CmdKick>();
             RegisterCommand<CmdBan>();
-            RegisterCommand<CmdIpBan>();
-            RegisterCommand<CmdTempban>();
-            RegisterCommand<CmdTempIpBan>();
+            RegisterCommand<CmdTempBan>();
+
+            if (serverType == GameserverType.Gamespy)
+            {
+                //IP bans only work on GameSpy
+                RegisterCommand<CmdIpBan>();
+                RegisterCommand<CmdTempIpBan>();
+            } else if (serverType == GameserverType.Aspyr)
+            {
+                //Keyhash bans don't work on Aspyr
+                RegisterCommand<CmdAliasBan>();
+                RegisterCommand<CmdTempAliasBan>();
+            }
 
             RegisterCommand<CmdMap>();
             RegisterCommand<CmdAddMap>();

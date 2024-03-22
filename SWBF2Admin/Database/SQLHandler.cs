@@ -500,10 +500,11 @@ namespace SWBF2Admin.Database
                 "INNER JOIN swbf_players ON prefix_bans.player_id = prefix_players.id " +
                 "WHERE " +
                 "((player_keyhash = @keyhash AND ban_type = " + ((int)BanType.Keyhash).ToString() + ") " +
-                "OR (player_last_ip = @ip AND ban_type = " + ((int)BanType.IPAddress).ToString() + ")) " +
+                "OR (player_last_ip = @ip AND ban_type = " + ((int)BanType.IPAddress).ToString() + ") " +
+                "OR (player_last_name = @name AND ban_type = " + ((int)BanType.Alias).ToString() + ")) " +
                 "AND ((ban_timestamp + ban_duration) > @timestamp OR ban_duration < 0)";
 
-            return (HasRows(Query(sql, "@keyhash", player.KeyHash, "@ip", player.RemoteAddressStr, "@timestamp", GetTimestamp())));
+            return (HasRows(Query(sql, "@keyhash", player.KeyHash, "@ip", player.RemoteAddressStr, "@name", player.Name, "@timestamp", GetTimestamp())));
         }
         public void InsertBan(PlayerBan ban)
         {
