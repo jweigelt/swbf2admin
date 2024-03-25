@@ -197,6 +197,8 @@ namespace SWBF2Admin.Gameserver
                         serverProcess.EnableRaisingEvents = true;
                         serverProcess.Exited += new EventHandler(ServerProcess_Exited);
                         serverProcess.PriorityClass = ProcessPriorityClass.High;
+                        //Start game minimized because of mouse locking on Aspyr version
+                        serverProcess.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
                     }
                     , 5000);
                     status = ServerStatus.SteamPending;
