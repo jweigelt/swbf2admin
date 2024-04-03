@@ -29,12 +29,14 @@
 
   <SteamPath>C:\Program Files (x86)\Steam</SteamPath>
 
-<!--automatically start the server when swbf2admin is launched-->
+  <!--automatically start the server when swbf2admin is launched-->
   <AutoLaunchServer>false</AutoLaunchServer>
   <!--automatically restart the server when it crashes-->
   <AutoRestartServer>true</AutoRestartServer>
+  <!--time (in milliseconds) until the server restarts-->
+  <AutoRestartDelay>30000</AutoRestartDelay>
 
-  <!--utomatically restart server if it has been empty for a given amount of time-->
+  <!--automatically restart server if it has been empty for a given amount of time-->
   <EnableEmptyRestart>true</EnableEmptyRestart>
   <!--time (in seconds) the server has to be empty before it is restarted-->
   <EmptyRestartThreshold>3600</EmptyRestartThreshold>
