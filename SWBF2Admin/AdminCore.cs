@@ -101,8 +101,7 @@ namespace SWBF2Admin
 
         public void Run(string[] args)
         {
-            Logger.Log(LogLevel.Info, Log.CORE_START, Util.GetProductName(), Util.GetProductVersion(),
-                Util.GetProductAuthor());
+            Logger.Log(LogLevel.Info, Log.CORE_START, Util.GetProductName(), Util.GetProductVersion(), Util.GetProductAuthor());
             Logger.Log(LogLevel.Verbose, Log.CORE_READ_CONFIG);
             config = Files.ReadConfig<CoreConfiguration>();
             Logger.Log(LogLevel.Info, Log.CORE_READ_CONFIG_OK);

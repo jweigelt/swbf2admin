@@ -22,7 +22,7 @@ using SWBF2Admin.Config;
 namespace SWBF2Admin.Runtime.Commands.Admin
 {
     [ConfigFileInfo(fileName: "./cfg/cmd/tempban.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.kick.xml"*/)]
-    public class CmdTempBan : PlayerCommand
+    public class CmdTempban : PlayerCommand
     {
         public string OnNoTimeSpan { get; set; } = "No timespan specified. Usage: {usage}";
         public string OnInvalidTimeSpan { get; set; } = "Invalid input {input}. Expecting valid integer.";
@@ -42,9 +42,9 @@ namespace SWBF2Admin.Runtime.Commands.Admin
         }
         public string DefaultReason { get; set; } = "";
 
-        public CmdTempBan() : base("tempban", "tempban") { }
+        public CmdTempban() : base("tempban", "tempban") { }
 
-        public CmdTempBan(string alias, string permission) : base(alias, permission) { }
+        public CmdTempban(string alias, string permission) : base(alias, permission) { }
 
         public override bool AffectPlayer(Player affectedPlayer, Player player, string commandLine, string[] parameters, int paramIdx)
         {

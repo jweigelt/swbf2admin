@@ -22,7 +22,7 @@ using SWBF2Admin.Config;
 namespace SWBF2Admin.Runtime.Commands.Admin
 {
     [ConfigFileInfo(fileName: "./cfg/cmd/tempaliasban.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.kick.xml"*/)]
-    public class CmdTempAliasBan : CmdTempBan
+    public class CmdTempAliasBan : CmdTempban
     {
         public CmdTempAliasBan() : base("tempaliasban", "tempban") { }
 

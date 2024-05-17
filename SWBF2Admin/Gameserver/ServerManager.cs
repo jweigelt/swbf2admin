@@ -36,8 +36,8 @@ namespace SWBF2Admin.Gameserver
 
     public class ServerManager : ComponentBase
     {
-        private const string DLLLOADER_FILENAME_32 = "dllloader_32.exe";
-        private const string DLLLOADER_FILENAME_64 = "dllloader_64.exe";
+        private const string DLLLOADER_FILENAME_32 = "DllLoader_32.exe";
+        private const string DLLLOADER_FILENAME_64 = "DllLoader_64.exe";
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
         private const int STEAMMODE_MAX_RETRY = 30;
 
@@ -72,7 +72,7 @@ namespace SWBF2Admin.Gameserver
             if (serverType == GameserverType.Steam)
             {
                 ServerExecutable = ServerPath + "/BattlefrontII.exe";
-                ServerArgs = string.Empty;
+                ServerArgs = "";
             }
             if (serverType == GameserverType.Aspyr)
             {
@@ -90,7 +90,6 @@ namespace SWBF2Admin.Gameserver
                 ServerExecutable = ServerPath + "/BattlefrontII.exe";
                 ServerArgs = config.ServerArgs;
             }
-
          
             UpdateInterval = STEAMMODE_PDECT_TIMEOUT; //updates for detecting steam startup
         }
@@ -196,9 +195,10 @@ namespace SWBF2Admin.Gameserver
                         serverProcess = Process.Start(startInfo);
                         serverProcess.EnableRaisingEvents = true;
                         serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                        serverProcess.PriorityClass = ProcessPriorityClass.High;
-                        //Start game minimized because of mouse locking on Aspyr version
-                        serverProcess.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+                        if (Core.Config.EnableHighPriority)
+                        {
+                            serverProcess.PriorityClass = ProcessPriorityClass.High;
+                        }
                     }
                     , 5000);
                     status = ServerStatus.SteamPending;
@@ -208,7 +208,10 @@ namespace SWBF2Admin.Gameserver
                     serverProcess = Process.Start(startInfo);
                     serverProcess.EnableRaisingEvents = true;
                     serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                    serverProcess.PriorityClass = ProcessPriorityClass.High;
+                    if (Core.Config.EnableHighPriority)
+                    {
+                        serverProcess.PriorityClass = ProcessPriorityClass.High;
+                    }
 
                     status = ServerStatus.Online;
                     InvokeEvent(ServerStarted, this, new StartEventArgs(false));
@@ -276,6 +279,7 @@ namespace SWBF2Admin.Gameserver
 
         private void InjectRconDllIfRequired()
         {
+            //Add GameserverType.Aspyr if using RconServer
             if (serverType == GameserverType.GoG || serverType == GameserverType.Steam)
             {
                 string loader;
@@ -283,12 +287,12 @@ namespace SWBF2Admin.Gameserver
                 if (serverType == GameserverType.Aspyr)
                 {
                     loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_64}";
-                    dll = "rconserver_64.dll";
+                    dll = "RconServer_64.dll";
                 }
                 else
                 {
                     loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_32}";
-                    dll = "rconserver_32.dll";
+                    dll = "RconServer_32.dll";
                 }
                 
                 if (File.Exists(loader))

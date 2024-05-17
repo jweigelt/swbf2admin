@@ -5,8 +5,6 @@ DllLoader/bin
 DllLoader/obj
 SWBF2Admin/bin
 SWBF2Admin/obj
-IngameControllerServer/bin
-IngameControllerServer/obj
 RconServer/out
 rconserver-aspyr/out
 rconserver-galaxy/out

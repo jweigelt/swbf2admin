@@ -57,7 +57,7 @@ namespace SWBF2Admin.Runtime.Commands
             RegisterCommand<CmdSwap>();
             RegisterCommand<CmdKick>();
             RegisterCommand<CmdBan>();
-            RegisterCommand<CmdTempBan>();
+            RegisterCommand<CmdTempban>();
 
             if (serverType == GameserverType.Gamespy)
             {
