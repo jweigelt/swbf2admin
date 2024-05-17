@@ -23,7 +23,7 @@ void bf2server_patch_netupdate()
             0x90, 0x90, 0x90, 0x90, 0x90, 0x90
     };
 
-    bf2server_patch_asm(0x000000018022B6A0-0x0000000180000000,
+    bf2server_patch_asm(0x000000018022B6A0 - 0x0000000180000000,
                         reinterpret_cast<void*>(send_window_patch),
                         sizeof(send_window_patch));
 
@@ -34,7 +34,7 @@ void bf2server_patch_netupdate()
             0x90, 0x90
     };
 
-    bf2server_patch_asm(0x00000001803818EE-0x0000000180000000,
+    bf2server_patch_asm(0x00000001803818EE - 0x0000000180000000,
                         reinterpret_cast<void*>(pipe_full_patch),
                         sizeof(pipe_full_patch));
 
@@ -45,7 +45,7 @@ void bf2server_patch_netupdate()
             //.text:0000000180238EEB FF C1 inc ecx
             0xFF, 0xC1
     };
-    bf2server_patch_asm(0x0000000180238EEB-0x0000000180000000,
+    bf2server_patch_asm(0x0000000180238EEB - 0x0000000180000000,
                         reinterpret_cast<void*>(send_update_patch),
                         sizeof(send_update_patch));
 
@@ -57,16 +57,16 @@ void bf2server_patch_netupdate()
             0xb8, 0x40, 0x00, 0x00, 0x00, 0x90, 0x90
     };
     *(DWORD*)&cur_players_patch[1] = 1024;
-    bf2server_patch_asm(0x00000001802380F8-0x0000000180000000,
+    bf2server_patch_asm(0x00000001802380F8 - 0x0000000180000000,
                         reinterpret_cast<void*>(cur_players_patch),
                         sizeof(cur_players_patch));
 
 
     BYTE distance_lag_fix[] = {
             //.text:000000018024156C C7 44 24 30 05 00 00 00 mov [rsp+2C8h+var_298], 5
-            0xC7, 0x44, 0x24 ,0x30 ,0x20, 0x00, 0x00, 0x00
+            0xC7, 0x44, 0x24, 0x30, 0x20, 0x00, 0x00, 0x00
     };
-    bf2server_patch_asm(0x000000018024156C-0x0000000180000000,
+    bf2server_patch_asm(0x000000018024156C - 0x0000000180000000,
                         reinterpret_cast<void*>(distance_lag_fix),
                         sizeof(distance_lag_fix));
 }

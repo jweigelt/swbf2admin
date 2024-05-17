@@ -3,6 +3,7 @@ project(RconServer_32)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_GENERATOR_PLATFORM x86)
+set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 set(SOURCES
         dllmain.cpp

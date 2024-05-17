@@ -3,6 +3,7 @@ project(RconServer_64)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_GENERATOR_PLATFORM amd64)
+set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 set(SOURCES
         dllmain.cpp
