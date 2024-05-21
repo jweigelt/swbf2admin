@@ -77,7 +77,7 @@ namespace SWBF2Admin.Gameserver
             if (serverType == GameserverType.Aspyr)
             {
                 ServerExecutable = config.ServerPath + "/Battlefront.exe";
-                //ServerArgs = "-applaunch 2446550 " + config.ServerArgs;
+                ServerArgs = config.ServerArgs;
                 var appid_txt = Path.GetFullPath(ServerPath + "/steam_appid.txt");
                 if (!File.Exists(appid_txt))
                 {
@@ -154,6 +154,14 @@ namespace SWBF2Admin.Gameserver
                 if (Core.Config.EnableHighPriority)
                 {
                     serverProcess.PriorityClass = ProcessPriorityClass.High;
+                }
+                if (Core.Config.SetAffinity)
+                {
+                    var threads = serverProcess.Threads;
+                    foreach (ProcessThread thread in threads)
+                    {
+                        thread.ProcessorAffinity = Core.Config.ProcessAffinity;
+                    }
                 }
                 return true;
             }

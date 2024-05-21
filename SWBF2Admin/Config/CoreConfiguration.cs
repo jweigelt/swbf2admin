@@ -48,6 +48,8 @@ namespace SWBF2Admin.Config
         public string SteamPath { get; set; } = @"C:\Program Files (x86)\Steam";
 
         public bool EnableHighPriority { get; set; } = true;
+        public bool SetAffinity { get; set; } = false;
+        public int ProcessAffinity { get; set; } = 0x0;
         public bool EnableRuntime { get; set; } = false;
         public GameserverType ServerType { get; set; } = GameserverType.Aspyr;
 

@@ -51,6 +51,14 @@
     - improve performance by reducing cpu latency on slow machines
   -->
   <EnableHighPriority>false</EnableHighPriority>
+
+  <!--
+    set the server's cpu affinity mask
+    - don't enable this unless you know what you're doing
+  -->
+  <SetAffinity>false</SetAffinity>
+  <!--process affinity mask as an integer-->
+  <ProcessAffinity>0</ProcessAffinity>
   
   <!--
     enable rcon (commands, broadcasts, statistics logging ...)
