@@ -157,11 +157,8 @@ namespace SWBF2Admin.Gameserver
                 }
                 if (Core.Config.SetAffinity)
                 {
-                    var threads = serverProcess.Threads;
-                    foreach (ProcessThread thread in threads)
-                    {
-                        thread.ProcessorAffinity = Core.Config.ProcessAffinity;
-                    }
+                    serverProcess.ProcessorAffinity = (IntPtr)Core.Config.ProcessAffinity;
+                    Logger.Log(LogLevel.Info, "Process Affinity: 0x{0}", serverProcess.ProcessorAffinity.ToString("X"));
                 }
                 return true;
             }
@@ -203,12 +200,7 @@ namespace SWBF2Admin.Gameserver
                         serverProcess = Process.Start(startInfo);
                         serverProcess.EnableRaisingEvents = true;
                         serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                        if (Core.Config.EnableHighPriority)
-                        {
-                            serverProcess.PriorityClass = ProcessPriorityClass.High;
-                        }
-                    }
-                    , 5000);
+                    }, 5000);
                     status = ServerStatus.SteamPending;
                 }
                 else
@@ -220,7 +212,11 @@ namespace SWBF2Admin.Gameserver
                     {
                         serverProcess.PriorityClass = ProcessPriorityClass.High;
                     }
-
+                    if (Core.Config.SetAffinity)
+                    {
+                        serverProcess.ProcessorAffinity = (IntPtr)Core.Config.ProcessAffinity;
+                        Logger.Log(LogLevel.Info, "Process Affinity: 0x{0}", serverProcess.ProcessorAffinity.ToString("X"));
+                    }
                     status = ServerStatus.Online;
                     InvokeEvent(ServerStarted, this, new StartEventArgs(false));
                     InjectRconDllIfRequired();
