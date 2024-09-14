@@ -24,7 +24,7 @@ namespace SWBF2Admin.Runtime.Commands.Admin
     [ConfigFileInfo(fileName: "./cfg/cmd/tempipban.xml"/*, template: "SWBF2Admin.Resources.cfg.cmd.kick.xml"*/)]
     public class CmdTempIpBan : CmdTempban
     {
-        public CmdTempIpBan() : base("tempipban", "tempipban") { }
+        public CmdTempIpBan() : base("tempipban", "tempban") { }
 
         public override void BanPlayer(Player p, Player admin, TimeSpan duration, string reason = "")
         {

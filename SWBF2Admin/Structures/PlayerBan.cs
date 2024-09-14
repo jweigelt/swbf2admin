@@ -25,7 +25,8 @@ namespace SWBF2Admin.Structures
     {
         ShowAll = -1,   //only used for webadmin
         Keyhash = 0,
-        IPAddress = 1
+        IPAddress = 1,
+        Alias = 2
     }
 
     [MoonSharpUserData]

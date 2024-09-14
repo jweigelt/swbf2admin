@@ -36,8 +36,8 @@ namespace SWBF2Admin.Gameserver
 
     public class ServerManager : ComponentBase
     {
-        private const string DLLLOADER_FILENAME_32 = "dllloader_32.exe";
-        private const string DLLLOADER_FILENAME_64 = "dllloader_64.exe";
+        private const string DLLLOADER_FILENAME_32 = "DllLoader_32.exe";
+        private const string DLLLOADER_FILENAME_64 = "DllLoader_64.exe";
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
         private const int STEAMMODE_MAX_RETRY = 30;
 
@@ -60,7 +60,7 @@ namespace SWBF2Admin.Gameserver
         private string ProcessArgs;
 
         private int steamLaunchRetryCount = 0;
-        GameserverType serverType;
+        private GameserverType serverType;
 
         public ServerManager(AdminCore core) : base(core) { }
 
@@ -72,12 +72,17 @@ namespace SWBF2Admin.Gameserver
             if (serverType == GameserverType.Steam)
             {
                 ServerExecutable = ServerPath + "/BattlefrontII.exe";
-                ServerArgs = string.Empty;
+                ServerArgs = "";
             }
             if (serverType == GameserverType.Aspyr)
             {
-                ServerExecutable = config.SteamPath + "/steam.exe";
-                ServerArgs = "-applaunch 2446550 " + config.ServerArgs;
+                ServerExecutable = config.ServerPath + "/Battlefront.exe";
+                ServerArgs = config.ServerArgs;
+                var appid_txt = Path.GetFullPath(ServerPath + "/steam_appid.txt");
+                if (!File.Exists(appid_txt))
+                {
+                    Core.Files.WriteFileText(appid_txt, "2446550");
+                }
                 ServerProcessName = "Battlefront";
             }
             else
@@ -85,7 +90,6 @@ namespace SWBF2Admin.Gameserver
                 ServerExecutable = ServerPath + "/BattlefrontII.exe";
                 ServerArgs = config.ServerArgs;
             }
-
          
             UpdateInterval = STEAMMODE_PDECT_TIMEOUT; //updates for detecting steam startup
         }
@@ -151,6 +155,11 @@ namespace SWBF2Admin.Gameserver
                 {
                     serverProcess.PriorityClass = ProcessPriorityClass.High;
                 }
+                if (Core.Config.SetAffinity)
+                {
+                    serverProcess.ProcessorAffinity = (IntPtr)Core.Config.ProcessAffinity;
+                    Logger.Log(LogLevel.Info, "Process Affinity: 0x{0}", serverProcess.ProcessorAffinity.ToString("X"));
+                }
                 return true;
             }
             return false;
@@ -163,7 +172,8 @@ namespace SWBF2Admin.Gameserver
                 ProcessArgs = ServerArgs;
                 if (serverType == GameserverType.Aspyr)
                 {
-                    ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
+                    ProcessArgs += " /bf2";
+                    //ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
                     if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
                     {
                         ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
@@ -181,7 +191,7 @@ namespace SWBF2Admin.Gameserver
                 };
 
                 //if we're in steam mode, steam will start a launcher exe prior to the actual game
-                if (serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
+                if (serverType == GameserverType.Steam)
                 {
                     InvokeEvent(SteamServerStarting, this, new EventArgs());
                     steamLaunchRetryCount = 0;
@@ -190,9 +200,7 @@ namespace SWBF2Admin.Gameserver
                         serverProcess = Process.Start(startInfo);
                         serverProcess.EnableRaisingEvents = true;
                         serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                        serverProcess.PriorityClass = ProcessPriorityClass.High;
-                    }
-                    , 5000);
+                    }, 5000);
                     status = ServerStatus.SteamPending;
                 }
                 else
@@ -200,8 +208,15 @@ namespace SWBF2Admin.Gameserver
                     serverProcess = Process.Start(startInfo);
                     serverProcess.EnableRaisingEvents = true;
                     serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                    serverProcess.PriorityClass = ProcessPriorityClass.High;
-
+                    if (Core.Config.EnableHighPriority)
+                    {
+                        serverProcess.PriorityClass = ProcessPriorityClass.High;
+                    }
+                    if (Core.Config.SetAffinity)
+                    {
+                        serverProcess.ProcessorAffinity = (IntPtr)Core.Config.ProcessAffinity;
+                        Logger.Log(LogLevel.Info, "Process Affinity: 0x{0}", serverProcess.ProcessorAffinity.ToString("X"));
+                    }
                     status = ServerStatus.Online;
                     InvokeEvent(ServerStarted, this, new StartEventArgs(false));
                     InjectRconDllIfRequired();
@@ -268,19 +283,20 @@ namespace SWBF2Admin.Gameserver
 
         private void InjectRconDllIfRequired()
         {
-            if (serverType == GameserverType.GoG || serverType == GameserverType.Steam || serverType == GameserverType.Aspyr)
+            //Add GameserverType.Aspyr if using RconServer
+            if (serverType == GameserverType.GoG || serverType == GameserverType.Steam)
             {
                 string loader;
                 string dll;
                 if (serverType == GameserverType.Aspyr)
                 {
                     loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_64}";
-                    dll = "rconserver_64.dll";
+                    dll = "RconServer_64.dll";
                 }
                 else
                 {
                     loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_32}";
-                    dll = "rconserver_32.dll";
+                    dll = "RconServer_32.dll";
                 }
                 
                 if (File.Exists(loader))

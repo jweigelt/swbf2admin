@@ -2,9 +2,6 @@
 #include <functional>
 #include <Windows.h>
 #include "Logger.h"
-#include "config.h"
-
-
 typedef DWORD windows_ptr_t;
 
 /*

@@ -48,7 +48,6 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
                 rows.Add(response.Substring(i, 89));
             }
 
-            
             /*1  "KJC_Obi-Wan"     Rep 0   0   0   83  d9728d39-737d-47cd7c51bef0c7417274098ee3f90807fe*/
             /*1  "KJC_Obi-Wan"     Rep 0   0   0   75  2116af44-2850-44951a72af3bd99b904e663ecbbe5d71b9*/
             foreach (string r in rows)

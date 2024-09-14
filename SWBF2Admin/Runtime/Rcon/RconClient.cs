@@ -49,7 +49,8 @@ namespace SWBF2Admin.Runtime.Rcon
         {
             ServerPassword = Core.Server.Settings.AdminPw;
             ServerIPEP = new IPEndPoint(IPAddress.Parse(Core.Server.Settings.IP), Core.Server.Settings.RconPort);
-            Start();
+            //Rcon can take up to 10 seconds to start on some CC versions
+            Core.Scheduler.PushDelayedTask(() => Start(), 10000);
         }
 
         public override void OnServerStop()

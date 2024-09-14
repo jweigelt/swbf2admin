@@ -1,6 +1,12 @@
 var BansUrl = "/db/bans";
 var BansFilterTimeout = 300;
 
+var BanTypes = [
+    "Key",
+    "IP",
+    "Alias"
+]
+
 function Bans() {
     var base = this;
     this.quickAdminId = null;
@@ -73,7 +79,7 @@ function Bans() {
                 "<td>" + (b.Duration < 0 ? "permanent" : b.Duration) + "</td>" +
                 "<td>" + b.PlayerKeyhash + "</td>" +
                 "<td>" + b.PlayerIPAddress + "</td>" +
-                "<td>" + (b.TypeId == 0 ? "Key" : "IP") + "</td>" +
+                "<td>" + BanTypes[b.TypeId] + "</td>" +
                 "</tr>";
             i++;
             legend |= b.Expired;

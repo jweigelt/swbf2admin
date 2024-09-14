@@ -47,7 +47,7 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
          * Tickets     : 0/0
          * FF enabled  : yes
          * Heroes      : no
-         **/
+        **/
         /**
          * Server name : LeKeks test
          * Server IP   : 192.168.188.93
@@ -61,7 +61,7 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
          *  Tickets     : 450/450
          *  FF enabled  : no
          *  Heroes      : no
-         */
+        **/
         public override void HandleResponse(string response)
         {
             string[] rows = response.Split('\n');

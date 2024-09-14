@@ -1,5 +1,5 @@
 ﻿/*
- * This file is part of SWBF2Admin (https://github.com/jweigelt/swbf2admin). 
+ * This file is part of SWBF2Admin (https://github.com/jweigelt/swbf2admin).
  * Copyright(C) 2017, 2018  Jan Weigelt <jan@lekeks.de>
  *
  * SWBF2Admin is free software: you can redistribute it and/or modify
@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-
 using SWBF2Admin.Utility;
 using SWBF2Admin.Config;
 using SWBF2Admin.Web;
@@ -25,7 +25,6 @@ using SWBF2Admin.Database;
 using SWBF2Admin.Gameserver;
 using SWBF2Admin.Scheduler;
 using SWBF2Admin.Structures;
-
 using SWBF2Admin.Runtime.Players;
 using SWBF2Admin.Runtime.Rcon;
 using SWBF2Admin.Runtime.Game;
@@ -33,7 +32,6 @@ using SWBF2Admin.Runtime.Announce;
 using SWBF2Admin.Runtime.Commands;
 using SWBF2Admin.Runtime.ApplyMods;
 using SWBF2Admin.Runtime.Watchdog;
-
 using SWBF2Admin.Plugins;
 
 namespace SWBF2Admin
@@ -43,7 +41,12 @@ namespace SWBF2Admin
         private const string ARG_RESET_WEBUSER = "--reset-webcredentials";
 
         private CoreConfiguration config;
-        public CoreConfiguration Config { get { return config; } }
+
+        public CoreConfiguration Config
+        {
+            get { return config; }
+        }
+
         public FileHandler Files { get; } = new FileHandler();
         public TaskScheduler Scheduler { get; } = new TaskScheduler();
 
@@ -168,6 +171,11 @@ namespace SWBF2Admin
 
             while ((cmd = Console.ReadLine()) != "quit")
             {
+                if (string.IsNullOrEmpty(cmd))
+                {
+                    continue;
+                }
+
                 if (cmd == "import maps")
                 {
                     Database.ImportMaps(ServerMap.ReadServerMapConfig(this));
@@ -185,9 +193,9 @@ namespace SWBF2Admin
 
 
         #region "Events"
+
         private void Server_Started(object sender, EventArgs e)
         {
-
             Logger.Log(LogLevel.Verbose, "Starting runtime management...");
             Scheduler.PushDelayedTask(() =>
             {
@@ -214,7 +222,7 @@ namespace SWBF2Admin
                     Logger.Log(LogLevel.Verbose, "Restarting server...");
                     Server.Start();
                 }
-           }
+            }
         }
 
         private void Server_Crashed(object sender, EventArgs e)
@@ -223,24 +231,23 @@ namespace SWBF2Admin
             if (Config.AutoRestartServer)
             {
                 Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restarting server...");
-                Scheduler.PushDelayedTask(() => Server.Start(), 90000);
+                Scheduler.PushDelayedTask(() => Server.Start(), Config.AutoRestartDelay);
             }
         }
 
         private void Rcon_Disconnected(object sender, EventArgs e)
         {
-
         }
 
         private void Rcon_Chat(object sender, EventArgs e)
         {
-
         }
 
         private void Announce_Broadcast(object sender, EventArgs e)
         {
             Rcon.Say(((AnnounceEventArgs)e).Announce.ParseMessage(this));
         }
+
         #endregion
     }
 }

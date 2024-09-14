@@ -43,16 +43,16 @@ namespace SWBF2Admin.Runtime.ApplyMods
         private bool active = false;
 
         [MoonSharpHidden]
-        public void Revert(FileHandler io, string levelDir)
+        public void Revert(FileHandler io, string serverDir)
         {
-            foreach (HexEdit he in HexEdits) he.Revert(io, levelDir);
+            foreach (HexEdit he in HexEdits) he.Revert(io, serverDir);
             active = false;
         }
 
         [MoonSharpHidden]
-        public void Apply(FileHandler io, string levelDir)
+        public void Apply(FileHandler io, string serverDir)
         {
-            foreach (HexEdit he in HexEdits) he.Apply(io, levelDir);
+            foreach (HexEdit he in HexEdits) he.Apply(io, serverDir);
             active = true;
         }
     }

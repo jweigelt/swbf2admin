@@ -5,13 +5,9 @@ DllLoader/bin
 DllLoader/obj
 SWBF2Admin/bin
 SWBF2Admin/obj
-IngameControllerServer/bin
-IngameControllerServer/obj
-RconServer/Debug
-RconServer/Release
-RconServer/x64
-RconServer/x86
 RconServer/out
+rconserver-aspyr/out
+rconserver-galaxy/out
 packages
 .vs
 .tmp

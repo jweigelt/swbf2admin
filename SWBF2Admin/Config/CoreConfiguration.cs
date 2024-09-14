@@ -41,12 +41,15 @@ namespace SWBF2Admin.Config
         #region Gameserver
         public bool AutoLaunchServer { get; set; } = false;
         public bool AutoRestartServer { get; set; } = true;
+        public int AutoRestartDelay { get; set; } = 30000;
         public string ServerPath { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\Battle";
         public string ServerArgs { get; set; } = "/win /norender /nosound /nointro /autonet dedicated /resolution 640 480";
         
         public string SteamPath { get; set; } = @"C:\Program Files (x86)\Steam";
 
         public bool EnableHighPriority { get; set; } = true;
+        public bool SetAffinity { get; set; } = false;
+        public int ProcessAffinity { get; set; } = 0x0;
         public bool EnableRuntime { get; set; } = false;
         public GameserverType ServerType { get; set; } = GameserverType.Aspyr;
 

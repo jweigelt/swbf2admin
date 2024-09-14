@@ -131,7 +131,7 @@ namespace SWBF2Admin.Utility
 
         public static string GetProductAuthor()
         {
-            return "LeKeks, Yoni, AsLan";
+            return "LeKeks, Yoni, AsLan, Alpha";
         }
 
         public static List<string> SegmentString(string str, int maxSegmentSize)
