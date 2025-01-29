@@ -84,11 +84,13 @@ namespace SWBF2Admin.Gameserver
                     Core.Files.WriteFileText(appid_txt, "2446550");
                 }
                 ServerProcessName = "Battlefront";
+                Core.Rcon.SetPacketTimeout(1500);
             }
             else
             {
                 ServerExecutable = ServerPath + "/BattlefrontII.exe";
                 ServerArgs = config.ServerArgs;
+                Core.Rcon.SetPacketTimeout(500);
             }
          
             UpdateInterval = STEAMMODE_PDECT_TIMEOUT; //updates for detecting steam startup

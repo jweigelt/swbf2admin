@@ -29,7 +29,7 @@ void bf2server_init() {
 	bf2server_patch_maphang();
 	bf2server_patch_dedicated();
 	bf2server_patch_distance_lag();
-	bf2server_patch_netupdate();
+	//bf2server_patch_netupdate();
 
 	chatCCAddr = reinterpret_cast<DWORD>(&bf2server_chat_cc);
 	bf2server_set_chat_cc();

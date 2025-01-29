@@ -96,7 +96,7 @@ namespace SWBF2Admin.Runtime.Rcon
         /// <summary>
         /// max. time (in ms) before a packet is dropped if the server doesn't respond
         /// </summary>
-        public int PacketTimeout { get; set; } = 1500;
+        private int PacketTimeout { get; set; } = 500;
 
         private bool running = false;
 
@@ -107,6 +107,11 @@ namespace SWBF2Admin.Runtime.Rcon
         private BinaryWriter writer;
 
         private string lastMessage = null;
+
+        public void SetPacketTimeout(int timeout)
+        {
+            PacketTimeout = timeout;
+        }
 
         /// <summary>
         /// Connects to rcon-server and authenticates
