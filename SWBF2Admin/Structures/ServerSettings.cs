@@ -136,10 +136,22 @@ namespace SWBF2Admin.Structures
         public ushort AssAiPerTeam { get; set; } = 0;
         #endregion
         #region "ELI"
+        private ushort EliBotCount = 0;
         [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
         public ushort EliTimeLimit { get; set; } = 0;
         [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
-        public ushort EliAiPerTeam { get; set; } = 0;
+        public ushort EliAiPerTeam
+        {
+            get => EliBotCount;
+            set => EliBotCount = value;
+        }
+        //Fix for CC
+        [ConfigSection(ConfigSection.GAME, canUpdate: true, needsReload: true)]
+        public ushort HeroAssAiPerTeam
+        {
+            get => EliBotCount;
+            set => EliBotCount = value;
+        }
         #endregion
 
         [ConfigSection(ConfigSection.GAME)]

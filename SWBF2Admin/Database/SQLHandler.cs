@@ -77,8 +77,8 @@ namespace SWBF2Admin.Database
 
             if (SQLType == DbType.SQLite)
                 connection = new SqliteConnection(string.Format("Data Source={0};", SQLiteFileName));
-            else
-                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3}", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
+            else //TODO: Use connection pooling for MySQL instead of Keepalive
+                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};Keepalive=300", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
 
             try
             {
