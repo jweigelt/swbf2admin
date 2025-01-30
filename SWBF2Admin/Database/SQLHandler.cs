@@ -145,7 +145,18 @@ namespace SWBF2Admin.Database
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
+                //Handle MySQL inactivity error
+                //This is a really hacky fix that should not exist.
+                if (e.Message == "The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.")
+                {
+                    Logger.Log(LogLevel.VerboseSQL, "[SQL] Inactivity timeout. Reconnecting...");
+                    connection.Close();
+                    NonQuery(query, parameters);
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
+                }
             }
         }
         private object ScalarQuery(string query, params object[] parameters)
@@ -158,6 +169,15 @@ namespace SWBF2Admin.Database
             }
             catch (Exception e)
             {
+                //Handle MySQL inactivity error
+                //This is a really hacky fix that should not exist.
+                if (e.Message == "The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.")
+                {
+                    Logger.Log(LogLevel.VerboseSQL, "[SQL] Inactivity timeout. Reconnecting...");
+                    connection.Close();
+                    return ScalarQuery(query, parameters);
+                }
+                
                 Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
                 return null;
             }
