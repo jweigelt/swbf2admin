@@ -77,8 +77,8 @@ namespace SWBF2Admin.Database
 
             if (SQLType == DbType.SQLite)
                 connection = new SqliteConnection(string.Format("Data Source={0};", SQLiteFileName));
-            else //TODO: Use connection pooling for MySQL instead of Keepalive
-                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};Keepalive=300", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
+            else
+                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
 
             try
             {
@@ -108,7 +108,10 @@ namespace SWBF2Admin.Database
             DbDataReader reader = null;
             try
             {
-                if (connection.State != ConnectionState.Open) connection.Open();
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();
+                }
                 reader = BuildCommand(query, parameters).ExecuteReader();
                 return reader;
             }
@@ -117,6 +120,15 @@ namespace SWBF2Admin.Database
                 if (reader != null)
                 {
                     if (!reader.IsClosed) reader.Close();
+                }
+
+                //Handle MySQL inactivity error
+                //This is a really hacky fix that should not exist.
+                if (e.Message == "The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.")
+                {
+                    Logger.Log(LogLevel.VerboseSQL, "[SQL] Inactivity timeout. Reconnecting...");
+                    connection.Close();
+                    return Query(query, parameters);
                 }
 
                 Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
