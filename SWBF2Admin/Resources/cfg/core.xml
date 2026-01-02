@@ -19,7 +19,7 @@
     - GoG (GOG Galaxy variant)
     - Aspyr (2024 Aspyr Release)
   -->
-  <ServerType>Aspyr</ServerType>
+  <ServerType>GoG</ServerType>
   
   <!--
     path to server's GameData folder

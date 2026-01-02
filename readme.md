@@ -1,4 +1,3 @@
-
 # SWBF2Admin
 A modern, easy-to-use server manager for Star Wars Battlefront II (2005) dedicated servers
 
@@ -9,82 +8,64 @@ SWBF2Admin is highly configurable - for advanced configuration techniques or mor
 ### Prerequisites
 SWBF2Admin requires the following software to be installed on the host machine:
 
-- .net 8.0 or newer (https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- .NET Framework(or equivalent) v4.6.1 or newer (<https://www.microsoft.com/net/download/windows>)
+- Visual C++ Redistributable x86 2015: (<https://www.microsoft.com/en-us/download/details.aspx?id=48145>)
 
-If you are planning on hosting a GoG/Steam server you will need a GOG Galaxy account owning SWBF2. Using the Steam client for hosting the 2017 GoG release is currently not supported.
+If you are planning on hosting a GoG/Steam server you will also need a GOG Galaxy account owning SWBF2.
+
+> Using the Steam client for hosting is currently not supported.
 
 ### Minimal setup
 Extract all files to a destination of your choice, run SWBF2Admin.exe. You will be prompted to set webadmin credentials. Enter username and password of your choice. Close SWBF2Admin afterwards.
 
-Should you ever forget your credentials, run `reset_webcredentials.bat` for resetting all web admin accounts. 
+Navigate to the `./server` folder in SWBF2Admin's installation directory. Right click `RconServer.dll -> Properties`. Check the `Unblock` option in the lower section of the dialog. Do the same for `dlloader.exe`.
 
-#### Platform Selection
+> Should you ever forget your credentials, run reset_webcredentials.bat.
+> This will delete all web admin accounts and prompt you for new default credentials.
 
-Open `./cfg/core.xml` and adjust `ServerType` to match your target platform:
+##### Optional: using the original server package
+If you want to run the old dedicated server, open `./cfg/core.xml`, set
 ```xml
-  <ServerType>your_platform</ServerType>
+  <ServerType>Gamespy</ServerType>
 ```
-Available platforms:
-- `Aspyr` for the 2024 `Battlefront Classic Collection` release
-- `GoG` for the 2017 `BattlefrontII Classic` release
-- `Gamespy` for the original 2005 `Star Wars BattlefrontII`  release
 
-#### Configuring Remote Acces
-If you want your web admin panel to be accessible from the internet, adjust `WebAdminPrefix` in `core.xml` to match your server's public endpoint.
+##### Optional: allowing remote access to webadmin
+By default, the web panel will only be accessible from the local machine. To change this, open core.xml and adjust
 ```xml
   <WebAdminPrefix>http://localhost:8080/</WebAdminPrefix>
 ```
-
 If you do not have a domain pointing to your server, you can also just use the server's IP-Address, for example
 ```xml
   <WebAdminPrefix>http://192.168.1.234:8080/</WebAdminPrefix>
 ```
-If you have any active firewall, the web admin port (8080 TCP in this case) has to be unblocked.
+If you have any active firewall, the webadmin port (8080 TCP in this case) has to be unblocked.
 
 If you prefer to use an encrypted connection, you may change the protocol specified in `WebAdminPrefix` from `http://` to `https://`. Note that when using HTTPS, a matching SSL certificate has to be installed into your machine's certificate store.
 
-#### Optional: enabling runtime managament
-*Do not enable runtime management when running the 2024 Aspyr `Battlefront Classic Collection` release.*
-
-If you want to use features like ingame commands or announce broadcasts, runtime management has be enabled.
+##### Optional: enabling runtime managament
+If you want to use features like ingame commands, announce broadcast, statistics ..., runtime management has be enabled.
 To enable runtime management, open `./cfg/core.xml`, set
 ```xml
   <EnableRuntime>true</EnableRuntime>
 ```
-
-*When using runtime management, the !gimmeadmin command will add the first user to execute  it to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.*
-
-*If you are using the 2017 GOG release, set GamePort & RconPort in Server Settings to the same value.*
+```diff
+! When using runtime management, the !gimmeadmin command will add the first user to execute
+! it to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.
+```
+```diff
+! When using the GOG version, set GamePort & RconPort in Server Settings to the same value.
+```
 
 ### Preparing the gameserver
 
-Follow one of the following guides below that matches your target platform.
+Depending on which platform you want to use, EITHER follow the "GoG / Steam" OR the Gamespy / "Swbfspy" guide.
 
-#### 2024 Aspyr Release (Battlefront Classic Collection)
-*Using the 2024 Aspyr Release requires one bought copy of the game for each server you are planning to host. It is only possible to run a single dedicated server per host machine. Player based permissions are currently not supported.*
-
-**1. Preparing Game Files**<br/>
-Install and download the `Battlefront Classic Collection`. Keep the Steam client application open. Copy the contents of the `./server` folder supplied with `SWBF2Admin` to the game's installation directory. By default the game will be installed to `C:\Program Files (x86)\Steam\steamapps\common\Battle`. <br/>
-
-**2. Set Installation Paths**<br/>
-Open `./settings/core.xml` and adjust
-```xml
-  <ServerPath>your_game_path</ServerPath>
+##### GoG / Steam
+```diff
+! Neither the GOG communications server nor GOG Galaxy works over Windows Remote Desktop. 
+! You can use tools like VNC or Chrome Remote Desktop instead. 
+! Launching any part of the server over Windows Remote Desktop causes it to not show up in the server listing.
 ```
-to match the game's installation folder. The default installation folder is
-`C:\Program Files (x86)\Steam\steamapps\common\Battle`.
-Adjust
-```xml
-  <SteamPath>your_steam_path</SteamPath>
-```
-to match Steam's installation folder. Steam's default installation path is
-`C:\Program Files (x86)\Steam`.
-
-
-#### 2017 GoG Release (BattlefrontII Classic)
-*Neither the GOG communications server nor GOG Galaxy works over Windows Remote Desktop.  You can use tools like VNC, Chrome Remote Desktop or a physical KVM instead. Launching any part of the server over Windows Remote Desktop causes it to not show up in the server listing.*
-
-After connecting to your server using previously mentioned tools:
 1) Install GOG Galaxy (<https://www.gog.com/galaxy>)
 2) Using GOG Galaxy, download Star Wars Battlefront II
 3) In GOG Galaxy, open Battlefront II in your library. Click on `More -> Manage installation -> Show folder`

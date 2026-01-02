@@ -1,10 +1,15 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SWBF2Admin", "SWBF2Admin\SWBF2Admin.csproj", "{9374428C-E0D6-408A-B740-C5E839CE5336}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SWBF2Admin", "SWBF2Admin\SWBF2Admin.csproj", "{9374428C-E0D6-408A-B740-C5E839CE5336}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DllLoader", "DllLoader\DllLoader.csproj", "{E6F07CF4-2B80-4134-8D0D-52562FA16B8F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DllLoader", "DllLoader\DllLoader.csproj", "{E6F07CF4-2B80-4134-8D0D-52562FA16B8F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RconServer", "RconServer\RconServer.vcxproj", "{894AD1F5-174E-4653-998B-6F8092D0F265}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SWBF2Admin.Discord", "SWBF2Admin.Discord\SWBF2Admin.Discord.csproj", "{AD52BA2B-4219-4B4D-9A11-C78C262195F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +45,28 @@ Global
 		{E6F07CF4-2B80-4134-8D0D-52562FA16B8F}.Release|x64.Build.0 = Release|Any CPU
 		{E6F07CF4-2B80-4134-8D0D-52562FA16B8F}.Release|x86.ActiveCfg = Release|Any CPU
 		{E6F07CF4-2B80-4134-8D0D-52562FA16B8F}.Release|x86.Build.0 = Release|Any CPU
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Debug|Any CPU.Build.0 = Debug|Win32
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Debug|x64.ActiveCfg = Debug|x64
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Debug|x64.Build.0 = Debug|x64
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Debug|x86.ActiveCfg = Debug|Win32
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Debug|x86.Build.0 = Debug|Win32
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|Any CPU.ActiveCfg = Release|Win32
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|Any CPU.Build.0 = Release|Win32
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|x64.ActiveCfg = Release|x64
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|x64.Build.0 = Release|x64
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|x86.ActiveCfg = Release|Win32
+		{894AD1F5-174E-4653-998B-6F8092D0F265}.Release|x86.Build.0 = Release|Win32
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x64.Build.0 = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x64.ActiveCfg = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x64.Build.0 = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD52BA2B-4219-4B4D-9A11-C78C262195F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

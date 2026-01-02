@@ -215,7 +215,7 @@ namespace SWBF2Admin.Structures
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, "Failed to read to file {0} ({1})", fileName, e.ToString());
-                throw;
+                throw e;
             }
 
             file = file.Replace("\r\n", "\n");

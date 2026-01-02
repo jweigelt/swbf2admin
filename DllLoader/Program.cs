@@ -51,6 +51,11 @@ namespace DllLoader
                 Console.WriteLine("ERROR");
                 Console.WriteLine(e.ToString());
             }
+
+#if DEBUG
+            Console.WriteLine("Press [return] to exit.");
+            Console.ReadLine();
+#endif
         }
     }
 }

@@ -100,7 +100,7 @@ namespace SWBF2Admin.Web
                 else
                 {
                     Logger.Log(LogLevel.Error, "Failed to start HttpListener ({0})", e.Message);
-                    throw;
+                    throw e;
                 }
             }
 
@@ -139,7 +139,7 @@ namespace SWBF2Admin.Web
                 catch (Exception e)
                 {
                     Logger.Log(LogLevel.Error, "Failed to register HttpPrefix. ({0})", e.Message);
-                    throw;
+                    throw e;
                 }
 
                 //Windows' UAC doesn't allow the redirection of stdout when using runas
@@ -166,10 +166,10 @@ namespace SWBF2Admin.Web
             {
                 while (running) HandleContext(listener.GetContext());
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 //catches exception when listener.Stop() is called
-                if (running) throw;
+                if (running) throw e;
             }
 
             Logger.Log(LogLevel.Info, Log.WEB_STOP, prefix);
