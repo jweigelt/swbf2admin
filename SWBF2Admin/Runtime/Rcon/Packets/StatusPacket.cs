@@ -63,7 +63,7 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
          * FF enabled  : no
          * Heroes      : no
         **/
-
+        
         public override void HandleResponse(string response)
         {
             string[] rows = response.Split('\n');

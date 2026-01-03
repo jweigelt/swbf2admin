@@ -917,38 +917,26 @@ namespace SWBF2Admin.Database
                 "prefix_web_users " +
                 "WHERE user_name = @username";
 
-            string hash;
-            WebUser user;
-            bool update_user = false;
-
             using (DbDataReader reader = Query(sql, "@username", username))
             {
                 if (reader.Read())
                 {
-                    hash = RS(reader, "user_password");
+                    var hash = RS(reader, "user_password");
 
                     //update legacy hash
                     if (hash.Length == 32)
                     {
                         hash = PBKDF2.HashPassword(hash);
-                        update_user = true;
+                        UpdateWebUser(
+                            new WebUser(RL(reader, "id"), RS(reader, "user_name"), hash, GetDateTime(RU(reader, "user_lastvisit"))),
+                            true);
                     }
 
-                    user = new WebUser(RL(reader, "id"), RS(reader, "user_name"), hash, GetDateTime(RU(reader, "user_lastvisit")));
-                } else
-                {
-                    return null;
+                    if (PBKDF2.VerifyPassword(password, hash))
+                    {
+                        return new WebUser(RL(reader, "id"), RS(reader, "user_name"), hash, GetDateTime(RU(reader, "user_lastvisit")));
+                    }
                 }
-            }
-
-            if (update_user)
-            {
-                UpdateWebUser(user, true);
-            }
-
-            if (PBKDF2.VerifyPassword(password, hash))
-            {
-                return user;
             }
 
             return null;

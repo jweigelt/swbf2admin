@@ -33,7 +33,7 @@
     <LvlMod Name="droid_fast_heal">
       <HexEdits>
         <!--speed-->
-        <HexEdit FileName="ingame.lvl" StartAddress="002e7630" PatchedString="1.0" OriginalString="1.0"/>
+        <HexEdit FileName="ingame.lvl" StartAddress="002e7630" PatchedString="0.5" OriginalString="1.0"/>
         <!--heal power-->
         <HexEdit FileName="ingame.lvl" StartAddress="002e7640" PatchedString="100.0" OriginalString="25.00"/>
       </HexEdits>
@@ -77,9 +77,9 @@
         <!--chewie-->
         <HexEdit FileName="SIDE/all.lvl" StartAddress="0042DB24" PatchedString="00" OriginalString="24"/>
         <!--han-->
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString= "00" OriginalString="15"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString="00" OriginalString="15"/>
         <!--leia-->
-        <HexEdit FileName="SIDE/all.lvl" StartAddress="00518EAC" PatchedString= "00" OriginalString="15"/>
+        <HexEdit FileName="SIDE/all.lvl" StartAddress="00518EAC" PatchedString="00" OriginalString="15"/>
         <!--boba-->
         <HexEdit FileName="SIDE/imp.lvl" StartAddress="002B3FAC" PatchedString="00" OriginalString="12"/>
         <!--jango-->
