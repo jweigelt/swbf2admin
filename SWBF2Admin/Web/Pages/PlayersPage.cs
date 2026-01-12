@@ -19,6 +19,7 @@ using System;
 using System.Net;
 using Newtonsoft.Json;
 using SWBF2Admin.Structures;
+using SWBF2Admin.Structures.InGame;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -29,7 +30,8 @@ namespace SWBF2Admin.Web.Pages
             Info = 0,
             Kick = 1,
             Ban = 2,
-            Swap = 3
+            Swap = 3,
+            Points = 4
         }
 
         class PlayerApiParams : ApiRequestParams
@@ -39,6 +41,7 @@ namespace SWBF2Admin.Web.Pages
             public int BanTypeId { get; set; }
             [JsonIgnore]
             public virtual BanType BanType { get { return (BanType)BanTypeId; } }
+            public int Points { get; set; }
         }
 
         class QuickAdminResponse
@@ -89,15 +92,15 @@ namespace SWBF2Admin.Web.Pages
                         }
 
                         Core.Database.InsertBan(ban);
-
-
-
                        
                         Core.Scheduler.PushTask(() => Core.Players.Kick(player));
                     }
-                 
-                   
+                    break;
 
+                case "players_points":
+                    WebServer.LogAudit(user, "gave slot #{0} 12 points", p.PlayerId.ToString());
+                    CharacterUtils.SetScore(p.PlayerId-1, p.Points, Core.BF2.reader);
+                    WebAdmin.SendHtml(ctx, ToJson(new QuickAdminResponse()));
                     break;
             }
         }

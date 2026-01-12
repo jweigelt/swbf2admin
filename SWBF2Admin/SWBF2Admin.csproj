@@ -78,6 +78,14 @@
     <Compile Include="Config\ConfigFileInfo.cs" />
     <Compile Include="Export\StatisticsReportGenerator.cs" />
     <Compile Include="Gameserver\StopEventArgs.cs" />
+    <Compile Include="Runtime\Commands\Admin\CmdAliasBan.cs" />
+    <Compile Include="Runtime\Commands\Admin\CmdTempAliasBan.cs" />
+    <Compile Include="Runtime\ProcessMods\CodeCave.cs" />
+    <Compile Include="Runtime\ProcessMods\ProcessEdit.cs" />
+    <Compile Include="Runtime\ProcessMods\ProcessMemoryReader.cs" />
+    <Compile Include="Runtime\ProcessMods\ProcessMod.cs" />
+    <Compile Include="Runtime\ProcessMods\ProcessWriter.cs" />
+    <Compile Include="Runtime\ProcessMods\ProcessWriterConfig.cs" />
     <Compile Include="Runtime\Watchdog\EmptyRestart.cs" />
     <Compile Include="Gameserver\StartEventArgs.cs" />
     <Compile Include="Maps\AddmeReader.cs" />
@@ -138,6 +146,10 @@
     <Compile Include="Structures\Attributes\ConfigSection.cs" />
     <Compile Include="Structures\GameInfo.cs" />
     <Compile Include="Structures\GameMode.cs" />
+    <Compile Include="Structures\InGame\Character.cs" />
+    <Compile Include="Structures\InGame\CharacterUtils.cs" />
+    <Compile Include="Structures\InGame\Offsets.cs" />
+    <Compile Include="Structures\InGame\SimpleScore.cs" />
     <Compile Include="Structures\PlayerStatistics.cs" />
     <Compile Include="Structures\ServerSettings.cs" />
     <Compile Include="Structures\ServerInfo.cs" />
@@ -165,6 +177,7 @@
     <Compile Include="Web\Pages\AboutPage.cs" />
     <Compile Include="Web\Pages\ChatPage.cs" />
     <Compile Include="Web\Pages\BansPage.cs" />
+    <Compile Include="Web\Pages\GameEditPage.cs" />
     <Compile Include="Web\Pages\GameSettingsPage.cs" />
     <Compile Include="Web\Pages\StatisticsPage.cs" />
     <Compile Include="Web\Pages\WebUsersPage.cs" />
@@ -353,6 +366,10 @@
     <PackageReference Include="System.Xml.XDocument">
       <Version>4.3.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\cfg\mods.aspyr.xml" />
+    <EmbeddedResource Include="Resources\cfg\process_mods.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

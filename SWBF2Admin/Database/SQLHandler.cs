@@ -1,20 +1,20 @@
 ﻿/*
- * This file is part of SWBF2Admin (https://github.com/jweigelt/swbf2admin). 
- * Copyright(C) 2017, 2018  Jan Weigelt <jan@lekeks.de>
- *
- * SWBF2Admin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+* This file is part of SWBF2Admin (https://github.com/jweigelt/swbf2admin). 
+* Copyright(C) 2017, 2018  Jan Weigelt <jan@lekeks.de>
+*
+* SWBF2Admin is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 
- * SWBF2Admin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
- * GNU General Public License for more details.
+* SWBF2Admin is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+* GNU General Public License for more details.
 
- * You should have received a copy of the GNU General Public License
- * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
- */
+* You should have received a copy of the GNU General Public License
+* along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
+*/
 using System;
 using System.Data;
 using System.Data.Common;
@@ -78,7 +78,7 @@ namespace SWBF2Admin.Database
             if (SQLType == DbType.SQLite)
                 connection = new SQLiteConnection(string.Format("Data Source={0};", SQLiteFileName));
             else
-                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
+                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};KeepAlive=300;", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
 
             try
             {
@@ -626,6 +626,60 @@ namespace SWBF2Admin.Database
                 "@first_visit", GetTimestamp().ToString(),
                 "@ip", player.RemoteAddressStr,
                 "@name", player.Name);
+        }
+
+        public void InsertPlayerStatsExtra(Player player, GameInfo game, bool quit = false)
+        {
+            string sql = "INSERT INTO prefix_stats_extra " +
+                "(player_id, stat_kills, stat_deaths, stat_points, stat_captures, stat_team_kills, stat_team_id, stat_team, stat_quit, game_id) VALUES " +
+                "(@player_id, @kills, @deaths, @points, @captures, @team_kills, @team_id, @team, @quit, @game_id)";
+
+            if (player.Character != null)
+            {
+                NonQuery(sql,
+                "@player_id", player.DatabaseId,
+                "@kills", player.Character.Score.TotalKills,
+                "@deaths", player.Character.Score.Deaths,
+                "@points", player.Character.Score.Points,
+                "@captures", player.Character.Score.Captures,
+                "@team_kills", player.Character.Score.TeamKills,
+                "@team", player.Team,
+                "@team_id", player.Character.TeamID,
+                "@quit", (quit ? 1 : 0),
+                "@game_id", game.DatabaseId);
+            }
+            else
+            {
+                Logger.Log(LogLevel.Warning, "{0} extra stats could not be inserted. Character is null.", player.Name);
+            }
+        }
+
+        public PlayerStatistics GetPlayerMatchStats(Player player, GameInfo gameId)
+        {
+            string sql =
+                "SELECT " +
+                    "stat_kills, stat_deaths, stat_points, stat_captures, stat_team_kills, stat_team_id " +
+                    "FROM prefix_stats_extra " +
+                    "WHERE player_id = @player_id AND game_id = @game_id AND stat_quit = 1 " +
+                    "ORDER BY id DESC " +
+                    "LIMIT 1";
+
+            using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId, "@game_id", gameId.DatabaseId))
+            {
+                if (reader.Read())
+                {
+                    return new PlayerStatistics()
+                    {
+                        TotalTeamKills = RI(reader, "stat_team_kills"),
+                        TotalCaptures = RI(reader, "stat_captures"),
+                        TotalKills = RI(reader, "stat_kills"),
+                        TotalDeaths = RI(reader, "stat_deaths"),
+                        TotalScore = RI(reader, "stat_points"),
+                        TeamId = RI(reader, "stat_team_id")
+                    };
+                }
+            }
+            return null;
         }
 
         public void UpdatePlayer(Player player)

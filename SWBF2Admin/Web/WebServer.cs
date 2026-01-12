@@ -64,6 +64,7 @@ namespace SWBF2Admin.Web
             RegisterPage<DashboardPage>();
             RegisterPage<PlayersPage>();
             RegisterPage<ChatPage>();
+            RegisterPage<GameEditPage>();
 
             RegisterPage<BansPage>();
             RegisterPage<StatisticsPage>();
@@ -75,6 +76,8 @@ namespace SWBF2Admin.Web
 
             RegisterPage<WebUsersPage>();
             RegisterPage<AboutPage>();
+
+            RegisterPage<GameEditPage>();
 
             if (enabled) Start();
         }
@@ -100,7 +103,7 @@ namespace SWBF2Admin.Web
                 else
                 {
                     Logger.Log(LogLevel.Error, "Failed to start HttpListener ({0})", e.Message);
-                    throw e;
+                    throw;
                 }
             }
 
@@ -139,7 +142,7 @@ namespace SWBF2Admin.Web
                 catch (Exception e)
                 {
                     Logger.Log(LogLevel.Error, "Failed to register HttpPrefix. ({0})", e.Message);
-                    throw e;
+                    throw;
                 }
 
                 //Windows' UAC doesn't allow the redirection of stdout when using runas
@@ -166,10 +169,10 @@ namespace SWBF2Admin.Web
             {
                 while (running) HandleContext(listener.GetContext());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //catches exception when listener.Stop() is called
-                if (running) throw e;
+                if (running) throw;
             }
 
             Logger.Log(LogLevel.Info, Log.WEB_STOP, prefix);

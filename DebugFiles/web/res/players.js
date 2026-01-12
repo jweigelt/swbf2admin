@@ -14,6 +14,8 @@ function Players() {
         $(window).blur(base.hideQuickAdmin);
         $(document).click(base.hideQuickAdmin);
 
+        
+
         $("#players_a_swap").click(function (e) {
             e.preventDefault();
             base.quickAdmin({ Action: "players_swap" });
@@ -27,6 +29,11 @@ function Players() {
         $("#players_a_ban").click(function (e) {
             e.preventDefault();
             base.dialog.show(base.player);
+        });
+
+        $("#players_a_points").click(function (e) {
+            e.preventDefault();
+            base.quickAdmin({Action: "players_points", Points: 12});
         });
 
         $("#players_num_ban_duration").on('input propertychange paste', function (evt) {
