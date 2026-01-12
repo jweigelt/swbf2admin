@@ -59,7 +59,7 @@ namespace SWBF2Admin.Config
                     catch (Exception e)
                     {
                         Logger.Log(LogLevel.Error, Log.FILE_DIRECTORY_CREATE_ERROR, dir, e.ToString());
-                        throw;
+                        throw e;
                     }
                 }
             }
@@ -86,7 +86,7 @@ namespace SWBF2Admin.Config
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, Log.FILE_XML_PARSE_ERROR, fileName, typeof(T).ToString(), e.ToString());
-                throw;
+                throw e;
             }
         }
 
@@ -113,7 +113,7 @@ namespace SWBF2Admin.Config
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, Log.FILE_XML_CREATE_ERROR, fileName, typeof(T).ToString(), e.ToString());
-                throw;
+                throw e;
             }
         }
 
@@ -139,7 +139,7 @@ namespace SWBF2Admin.Config
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, Log.FILE_DEFAULT_UNPACK_ERROR, fileName, e.ToString());
-                throw;
+                throw e;
             }
         }
 
@@ -270,7 +270,7 @@ namespace SWBF2Admin.Config
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, "Failed to open stream \"{0}\" ({1})", fileName, e.Message);
-                throw;
+                throw e;
             }
         }
 
@@ -285,7 +285,7 @@ namespace SWBF2Admin.Config
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, "Failed write to {0} ({1}) \"{2}\"", address.ToString(), stream.Name, e.Message);
-                throw;
+                throw e;
             }
         }
 

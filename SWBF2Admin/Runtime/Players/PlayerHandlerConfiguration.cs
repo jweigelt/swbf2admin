@@ -38,5 +38,10 @@ namespace SWBF2Admin.Runtime.Players
         public List<ConditionalMessage> ConditionalMessages { get; set; } = new List<ConditionalMessage>();
 
         public bool EnablePlayerStatsLogging { get; set; } = true;
+
+        /// <summary>
+        /// When enabled, the server will attempt to inject stats to reconnecting players (players that disconnected mid match). 
+        /// </summary>
+        public bool PlayerReconnect { get; set; } = false;
     }
 }

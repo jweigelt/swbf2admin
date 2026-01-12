@@ -22,6 +22,7 @@ using SWBF2Admin.Runtime.Rcon.Packets;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Runtime.Game;
 using SWBF2Admin.Utility;
+using SWBF2Admin.Structures.InGame;
 
 namespace SWBF2Admin.Runtime.Players
 {
@@ -33,6 +34,8 @@ namespace SWBF2Admin.Runtime.Players
         public virtual List<Player> PlayerList { get { return playerList; } }
 
         private List<Player> playerList = new List<Player>();
+        public Dictionary<string, PlayerStatistics> pendingInjections = new Dictionary<string, PlayerStatistics>();
+
         private PlayerHandlerConfiguration config;
 
         public PlayerHandler(AdminCore core) : base(core) { }
@@ -64,6 +67,9 @@ namespace SWBF2Admin.Runtime.Players
             {
                 foreach (Player p in plp.PlayerList)
                 {
+                    Character c = CharacterUtils.GetCharacter(p.Slot - 1, Core.BF2.reader);
+                    p.Character = c;
+
                     if (playerList != null)
                     {
                         Player oldPlayer = GetPlayerByKeyHash(p.KeyHash);
@@ -71,6 +77,18 @@ namespace SWBF2Admin.Runtime.Players
                         {
                             SetupPlayer(p);
                             OnNewPlayerJoin(p);
+
+                            //Attach stats if they exist in the current game already
+                            if (Core.Game.LatestGame != null && config.PlayerReconnect)
+                            {
+                                PlayerStatistics stat = Core.Database.GetPlayerMatchStats(p, Core.Game.LatestGame);
+
+                                if (stat != null)
+                                {
+                                    Logger.Log(LogLevel.Info, "{0} is reconnecting, attempting to inject stats.", p.Name);
+                                    pendingInjections[p.KeyHash] = stat;
+                                }
+                            }
                         }
                         else
                         {
@@ -95,8 +113,52 @@ namespace SWBF2Admin.Runtime.Players
                 }
 
                 playerList = plp.PlayerList;
+                ProcessPendingInjections();
             }
         }
+
+        private void ProcessPendingInjections()
+        {
+            if (pendingInjections.Count == 0)
+            {
+                return;
+            }
+
+            var toRemove = new List<string>();
+
+            foreach (var kvp in pendingInjections)
+            {
+                Player p = GetPlayerByKeyHash(kvp.Key);
+                PlayerStatistics stat = kvp.Value;
+                if (p == null) { continue; }
+                if (p.Character == null) { continue; }
+
+                // If the player is still loading when packet request made
+                // the index will still be -1 and score will be wiped to 0 when they're finished loading
+                if (p.Character.Index > -1)
+                {
+                    toRemove.Add(p.KeyHash);
+
+                    // Inject stats
+                    p.Character.Score.SetPoints(stat.TotalScore);
+                    p.Character.Score.SetKills(stat.TeamId, stat.TotalKills);
+                    p.Character.Score.SetDeaths(stat.TeamId, stat.TotalDeaths);
+                    p.Character.Score.SetFlagCaps(stat.TeamId, stat.TotalCaptures);
+                    p.Character.Score.SetTeamKills(stat.TeamId, stat.TotalTeamKills);
+                    Logger.Log(LogLevel.Info, "Injected stats for reconnecting player '{0}'", p.Name);
+
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Verbose, "{0} still loading, will re-attempt stat injection.", p.Name);
+                }
+            }
+
+            // Remove after enumeration
+            foreach (var key in toRemove)
+                pendingInjections.Remove(key);
+        }
+
 
         /// <summary>
         /// Handles player's db data sets, attaches dbinfo to Player object 
@@ -154,6 +216,7 @@ namespace SWBF2Admin.Runtime.Players
             if (Core.Game.LatestGame != null)
             {
                 Core.Database.InsertPlayerStats(p, Core.Game.LatestGame, true);
+                Core.Database.InsertPlayerStatsExtra(p, Core.Game.LatestGame, true);
             }
         }
 
@@ -170,6 +233,7 @@ namespace SWBF2Admin.Runtime.Players
                 {
                     GameClosedEventArgs gce = (GameClosedEventArgs)e;
                     Core.Database.InsertPlayerStats(p, gce.Game);
+                    Core.Database.InsertPlayerStatsExtra((Player)p, gce.Game);
                 }
             }
         }
@@ -238,6 +302,15 @@ namespace SWBF2Admin.Runtime.Players
         }
 
         public Player GetPlayerBySlot(byte slot)
+        {
+            foreach (Player p in playerList)
+            {
+                if (p.Slot == slot) return p;
+            }
+            return null;
+        }
+
+        public Player GetPlayerBySlot(int slot)
         {
             foreach (Player p in playerList)
             {

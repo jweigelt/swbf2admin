@@ -51,7 +51,7 @@ namespace SWBF2Admin.Config
         public bool SetAffinity { get; set; } = false;
         public int ProcessAffinity { get; set; } = 0x0;
         public bool EnableRuntime { get; set; } = false;
-        public GameserverType ServerType { get; set; } = GameserverType.Aspyr;
+        public GameserverType ServerType { get; set; } = GameserverType.GoG;
 
         public bool EnableEmptyRestart { get; set; } = true;
         public int EmptyRestartThreshold { get; set; } = 3600;

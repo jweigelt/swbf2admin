@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using MoonSharp.Interpreter;
 using SWBF2Admin.Runtime.Players;
+using SWBF2Admin.Structures.InGame;
 
 namespace SWBF2Admin.Structures
 {
@@ -33,13 +34,18 @@ namespace SWBF2Admin.Structures
         public int Kills { get; set; }
         public int Deaths { get; set; }
         public int Score { get; set; }
+        public int Captures { get; set; }
+        public int TeamKills { get; set; }
         public string Team { get; set; }
+        public int TeamId { get; set; }
 
         public string Name { get; }
         public string KeyHash { get; }
         public bool IsBanned { get; set; }
 
         public int TotalVisits { get; set; }
+
+        public Character Character { get; set; }
 
         [JsonIgnore]
         public PlayerGroup MainGroup { get; set; }

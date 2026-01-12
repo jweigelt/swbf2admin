@@ -33,6 +33,7 @@ using SWBF2Admin.Runtime.Commands;
 using SWBF2Admin.Runtime.ApplyMods;
 using SWBF2Admin.Runtime.Watchdog;
 using SWBF2Admin.Plugins;
+using SWBF2Admin.Runtime.Readers;
 
 namespace SWBF2Admin
 {
@@ -60,6 +61,7 @@ namespace SWBF2Admin
         public CommandDispatcher Commands { get; }
         public LvlWriter Mods { get; }
         public PluginManager Plugins { get; }
+        public ProcessWriter BF2 { get; }
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
 
@@ -97,6 +99,7 @@ namespace SWBF2Admin
             Commands = new CommandDispatcher(this);
             Mods = new LvlWriter(this);
             Plugins = new PluginManager(this);
+            BF2 = new ProcessWriter(this);
         }
 
         public void Run(string[] args)
@@ -122,6 +125,7 @@ namespace SWBF2Admin
                 components.Add(Game);
                 components.Add(Commands);
                 components.Add(Mods);
+                components.Add(BF2);
 
                 if (Config.EnableEmptyRestart)
                 {
