@@ -215,8 +215,13 @@ namespace SWBF2Admin.Runtime.Players
             Logger.Log(LogLevel.Verbose, "Player {0} left.", p.Name);
             if (Core.Game.LatestGame != null)
             {
-                Core.Database.InsertPlayerStats(p, Core.Game.LatestGame, true);
-                Core.Database.InsertPlayerStatsExtra(p, Core.Game.LatestGame, true);
+                // Stats get wacky if a player leaves while not assigned to a team (Waiting for players.....) 
+                // Then on next rejoin the server recognizes a new game and assigns the joining players some bad points
+                if (p.Team != "Non")
+                {
+                    Core.Database.InsertPlayerStats(p, Core.Game.LatestGame, true);
+                    Core.Database.InsertPlayerStatsExtra(p, Core.Game.LatestGame, true);
+                }
             }
         }
 

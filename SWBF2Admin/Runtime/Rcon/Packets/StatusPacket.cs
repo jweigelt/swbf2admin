@@ -48,21 +48,6 @@ namespace SWBF2Admin.Runtime.Rcon.Packets
          * FF enabled  : yes
          * Heroes      : no
         **/
-
-        /**
-         * Server name : LeKeks test
-         * Server IP   : 192.168.188.93
-         * Version     : 1.00
-         * Max players : 35
-         * Current map : dea1c_con
-         * Next map    : dea1g_con
-         * Game mode   : CON
-         * Players     : 1/0/1
-         * Scores      : 0/0/0
-         * Tickets     : 450/450
-         * FF enabled  : no
-         * Heroes      : no
-        **/
         
         public override void HandleResponse(string response)
         {
