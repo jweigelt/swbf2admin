@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Net;
+using SWBF2Admin.Gameserver;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Structures.Attributes;
-using SWBF2Admin.Gameserver;
+using System;
+using System.Net;
 
 namespace SWBF2Admin.Web.Pages
 {

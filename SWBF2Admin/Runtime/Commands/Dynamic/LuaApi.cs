@@ -15,15 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Xml;
-using System.Collections.Generic;
-
+using MoonSharp.Interpreter;
+using SWBF2Admin.Runtime.ApplyMods;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Utility;
-using SWBF2Admin.Runtime.ApplyMods;
-
-using MoonSharp.Interpreter;
+using System;
+using System.Collections.Generic;
+using System.Xml;
 namespace SWBF2Admin.Runtime.Commands.Dynamic
 {
     /// <summary>

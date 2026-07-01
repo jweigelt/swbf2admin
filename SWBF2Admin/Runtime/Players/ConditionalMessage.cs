@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SWBF2Admin.Structures;
+using SWBF2Admin.Utility;
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using SWBF2Admin.Structures;
-using SWBF2Admin.Utility;
 
 namespace SWBF2Admin.Runtime.Players
 {

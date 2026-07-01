@@ -15,16 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
 using SWBF2Admin.Config;
+using SWBF2Admin.Runtime.Game;
 using SWBF2Admin.Runtime.Rcon.Packets;
 using SWBF2Admin.Structures;
-using SWBF2Admin.Runtime.Game;
-using SWBF2Admin.Utility;
 using SWBF2Admin.Structures.InGame;
-using System.Data;
-using System.Linq;
+using SWBF2Admin.Utility;
+using System;
+using System.Collections.Generic;
 
 namespace SWBF2Admin.Runtime.Players
 {

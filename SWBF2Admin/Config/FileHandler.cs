@@ -18,8 +18,8 @@
 using SWBF2Admin.Utility;
 using System;
 using System.IO;
-using System.Xml.Serialization;
 using System.Reflection;
+using System.Xml.Serialization;
 
 namespace SWBF2Admin.Config
 {

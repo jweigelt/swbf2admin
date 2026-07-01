@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+using SWBF2Admin.Structures;
 using System.Collections.Generic;
 using System.Linq;
-using SWBF2Admin.Structures;
 
 namespace SWBF2Admin.Runtime.Permissions
 {

@@ -15,16 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Net;
-using System.Collections.Generic;
-using System.Text;
-using System.Security.Cryptography;
-using System.Reflection;
-
 using SWBF2Admin.Structures;
-using System.Diagnostics;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SWBF2Admin.Utility
 {

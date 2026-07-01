@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System;
 using Newtonsoft.Json;
+using System;
 namespace SWBF2Admin.Structures
 {
     public class GameInfo

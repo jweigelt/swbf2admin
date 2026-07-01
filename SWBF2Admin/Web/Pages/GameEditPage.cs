@@ -16,10 +16,10 @@
  * along with SWBF2Admin. If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Net;
 using SWBF2Admin.Structures;
-using SWBF2Admin.Utility;
 using SWBF2Admin.Structures.InGame;
+using SWBF2Admin.Utility;
+using System.Net;
 namespace SWBF2Admin.Web.Pages
 {
     class GameEditPage : AjaxPage

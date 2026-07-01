@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+using SWBF2Admin.Utility;
 using System;
 using System.IO;
 using System.Net;
-using SWBF2Admin.Utility;
 
 namespace SWBF2Admin.Web.Pages
 {

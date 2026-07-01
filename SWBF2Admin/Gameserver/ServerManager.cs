@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System;
-using System.IO;
-using System.Diagnostics;
-
-using SWBF2Admin.Utility;
-using SWBF2Admin.Structures;
 using SWBF2Admin.Config;
+using SWBF2Admin.Structures;
+using SWBF2Admin.Utility;
+using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace SWBF2Admin.Gameserver
 {

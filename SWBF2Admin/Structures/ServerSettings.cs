@@ -15,12 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+using SWBF2Admin.Structures.Attributes;
+using SWBF2Admin.Utility;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-
-using SWBF2Admin.Structures.Attributes;
-using SWBF2Admin.Utility;
 namespace SWBF2Admin.Structures
 {
     //[ConfigFileInfo(fileName:"./server/settings/ServerSettings.cfg", Template = )

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SWBF2Admin.Maps.Lua;
+using System;
 using System.IO;
 using System.Text;
-using SWBF2Admin.Maps.Lua;
 
 namespace SWBF2Admin.Maps
 {

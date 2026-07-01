@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SWBF2Admin.Plugins
+﻿namespace SWBF2Admin.Plugins
 {
     public abstract class SWBF2AdminPlugin
     {

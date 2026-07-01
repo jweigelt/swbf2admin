@@ -1,7 +1,5 @@
 ﻿using SWBF2Admin.Runtime.Readers;
-using SWBF2Admin.Utility;
 using System;
-using System.Reflection;
 
 namespace SWBF2Admin.Structures.InGame
 {

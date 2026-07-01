@@ -15,17 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+using SWBF2Admin.Runtime.Rcon.Packets;
+using SWBF2Admin.Structures;
+using SWBF2Admin.Utility;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
-using SWBF2Admin.Config;
-using SWBF2Admin.Utility;
-using SWBF2Admin.Structures;
-using SWBF2Admin.Runtime.Rcon.Packets;
-using System.Collections.Generic;
 
 namespace SWBF2Admin.Runtime.Rcon
 {

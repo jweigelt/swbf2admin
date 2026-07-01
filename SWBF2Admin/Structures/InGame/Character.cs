@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SWBF2Admin.Runtime.Readers;
-using SWBF2Admin.Utility;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWBF2Admin.Structures.InGame
 {

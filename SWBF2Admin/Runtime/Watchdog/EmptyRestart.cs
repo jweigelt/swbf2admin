@@ -1,6 +1,6 @@
-﻿using System;
-using SWBF2Admin.Config;
+﻿using SWBF2Admin.Config;
 using SWBF2Admin.Utility;
+using System;
 
 namespace SWBF2Admin.Runtime.Watchdog
 {

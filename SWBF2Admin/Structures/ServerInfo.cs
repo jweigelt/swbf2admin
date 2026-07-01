@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
+using MoonSharp.Interpreter;
 using SWBF2Admin.Gameserver;
 using System;
-using MoonSharp.Interpreter;
 
 namespace SWBF2Admin.Structures
 {

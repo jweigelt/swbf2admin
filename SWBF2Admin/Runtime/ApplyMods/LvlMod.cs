@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
-using System.Xml.Serialization;
-using System.Collections.Generic;
-using SWBF2Admin.Config;
 using MoonSharp.Interpreter;
+using SWBF2Admin.Config;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace SWBF2Admin.Runtime.ApplyMods
 {

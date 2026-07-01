@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SWBF2Admin.Structures;
+using System.Collections.Generic;
 using System.Text;
-using SWBF2Admin.Structures;
 
 namespace SWBF2Admin.Export
 {
