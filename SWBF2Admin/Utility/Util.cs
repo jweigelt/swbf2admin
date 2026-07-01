@@ -24,11 +24,23 @@ using System.Reflection;
 
 using SWBF2Admin.Structures;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace SWBF2Admin.Utility
 {
     public class Util
     {
+        public static byte[] HexStrtoByteArray(string hexStr)
+        {
+            int numberChars = hexStr.Length;
+            byte[] bytes = new byte[numberChars / 2];
+            for (int i = 0; i < numberChars; i += 2)
+            {
+                bytes[i / 2] = byte.Parse(hexStr.Substring(i, 2), NumberStyles.HexNumber);
+            }
+            return bytes;
+        }
+
         public static byte[] StrToBytes(string str)
         {
             return Encoding.ASCII.GetBytes(str);

@@ -13,6 +13,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\cfg\process_mods.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Resources\cfg\core.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -23,6 +26,7 @@
     <EmbeddedResource Include="Resources\cfg\announce.xml" />
     <EmbeddedResource Include="Resources\cfg\game.xml" />
     <EmbeddedResource Include="Resources\cfg\players.xml" />
+    <EmbeddedResource Include="Resources\cfg\process_mods.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
@@ -43,6 +47,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   <PropertyGroup>
     <AssemblyTitle>SWBF2Admin</AssemblyTitle>

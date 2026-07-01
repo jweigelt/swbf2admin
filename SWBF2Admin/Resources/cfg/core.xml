@@ -19,7 +19,7 @@
     - GoG (GOG Galaxy variant)
     - Aspyr (2024 Aspyr Release)
   -->
-  <ServerType>Aspyr</ServerType>
+  <ServerType>GoG</ServerType>
   
   <!--
     path to server's GameData folder
@@ -71,6 +71,13 @@
   <CommandPrefix>!</CommandPrefix>
   <!--enable lua user scripted commands-->
   <CommandEnableDynamic>true</CommandEnableDynamic>
+
+  <!--
+    Enable memory reader to use things such as Process Mods or stat injections.
+    CAUTION:
+      Will cause crashes if process mods are used improperly. Currently, stat injection only supported for GoG version of server.
+  -->
+  <EnableMemoryReader>false</EnableMemoryReader>
 
   <!--
     SQL-database type:

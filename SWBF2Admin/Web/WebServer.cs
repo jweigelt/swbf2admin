@@ -64,6 +64,7 @@ namespace SWBF2Admin.Web
             RegisterPage<DashboardPage>();
             RegisterPage<PlayersPage>();
             RegisterPage<ChatPage>();
+            RegisterPage<GameEditPage>();
 
             RegisterPage<BansPage>();
             RegisterPage<StatisticsPage>();
@@ -75,6 +76,8 @@ namespace SWBF2Admin.Web
 
             RegisterPage<WebUsersPage>();
             RegisterPage<AboutPage>();
+
+            RegisterPage<GameEditPage>();
 
             if (enabled) Start();
         }

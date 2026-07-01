@@ -1,4 +1,4 @@
-﻿/*
+﻿ /*
  * This file is part of SWBF2Admin (https://github.com/jweigelt/swbf2admin). 
  * Copyright(C) 2017, 2018  Jan Weigelt <jan@lekeks.de>
  *
@@ -108,10 +108,7 @@ namespace SWBF2Admin.Database
             DbDataReader reader = null;
             try
             {
-                if (connection.State != ConnectionState.Open)
-                {
-                    connection.Open();
-                }
+                if (connection.State != ConnectionState.Open) { connection.Open(); }
                 reader = BuildCommand(query, parameters).ExecuteReader();
                 return reader;
             }
@@ -658,6 +655,60 @@ namespace SWBF2Admin.Database
                 "@first_visit", GetTimestamp().ToString(),
                 "@ip", player.RemoteAddressStr,
                 "@name", player.Name);
+        }
+
+        public void InsertPlayerStatsExtra(Player player, GameInfo game, bool quit = false)
+        {
+            string sql = "INSERT INTO prefix_stats_extra " +
+                "(player_id, stat_kills, stat_deaths, stat_points, stat_captures, stat_team_kills, stat_team_id, stat_team, stat_quit, game_id) VALUES " +
+                "(@player_id, @kills, @deaths, @points, @captures, @team_kills, @team_id, @team, @quit, @game_id)";
+
+            if (player.Character != null)
+            {
+                NonQuery(sql,
+                "@player_id", player.DatabaseId,
+                "@kills", player.Character.Score.TotalKills,
+                "@deaths", player.Character.Score.Deaths,
+                "@points", player.Character.Score.Points,
+                "@captures", player.Character.Score.Captures,
+                "@team_kills", player.Character.Score.TeamKills,
+                "@team", player.Team,
+                "@team_id", player.Character.TeamID,
+                "@quit", (quit ? 1 : 0),
+                "@game_id", game.DatabaseId);
+            }
+            else
+            {
+                Logger.Log(LogLevel.Warning, "{0} extra stats could not be inserted. Character is null.", player.Name);
+            }
+        }
+
+        public PlayerStatistics GetPlayerMatchStats(Player player, GameInfo gameId)
+        {
+            string sql =
+                "SELECT " +
+                    "stat_kills, stat_deaths, stat_points, stat_captures, stat_team_kills, stat_team_id " +
+                    "FROM prefix_stats_extra " +
+                    "WHERE player_id = @player_id AND game_id = @game_id AND stat_quit = 1 " +
+                    "ORDER BY id DESC " +
+                    "LIMIT 1";
+
+            using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId, "@game_id", gameId.DatabaseId))
+            {
+                if (reader.Read())
+                {
+                    return new PlayerStatistics()
+                    {
+                        TotalTeamKills = RI(reader, "stat_team_kills"),
+                        TotalCaptures = RI(reader, "stat_captures"),
+                        TotalKills = RI(reader, "stat_kills"),
+                        TotalDeaths = RI(reader, "stat_deaths"),
+                        TotalScore = RI(reader, "stat_points"),
+                        TeamId = RI(reader, "stat_team_id")
+                    };
+                }
+            }
+            return null;
         }
 
         public void UpdatePlayer(Player player)

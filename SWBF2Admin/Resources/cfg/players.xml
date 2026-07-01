@@ -5,6 +5,9 @@
   
   <!--enable statistics logging-->
   <EnablePlayerStatsLogging>false</EnablePlayerStatsLogging>
+
+  <!--Enable stat injection for reconnecting players-->
+  <PlayerReconnect>false</PlayerReconnect>
   
   <!--
     conditional admin broadcasts

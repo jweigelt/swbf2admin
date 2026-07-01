@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProcessWriterConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  <Mods>
+    
+    <!--Example process mod-->
+    <ProcessMod Name="ExampleMod" ApplyOnStart="false">
+      <ProcessEdits>
+        
+        <!--Example Edit 1-->
+        <ProcessEdit ModuleOffset="0x00000000" PatchedBytes="00" OriginalBytes="00"/>
+
+        <!--Example Edit 2-->
+        <ProcessEdit ModuleOffset="0x00000000" PatchedBytes="00" OriginalBytes="00"/>
+        
+      </ProcessEdits>
+    </ProcessMod>
+
+  </Mods>
+  
+</ProcessWriterConfig>
+
+
+

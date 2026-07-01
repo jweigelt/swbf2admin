@@ -33,7 +33,7 @@
     <LvlMod Name="droid_fast_heal">
       <HexEdits>
         <!--speed-->
-        <HexEdit FileName="ingame.lvl" StartAddress="002e7630" PatchedString="1.0" OriginalString="1.0"/>
+        <HexEdit FileName="ingame.lvl" StartAddress="002e7630" PatchedString="0.5" OriginalString="1.0"/>
         <!--heal power-->
         <HexEdit FileName="ingame.lvl" StartAddress="002e7640" PatchedString="100.0" OriginalString="25.00"/>
       </HexEdits>

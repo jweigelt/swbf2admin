@@ -31,6 +31,8 @@ namespace SWBF2Admin.Structures
             TotalScore = totalScore;
         }
 
+        public PlayerStatistics() { }
+
         public int GamesWon { get; set; }
         public int GamesLost { get; set; }
         public int GamesQuit { get; set; }
@@ -39,6 +41,9 @@ namespace SWBF2Admin.Structures
         public int TotalKills { get; set; }
         public int TotalDeaths { get; set; }
         public int TotalScore { get; set; }
+        public int TotalCaptures { get; set; }
+        public int TotalTeamKills { get; set; }
+        public int TeamId { get; set; }
 
         public virtual float TotalKDRatio { get { return (float)TotalKills / TotalDeaths; } }
         public virtual float TotalKGRatio { get { return (float)TotalKills / TotalGames; } }
