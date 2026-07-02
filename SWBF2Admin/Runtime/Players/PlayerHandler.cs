@@ -139,8 +139,7 @@ namespace SWBF2Admin.Runtime.Players
             {
                 Player p = GetPlayerByKeyHash(kvp.Key);
                 PlayerStatistics stat = kvp.Value;
-                if (p == null) { continue; }
-                if (p.Character == null) { continue; }
+                if (p == null || p.Character == null) { continue; }
 
                 // If the player is still loading when packet request made
                 // the index will still be -1 and score will be wiped to 0 when they're finished loading

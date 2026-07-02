@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWBF2Admin.Utility;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -49,12 +50,65 @@ namespace SWBF2Admin.Runtime.Readers
         private IntPtr hProc = IntPtr.Zero;
         private IntPtr moduleBase;
         public bool IsProcessOpen { get; private set; } =false;
-        public IntPtr GetModuleBase(int offset)
+        public IntPtr GetModuleBase(long offset)
         {
-            return IntPtr.Add(moduleBase, offset);
+            return new nint(moduleBase.ToInt64() + offset);
         }
 
+        public bool Is64Bit => IntPtr.Size == 8;
+
         #region open
+        public bool Open(Process process, string moduleName)
+        {
+            Logger.Log(LogLevel.Verbose, "Trying to open process module \"{0}\"...", moduleName);
+
+            if (process == null)
+            {
+                IsProcessOpen = false;
+                return false;
+            }
+
+            hProc = OpenProcess(ProcessAccessFlags.All, false, process.Id);
+
+            if (hProc == IntPtr.Zero)
+            {
+                IsProcessOpen = false;
+                return false;
+            }
+
+            process.Refresh();
+
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                moduleBase = process.MainModule.BaseAddress;
+            }
+            else
+            {
+                ProcessModule targetModule = null;
+
+                foreach (ProcessModule module in process.Modules)
+                {
+                    if (string.Equals(module.ModuleName, moduleName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        targetModule = module;
+                        break;
+                    }
+                }
+
+                if (targetModule == null)
+                {
+                    Logger.Log(LogLevel.Warning, "Could not find module \"{0}\" in process.", moduleName);
+                    IsProcessOpen = false;
+                    return false;
+                }
+
+                moduleBase = targetModule.BaseAddress;
+                Logger.Log(LogLevel.Info, "Found module \"{0}\"", moduleName);
+            }
+            IsProcessOpen = true;
+            return true;
+        }
+
         public void Open(int pid)
         {
             try
@@ -202,9 +256,11 @@ namespace SWBF2Admin.Runtime.Readers
 
         public IntPtr ReadPtr(IntPtr address)
         {
-            byte[] buf = new byte[4];
-            ReadProcessMemory(hProc, address, buf, 4, out IntPtr read);
-            return IntPtr.Add(IntPtr.Zero, BitConverter.ToInt32(buf, 0));
+            byte[] buf = new byte[IntPtr.Size];
+            ReadProcessMemory(hProc, address, buf, buf.Length, out _);
+            return IntPtr.Size == 8
+                ? new nint(BitConverter.ToInt64(buf, 0))
+                : new nint(BitConverter.ToInt32(buf, 0));
         }
         #endregion
 

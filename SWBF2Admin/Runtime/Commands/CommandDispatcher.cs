@@ -79,6 +79,7 @@ namespace SWBF2Admin.Runtime.Commands
             RegisterCommand<CmdGimmeAdmin>();
 
             RegisterCommand<CmdApplyMods>();
+            RegisterCommand<CmdProcessMods>();
 
             Permission.InitPermissions(Core.Database.GetPermissions());
 

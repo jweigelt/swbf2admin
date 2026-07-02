@@ -25,7 +25,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
             set
             {
                 value = value.Replace("0x", "");
-                _redirectOffset = int.Parse(value, NumberStyles.HexNumber);
+                _redirectOffset = long.Parse(value.Replace("0x", ""), NumberStyles.HexNumber);
             }
         }
 
@@ -44,15 +44,20 @@ namespace SWBF2Admin.Runtime.ProcessMods
             set 
             { 
                 value = value.Replace("0x", ""); 
-                _customAddresses = value.Split(',').Select(x => int.Parse(x, NumberStyles.HexNumber)).ToList();
+                _customAddresses = value
+                    .Replace("0x", "")
+                    .Split(',')
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => long.Parse(x, NumberStyles.HexNumber))
+                    .ToList();
             }
         }
 
         private IntPtr CaveAddress;
         private IntPtr JmpAddress;
-        private int _redirectOffset;
+        private long _redirectOffset;
         private byte[] _caveBytes;
-        private List<int> _customAddresses;
+        private List<long> _customAddresses;
 
         [MoonSharpHidden]
         public void CreateCodeCave(ProcessMemoryReader reader)
@@ -77,20 +82,36 @@ namespace SWBF2Admin.Runtime.ProcessMods
             reader.WriteBytes(CaveAddress, _caveBytes);
         }
         [MoonSharpHidden]
+        private byte[] GetJmpBytes()
+        {
+            return IntPtr.Size == 8 ? GetAbsJmpBytes(CaveAddress) : GetRelJmpBytes(CaveAddress);
+        }
+
+        [MoonSharpHidden]
         private byte[] GetJmpBackBytes()
         {
-            byte[] jmpByte = new byte[]
+            long returnAddr = JmpAddress.ToInt64() + OriginalBytes.Length;
+            return IntPtr.Size == 8
+                ? GetAbsJmpBytes(new IntPtr(returnAddr), padTooOriginalLength: false)
+                : GetRelJmpBackBytes(returnAddr);
+        }
+
+        [MoonSharpHidden]
+        private byte[] GetRelJmpBackBytes(long returnAddr)
+        {
+            byte[] jmpBytes = new byte[]
             {
                 0xE9, 0, 0, 0, 0
             };
-            int endOfCodeCave = (int)CaveAddress + _caveBytes.Length;
-            int endOfOverwrite = (int)JmpAddress + (OriginalBytes.Length - 5);
-            int displacement = endOfOverwrite - endOfCodeCave;
-            BitConverter.GetBytes(displacement).CopyTo(jmpByte, 1);
-            return jmpByte;
+
+            long endOfCave = CaveAddress.ToInt64() + _caveBytes.Length + 5;
+            int displacement = checked((int)(returnAddr - endOfCave));
+            BitConverter.GetBytes(displacement).CopyTo(jmpBytes, 1);
+            return jmpBytes;
         }
+
         [MoonSharpHidden]
-        private byte[] GetJmpBytes()
+        private byte[] GetRelJmpBytes(IntPtr dst)
         {
             byte[] jmpBytes = new byte[]
             {
@@ -98,7 +119,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
             };
 
             //Calc relative offset from cave address to jmp address
-            int displacement = (int)CaveAddress - ((int)JmpAddress + 5);
+            int displacement = checked((int)(dst.ToInt64() - (JmpAddress.ToInt64() + 5)));
 
             // Put the displacement in bytes into jmp bytes ( jmp 0x12345678 ) 
             BitConverter.GetBytes(displacement).CopyTo(jmpBytes, 1);
@@ -117,6 +138,38 @@ namespace SWBF2Admin.Runtime.ProcessMods
             }
             return jmpBytes;
         }
+
+        [MoonSharpHidden]
+        private byte[] GetAbsJmpBytes(IntPtr dst, bool padTooOriginalLength = true)
+        {
+            byte[] jmpBytes = new byte[]
+            {
+                0x48, 0xB8, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xE0, // mov rax, dst
+            };
+
+            BitConverter.GetBytes((long)dst).CopyTo(jmpBytes, 2);
+
+            return padTooOriginalLength
+                ? PadWithNops(jmpBytes, OriginalBytes.Length)
+                : jmpBytes;
+        }
+
+        [MoonSharpHidden]
+        private byte[] PadWithNops(byte[] bytes, int totalLength)
+        {
+            if (bytes.Length > totalLength)
+            {
+                throw new InvalidOperationException($"Detour needs {bytes.Length} bytes, but OriginalBytes only has {totalLength} bytes.");
+            }
+
+            if (bytes.Length == totalLength)
+            {
+                return bytes;
+            }
+
+            return bytes.Concat(Enumerable.Repeat((byte)0x90, totalLength - bytes.Length)).ToArray();
+        }
+
         [MoonSharpHidden]
         public void RemoveCave(ProcessMemoryReader reader)
         {
@@ -133,14 +186,16 @@ namespace SWBF2Admin.Runtime.ProcessMods
             {
                 IntPtr address = reader.GetModuleBase(_customAddresses[i]);
 
-                byte[] addressBytes = BitConverter.GetBytes((int)address);
+                byte[] addressBytes = IntPtr.Size == 8
+                    ? BitConverter.GetBytes(address.ToInt64())
+                    : BitConverter.GetBytes(address.ToInt32());
+
                 // basically does the address backwards in str (little endian??? idk) and pads a 0 if it's smaller than 0xF
-                string adressString = string.Join("", addressBytes.Select(x => x > 0xF ? x.ToString("X") : "0"+x.ToString("X")));
+                string adressString = string.Join("", addressBytes.Select(x => x.ToString("X2")));
 
-                string placeholder = "{" + i + "}";
-
-                caveStr = caveStr.Replace(placeholder, adressString);
+                caveStr = caveStr.Replace("{" + i + "}", adressString);
             }
+
             return Util.HexStrtoByteArray(caveStr);
         }
     }

@@ -15,11 +15,16 @@ namespace SWBF2Admin.Runtime.Readers
         private ProcessWriterConfig config;
         public ProcessWriter(AdminCore core) : base(core) { }
         public bool IsWarmup = true;
+        private string moduleName = "BattlefrontII.exe";
 
         public override void Configure(CoreConfiguration config)
         {
             // Implement the configuration logic for your memory reader
             this.config = Core.Files.ReadConfig<ProcessWriterConfig>();
+            if (config.ServerType == GameserverType.Aspyr)
+            {
+                moduleName = "Battlefront2.dll";
+            }
         }
 
         public override void OnInit()
@@ -27,17 +32,13 @@ namespace SWBF2Admin.Runtime.Readers
             if (Core.Server.ServerProcess != null)
             {
                 Logger.Log(LogLevel.Verbose, "Found running process. Trying to open reader");
-                if (reader.Open(Core.Server.ServerProcess))
-                {
-                    ProcessOpened = true;
-                }
+                TryOpenReader();
             }
         }
         public override void OnServerStart(EventArgs e)
         {
-            if (reader.Open(Core.Server.ServerProcess))
+            if (TryOpenReader())
             {
-                ProcessOpened = true;
                 foreach (ProcessMod mod in Mods)
                 {
                     try
@@ -45,6 +46,7 @@ namespace SWBF2Admin.Runtime.Readers
                         if (mod.ApplyOnStart)
                         {
                             mod.Apply(reader);
+
                         }else if (mod.RevertOnStart)
                         {
                             mod.Revert(reader);
@@ -58,6 +60,7 @@ namespace SWBF2Admin.Runtime.Readers
             }
             EnableUpdates();
         }
+
         public override void OnServerStop()
         {
             ProcessOpened = false;
@@ -70,6 +73,27 @@ namespace SWBF2Admin.Runtime.Readers
         public void RevertMod(ProcessMod mod)
         {
             mod.Revert(reader);
+        }
+
+        private bool TryOpenReader(int maxAttempts = 100, int sleepMs = 100)
+        {
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                if (Core.Server.ServerProcess == null || Core.Server.ServerProcess.HasExited)
+                    return false;
+
+                if (reader.Open(Core.Server.ServerProcess, moduleName))
+                {
+                    ProcessOpened = true;
+                    return true;
+                }
+
+                System.Threading.Thread.Sleep(sleepMs);
+
+            }
+
+            Logger.Log(LogLevel.Warning, "Failed to attach process reader to module \"{0}\".", moduleName);
+            return false;
         }
     }
 }

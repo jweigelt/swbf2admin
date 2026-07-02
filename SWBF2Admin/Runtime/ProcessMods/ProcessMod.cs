@@ -1,5 +1,6 @@
 ﻿using MoonSharp.Interpreter;
 using SWBF2Admin.Runtime.Readers;
+using SWBF2Admin.Utility;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
@@ -30,12 +31,15 @@ namespace SWBF2Admin.Runtime.ProcessMods
             foreach (ProcessEdit edit in ProcessEdits)
             {
                 edit.Apply(reader);
+                
             }
 
             foreach (CodeCave codeCave in CodeCaves)
             {
                 codeCave.CreateCodeCave(reader);
             }
+
+            Logger.Log(LogLevel.Info, "Applied mod {0}", Name);
         }
         [MoonSharpHidden]
         public void Revert(ProcessMemoryReader reader)
@@ -49,6 +53,8 @@ namespace SWBF2Admin.Runtime.ProcessMods
             {
                 cc.RemoveCave(reader);
             }
+
+            Logger.Log(LogLevel.Info, "Reverted mod {0}", Name);
         }
     }
 }
