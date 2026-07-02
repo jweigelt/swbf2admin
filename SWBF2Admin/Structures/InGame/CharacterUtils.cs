@@ -1,4 +1,5 @@
 ﻿using SWBF2Admin.Runtime.Readers;
+using SWBF2Admin.Utility;
 using System;
 
 namespace SWBF2Admin.Structures.InGame
@@ -22,6 +23,7 @@ namespace SWBF2Admin.Structures.InGame
             }
 
             IntPtr tablePtr = GetCharTableBase(reader);
+            Logger.Log(LogLevel.Verbose, $"tablePtr address: 0x{tablePtr.ToInt64():X}");
             if (tablePtr == IntPtr.Zero)
             {
                 throw new InvalidOperationException("Failed to retrieve the character table base address.");

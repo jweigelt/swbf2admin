@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SWBF2Admin.Runtime.Readers;
+using SWBF2Admin.Utility;
 using System;
 
 namespace SWBF2Admin.Structures.InGame
@@ -134,6 +135,8 @@ namespace SWBF2Admin.Structures.InGame
         #region setters
         public void SetPoints(int value)
         {
+            Logger.Log(LogLevel.Verbose, $"WriteInt16 points addr=0x{baseAddr.ToInt64():X}, value={value}");
+
             reader.WriteInt16(IntPtr.Add(baseAddr, (int)PointsOffsets.All), value);
         }
         public void SetKills(int teamId, int value)

@@ -55,7 +55,18 @@ namespace SWBF2Admin.Runtime.Readers
             return new nint(moduleBase.ToInt64() + offset);
         }
 
-        public bool Is64Bit => IntPtr.Size == 8;
+        private int targetPointerSize = 4;
+
+        public bool IsTarget64Bit => targetPointerSize == 8;
+
+        public void SetTargetPointerSize(int size)
+        {
+            if (size != 4 && size != 8)
+            {
+                throw new ArgumentException("Pointer size must be either 4 or 8 bytes.");
+            }
+            targetPointerSize = size;
+        }
 
         #region open
         public bool Open(Process process, string moduleName)
@@ -103,7 +114,7 @@ namespace SWBF2Admin.Runtime.Readers
                 }
 
                 moduleBase = targetModule.BaseAddress;
-                Logger.Log(LogLevel.Info, "Found module \"{0}\"", moduleName);
+                Logger.Log(LogLevel.Verbose, "Found module \"{0}\"", moduleName);
             }
             IsProcessOpen = true;
             return true;
@@ -256,11 +267,18 @@ namespace SWBF2Admin.Runtime.Readers
 
         public IntPtr ReadPtr(IntPtr address)
         {
-            byte[] buf = new byte[IntPtr.Size];
-            ReadProcessMemory(hProc, address, buf, buf.Length, out _);
-            return IntPtr.Size == 8
-                ? new nint(BitConverter.ToInt64(buf, 0))
-                : new nint(BitConverter.ToInt32(buf, 0));
+            byte[] buf = new byte[targetPointerSize];
+
+            if (!ReadProcessMemory(hProc, address, buf, buf.Length, out IntPtr read) || read.ToInt64() != buf.Length)
+            {
+                int err = Marshal.GetLastWin32Error();
+                throw new Win32Exception(err, $"ReadPtr failed at 0x{address.ToInt64():X}");
+            }
+
+            return targetPointerSize == 8
+                ? new IntPtr(BitConverter.ToInt64(buf, 0))
+                : new IntPtr(BitConverter.ToInt32(buf, 0));
+
         }
         #endregion
 
