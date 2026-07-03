@@ -15,6 +15,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\cfg\process_mods.xml" />
+    <None Remove="Resources\cfg\process_mods.aspyr.xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\cfg\core.xml" />
@@ -28,6 +29,7 @@
     <EmbeddedResource Include="Resources\cfg\game.xml" />
     <EmbeddedResource Include="Resources\cfg\players.xml" />
     <EmbeddedResource Include="Resources\cfg\process_mods.xml" />
+    <EmbeddedResource Include="Resources\cfg\process_mods.aspyr.xml" />
     <EmbeddedResource Include="Resources\cfg\schedule.xml" />
   </ItemGroup>
   <ItemGroup>

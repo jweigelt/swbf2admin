@@ -19,9 +19,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
         [XmlAttribute]
         public bool RevertOnStart { get; set; } = false;
 
-        //Persisted enable/disable state shown in the WebAdmin.
-        //Missing attribute deserializes to false (disabled). Kept in sync with ApplyOnStart when toggled.
-        [XmlAttribute]
+        [XmlIgnore]
         public bool Enabled { get; set; } = false;
 
         [MoonSharpHidden]

@@ -67,6 +67,9 @@ namespace SWBF2Admin.Structures
         [ConfigSection(ConfigSection.GENERAL)]
         public string NetRegion { get; set; } = "EU";
 
+        [ConfigSection(ConfigSection.GENERAL)]
+        public string Platform { get; set; } = "pc";
+
         [ConfigSection(ConfigSection.GENERAL_KEEPDEFAULT)]
         public string VideoStd { get; set; } = "NTSC";
 

@@ -2,39 +2,31 @@
 <ProcessWriterConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-  <Mods>
-
-    <!-- Simple byte patch -->
-    <ProcessMod Name="ExamplePatch" ApplyOnStart="false">
-      <ProcessEdits>
-
-        <!-- Offset -->
-        <ProcessEdit
+	<Mods>
+		<!-- Simple byte patch -->
+		<ProcessMod Name="ExamplePatch" ApplyOnStart="false">
+			<ProcessEdits>
+				<!-- Offset -->
+				<ProcessEdit
           ModuleOffset="0x00000000"
           OriginalBytes="00"
           PatchedBytes="90"/>
+			</ProcessEdits>
+		</ProcessMod>
 
-      </ProcessEdits>
-    </ProcessMod>
-
-    <!-- Code Cave Template -->
-    <ProcessMod Name="ExampleCodeCave" ApplyOnStart="false">
-      <CodeCaves>
-
-        <!--
+		<!-- Code Cave Template -->
+		<ProcessMod Name="ExampleCodeCave" ApplyOnStart="false">
+			<CodeCaves>
+				<!--
           CustomAddresses are module offsets and will be converted to full addresses using module offset and base address. 
         -->
-
-        <CodeCave
+				<CodeCave
           MemoryAllocatedSize="512"
           RedirectModuleOffset="0x00000000"
           OriginalBytes="0000000000"
           CustomAddresses="0x1BA9C3C"
           CaveBytes="48B8{0}"/>
-
-      </CodeCaves>
-    </ProcessMod>
-
-  </Mods>
-
+			</CodeCaves>
+		</ProcessMod>
+	</Mods>
 </ProcessWriterConfig>

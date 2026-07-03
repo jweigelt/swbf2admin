@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProcessWriterConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+										 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<Mods>
+		<!-- ASPYR (Classic Collection) PROCESS MODS -->
+		
+		<!-- Instant Spawn - Overrides spawn delay patch -->
+		<ProcessMod Name="instant_spawn" ApplyOnStart="false">
+			<ProcessEdits>
+				<!-- Offset -->
+				<ProcessEdit
+					ModuleOffset="0xC0520"
+					OriginalBytes="FFC2"
+					PatchedBytes= "9090"/>
+			</ProcessEdits>
+		</ProcessMod>
+
+		<!-- 
+			Spawn delay patch || 41700000 = 15 || 40E00000 = 7 || 40400000 = 3
+			
+			If enabled/disabled, change will be seen after a map change
+			
+			Note: This value is overwritten by the "Spawn Delay" option in Game Settings
+		-->
+		<ProcessMod Name="spawn_delay" ApplyOnStart="false">
+			<ProcessEdits>
+				<!-- Offset -->
+				<ProcessEdit
+					ModuleOffset="0x504524"
+					OriginalBytes="41700000"
+					PatchedBytes= "40E00000"/>
+			</ProcessEdits>
+		</ProcessMod>
+
+		<!--
+			NoTeamDamage_Aspyr
+
+			Hook at Battlefront2.dll+FE019:
+				push rax
+				jmp Battlefront2.dll+FE923      ; relative jump to nearby INT3 stub
+				nop 2
+
+			Stub at Battlefront2.dll+FE923:
+				; CodeCave writer places trampoline/stub here
+				; Stub performs absolute jump to allocated cave memory
+
+			Cave:
+				mov rax,[r15]                    ; rax = attacking character
+				test rax,rax
+				je applyModifier
+
+				cmp rax,[r14+000004A0]           ; compare attacker character to victim entity's character
+				je skipModifier                  ; same character/self damage -> skip team modifier
+
+			applyModifier:
+				pop rax
+				mov r11,Battlefront2.dll+63B460  ; original float modifier address
+				mulss xmm6,[r11]
+				mov r11,Battlefront2.dll+FE021   ; return after overwritten bytes
+				jmp r11
+
+			skipModifier:
+				pop rax
+				mov r11,Battlefront2.dll+FE021
+				jmp r11
+		-->
+		<ProcessMod Name="no_team_damage" ApplyOnStart="false">
+			<ProcessEdits>
+				<ProcessEdit
+					ModuleOffset="0xFE019"
+					OriginalBytes="F30F59353FD45300"
+					PatchedBytes="50E9040900006690"/>
+			</ProcessEdits>
+
+			<CodeCaves>
+				<CodeCave
+					MemoryAllocatedSize="512"
+					RedirectModuleOffset="0xFE923"
+					OriginalBytes="CCCCCCCCCCCCCCCCCCCCCCCCCC"
+					CustomAddresses="0x63B460,0xFE021"
+					CaveBytes="498B074885C00F840D000000493B86A00400000F841D0000005849BB{0}F3410F593349BB{1}41FFE35849BB{1}41FFE3"/>
+			</CodeCaves>
+		</ProcessMod>
+
+		<!--
+			MapHangFix_Aspyr
+
+			The gate function Battlefront2.dll+69120 (galaxy NetIsHost @0x5B6070) is
+			polled every netcode tick. Its first instruction reads a loading/endgame
+			flag; while set, the gate keeps taking the "endgame work" path which can
+			hang indefinitely. Galaxy fixes this by detouring the flag read into a
+			watchdog: it counts ticks and, after 100, forces the gate to report "done"
+			so the game breaks out of the hang loop. The counter is reset whenever the
+			map returns to idle (MAP_STATUS == 0).
+
+			Hook at Battlefront2.dll+69124 (7 bytes, movzx eax,byte[flag 0xE765CC]):
+				jmp Battlefront2.dll+69112      ; relative jump into the INT3 pad gap
+				nop 2                            ; that precedes the gate function
+
+			Stub at Battlefront2.dll+69112 (14-byte INT3 pad):
+				; CodeCave writer installs an absolute jump to the allocated cave here.
+
+			Cave (self-contained watchdog; does NOT re-run the original movzx):
+				mov  r11, MAP_STATUS            ; {0} = Battlefront2.dll+AEFF90
+				cmp  dword [r11], 0
+				jne  skip_reset                 ; not idle -> keep counting
+				mov  dword [rip+counter], 0     ; idle -> reset the tick counter
+			skip_reset:
+				inc  dword [rip+counter]
+				cmp  dword [rip+counter], 0x64  ; 100-tick timeout
+				jb   normal
+				xor  eax, eax                   ; timeout -> force gate to report "done"
+				jmp  retn
+			normal:
+				mov  eax, 1                     ; nonzero -> gate keeps doing endgame work
+			retn:
+				mov  r11, RETN                  ; {1} = Battlefront2.dll+6912B (test eax,eax)
+				jmp  r11                        ; preserves eax (return value)
+			counter:
+				dd   0
+
+			eax is the gate's return register (the original movzx overwrote it anyway),
+			so clobbering rax in the trampoline is harmless. The cave jumps back through
+			r11 before reaching the framework's auto-appended jump-back, keeping eax.
+		-->
+		<ProcessMod Name="maphang_fix" ApplyOnStart="false">
+			<ProcessEdits>
+				<ProcessEdit
+					ModuleOffset="0x69124"
+					OriginalBytes="0FB605A1D4C000"
+					PatchedBytes="E9E9FFFFFF9090"/>
+			</ProcessEdits>
+
+			<CodeCaves>
+				<CodeCave
+					MemoryAllocatedSize="128"
+					RedirectModuleOffset="0x69112"
+					OriginalBytes="CCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+					CustomAddresses="0xAEFF90,0x6912B"
+					CaveBytes="49BB{0}41833B00750AC7052500000000000000FF051F000000833D1800000064720433C0EB05B80100000049BB{1}41FFE300000000"/>
+			</CodeCaves>
+		</ProcessMod>
+
+		<!--
+			DistanceLagFix_Aspyr (playerMovesPatch)
+
+			Galaxy: mov dword[ebp-0x1c], 5 @0x5D38B5, imm low byte 0x05 @0x5D38B8.
+			CC:     mov dword[rsp+0x40], 5 @0x18028DA82, imm low byte 0x05 @0x18028DA86
+			        (file offset 0x28CE86 -> module RVA 0x28DA86).
+		-->
+		<ProcessMod Name="distance_lag_fix" ApplyOnStart="false">
+			<ProcessEdits>
+				<ProcessEdit
+					ModuleOffset="0x28DA86"
+					OriginalBytes="05"
+					PatchedBytes="20"/>
+			</ProcessEdits>
+		</ProcessMod>
+
+		<!--
+			PlatformLobby_Aspyr
+
+			Valid codes: pc, ps (PlayStation), xb (Xbox) and ns (Nintendo Switch).
+
+			All two ASCII bytes. Requires a server restart to change.
+
+			Note: This value is overwritten by the "Platform Lobby" option in General Settings
+		-->
+		<ProcessMod Name="platform_lobby" ApplyOnStart="true">
+			<ProcessEdits>
+				<ProcessEdit
+					ModuleOffset="0x64AA58"
+					OriginalBytes="7063"
+					PatchedBytes="7063"/>
+			</ProcessEdits>
+		</ProcessMod>
+	</Mods>
+</ProcessWriterConfig>
