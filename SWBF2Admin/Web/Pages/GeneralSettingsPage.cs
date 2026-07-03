@@ -16,6 +16,7 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using SWBF2Admin.Gameserver;
+using SWBF2Admin.Runtime.Watchdog;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Structures.Attributes;
 using System;
@@ -43,16 +44,28 @@ namespace SWBF2Admin.Web.Pages
         class GeneralSettingsApiParams : ApiRequestParams
         {
             public ServerSettings Settings { get; set; }
+            public bool EnableScheduledRestart { get; set; }
+            public int RestartThresholdMinutes { get; set; }
+            public bool EnableRestartAnnouncement { get; set; }
+            public int AnnouncementIntervalMinutes { get; set; }
         }
 
         class GeneralSettingsResponse
         {
             public ServerSettings Settings { get; }
             public List<DeviceInfo> NetworkDevices { get; }
-            public GeneralSettingsResponse(ServerSettings settings, List<DeviceInfo> networkDevices)
+            public bool EnableScheduledRestart { get; }
+            public int RestartThresholdMinutes { get; }
+            public bool EnableRestartAnnouncement { get; }
+            public int AnnouncementIntervalMinutes { get; }
+            public GeneralSettingsResponse(ServerSettings settings, List<DeviceInfo> networkDevices, ScheduleConfiguration schedule)
             {
                 Settings = settings;
                 NetworkDevices = networkDevices;
+                EnableScheduledRestart = schedule.EnableScheduledRestart;
+                RestartThresholdMinutes = schedule.RestartThreshold / 60;
+                EnableRestartAnnouncement = schedule.EnableRestartAnnouncement;
+                AnnouncementIntervalMinutes = schedule.AnnouncementInterval / 60;
             }
         }
 
@@ -99,7 +112,8 @@ namespace SWBF2Admin.Web.Pages
             {
                 case "general_get":
                     ServerSettings s = Core.Server.Settings;
-                    WebAdmin.SendHtml(ctx, ToJson(new GeneralSettingsResponse(s, GetNetworkDevices())));
+                    ScheduleConfiguration schedule = Core.Files.ReadConfig<ScheduleConfiguration>();
+                    WebAdmin.SendHtml(ctx, ToJson(new GeneralSettingsResponse(s, GetNetworkDevices(), schedule)));
                     break;
 
                 case "general_set":
@@ -111,9 +125,18 @@ namespace SWBF2Admin.Web.Pages
                         Core.Scheduler.PushTask(() => Core.Rcon.UpdateServerSettings(changes));
                     }
 
+                    //preserve the announcement text (not editable in WebAdmin) by loading the existing config first
+                    ScheduleConfiguration scheduleCfg = Core.Files.ReadConfig<ScheduleConfiguration>();
+                    scheduleCfg.EnableScheduledRestart = p.EnableScheduledRestart;
+                    scheduleCfg.RestartThreshold = p.RestartThresholdMinutes * 60;
+                    scheduleCfg.EnableRestartAnnouncement = p.EnableRestartAnnouncement;
+                    scheduleCfg.AnnouncementInterval = p.AnnouncementIntervalMinutes * 60;
+
                     try
                     {
                         Core.Server.Settings.WriteToFile(Core);
+                        Core.Files.WriteConfig(scheduleCfg);
+                        if (Core.Config.EnableRuntime) Core.Scheduler.PushTask(() => Core.Schedule.ReloadConfig());
                         WebAdmin.SendHtml(ctx, ToJson(new GeneralSettingsSaveResponse()));
                     }
                     catch (Exception e)

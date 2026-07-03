@@ -28,6 +28,7 @@
     <EmbeddedResource Include="Resources\cfg\game.xml" />
     <EmbeddedResource Include="Resources\cfg\players.xml" />
     <EmbeddedResource Include="Resources\cfg\process_mods.xml" />
+    <EmbeddedResource Include="Resources\cfg\schedule.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />

@@ -50,6 +50,10 @@ function General() {
     this.saveSettings = function () {
         var settings = {
             Action: "general_set",
+            EnableScheduledRestart: $("#general_input_scheduledrestart_enable").prop("checked"),
+            RestartThresholdMinutes: parseInt($("#general_input_scheduledrestart_threshold").val()),
+            EnableRestartAnnouncement: $("#general_input_scheduledrestart_announce_enable").prop("checked"),
+            AnnouncementIntervalMinutes: parseInt($("#general_input_scheduledrestart_announce_interval").val()),
             Settings: {
                 GameName: $("#general_input_session_name").val(),
                 Password: $("#general_input_password").val(),
@@ -104,7 +108,12 @@ function General() {
         $("#general_input_splitupdate_enable").prop("checked", s.SplitUpdate);
         $("#general_input_droplagjumps_enable").prop("checked", s.DropLagJumps);
         $("#general_input_waitlate_enable").prop("checked", s.WaitLate);
-    
+
+        $("#general_input_scheduledrestart_enable").prop("checked", r.EnableScheduledRestart);
+        $("#general_input_scheduledrestart_threshold").val(r.RestartThresholdMinutes);
+        $("#general_input_scheduledrestart_announce_enable").prop("checked", r.EnableRestartAnnouncement);
+        $("#general_input_scheduledrestart_announce_interval").val(r.AnnouncementIntervalMinutes);
+
         if ($("#general_select_ipa option:selected").length < 1) {
             $("#general_select_ipa option:first").prop('selected', true);
         }

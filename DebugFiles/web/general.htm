@@ -97,7 +97,29 @@
         </tr>   
       </table>   
     </div>
-    
+
+    <div class="item">
+      <span>Auto Restart</span>
+      <table class="status embedded">
+        <tr>
+          <th>Scheduled restart</th>
+          <td><input type="checkbox" id="general_input_scheduledrestart_enable"></td>
+        </tr>
+        <tr>
+          <th>Restart after (minutes)</th>
+          <td><input id="general_input_scheduledrestart_threshold" type="number" min="1"></td>
+        </tr>
+        <tr>
+          <th>Restart announcements</th>
+          <td><input type="checkbox" id="general_input_scheduledrestart_announce_enable"></td>
+        </tr>
+        <tr>
+          <th>Announcement interval (minutes)</th>
+          <td><input id="general_input_scheduledrestart_announce_interval" type="number" min="1"></td>
+        </tr>
+      </table>
+    </div>
+
   </div>
 </div>
 <script type="text/javascript" src="/res/general.js"></script>

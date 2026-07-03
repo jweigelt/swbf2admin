@@ -62,6 +62,7 @@ namespace SWBF2Admin
         public LvlWriter Mods { get; }
         public PluginManager Plugins { get; }
         public ProcessWriter BF2 { get; }
+        public ScheduledRestart Schedule { get; }
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
 
@@ -100,6 +101,7 @@ namespace SWBF2Admin
             Mods = new LvlWriter(this);
             Plugins = new PluginManager(this);
             BF2 = new ProcessWriter(this);
+            Schedule = new ScheduledRestart(this);
         }
 
         public void Run(string[] args)
@@ -135,6 +137,8 @@ namespace SWBF2Admin
                 {
                     components.Add(new EmptyRestart(this));
                 }
+
+                components.Add(Schedule);
             }
 
             Scheduler.TickDelay = Config.TickDelay;

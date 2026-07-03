@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScheduleConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--automatically restart the server once it has been running for a given amount of time (restart happens between maps)-->
+  <EnableScheduledRestart>false</EnableScheduledRestart>
+  <!--time (in seconds) the server has to be running before it is restarted at the next map change-->
+  <RestartThreshold>21600</RestartThreshold>
+  <!--broadcast a message in-game before the scheduled restart-->
+  <EnableRestartAnnouncement>true</EnableRestartAnnouncement>
+  <!--message broadcasted before the scheduled restart-->
+  <RestartAnnouncement>The server will restart after the current map.</RestartAnnouncement>
+  <!--time (in seconds) between restart announcements-->
+  <AnnouncementInterval>300</AnnouncementInterval>
+  <!--time (in milliseconds) between checks-->
+  <CheckInterval>60000</CheckInterval>
+</ScheduleConfiguration>
