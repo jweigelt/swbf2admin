@@ -51,12 +51,15 @@ namespace SWBF2Admin.Runtime.ApplyMods
         [XmlAttribute(DataType = "hexBinary")]
         public byte[] OriginalBytes { get; set; }
 
+        //Legacy string aliases: read ASCII patches from the file but never serialize them back
+        //(writing raw bytes like 0x00 as attribute text would be invalid XML).
         [XmlAttribute]
         public string PatchedString
         {
             get { return Util.BytesToStr(PatchedBytes); }
             set { PatchedBytes = Util.StrToBytes(value); }
         }
+        public bool ShouldSerializePatchedString() => false;
 
         [XmlAttribute]
         public string OriginalString
@@ -64,6 +67,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
             get { return Util.BytesToStr(OriginalBytes); }
             set { OriginalBytes = Util.StrToBytes(value); }
         }
+        public bool ShouldSerializeOriginalString() => false;
 
         private long startAddress;
 

@@ -31,6 +31,11 @@ namespace SWBF2Admin.Runtime.ApplyMods
         [XmlAttribute]
         public bool ApplyOnStart { get; set; } = false;
 
+        //Persisted enable/disable state shown in the WebAdmin.
+        //Missing attribute deserializes to false (disabled). Kept in sync with ApplyOnStart when toggled.
+        [XmlAttribute]
+        public bool Enabled { get; set; } = false;
+
         [XmlAttribute]
         public string Name { get; set; } = "change me";
 

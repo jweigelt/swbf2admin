@@ -19,6 +19,8 @@ using SWBF2Admin.Config;
 using SWBF2Admin.Utility;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml;
 
 namespace SWBF2Admin.Runtime.ApplyMods
 {
@@ -26,17 +28,22 @@ namespace SWBF2Admin.Runtime.ApplyMods
     {
         private string serverDir;
         private LvlWriterConfig config;
+        //Remembers which file the config was loaded from so SaveConfig() writes back to the same one.
+        private string configFileName = "";
         public LvlWriter(AdminCore core) : base(core) { }
-        public virtual List<LvlMod> Mods { get { return config.Mods; } }
+        public virtual List<LvlMod> Mods { get { return config?.Mods ?? new List<LvlMod>(); } }
 
         public override void Configure(CoreConfiguration config)
         {
             if (config.ServerType == GameserverType.Aspyr)
             {
                 //Unpack the Aspyr mods
-                this.config = Core.Files.ReadConfig<LvlWriterConfig>("./cfg/mods.aspyr.xml", "SWBF2Admin.Resources.cfg.mods.aspyr.xml");
+                configFileName = "./cfg/mods.aspyr.xml";
+                this.config = Core.Files.ReadConfig<LvlWriterConfig>(configFileName, "SWBF2Admin.Resources.cfg.mods.aspyr.xml");
             } else
             {
+                //Empty filename lets FileHandler resolve the default path from LvlWriterConfig's ConfigFileInfo.
+                configFileName = "";
                 this.config = Core.Files.ReadConfig<LvlWriterConfig>();
             }
             serverDir = Core.Files.ParseFileName(config.ServerPath);
@@ -90,6 +97,72 @@ namespace SWBF2Admin.Runtime.ApplyMods
             {
                 Logger.Log(LogLevel.Warning, "Failed to apply mod \"{0}\" {1}", mod.Name, e.Message);
             }
+        }
+
+        //Rewrites only the Enabled attribute in place so hand-authored XML comments and formatting
+        //survive. Falls back to a full serialize (losing comments) if the file is missing or editing fails.
+        public void SaveConfig()
+        {
+            string fileName = string.IsNullOrEmpty(configFileName)
+                ? GetConfigFileName()
+                : configFileName;
+
+            if (!File.Exists(fileName))
+            {
+                Core.Files.WriteConfig(config, configFileName);
+                return;
+            }
+
+            try
+            {
+                UpdateConfigInPlace(fileName);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Warning, "Failed to update \"{0}\" in place, rewriting it: {1}", fileName, e.Message);
+                Core.Files.WriteConfig(config, configFileName);
+            }
+        }
+
+        private static string GetConfigFileName()
+        {
+            ConfigFileInfo[] info = (ConfigFileInfo[])typeof(LvlWriterConfig)
+                .GetCustomAttributes(typeof(ConfigFileInfo), false);
+            if (info.Length == 0)
+                throw new Exception("No [ConfigFileInfo] attribute on LvlWriterConfig.");
+            return info[0].FileName;
+        }
+
+        //Rewrites only the Enabled attribute on each <LvlMod>. File mods only use Enabled;
+        //ApplyOnStart/RevertOnStart are a process-mod concept and are left untouched here.
+        private void UpdateConfigInPlace(string fileName)
+        {
+            XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
+            doc.Load(fileName);
+
+            foreach (LvlMod mod in config.Mods)
+            {
+                XmlElement node = FindModNode(doc, mod.Name);
+                if (node == null) continue;
+
+                node.SetAttribute("Enabled", XmlConvert.ToString(mod.Enabled));
+            }
+
+            doc.Save(fileName);
+            Logger.Log(LogLevel.Verbose, "Updated mods config \"{0}\" in place.", fileName);
+        }
+
+        private static XmlElement FindModNode(XmlDocument doc, string name)
+        {
+            foreach (XmlNode node in doc.GetElementsByTagName("LvlMod"))
+            {
+                if (node is XmlElement element &&
+                    string.Equals(element.GetAttribute("Name"), name, StringComparison.Ordinal))
+                {
+                    return element;
+                }
+            }
+            return null;
         }
     }
 }

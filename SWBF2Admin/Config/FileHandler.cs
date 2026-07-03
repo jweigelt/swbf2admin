@@ -200,6 +200,19 @@ namespace SWBF2Admin.Config
         }
 
         /// <summary>
+        /// Serializes an object and writes it to a config file on disk.
+        /// <para>If no filename is specified, the filename is read from the type's ConfigFileInfo attribute.</para>
+        /// </summary>
+        /// <param name="obj">object to be serialized</param>
+        /// <param name="fileName">relative or absolute path (optional)</param>
+        public void WriteConfig<T>(T obj, string fileName = "")
+        {
+            if (fileName == "") fileName = GetFileInfo<T>().FileName;
+            CreateDirectoryStructure(fileName);
+            WriteXmlFile<T>(obj, fileName);
+        }
+
+        /// <summary>
         /// Gets ConfigFileInfo object from type
         /// </summary>
         private ConfigFileInfo GetFileInfo<T>()

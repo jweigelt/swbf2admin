@@ -375,6 +375,13 @@ span.loading {
 }
 
 /**
+ *  Mods Tab
+ **/
+table#mods_tbl_file td, table#mods_tbl_process td {
+    padding-left: 1em;
+}
+
+/**
  *  Players Tab
  **/
 table.players {

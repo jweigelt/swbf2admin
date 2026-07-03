@@ -8,7 +8,7 @@ namespace SWBF2Admin.Runtime.Readers
 {
     public class ProcessWriter : ComponentBase
     {
-        public virtual List<ProcessMod> Mods { get { return _config.Mods; } }
+        public virtual List<ProcessMod> Mods { get { return _config?.Mods ?? new List<ProcessMod>(); } }
 
         public bool ProcessOpened;
         public ProcessMemoryReader reader = new ProcessMemoryReader();
@@ -79,6 +79,12 @@ namespace SWBF2Admin.Runtime.Readers
         public void RevertMod(ProcessMod mod)
         {
             mod.Revert(reader);
+        }
+
+        //Persists the current process mod configuration (including Enabled/ApplyOnStart flags) back to disk.
+        public void SaveConfig()
+        {
+            Core.Files.WriteConfig(_config);
         }
 
         private bool TryOpenReader(int maxAttempts = 100, int sleepMs = 100)
