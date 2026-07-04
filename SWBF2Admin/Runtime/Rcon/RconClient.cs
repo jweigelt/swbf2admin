@@ -168,7 +168,7 @@ namespace SWBF2Admin.Runtime.Rcon
         #region TX
         /// <summary>
         /// Filters command string to prevent injection vulns
-        /// <note>Only escapes a '/' that starts a new command (at a token boundary), leaving slashes inside words like URLs intact.</note>
+        /// <note>Only escapes a '/' at a token boundary, leaving slashes inside words like URLs intact.</note>
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>

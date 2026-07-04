@@ -1,683 +1,683 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LvlWriterConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <!--
-    idea & mods stolen from Yoni: https://gist.github.com/yonilerner/caf62536fe75d1061cbde89abe348d4c
-    Mods contributed by AnthonyBF2, SG-17, and Alpha
-  -->
-  <Mods>
-    <!-- 
-      Files: ALL2.LVL, ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
-      Mods: Lower all vehicle health values to 0.0 so they all explode as soon as they spawn in.
-    -->
-    <LvlMod Name="no_vehicles">
-      <HexEdits>
-        <!-- Snowspeeder -->
-        <HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="138A098" PatchedBytes="302E30000000" OriginalBytes="313430302E30" />
-        <!-- Tauntaun -->
-        <HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9881E18" PatchedBytes="302E300000" OriginalBytes="3430302E30" />
-        <!-- AAC-1 -->
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3B01C30" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- AAT -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5C9DB5C" PatchedBytes="302E3000" OriginalBytes="38303030" />
-        <!-- Stap -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5F3DCF0" PatchedBytes="302E300000" OriginalBytes="3135302E30" />
-        <!-- Hailfire -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13E2585C" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- Tread -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="143833D8" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- Spider -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="146B2F30" PatchedBytes="302E3000000000" OriginalBytes="32303030302E30" />
-        <!-- IFT-X -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="464A068" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- Bike -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4B985F0" PatchedBytes="302E3000" OriginalBytes="38302E30" />
-        <!-- AT-AT -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1398B6DC" PatchedBytes="302E3000000000" OriginalBytes="36303030302E30" />
-        <!-- AT-ST (Clean) -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13EDD55C" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- AT-ST (Jungle) -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1429C974" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- AT-ST (Snow) -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1465BD78" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- Bike -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9FD5F2C" PatchedBytes="302E3000" OriginalBytes="38302E30" />
-        <!-- IFT-X -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="99E9F88" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
-        <!-- AT-TE -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1AEBEF80" PatchedBytes="302E3000000000" OriginalBytes="34303030302E30" />
-        <!-- AT-RT -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1B529188" PatchedBytes="302E30000000" OriginalBytes="343030302E30" />
-      </HexEdits>
-    </LvlMod>
+	<!--
+		idea & mods stolen from Yoni: https://gist.github.com/yonilerner/caf62536fe75d1061cbde89abe348d4c
+		Mods contributed by AnthonyBF2, SG-17, and Alpha
+	-->
+	<Mods>
+		<!-- 
+			Files: ALL2.LVL, ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
+			Mods: Lower all vehicle health values to 0.0 so they all explode as soon as they spawn in.
+		-->
+		<LvlMod Name="no_vehicles">
+			<HexEdits>
+				<!-- Snowspeeder -->
+				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="138A098" PatchedBytes="302E30000000" OriginalBytes="313430302E30" />
+				<!-- Tauntaun -->
+				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9881E18" PatchedBytes="302E300000" OriginalBytes="3430302E30" />
+				<!-- AAC-1 -->
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3B01C30" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- AAT -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5C9DB5C" PatchedBytes="302E3000" OriginalBytes="38303030" />
+				<!-- Stap -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5F3DCF0" PatchedBytes="302E300000" OriginalBytes="3135302E30" />
+				<!-- Hailfire -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13E2585C" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- Tread -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="143833D8" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- Spider -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="146B2F30" PatchedBytes="302E3000000000" OriginalBytes="32303030302E30" />
+				<!-- IFT-X -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="464A068" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- Bike -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4B985F0" PatchedBytes="302E3000" OriginalBytes="38302E30" />
+				<!-- AT-AT -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1398B6DC" PatchedBytes="302E3000000000" OriginalBytes="36303030302E30" />
+				<!-- AT-ST (Clean) -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13EDD55C" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- AT-ST (Jungle) -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1429C974" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- AT-ST (Snow) -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1465BD78" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- Bike -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9FD5F2C" PatchedBytes="302E3000" OriginalBytes="38302E30" />
+				<!-- IFT-X -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="99E9F88" PatchedBytes="302E30000000" OriginalBytes="383030302E30" />
+				<!-- AT-TE -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1AEBEF80" PatchedBytes="302E3000000000" OriginalBytes="34303030302E30" />
+				<!-- AT-RT -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1B529188" PatchedBytes="302E30000000" OriginalBytes="343030302E30" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: MISSION.LVL [Patch 3]
-      Mods: Fix spawn timers in the uta1g_con mission.
-    -->
-    <LvlMod Name="uta_timer_fix">
-      <HexEdits>
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="136D7D" PatchedBytes="536574537061776E44656C61790000040C0000002041030000803E040D0000" OriginalBytes="4164644465617468526567696F6E00040C0000006465617468726567696F6E" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: MISSION.LVL [Patch 3]
+			Mods: Fix spawn timers in the uta1g_con mission.
+		-->
+		<LvlMod Name="uta_timer_fix">
+			<HexEdits>
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="136D7D" PatchedBytes="536574537061776E44656C61790000040C0000002041030000803E040D0000" OriginalBytes="4164644465617468526567696F6E00040C0000006465617468726567696F6E" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: MISSION.LVL [Patch 3]
-      Mods: Unhide a CP on the central platform in Kamino CTF mode. This CP is right where the flag is.
-    -->
-    <LvlMod Name="kam_extra_cp">
-      <HexEdits>
-        <!-- kam1c_1flag -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="74A37" PatchedBytes="000000" OriginalBytes="435034" />
-        <!-- kam1g_1flag -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="76878" PatchedBytes="000000" OriginalBytes="435034" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: MISSION.LVL [Patch 3]
+			Mods: Unhide a CP on the central platform in Kamino CTF mode. This CP is right where the flag is.
+		-->
+		<LvlMod Name="kam_extra_cp">
+			<HexEdits>
+				<!-- kam1c_1flag -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="74A37" PatchedBytes="000000" OriginalBytes="435034" />
+				<!-- kam1g_1flag -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="76878" PatchedBytes="000000" OriginalBytes="435034" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: MISSION.LVL [Patch 3]
-      Mods: Unhide a CP in the command tunnel area in Hoth conquest. This CP is not required to win.
-    -->
-    <LvlMod Name="hot_extra_cp">
-      <HexEdits>
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="63BFE" PatchedBytes="000000" OriginalBytes="435037" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: MISSION.LVL [Patch 3]
+			Mods: Unhide a CP in the command tunnel area in Hoth conquest. This CP is not required to win.
+		-->
+		<LvlMod Name="hot_extra_cp">
+			<HexEdits>
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="63BFE" PatchedBytes="000000" OriginalBytes="435037" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      Files: ALL1.LVL, ALL2.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
-      Mods: Modify rocket launcher splash damage so it will become similar to the PS2/Xbox version (2.0/4.0).
-    -->
-    <LvlMod Name="ps2_rocket_splash">
-      <HexEdits>
-        <HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB551C" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB552C" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C44" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C54" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF1594" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF15A4" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520E8" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520F8" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF6F8" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF708" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE60" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE70" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072830" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072840" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DC8" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DD8" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF984" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF994" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41860" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41870" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4978" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4988" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493120" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493130" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818E0" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818F0" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050974" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050984" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7783F4" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F778404" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5384" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5394" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962B8" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962C8" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E30" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E40" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB20" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB30" PatchedBytes="342E30" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD684" PatchedBytes="322E30" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD694" PatchedBytes="342E30" OriginalBytes="332E30" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			Files: ALL1.LVL, ALL2.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
+			Mods: Modify rocket launcher splash damage so it will become similar to the PS2/Xbox version (2.0/4.0).
+		-->
+		<LvlMod Name="ps2_rocket_splash">
+			<HexEdits>
+				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB551C" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB552C" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C44" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C54" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF1594" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF15A4" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520E8" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520F8" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF6F8" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF708" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE60" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE70" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072830" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072840" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DC8" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DD8" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF984" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF994" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41860" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41870" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4978" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4988" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493120" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493130" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818E0" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818F0" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050974" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050984" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7783F4" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F778404" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5384" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5394" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962B8" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962C8" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E30" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E40" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB20" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB30" PatchedBytes="342E30" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD684" PatchedBytes="322E30" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD694" PatchedBytes="342E30" OriginalBytes="332E30" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      Files: ALL1.LVL, ALL2.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
-      Mods: Modify rocket launcher splash damage halfway between PC and PS2/Xbox (1.5/3.5).
-    -->
-    <LvlMod Name="xb_rocket_splash">
-      <HexEdits>
-        <HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB551C" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB552C" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C44" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C54" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF1594" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF15A4" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520E8" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520F8" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF6F8" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF708" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE60" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE70" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072830" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072840" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DC8" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DD8" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF984" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF994" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41860" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41870" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4978" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4988" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493120" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493130" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818E0" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818F0" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050974" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050984" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7783F4" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F778404" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5384" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5394" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962B8" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962C8" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E30" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E40" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB20" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB30" PatchedBytes="332E35" OriginalBytes="332E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD684" PatchedBytes="312E35" OriginalBytes="312E30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD694" PatchedBytes="332E35" OriginalBytes="332E30" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			Files: ALL1.LVL, ALL2.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
+			Mods: Modify rocket launcher splash damage halfway between PC and PS2/Xbox (1.5/3.5).
+		-->
+		<LvlMod Name="xb_rocket_splash">
+			<HexEdits>
+				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB551C" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB552C" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C44" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E397C54" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF1594" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFF15A4" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520E8" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="10A520F8" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF6F8" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="184FF708" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE60" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="852EE70" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072830" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="13072840" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DC8" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8D32DD8" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF984" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F1AF994" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41860" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FD41870" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4978" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA4988" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493120" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B493130" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818E0" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BE818F0" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050974" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D050984" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7783F4" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F778404" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5384" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="109D5394" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962B8" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="131962C8" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E30" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14790E40" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB20" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="175BCB30" PatchedBytes="332E35" OriginalBytes="332E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD684" PatchedBytes="312E35" OriginalBytes="312E30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="180FD694" PatchedBytes="332E35" OriginalBytes="332E30" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      Files: MISSION.LVL, HOT1.LVL [Patch 3]
-      Mods: Rename two green shield objects so they will be killed by mission scripts instead of two command posts in Hoth, 
-            rename objects killed by script instead of a CP in the tunnel command area & north hangar area in Hoth,
-            and change the team value of the CP in the tunnel command area to prevent imbalance in Hoth Hunt & Hoth CTF.
-      Warning: ***** These mods are all required to be applied at once or else these mods won't work properly! *****
-    -->
-    <LvlMod Name="hot_shield_cp_fix">
-      <HexEdits>
-        <!-- Rename an object killed by the script instead of a CP in the tunnel command area in Hoth (CTF) -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="654F4" PatchedBytes="677265656E31" OriginalBytes="4350374F424A" />
-        <!-- Rename an object killed by the script instead of a CP in the tunnel command area in Hoth (Hunt) -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="66E36" PatchedBytes="677265656E31" OriginalBytes="4350374F424A" />
-        <!-- Rename an object killed by the script instead of a CP in the north hangar area in Hoth (CTF) -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="6550F" PatchedBytes="677265656E320000" OriginalBytes="68616E6761726370" />
-        <!-- Rename an object killed by the script instead of a CP in the north hangar area in Hoth (Hunt) -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="66E51" PatchedBytes="677265656E320000" OriginalBytes="68616E6761726370" />
-        <!-- Rename green shield object 1 so they will be killed by mission scripts instead of CPs (Hunt) -->
-        <HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="44DDD74" PatchedBytes="677265656E31000000000000" OriginalBytes="6563686F5F736869656C6431" />
-        <!-- Rename green shield object 1 so they will be killed by mission scripts instead of CPs (CTF) -->
-        <HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="3FAC900" PatchedBytes="677265656E31000000000000" OriginalBytes="6563686F5F736869656C6431" />
-        <!-- Rename green shield object 2 so they will be killed by mission scripts instead of CPs (Hunt) -->
-        <HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="44DF080" PatchedBytes="677265656E32000000000000" OriginalBytes="6563686F5F736869656C6432" />
-        <!-- Rename green shield object 2 so they will be killed by mission scripts instead of CPs (CTF) -->
-        <HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="3FADC0C" PatchedBytes="677265656E32000000000000" OriginalBytes="6563686F5F736869656C6432" />
-        <!-- Change the team value of the CP in the tunnel command area to prevent imbalance in Hoth Hunt & Hoth CTF -->
-        <HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="38C7C44" PatchedBytes="31" OriginalBytes="32" />
-        <HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="3FA7C70" PatchedBytes="31" OriginalBytes="32" />
-        <HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="44D90E4" PatchedBytes="31" OriginalBytes="32" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			Files: MISSION.LVL, HOT1.LVL [Patch 3]
+			Mods: Rename two green shield objects so they will be killed by mission scripts instead of two command posts in Hoth, 
+						rename objects killed by script instead of a CP in the tunnel command area & north hangar area in Hoth,
+						and change the team value of the CP in the tunnel command area to prevent imbalance in Hoth Hunt & Hoth CTF.
+			Warning: ***** These mods are all required to be applied at once or else these mods won't work properly! *****
+		-->
+		<LvlMod Name="hot_shield_cp_fix">
+			<HexEdits>
+				<!-- Rename an object killed by the script instead of a CP in the tunnel command area in Hoth (CTF) -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="654F4" PatchedBytes="677265656E31" OriginalBytes="4350374F424A" />
+				<!-- Rename an object killed by the script instead of a CP in the tunnel command area in Hoth (Hunt) -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="66E36" PatchedBytes="677265656E31" OriginalBytes="4350374F424A" />
+				<!-- Rename an object killed by the script instead of a CP in the north hangar area in Hoth (CTF) -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="6550F" PatchedBytes="677265656E320000" OriginalBytes="68616E6761726370" />
+				<!-- Rename an object killed by the script instead of a CP in the north hangar area in Hoth (Hunt) -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="66E51" PatchedBytes="677265656E320000" OriginalBytes="68616E6761726370" />
+				<!-- Rename green shield object 1 so they will be killed by mission scripts instead of CPs (Hunt) -->
+				<HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="44DDD74" PatchedBytes="677265656E31000000000000" OriginalBytes="6563686F5F736869656C6431" />
+				<!-- Rename green shield object 1 so they will be killed by mission scripts instead of CPs (CTF) -->
+				<HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="3FAC900" PatchedBytes="677265656E31000000000000" OriginalBytes="6563686F5F736869656C6431" />
+				<!-- Rename green shield object 2 so they will be killed by mission scripts instead of CPs (Hunt) -->
+				<HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="44DF080" PatchedBytes="677265656E32000000000000" OriginalBytes="6563686F5F736869656C6432" />
+				<!-- Rename green shield object 2 so they will be killed by mission scripts instead of CPs (CTF) -->
+				<HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="3FADC0C" PatchedBytes="677265656E32000000000000" OriginalBytes="6563686F5F736869656C6432" />
+				<!-- Change the team value of the CP in the tunnel command area to prevent imbalance in Hoth Hunt & Hoth CTF -->
+				<HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="38C7C44" PatchedBytes="31" OriginalBytes="32" />
+				<HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="3FA7C70" PatchedBytes="31" OriginalBytes="32" />
+				<HexEdit FileName="hot1.lvl" LevelDir="/data2/_lvl_common/hot" StartAddress="44D90E4" PatchedBytes="31" OriginalBytes="32" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: ALL1.LVL [Patch 3]
-      Mods: Lower remote rocket health to 0.0 to make them explode as soon as the weapon is fired. Big explosion, might lag.
-    -->
-    <LvlMod Name="no_chewie_rocket">
-      <HexEdits>
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="72ABB8" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFB8C64" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FC125B4" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11673108" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19120718" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="72AE54" PatchedBytes="302E30" OriginalBytes="323030" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: ALL1.LVL [Patch 3]
+			Mods: Lower remote rocket health to 0.0 to make them explode as soon as the weapon is fired. Big explosion, might lag.
+		-->
+		<LvlMod Name="no_chewie_rocket">
+			<HexEdits>
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="72ABB8" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFB8C64" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FC125B4" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11673108" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19120718" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="72AE54" PatchedBytes="302E30" OriginalBytes="323030" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      Files: MISSION.LVL, GEO1.LVL [Patch 3]
-      Mods: Unhide seven command posts in Geonosis XL mode,
-            switch the team value of six extra command posts in Geonosis XL mode to allow both teams to spawn everywhere,
-            and unlock the six normal command posts in Geonosis XL mode so they can be captured.
-    -->
-    <LvlMod Name="geo_xl_hunt">
-      <HexEdits>
-        <!-- Rename function isUberMode (hot1g_xl, geo1c_xl, kas2g_xl, kas2c_xl) -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="69F6A" PatchedBytes="6C64" OriginalBytes="6465" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BD20" PatchedBytes="6C64" OriginalBytes="6465" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="9180D" PatchedBytes="6C64" OriginalBytes="6465" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="840D0" PatchedBytes="6C64" OriginalBytes="6465" />
-        <!-- Rename function SetUberMode (hot1g_xl, geo1c_xl, kas2g_xl, kas2c_xl) -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="6A1AB" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BFA1" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="924D9" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="84DBB" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
-        <!-- Unhide seven command posts in Geonosis XL mode -->
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDE0" PatchedBytes="000000" OriginalBytes="637031" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDE9" PatchedBytes="000000" OriginalBytes="637032" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDF2" PatchedBytes="000000" OriginalBytes="637033" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDFB" PatchedBytes="000000" OriginalBytes="637034" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BE04" PatchedBytes="000000" OriginalBytes="637036" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BE0D" PatchedBytes="000000" OriginalBytes="637037" />
-        <HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BE16" PatchedBytes="000000" OriginalBytes="637038" />
-        <!-- Switch the team value of six extra command posts in Geonosis XL mode -->
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D8350" PatchedBytes="31" OriginalBytes="32" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D8824" PatchedBytes="32" OriginalBytes="31" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D8CE4" PatchedBytes="31" OriginalBytes="32" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D91B8" PatchedBytes="32" OriginalBytes="31" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D9DD0" PatchedBytes="31" OriginalBytes="32" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DA268" PatchedBytes="32" OriginalBytes="31" />
-        <!-- Unlock the six normal command posts in Geonosis XL mode so they can be captured -->
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DBA1C" PatchedBytes="35" OriginalBytes="30" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DBE84" PatchedBytes="35" OriginalBytes="30" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DC2EC" PatchedBytes="35" OriginalBytes="30" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DC754" PatchedBytes="35" OriginalBytes="30" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DCBBC" PatchedBytes="35" OriginalBytes="30" />
-        <HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DD024" PatchedBytes="35" OriginalBytes="30" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			Files: MISSION.LVL, GEO1.LVL [Patch 3]
+			Mods: Unhide seven command posts in Geonosis XL mode,
+						switch the team value of six extra command posts in Geonosis XL mode to allow both teams to spawn everywhere,
+						and unlock the six normal command posts in Geonosis XL mode so they can be captured.
+		-->
+		<LvlMod Name="geo_xl_hunt">
+			<HexEdits>
+				<!-- Rename function isUberMode (hot1g_xl, geo1c_xl, kas2g_xl, kas2c_xl) -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="69F6A" PatchedBytes="6C64" OriginalBytes="6465" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BD20" PatchedBytes="6C64" OriginalBytes="6465" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="9180D" PatchedBytes="6C64" OriginalBytes="6465" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="840D0" PatchedBytes="6C64" OriginalBytes="6465" />
+				<!-- Rename function SetUberMode (hot1g_xl, geo1c_xl, kas2g_xl, kas2c_xl) -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="6A1AB" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BFA1" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="924D9" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="84DBB" PatchedBytes="50726F7065727479" OriginalBytes="556265724D6F6465" />
+				<!-- Unhide seven command posts in Geonosis XL mode -->
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDE0" PatchedBytes="000000" OriginalBytes="637031" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDE9" PatchedBytes="000000" OriginalBytes="637032" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDF2" PatchedBytes="000000" OriginalBytes="637033" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BDFB" PatchedBytes="000000" OriginalBytes="637034" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BE04" PatchedBytes="000000" OriginalBytes="637036" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BE0D" PatchedBytes="000000" OriginalBytes="637037" />
+				<HexEdit FileName="mission.lvl" LevelDir="/data2/_lvl_common" StartAddress="5BE16" PatchedBytes="000000" OriginalBytes="637038" />
+				<!-- Switch the team value of six extra command posts in Geonosis XL mode -->
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D8350" PatchedBytes="31" OriginalBytes="32" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D8824" PatchedBytes="32" OriginalBytes="31" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D8CE4" PatchedBytes="31" OriginalBytes="32" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D91B8" PatchedBytes="32" OriginalBytes="31" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43D9DD0" PatchedBytes="31" OriginalBytes="32" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DA268" PatchedBytes="32" OriginalBytes="31" />
+				<!-- Unlock the six normal command posts in Geonosis XL mode so they can be captured -->
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DBA1C" PatchedBytes="35" OriginalBytes="30" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DBE84" PatchedBytes="35" OriginalBytes="30" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DC2EC" PatchedBytes="35" OriginalBytes="30" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DC754" PatchedBytes="35" OriginalBytes="30" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DCBBC" PatchedBytes="35" OriginalBytes="30" />
+				<HexEdit FileName="geo1.lvl" LevelDir="/data2/_lvl_common/geo" StartAddress="43DD024" PatchedBytes="35" OriginalBytes="30" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: KAM1.LVL [Patch 3]
-      Mods: Move the location of a hidden holocron so it spawns at the central platform,
-            rename the flag's instance name so it does not become the capturable item,
-            rename the holocron's instance name so it becomes the new capturable item,
-            and move the location of the old flag to an undisclosed location so it cannot overlap the new holocron.
-      Warning: ***** These mods are all required to be applied at once or else these mods won't work properly! *****
-    -->
-    <LvlMod Name="kam_holocron_ctf">
-      <HexEdits>
-        <!-- Move the location of a hidden holocron so it spawns at the central platform -->
-        <HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="7705959" PatchedBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF4861C542EEFC59426A5C1443" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF000070C1000082420000CC42" />
-        <!-- Rename the flag's instance name so it does not become the capturable item -->
-        <HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="7702FCC" PatchedBytes="73776266" OriginalBytes="666C6167" />
-        <!-- Rename the holocron's instance name so it becomes the new capturable item -->
-        <HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="770594C" PatchedBytes="666C6167000000" OriginalBytes="706F64726F6F6D" />
-        <!-- Move the location of the old flag to an undisclosed location so it cannot overlap the new holocron -->
-        <HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="7702FD9" PatchedBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF4861C542EEFC59426A5C1443" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF000070C1000082420000CC42" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: KAM1.LVL [Patch 3]
+			Mods: Move the location of a hidden holocron so it spawns at the central platform,
+						rename the flag's instance name so it does not become the capturable item,
+						rename the holocron's instance name so it becomes the new capturable item,
+						and move the location of the old flag to an undisclosed location so it cannot overlap the new holocron.
+			Warning: ***** These mods are all required to be applied at once or else these mods won't work properly! *****
+		-->
+		<LvlMod Name="kam_holocron_ctf">
+			<HexEdits>
+				<!-- Move the location of a hidden holocron so it spawns at the central platform -->
+				<HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="7705959" PatchedBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF4861C542EEFC59426A5C1443" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF000070C1000082420000CC42" />
+				<!-- Rename the flag's instance name so it does not become the capturable item -->
+				<HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="7702FCC" PatchedBytes="73776266" OriginalBytes="666C6167" />
+				<!-- Rename the holocron's instance name so it becomes the new capturable item -->
+				<HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="770594C" PatchedBytes="666C6167000000" OriginalBytes="706F64726F6F6D" />
+				<!-- Move the location of the old flag to an undisclosed location so it cannot overlap the new holocron -->
+				<HexEdit FileName="kam1.lvl" LevelDir="/data2/_lvl_common/kam" StartAddress="7702FD9" PatchedBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF4861C542EEFC59426A5C1443" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF000070C1000082420000CC42" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      Files: ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
-      Mods: Adjust the sniper rifle rounds per clip from 8 to 5 to be similar to the Xbox/PS2 version,
-            and adjust the sniper rifle shot delay from 0.8 to 1.0 to be similar to the Xbox/PS2 version.
-    -->
-    <LvlMod Name="ps2_sniper_specs">
-      <HexEdits>
-        <!-- Adjust the sniper rifle rounds per clip from 8 to 5 (all1.lvl) -->
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11DBE4AC" PatchedBytes="35" OriginalBytes="38" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="12761664" PatchedBytes="35" OriginalBytes="38" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="194C2398" PatchedBytes="35" OriginalBytes="38" />
-        <!-- Adjust the sniper rifle rounds per clip from 8 to 5 (cis.lvl) -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A5769D0" PatchedBytes="35" OriginalBytes="38" />
-        <!-- Adjust the sniper rifle rounds per clip from 8 to 5 (imp.lvl) -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="108C1100" PatchedBytes="35" OriginalBytes="38" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="114E92B8" PatchedBytes="35" OriginalBytes="38" />
-        <!-- Adjust the sniper rifle rounds per clip from 8 to 5 (rep.lvl) -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B2518" PatchedBytes="35" OriginalBytes="38" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="120EBB04" PatchedBytes="35" OriginalBytes="38" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="190CEE30" PatchedBytes="35" OriginalBytes="38" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19D50E08" PatchedBytes="35" OriginalBytes="38" />
-        <!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (all1.lvl) -->
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11DBE4CC" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="12761684" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="194C23B8" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (cis.lvl) -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A5769F0" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (imp.lvl) -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="108C1120" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="114E92D8" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (rep.lvl) -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B2538" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="120EBB24" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="190CEE50" PatchedBytes="312E30" OriginalBytes="302E38" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19D50E28" PatchedBytes="312E30" OriginalBytes="302E38" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			Files: ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
+			Mods: Adjust the sniper rifle rounds per clip from 8 to 5 to be similar to the Xbox/PS2 version,
+						and adjust the sniper rifle shot delay from 0.8 to 1.0 to be similar to the Xbox/PS2 version.
+		-->
+		<LvlMod Name="ps2_sniper_specs">
+			<HexEdits>
+				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (all1.lvl) -->
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11DBE4AC" PatchedBytes="35" OriginalBytes="38" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="12761664" PatchedBytes="35" OriginalBytes="38" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="194C2398" PatchedBytes="35" OriginalBytes="38" />
+				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (cis.lvl) -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A5769D0" PatchedBytes="35" OriginalBytes="38" />
+				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (imp.lvl) -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="108C1100" PatchedBytes="35" OriginalBytes="38" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="114E92B8" PatchedBytes="35" OriginalBytes="38" />
+				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (rep.lvl) -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B2518" PatchedBytes="35" OriginalBytes="38" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="120EBB04" PatchedBytes="35" OriginalBytes="38" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="190CEE30" PatchedBytes="35" OriginalBytes="38" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19D50E08" PatchedBytes="35" OriginalBytes="38" />
+				<!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (all1.lvl) -->
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11DBE4CC" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="12761684" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="194C23B8" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (cis.lvl) -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A5769F0" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (imp.lvl) -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="108C1120" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="114E92D8" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (rep.lvl) -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B2538" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="120EBB24" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="190CEE50" PatchedBytes="312E30" OriginalBytes="302E38" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19D50E28" PatchedBytes="312E30" OriginalBytes="302E38" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: TAT3.LVL [Patch 3]
-      Mods: Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning,
-    -->
-    <LvlMod Name="tat_no_gamo">
-      <HexEdits>
-        <!-- Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning -->
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB9108" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3F54" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC7904" PatchedBytes="30" OriginalBytes="33" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: TAT3.LVL [Patch 3]
+			Mods: Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning,
+		-->
+		<LvlMod Name="tat_no_gamo">
+			<HexEdits>
+				<!-- Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning -->
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB9108" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3F54" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC7904" PatchedBytes="30" OriginalBytes="33" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: TAT3.LVL [Patch 3]
-      Mods: Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning,
-            change the Gamorrean's command post radius value from 0.0 to 10.0 to be capturable from within the map,
-            and change the Gamorrean's command post location to be inside of the Rancor cave.
-    -->
-    <LvlMod Name="tat_gamo_cp">
-      <HexEdits>
-        <!-- Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning -->
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB9108" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3F54" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC7904" PatchedBytes="30" OriginalBytes="33" />
-        <!-- Change the Gamorrean's command post radius value from 0.0 to 10.0 to be capturable from within the map -->
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB916C" PatchedBytes="31302E30" OriginalBytes="302E3000" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3FB4" PatchedBytes="31302E30" OriginalBytes="302E3000" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC7964" PatchedBytes="31302E30" OriginalBytes="302E3000" />
-        <!-- Change the Gamorrean's command post location to be inside of the Rancor cave -->
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB90C9" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF00004CC2000060C10000FA42" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF0000A2C23333D3C10000AA42" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3F15" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF00004CC2000060C10000FA42" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BFCD8CF6C2E5D06041F2F22F43" />
-        <HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC78C5" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF00004CC2000060C10000FA42" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BFCD8CF6C2E5D06041F2F22F43" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: TAT3.LVL [Patch 3]
+			Mods: Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning,
+						change the Gamorrean's command post radius value from 0.0 to 10.0 to be capturable from within the map,
+						and change the Gamorrean's command post location to be inside of the Rancor cave.
+		-->
+		<LvlMod Name="tat_gamo_cp">
+			<HexEdits>
+				<!-- Change the Gamorrean's command post team value from 3 to 0 to prevent Gamorreans from spawning -->
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB9108" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3F54" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC7904" PatchedBytes="30" OriginalBytes="33" />
+				<!-- Change the Gamorrean's command post radius value from 0.0 to 10.0 to be capturable from within the map -->
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB916C" PatchedBytes="31302E30" OriginalBytes="302E3000" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3FB4" PatchedBytes="31302E30" OriginalBytes="302E3000" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC7964" PatchedBytes="31302E30" OriginalBytes="302E3000" />
+				<!-- Change the Gamorrean's command post location to be inside of the Rancor cave -->
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBB90C9" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF00004CC2000060C10000FA42" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF0000A2C23333D3C10000AA42" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC3F15" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF00004CC2000060C10000FA42" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BFCD8CF6C2E5D06041F2F22F43" />
+				<HexEdit FileName="tat3.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="DBC78C5" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF00004CC2000060C10000FA42" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BFCD8CF6C2E5D06041F2F22F43" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: TAT2.LVL [Patch 3]
-      Mods: Unlock the Jawa's command post to become capturable with a radius of 10.0,
-            change the Jawa's command post team value from 3 to 0 to prevent Jawas from spawning,
-            and change the Jawa's command post location to be on top of the central octogon building.
-    -->
-    <LvlMod Name="tat_jawa_cp">
-      <HexEdits>
-        <!-- Unlock the Jawa's command post to become capturable with a radius of 10.0 -->
-        <HexEdit FileName="tat2.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="5AFB13C" PatchedBytes="31302E30" OriginalBytes="302E3000" />
-        <!-- Change the Jawa's command post team value from 3 to 0 to prevent Jawas from spawning -->
-        <HexEdit FileName="tat2.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="5AFB0E0" PatchedBytes="30" OriginalBytes="33" />
-        <!-- Change the Jawa's command post location to be on top of the central octogon building -->
-        <HexEdit FileName="tat2.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="5AFB0A1" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF000090410000704148E1DB41" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF00000CC20000A0C00000D4C2" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: TAT2.LVL [Patch 3]
+			Mods: Unlock the Jawa's command post to become capturable with a radius of 10.0,
+						change the Jawa's command post team value from 3 to 0 to prevent Jawas from spawning,
+						and change the Jawa's command post location to be on top of the central octogon building.
+		-->
+		<LvlMod Name="tat_jawa_cp">
+			<HexEdits>
+				<!-- Unlock the Jawa's command post to become capturable with a radius of 10.0 -->
+				<HexEdit FileName="tat2.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="5AFB13C" PatchedBytes="31302E30" OriginalBytes="302E3000" />
+				<!-- Change the Jawa's command post team value from 3 to 0 to prevent Jawas from spawning -->
+				<HexEdit FileName="tat2.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="5AFB0E0" PatchedBytes="30" OriginalBytes="33" />
+				<!-- Change the Jawa's command post location to be on top of the central octogon building -->
+				<HexEdit FileName="tat2.lvl" LevelDir="/data2/_lvl_common/tat" StartAddress="5AFB0A1" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF000090410000704148E1DB41" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF00000CC20000A0C00000D4C2" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: DEA1.LVL [Patch 3]
-      Mods: Move the flag's location to the central bridge area.
-    -->
-    <LvlMod Name="dea_flag_bridge">
-      <HexEdits>
-        <HexEdit FileName="dea1.lvl" LevelDir="/data2/_lvl_common/dea" StartAddress="A5F1509" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF0000D2C2000058420000D8C2" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF27711AC310585842103877C3" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: DEA1.LVL [Patch 3]
+			Mods: Move the flag's location to the central bridge area.
+		-->
+		<LvlMod Name="dea_flag_bridge">
+			<HexEdits>
+				<HexEdit FileName="dea1.lvl" LevelDir="/data2/_lvl_common/dea" StartAddress="A5F1509" PatchedBytes="000000000080BF0000000000000000000000000000803F000000000000000000000000000080BF0000D2C2000058420000D8C2" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF27711AC310585842103877C3" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: MUS1.LVL [Patch 3]
-      Mods: Make the bridge control panel indestructible.
-    -->
-    <LvlMod Name="mus_bridge_indestructible">
-      <HexEdits>
-        <HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E70A10" PatchedBytes="31652B39" OriginalBytes="31353000" />
-        <HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E85BE4" PatchedBytes="31652B39" OriginalBytes="31353000" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: MUS1.LVL [Patch 3]
+			Mods: Make the bridge control panel indestructible.
+		-->
+		<LvlMod Name="mus_bridge_indestructible">
+			<HexEdits>
+				<HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E70A10" PatchedBytes="31652B39" OriginalBytes="31353000" />
+				<HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E85BE4" PatchedBytes="31652B39" OriginalBytes="31353000" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      File: MUS1.LVL [Patch 3]
-      Mods: Replace the function "MapScale" with "AINoRepair" for the bridge control panel so bots do not attempt to repair it.
-    -->
-    <LvlMod Name="mus_bridge_no_repair">
-      <HexEdits>
-        <HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E70970" PatchedBytes="B102BFBB" OriginalBytes="E53F8C0E" />
-        <HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E85B44" PatchedBytes="B102BFBB" OriginalBytes="E53F8C0E" />
-      </HexEdits>
-    </LvlMod>
+		<!-- 
+			File: MUS1.LVL [Patch 3]
+			Mods: Replace the function "MapScale" with "AINoRepair" for the bridge control panel so bots do not attempt to repair it.
+		-->
+		<LvlMod Name="mus_bridge_no_repair">
+			<HexEdits>
+				<HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E70970" PatchedBytes="B102BFBB" OriginalBytes="E53F8C0E" />
+				<HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="5E85B44" PatchedBytes="B102BFBB" OriginalBytes="E53F8C0E" />
+			</HexEdits>
+		</LvlMod>
 
-    <!--
-    File: DEA1.LVL [Patch 3] (174,133,908 bytes)
-    Mods: Rename a death region in the trash room room so it cannot be referenced by the mission script.
-    -->
-    <LvlMod Name="dea_no_trash_death">
-      <HexEdits>
-        <HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="A4FC307" PatchedBytes="6A6F69" OriginalBytes="67696F" />
-      </HexEdits>
-    </LvlMod>
+		<!--
+		File: DEA1.LVL [Patch 3] (174,133,908 bytes)
+		Mods: Rename a death region in the trash room room so it cannot be referenced by the mission script.
+		-->
+		<LvlMod Name="dea_no_trash_death">
+			<HexEdits>
+				<HexEdit FileName="mus1.lvl" LevelDir="/data2/_lvl_common/mus" StartAddress="A4FC307" PatchedBytes="6A6F69" OriginalBytes="67696F" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- Prevents the non-health and ammo powerups from dropping -->
-    <LvlMod Name="no_powerups">
-      <HexEdits>
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7D8A13C" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7D8A13D" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7D8A15C" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7FE3778" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7FE3798" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="823CD98" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="823CD99" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="823CDA8" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93E9783" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93E97CF" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93E98AA" PatchedBytes="30" OriginalBytes="31" />
-      </HexEdits>
-    </LvlMod>
+		<!-- Prevents the non-health and ammo powerups from dropping -->
+		<LvlMod Name="no_powerups">
+			<HexEdits>
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7D8A13C" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7D8A13D" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7D8A15C" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7FE3778" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="7FE3798" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="823CD98" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="823CD99" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="823CDA8" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93E9783" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93E97CF" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93E98AA" PatchedBytes="30" OriginalBytes="31" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- Fixes the old SWBF1 Home Base CPs on tat3 and yav1 so they capture at swbf2 rates -->
-    <LvlMod Name="home_fix">
-      <HexEdits>
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93B3910" PatchedBytes="31" OriginalBytes="33" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93B3911" PatchedBytes="32" OriginalBytes="36" />
-        <HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93B3925" PatchedBytes="30" OriginalBytes="36" />
-      </HexEdits>
-    </LvlMod>
+		<!-- Fixes the old SWBF1 Home Base CPs on tat3 and yav1 so they capture at swbf2 rates -->
+		<LvlMod Name="home_fix">
+			<HexEdits>
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93B3910" PatchedBytes="31" OriginalBytes="33" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93B3911" PatchedBytes="32" OriginalBytes="36" />
+				<HexEdit FileName="ingame.lvl" LevelDir="/data2/_lvl_common" StartAddress="93B3925" PatchedBytes="30" OriginalBytes="36" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- Sets the unlock points for Specials to 99, effectively disabling them -->
-    <LvlMod Name="no_specials">
-      <HexEdits>
-        <!-- Bothan -->
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="707A828" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="707A829" PatchedBytes="39" OriginalBytes="38" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7BD889C" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7BD889D" PatchedBytes="39" OriginalBytes="38" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="17009990" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="17009991" PatchedBytes="39" OriginalBytes="38" />
-        <!-- Wookiee -->
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="156F19B0" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="156F19B1" PatchedBytes="39" OriginalBytes="32" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1AFB2668" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1AFB2669" PatchedBytes="39" OriginalBytes="32" />
-        <!-- Droideka -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="6112304" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="6112305" PatchedBytes="39" OriginalBytes="32" />
-        <!-- Magnaguard -->
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DF13068" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DF13069" PatchedBytes="39" OriginalBytes="38" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F57CF74" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F57CF75" PatchedBytes="39" OriginalBytes="38" />
-        <!-- Dark Trooper -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5434E24" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5434E25" PatchedBytes="39" OriginalBytes="32" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="65F34AC" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="65F34AD" PatchedBytes="39" OriginalBytes="32" />
-        <!-- Imp Officer -->
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="982F3F4" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="982F3F5" PatchedBytes="39" OriginalBytes="38" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A317DB8" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A317DB9" PatchedBytes="39" OriginalBytes="38" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE00794" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE00795" PatchedBytes="39" OriginalBytes="38" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8E9160" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8E9161" PatchedBytes="39" OriginalBytes="38" />
-        <!-- Jet Trooper -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF05EA4" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF05EA5" PatchedBytes="39" OriginalBytes="32" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8F464C" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8F464D" PatchedBytes="39" OriginalBytes="32" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C2E2E0C" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C2E2E0D" PatchedBytes="39" OriginalBytes="32" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B1EA0" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B1EA1" PatchedBytes="39" OriginalBytes="32" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14BF235C" PatchedBytes="39" OriginalBytes="31" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14BF235D" PatchedBytes="39" OriginalBytes="32" />
-        <!-- Clone Commando -->
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1584C708" PatchedBytes="39" OriginalBytes="30" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1584C709" PatchedBytes="39" OriginalBytes="38" />
-      </HexEdits>
-    </LvlMod>
+		<!-- Sets the unlock points for Specials to 99, effectively disabling them -->
+		<LvlMod Name="no_specials">
+			<HexEdits>
+				<!-- Bothan -->
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="707A828" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="707A829" PatchedBytes="39" OriginalBytes="38" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7BD889C" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7BD889D" PatchedBytes="39" OriginalBytes="38" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="17009990" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="17009991" PatchedBytes="39" OriginalBytes="38" />
+				<!-- Wookiee -->
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="156F19B0" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="156F19B1" PatchedBytes="39" OriginalBytes="32" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1AFB2668" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1AFB2669" PatchedBytes="39" OriginalBytes="32" />
+				<!-- Droideka -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="6112304" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="6112305" PatchedBytes="39" OriginalBytes="32" />
+				<!-- Magnaguard -->
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DF13068" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DF13069" PatchedBytes="39" OriginalBytes="38" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F57CF74" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F57CF75" PatchedBytes="39" OriginalBytes="38" />
+				<!-- Dark Trooper -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5434E24" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5434E25" PatchedBytes="39" OriginalBytes="32" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="65F34AC" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="65F34AD" PatchedBytes="39" OriginalBytes="32" />
+				<!-- Imp Officer -->
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="982F3F4" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="982F3F5" PatchedBytes="39" OriginalBytes="38" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A317DB8" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A317DB9" PatchedBytes="39" OriginalBytes="38" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE00794" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE00795" PatchedBytes="39" OriginalBytes="38" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8E9160" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8E9161" PatchedBytes="39" OriginalBytes="38" />
+				<!-- Jet Trooper -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF05EA4" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF05EA5" PatchedBytes="39" OriginalBytes="32" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8F464C" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B8F464D" PatchedBytes="39" OriginalBytes="32" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C2E2E0C" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C2E2E0D" PatchedBytes="39" OriginalBytes="32" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B1EA0" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B1EA1" PatchedBytes="39" OriginalBytes="32" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14BF235C" PatchedBytes="39" OriginalBytes="31" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="14BF235D" PatchedBytes="39" OriginalBytes="32" />
+				<!-- Clone Commando -->
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1584C708" PatchedBytes="39" OriginalBytes="30" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1584C709" PatchedBytes="39" OriginalBytes="38" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- Prevents Turrets from Being Usable (does not apply to remote turret) -->
-    <LvlMod Name="no_turrets">
-      <HexEdits>
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E7820" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E7A50" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1D5644" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1D59F0" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1D5BCC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="97DF4C" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="97E1F8" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1F7D400" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1F7D9C4" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1F7DCFC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="209B864" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="209C258" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="209C5F0" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="284458C" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2844820" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2844ADC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2934228" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2934550" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="293483C" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DC770" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DD294" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DD2A8" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DD9D0" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DDC94" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3885D5D" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3885E34" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3886220" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="38864DC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4E37340" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4E3790C" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4E37C44" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="64374C0" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="6437824" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="79E8758" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="79E8D68" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="79E90D0" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7B4C808" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7B4D5C0" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7B4D8EC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7CB0F90" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7CB2180" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7CB24A8" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7E15A10" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7E16698" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7E169C0" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F3057C" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F30870" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F30B74" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F30E30" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="809484C" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8094C74" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8094FA4" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="88390D0" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8839368" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="88395E8" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8924DB8" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8925394" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="90C99D0" PatchedBytes="30" OriginalBytes="38" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="90C9C50" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="922D424" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="922E420" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="922E758" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9236504" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9236720" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2480" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2C38" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2E28" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2F06" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D30C0" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D36D8" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D39AC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="94EFE98" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="94F097C" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="94F0C48" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA1868" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA1E24" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA2188" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ABCF85C" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ABCFCC8" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ABD0004" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ACFD180" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ACFE198" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ACFE4DC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE2B4CC" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE2C198" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE2C4CC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF594BC" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF5A290" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF5A5C8" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B07413C" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B074430" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B074738" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B074A0C" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B47E95C" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B47EDB0" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B47F0F0" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B888CC8" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B889CC8" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B88A010" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BC93A5C" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BC94710" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BC94A48" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C09E494" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C09F250" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C09F58C" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A92B8" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A95AC" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A98A8" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A9BDC" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C83F900" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C83FD54" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C840094" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CBD5A58" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CBD6B0C" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CBD6E54" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CF69C14" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CF6A8C8" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CF6AC08" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D300440" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D3011FC" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D301538" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D6945D8" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D6948CC" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D694BC8" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D694EE0" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D7F88F8" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D7F8D4C" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D7F908C" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D95C730" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D95D730" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D95DA78" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DA7EB54" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DA7F808" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DA7FB40" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DBE30A8" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DBE3E64" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DBE41A0" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD0555C" PatchedBytes="30" OriginalBytes="32" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD05850" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD05B4C" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD05E80" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E2001B8" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E20070C" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E200994" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FF815" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FF8E1" PatchedBytes="30" OriginalBytes="35" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FF980" PatchedBytes="30" OriginalBytes="34" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FFA8C" PatchedBytes="30" OriginalBytes="31" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FFF38" PatchedBytes="30" OriginalBytes="33" />
-        <HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F800268" PatchedBytes="30" OriginalBytes="35" />
-      </HexEdits>
-    </LvlMod>
+		<!-- Prevents Turrets from Being Usable (does not apply to remote turret) -->
+		<LvlMod Name="no_turrets">
+			<HexEdits>
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E7820" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E7A50" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1D5644" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1D59F0" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1D5BCC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="97DF4C" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="97E1F8" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1F7D400" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1F7D9C4" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1F7DCFC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="209B864" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="209C258" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="209C5F0" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="284458C" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2844820" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2844ADC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2934228" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="2934550" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="293483C" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DC770" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DD294" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DD2A8" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DD9D0" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="30DDC94" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3885D5D" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3885E34" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="3886220" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="38864DC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4E37340" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4E3790C" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="4E37C44" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="64374C0" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="6437824" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="79E8758" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="79E8D68" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="79E90D0" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7B4C808" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7B4D5C0" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7B4D8EC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7CB0F90" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7CB2180" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7CB24A8" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7E15A10" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7E16698" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7E169C0" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F3057C" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F30870" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F30B74" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="7F30E30" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="809484C" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8094C74" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8094FA4" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="88390D0" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8839368" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="88395E8" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8924DB8" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="8925394" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="90C99D0" PatchedBytes="30" OriginalBytes="38" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="90C9C50" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="922D424" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="922E420" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="922E758" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9236504" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9236720" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2480" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2C38" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2E28" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D2F06" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D30C0" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D36D8" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="93D39AC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="94EFE98" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="94F097C" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="94F0C48" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA1868" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA1E24" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AAA2188" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ABCF85C" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ABCFCC8" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ABD0004" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ACFD180" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ACFE198" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="ACFE4DC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE2B4CC" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE2C198" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AE2C4CC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF594BC" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF5A290" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="AF5A5C8" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B07413C" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B074430" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B074738" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B074A0C" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B47E95C" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B47EDB0" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B47F0F0" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B888CC8" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B889CC8" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="B88A010" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BC93A5C" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BC94710" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="BC94A48" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C09E494" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C09F250" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C09F58C" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A92B8" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A95AC" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A98A8" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C4A9BDC" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C83F900" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C83FD54" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="C840094" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CBD5A58" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CBD6B0C" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CBD6E54" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CF69C14" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CF6A8C8" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="CF6AC08" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D300440" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D3011FC" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D301538" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D6945D8" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D6948CC" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D694BC8" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D694EE0" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D7F88F8" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D7F8D4C" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D7F908C" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D95C730" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D95D730" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D95DA78" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DA7EB54" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DA7F808" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DA7FB40" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DBE30A8" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DBE3E64" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DBE41A0" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD0555C" PatchedBytes="30" OriginalBytes="32" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD05850" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD05B4C" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="DD05E80" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E2001B8" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E20070C" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="E200994" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FF815" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FF8E1" PatchedBytes="30" OriginalBytes="35" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FF980" PatchedBytes="30" OriginalBytes="34" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FFA8C" PatchedBytes="30" OriginalBytes="31" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F7FFF38" PatchedBytes="30" OriginalBytes="33" />
+				<HexEdit FileName="tur.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="F800268" PatchedBytes="30" OriginalBytes="35" />
+			</HexEdits>
+		</LvlMod>
 
-    <!-- 
-      Files: ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
-      Mods: Modify mine dispenser ammo count so it will become similar to the Xbox/PS2 version.
-    -->
-    <LvlMod Name="ps2_mine_ammo">
-      <HexEdits>
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFB97E8" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FC13138" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11673C8C" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1912129C" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9233B28" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FA44AF8" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="105D69D4" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1044DF80" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="116AAF10" PatchedBytes="34" OriginalBytes="33" />
-        <HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="18DD3210" PatchedBytes="34" OriginalBytes="33" />
-      </HexEdits>
-    </LvlMod>
-  </Mods>
+		<!-- 
+			Files: ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
+			Mods: Modify mine dispenser ammo count so it will become similar to the Xbox/PS2 version.
+		-->
+		<LvlMod Name="ps2_mine_ammo">
+			<HexEdits>
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFB97E8" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FC13138" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11673C8C" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1912129C" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9233B28" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FA44AF8" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="105D69D4" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1044DF80" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="116AAF10" PatchedBytes="34" OriginalBytes="33" />
+				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="18DD3210" PatchedBytes="34" OriginalBytes="33" />
+			</HexEdits>
+		</LvlMod>
+	</Mods>
 </LvlWriterConfig>

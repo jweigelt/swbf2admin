@@ -19,12 +19,12 @@ namespace SWBF2Admin.Runtime.Readers
         public bool IsWarmup = true;
         private string moduleName = "BattlefrontII.exe";
         private bool isAspyr = false;
-        //Remembers which file the config was loaded from so SaveConfig() writes back to the same one.
+        //Save back to whichever file we loaded from
         private string configFileName = "";
 
-        //Aspyr-only process mod used to override the game's spawn delay float.
+        //Aspyr-only mod overriding the spawn delay
         private const string SPAWN_DELAY_MOD = "spawn_delay";
-        //Aspyr-only process mod used to override the game's platform lobby string.
+        //Aspyr-only mod overriding the platform lobby
         private const string PLATFORM_MOD = "platform_lobby";
 
         public override void Configure(CoreConfiguration config)
@@ -108,8 +108,7 @@ namespace SWBF2Admin.Runtime.Readers
             mod.Revert(reader);
         }
 
-        //Writes the WebAdmin "Spawn Delay" field (Settings.AutoAnnouncePeriod) into the Aspyr process via the spawn_delay mod.
-        //GOG/Steam handle this through the SPAWN_TIMER env variable read by RconServer instead.
+        //Aspyr writes the spawn delay into the process; GOG/Steam use the SPAWN_TIMER env variable instead
         public void ApplySpawnDelay()
         {
             if (!isAspyr || !ProcessOpened) return;
@@ -133,7 +132,7 @@ namespace SWBF2Admin.Runtime.Readers
             }
         }
 
-        //Writes the WebAdmin "Platform Lobby" field (Settings.Platform) into the Aspyr process via the platform_lobby mod.
+        //Aspyr writes the platform lobby into the process
         public void ApplyPlatform()
         {
             if (!isAspyr || !ProcessOpened) return;
@@ -157,8 +156,7 @@ namespace SWBF2Admin.Runtime.Readers
             }
         }
 
-        //Rewrites only the toggled attributes in place so hand-authored XML comments and formatting
-        //survive. Falls back to a full serialize (losing comments) if the file is missing or editing fails.
+        //Update the file in place so hand-authored XML comments survive; full rewrite only as a fallback
         public void SaveConfig()
         {
             string fileName = string.IsNullOrEmpty(configFileName)
@@ -191,8 +189,7 @@ namespace SWBF2Admin.Runtime.Readers
             return info[0].FileName;
         }
 
-        //Rewrites only the ApplyOnStart attribute on each <ProcessMod>. Enabled is runtime-only and not
-        //persisted (see ProcessMod.Enabled); toggling a mod updates ApplyOnStart so it starts next launch.
+        //Only rewrites ApplyOnStart; Enabled is runtime-only and not persisted (see ProcessMod.Enabled)
         private void UpdateConfigInPlace(string fileName)
         {
             XmlDocument doc = new XmlDocument { PreserveWhitespace = true };

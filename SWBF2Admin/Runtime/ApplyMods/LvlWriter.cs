@@ -28,7 +28,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
     {
         private string serverDir;
         private LvlWriterConfig config;
-        //Remembers which file the config was loaded from so SaveConfig() writes back to the same one.
+        //Save back to whichever file we loaded from
         private string configFileName = "";
         public LvlWriter(AdminCore core) : base(core) { }
         public virtual List<LvlMod> Mods { get { return config?.Mods ?? new List<LvlMod>(); } }
@@ -42,7 +42,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
                 this.config = Core.Files.ReadConfig<LvlWriterConfig>(configFileName, "SWBF2Admin.Resources.cfg.mods.aspyr.xml");
             } else
             {
-                //Empty filename lets FileHandler resolve the default path from LvlWriterConfig's ConfigFileInfo.
+                //Empty lets FileHandler use the default path from ConfigFileInfo
                 configFileName = "";
                 this.config = Core.Files.ReadConfig<LvlWriterConfig>();
             }
@@ -99,8 +99,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
             }
         }
 
-        //Rewrites only the Enabled attribute in place so hand-authored XML comments and formatting
-        //survive. Falls back to a full serialize (losing comments) if the file is missing or editing fails.
+        //Update the file in place so hand-authored XML comments survive; full rewrite only as a fallback
         public void SaveConfig()
         {
             string fileName = string.IsNullOrEmpty(configFileName)
@@ -133,8 +132,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
             return info[0].FileName;
         }
 
-        //Rewrites only the Enabled attribute on each <LvlMod>. File mods only use Enabled;
-        //ApplyOnStart/RevertOnStart are a process-mod concept and are left untouched here.
+        //Only rewrites the Enabled attribute, leaving the rest of the file untouched
         private void UpdateConfigInPlace(string fileName)
         {
             XmlDocument doc = new XmlDocument { PreserveWhitespace = true };

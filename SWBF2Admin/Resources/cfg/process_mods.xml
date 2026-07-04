@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ProcessWriterConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+										 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<Mods>
 		<!-- Simple byte patch -->
@@ -8,9 +8,9 @@
 			<ProcessEdits>
 				<!-- Offset -->
 				<ProcessEdit
-          ModuleOffset="0x00000000"
-          OriginalBytes="00"
-          PatchedBytes="90"/>
+					ModuleOffset="0x00000000"
+					OriginalBytes="00"
+					PatchedBytes="90"/>
 			</ProcessEdits>
 		</ProcessMod>
 
@@ -18,14 +18,14 @@
 		<ProcessMod Name="ExampleCodeCave" ApplyOnStart="false">
 			<CodeCaves>
 				<!--
-          CustomAddresses are module offsets and will be converted to full addresses using module offset and base address. 
-        -->
+					CustomAddresses are module offsets and will be converted to full addresses using module offset and base address. 
+				-->
 				<CodeCave
-          MemoryAllocatedSize="512"
-          RedirectModuleOffset="0x00000000"
-          OriginalBytes="0000000000"
-          CustomAddresses="0x1BA9C3C"
-          CaveBytes="48B8{0}"/>
+					MemoryAllocatedSize="512"
+					RedirectModuleOffset="0x00000000"
+					OriginalBytes="0000000000"
+					CustomAddresses="0x1BA9C3C"
+					CaveBytes="48B8{0}"/>
 			</CodeCaves>
 		</ProcessMod>
 	</Mods>

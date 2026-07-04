@@ -147,7 +147,7 @@
 
 			Galaxy: mov dword[ebp-0x1c], 5 @0x5D38B5, imm low byte 0x05 @0x5D38B8.
 			CC:     mov dword[rsp+0x40], 5 @0x18028DA82, imm low byte 0x05 @0x18028DA86
-			        (file offset 0x28CE86 -> module RVA 0x28DA86).
+							(file offset 0x28CE86 -> module RVA 0x28DA86).
 		-->
 		<ProcessMod Name="distance_lag_fix" ApplyOnStart="false">
 			<ProcessEdits>
