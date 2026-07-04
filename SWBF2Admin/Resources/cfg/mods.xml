@@ -8,7 +8,7 @@
 		<!--We change the TK points to +2, and change tank enemy tank kill to -2-->
 		<LvlMod Name="positive_tk">
 			<HexEdits>
-				<HexEdit FileName="ingame.lvl" StartAddress="000000b9" PatchedBytes="4040" OriginalBytes="0000" />
+				<HexEdit FileName="ingame.lvl" StartAddress="000000b9" PatchedBytes="4040" OriginalBytes="00c0" />
 				<HexEdit FileName="ingame.lvl" StartAddress="000000be" PatchedBytes="00c0" OriginalBytes="4040" />
 				<HexEdit FileName="ingame.lvl" StartAddress="0000013b" PatchedBytes="09" OriginalBytes="89" />
 				<HexEdit FileName="ingame.lvl" StartAddress="00000143" PatchedBytes="89" OriginalBytes="c9" />
@@ -21,12 +21,12 @@
 				<!--health-->
 				<HexEdit FileName="ingame.lvl" StartAddress="002e7614"
 					PatchedBytes="00000000000000000000000000000000"
-					OriginalBytes="50524f50070000001b1f971938300000" />
+					OriginalBytes="50524F50080000001B1F971932303000" />
 
 				<!--ammo-->
 				<HexEdit FileName="ingame.lvl" StartAddress="002a9644"
 					PatchedBytes="00000000000000000000000000000000"
-					OriginalBytes="50524F50080000001B1F971932303000" />
+					OriginalBytes="50524F50070000001B1F971938300000" />
 			</HexEdits>
 		</LvlMod>
 
@@ -77,8 +77,6 @@
 				<!--chewie-->
 				<HexEdit FileName="SIDE/all.lvl" StartAddress="0042DB24" PatchedString="00" OriginalString="24"/>
 				<!--han-->
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="0011CABC8" PatchedString="00" OriginalString="15"/>
-				<!--leia-->
 				<HexEdit FileName="SIDE/all.lvl" StartAddress="00518EAC" PatchedString="00" OriginalString="15"/>
 				<!--boba-->
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="002B3FAC" PatchedString="00" OriginalString="12"/>
@@ -159,12 +157,6 @@
 			</HexEdits>
 		</LvlMod>
 
-		<LvlMod Name="enemy_tk">
-			<HexEdits>
-				<HexEdit FileName="mission.lvl" StartAddress="0000C2BB" PatchedBytes="80" OriginalBytes="00" />
-			</HexEdits>
-		</LvlMod>
-
 		<LvlMod Name="soft_tank">
 			<HexEdits>
 				<!--cis_hover_aat-->
@@ -182,9 +174,9 @@
 				<!--imp_hover_fightertank-->
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="48C9C0" PatchedString="1" OriginalString="8"/>
 				<!--rep_walk_oneman_atst-->
-				<HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString="1" OriginalString="4"/>
+				<HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString="1" OriginalString="8"/>
 				<!--all_hover_combatspeeder-->
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString="1" OriginalString="0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString="1" OriginalString="8"/>
 			</HexEdits>
 		</LvlMod>
 
@@ -205,9 +197,9 @@
 				<!--imp_hover_fightertank-->
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="48C9C0" PatchedString="0" OriginalString="8"/>
 				<!--rep_walk_oneman_atst-->
-				<HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString="0" OriginalString="4"/>
+				<HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString="0" OriginalString="8"/>
 				<!--all_hover_combatspeeder-->
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString="0" OriginalString="0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString="0" OriginalString="8"/>
 			</HexEdits>
 		</LvlMod>
 
@@ -276,7 +268,7 @@
 				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0057B7EC" OriginalString="0.20" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0062A7A0" OriginalString="0.20" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/cis.lvl" StartAddress="006F44A0" OriginalString="0.20" PatchedString="0.00" />
-				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D344" OriginalString="0.08" PatchedString="0.00" />
+				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D344" OriginalString="0.8" PatchedString="0.0" />
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="00237C68" OriginalString="0.20" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="002C70D4" OriginalString="0.20" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="003663A8" OriginalString="0.20" PatchedString="0.00" />
@@ -328,7 +320,7 @@
 				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0057B7A4" OriginalString="0.05" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0062A758" OriginalString="0.05" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/cis.lvl" StartAddress="006F4458" OriginalString="0.05" PatchedString="0.00" />
-				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D300" OriginalString="0.08" PatchedString="0.00" />
+				<HexEdit FileName="SIDE/cis.lvl" StartAddress="0090D300" OriginalString="0.8" PatchedString="0.0" />
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="00237C20" OriginalString="0.05" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="002C708C" OriginalString="0.05" PatchedString="0.00" />
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="00366360" OriginalString="0.05" PatchedString="0.00" />
