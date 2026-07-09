@@ -19,12 +19,9 @@ namespace SWBF2Admin.Runtime.Readers
         public bool IsWarmup = true;
         private string moduleName = "BattlefrontII.exe";
         private bool isAspyr = false;
-        //Save back to whichever file we loaded from
         private string configFileName = "";
 
-        //Aspyr-only mod overriding the spawn delay
         private const string SPAWN_DELAY_MOD = "spawn_delay";
-        //Aspyr-only mod overriding the platform lobby
         private const string PLATFORM_MOD = "platform_lobby";
 
         public override void Configure(CoreConfiguration config)
@@ -69,8 +66,7 @@ namespace SWBF2Admin.Runtime.Readers
                         {
                             mod.Enabled = true;
                             ApplyMod(mod);
-
-                        }else if (mod.RevertOnStart)
+                        } else if (mod.RevertOnStart)
                         {
                             RevertMod(mod);
                         }
@@ -87,6 +83,11 @@ namespace SWBF2Admin.Runtime.Readers
         public override void OnServerStop()
         {
             ProcessOpened = false;
+
+            foreach (ProcessMod mod in Mods)
+                foreach (CodeCave cave in mod.CodeCaves)
+                    cave.ResetAllocation();
+
             DisableUpdates();
         }
         public void ApplyMod(ProcessMod mod)
@@ -108,23 +109,32 @@ namespace SWBF2Admin.Runtime.Readers
             mod.Revert(reader);
         }
 
-        //Aspyr writes the spawn delay into the process; GOG/Steam use the SPAWN_TIMER env variable instead
         public void ApplySpawnDelay()
         {
             if (!isAspyr || !ProcessOpened) return;
 
             ProcessMod mod = Mods.Find(m => m.Name == SPAWN_DELAY_MOD);
-            if (mod == null || mod.ProcessEdits.Count == 0) return;
+            if (mod == null || mod.CodeCaves.Count == 0) return;
 
-            //Match the mod's big-endian IEEE-754 float layout (e.g. 15 -> 41700000).
-            byte[] patchedBytes = BitConverter.GetBytes((float)Core.Server.Settings.AutoAnnouncePeriod);
-            if (BitConverter.IsLittleEndian) Array.Reverse(patchedBytes);
-            mod.ProcessEdits[0].PatchedBytes = patchedBytes;
+            CodeCave cave = mod.CodeCaves[0];
+
+            float seconds = (float)Core.Server.Settings.AutoAnnouncePeriod;
+            byte[] f = BitConverter.GetBytes(seconds);
 
             try
             {
-                mod.Apply(reader);
-                Logger.Log(LogLevel.Info, "Set spawn delay to {0}s", Core.Server.Settings.AutoAnnouncePeriod.ToString());
+                if (cave.CaveAddress == IntPtr.Zero)
+                {
+                    //movss xmm6,[float]; jmp back. {0}=return addr, trailing bytes=the delay float
+                    cave.CaveBytes = "F30F10350C00000048B8{0}FFE0" + BitConverter.ToString(f).Replace("-", "");
+                    mod.Apply(reader);
+                }
+                else
+                {
+                    //cave+0x14 = the inline float literal
+                    reader.WriteBytes(IntPtr.Add(cave.CaveAddress, 0x14), f);
+                }
+                Logger.Log(LogLevel.Info, "Set spawn delay to {0}s", seconds.ToString());
             }
             catch (Exception ex)
             {
@@ -132,7 +142,29 @@ namespace SWBF2Admin.Runtime.Readers
             }
         }
 
-        //Aspyr writes the platform lobby into the process
+        public void UpdateSpawnDelay()
+        {
+            if (!isAspyr || !ProcessOpened) return;
+
+            ProcessMod mod = Mods.Find(m => m.Name == SPAWN_DELAY_MOD);
+            if (mod == null || mod.CodeCaves.Count == 0) return;
+
+            CodeCave cave = mod.CodeCaves[0];
+            if (cave.CaveAddress == IntPtr.Zero) return;
+
+            byte[] f = BitConverter.GetBytes((float)Core.Server.Settings.AutoAnnouncePeriod);
+            try
+            {
+                //cave+0x14 = the inline float literal
+                reader.WriteBytes(IntPtr.Add(cave.CaveAddress, 0x14), f);
+                Logger.Log(LogLevel.Info, "Updated spawn delay to {0}s", Core.Server.Settings.AutoAnnouncePeriod.ToString());
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warning, "Failed to update spawn delay {0}", ex.Message);
+            }
+        }
+
         public void ApplyPlatform()
         {
             if (!isAspyr || !ProcessOpened) return;
@@ -140,7 +172,6 @@ namespace SWBF2Admin.Runtime.Readers
             ProcessMod mod = Mods.Find(m => m.Name == PLATFORM_MOD);
             if (mod == null || mod.ProcessEdits.Count == 0) return;
 
-            //Every valid platform is a two-byte ASCII code (pc/ps/xb/ns).
             string platform = Core.Server.Settings.Platform;
             if (string.IsNullOrEmpty(platform) || platform.Length != 2) return;
             mod.ProcessEdits[0].PatchedBytes = System.Text.Encoding.ASCII.GetBytes(platform);
@@ -156,7 +187,7 @@ namespace SWBF2Admin.Runtime.Readers
             }
         }
 
-        //Update the file in place so hand-authored XML comments survive; full rewrite only as a fallback
+        //Patch in place to keep XML comments; rewrite only on failure
         public void SaveConfig()
         {
             string fileName = string.IsNullOrEmpty(configFileName)
@@ -189,7 +220,7 @@ namespace SWBF2Admin.Runtime.Readers
             return info[0].FileName;
         }
 
-        //Only rewrites ApplyOnStart; Enabled is runtime-only and not persisted (see ProcessMod.Enabled)
+        //Only persists ApplyOnStart (Enabled is runtime-only)
         private void UpdateConfigInPlace(string fileName)
         {
             XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
@@ -235,7 +266,6 @@ namespace SWBF2Admin.Runtime.Readers
                 }
 
                 System.Threading.Thread.Sleep(sleepMs);
-
             }
 
             Logger.Log(LogLevel.Warning, "Failed to attach process reader to module \"{0}\".", moduleName);

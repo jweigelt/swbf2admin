@@ -51,7 +51,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
         [XmlAttribute(DataType = "hexBinary")]
         public byte[] OriginalBytes { get; set; }
 
-        //Legacy string aliases: read from the file but never serialized back (raw bytes would be invalid XML)
+        //String aliases: parsed on read, never written back
         [XmlAttribute]
         public string PatchedString
         {

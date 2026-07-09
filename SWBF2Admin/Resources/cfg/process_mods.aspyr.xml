@@ -5,10 +5,21 @@
 	<Mods>
 		<!-- ASPYR (Classic Collection) PROCESS MODS -->
 		
-		<!-- Instant Spawn - Overrides spawn delay patch -->
+		<!--
+			InstantSpawn_Aspyr
+
+			In the respawn tick (Battlefront2.dll+BFD30) a character's spawn gate is set to
+			reinforcementCount + 1, and spawning is blocked while reinforcementCount < spawnGate
+			(the character waits for the next reinforcement wave). NOP the increment so the gate
+			holds reinforcementCount itself, which is never < the count, and the wait is skipped.
+
+			Overrides the spawn_delay patch (spawns immediately regardless of the delay).
+
+			Hook at Battlefront2.dll+C0520:
+				inc edx  ->  nop nop        ; [char+1A8] = count instead of count + 1
+		-->
 		<ProcessMod Name="instant_spawn" ApplyOnStart="false">
 			<ProcessEdits>
-				<!-- Offset -->
 				<ProcessEdit
 					ModuleOffset="0xC0520"
 					OriginalBytes="FFC2"
@@ -16,21 +27,36 @@
 			</ProcessEdits>
 		</ProcessMod>
 
-		<!-- 
-			Spawn delay patch || 41700000 = 15 || 40E00000 = 7 || 40400000 = 3
-			
-			If enabled/disabled, change will be seen after a map change
-			
-			Note: This value is overwritten by the "Spawn Delay" option in Game Settings
+		<!--
+			SpawnDelay_Aspyr
+
+			When netEnabled is set (a networked game, i.e. always on a dedicated server)
+			SetSpawnDelay (Battlefront2.dll+22F000) forces the per-team spawn delay to a
+			hardcoded 15.0f, loaded at Battlefront2.dll+22F054:
+				movss xmm6,[Battlefront2.dll+504524]
+			Detour that load to a cave that reads the delay from an inline float instead. The
+			value comes from WebAdmin and is written to the cave by ProcessWriter.ApplySpawnDelay().
+
+			Detour at Battlefront2.dll+22F054 (12 bytes, movss 8 + nop 4):
+				; CodeCave writer installs an absolute jump to the allocated cave here.
+				; The non-net path (jz +22F052 -> +22F060) skips this site, so only the
+				; net override is redirected.
+
+			Cave:
+				movss xmm6,[rip+0x0C]              ; reload xmm6 from the float below
+				mov   rax,Battlefront2.dll+22F060  ; {0} = return after the overwritten bytes
+				jmp   rax
+				dd    <spawn float>                ; ApplySpawnDelay writes these 4 bytes (default 15.0)
 		-->
 		<ProcessMod Name="spawn_delay" ApplyOnStart="false">
-			<ProcessEdits>
-				<!-- Offset -->
-				<ProcessEdit
-					ModuleOffset="0x504524"
-					OriginalBytes="41700000"
-					PatchedBytes= "40E00000"/>
-			</ProcessEdits>
+			<CodeCaves>
+				<CodeCave
+					MemoryAllocatedSize="64"
+					RedirectModuleOffset="0x22F054"
+					OriginalBytes="F30F1035C8542D000F1F4000"
+					CustomAddresses="0x22F060"
+					CaveBytes="F30F10350C00000048B8{0}FFE000007041"/>
+			</CodeCaves>
 		</ProcessMod>
 
 		<!--
@@ -86,19 +112,24 @@
 		<!--
 			MapHangFix_Aspyr
 
-			The gate function Battlefront2.dll+69120 (galaxy NetIsHost @0x5B6070) is
-			polled every netcode tick. Its first instruction reads a loading/endgame
-			flag; while set, the gate keeps taking the "endgame work" path which can
-			hang indefinitely. Galaxy fixes this by detouring the flag read into a
+			The gate function Battlefront2.dll+269120 (NetGame::IsGameOver, the CC
+			equivalent of galaxy's NetGame::IsGameOver @0x5B6070) is polled every
+			netcode tick. Its first instruction reads netEnabled; while that is set the
+			gate keeps taking the "endgame work" (deadline) path which can hang
+			indefinitely. Galaxy fixes this by detouring the flag read into a
 			watchdog: it counts ticks and, after 100, forces the gate to report "done"
 			so the game breaks out of the hang loop. The counter is reset whenever the
 			map returns to idle (MAP_STATUS == 0).
 
-			Hook at Battlefront2.dll+69124 (7 bytes, movzx eax,byte[flag 0xE765CC]):
-				jmp Battlefront2.dll+69112      ; relative jump into the INT3 pad gap
+			MAP_STATUS (Battlefront2.dll+AEFF90) is the MissionVictory per-team bitmask:
+			0 during play, nonzero at game-over, so the counter only climbs during an
+			endgame.
+
+			Hook at Battlefront2.dll+269124 (7 bytes, movzx eax,byte[netEnabled 0xE765CC]):
+				jmp Battlefront2.dll+269112     ; relative jump into the INT3 pad gap
 				nop 2                            ; that precedes the gate function
 
-			Stub at Battlefront2.dll+69112 (14-byte INT3 pad):
+			Stub at Battlefront2.dll+269112 (14-byte INT3 pad):
 				; CodeCave writer installs an absolute jump to the allocated cave here.
 
 			Cave (self-contained watchdog; does NOT re-run the original movzx):
@@ -115,7 +146,7 @@
 			normal:
 				mov  eax, 1                     ; nonzero -> gate keeps doing endgame work
 			retn:
-				mov  r11, RETN                  ; {1} = Battlefront2.dll+6912B (test eax,eax)
+				mov  r11, RETN                  ; {1} = Battlefront2.dll+26912B (test eax,eax)
 				jmp  r11                        ; preserves eax (return value)
 			counter:
 				dd   0
@@ -127,7 +158,7 @@
 		<ProcessMod Name="maphang_fix" ApplyOnStart="false">
 			<ProcessEdits>
 				<ProcessEdit
-					ModuleOffset="0x69124"
+					ModuleOffset="0x269124"
 					OriginalBytes="0FB605A1D4C000"
 					PatchedBytes="E9E9FFFFFF9090"/>
 			</ProcessEdits>
@@ -135,9 +166,9 @@
 			<CodeCaves>
 				<CodeCave
 					MemoryAllocatedSize="128"
-					RedirectModuleOffset="0x69112"
+					RedirectModuleOffset="0x269112"
 					OriginalBytes="CCCCCCCCCCCCCCCCCCCCCCCCCCCC"
-					CustomAddresses="0xAEFF90,0x6912B"
+					CustomAddresses="0xAEFF90,0x26912B"
 					CaveBytes="49BB{0}41833B00750AC7052500000000000000FF051F000000833D1800000064720433C0EB05B80100000049BB{1}41FFE300000000"/>
 			</CodeCaves>
 		</ProcessMod>
@@ -145,9 +176,13 @@
 		<!--
 			DistanceLagFix_Aspyr (playerMovesPatch)
 
-			Galaxy: mov dword[ebp-0x1c], 5 @0x5D38B5, imm low byte 0x05 @0x5D38B8.
-			CC:     mov dword[rsp+0x40], 5 @0x18028DA82, imm low byte 0x05 @0x18028DA86
-							(file offset 0x28CE86 -> module RVA 0x28DA86).
+			WritePlayerMoves (Battlefront2.dll+28D8A0) relays only the N nearest players'
+			per-turn moves to each client (N = 5), so distant players' inputs (e.g. fire) are
+			dropped -> distance lag / invisible ordnance. Raise N to 32; the distance-sorted
+			selector holds 64, so there is headroom.
+
+			Patch at Battlefront2.dll+28DA82: mov dword[rsp+0x40], 5   ; imm low byte 05 -> 20 @+28DA86
+			Galaxy equivalent: mov dword[ebp-0x1c], 5 @0x5D38B5 (imm @0x5D38B8).
 		-->
 		<ProcessMod Name="distance_lag_fix" ApplyOnStart="false">
 			<ProcessEdits>
@@ -161,11 +196,13 @@
 		<!--
 			PlatformLobby_Aspyr
 
-			Valid codes: pc, ps (PlayStation), xb (Xbox) and ns (Nintendo Switch).
+			The two-byte platform code at Battlefront2.dll+64AA58 selects which platform lobby
+			(server list) the server registers with. Each platform has its own lobby, so the
+			server only shows up for players on the matching one. Overwrite the code to move it
+			between lobbies. The value comes from WebAdmin and is written by ProcessWriter.ApplyPlatform().
 
-			All two ASCII bytes. Requires a server restart to change.
-
-			Note: This value is overwritten by the "Platform Lobby" option in General Settings
+			Valid codes: pc, ps (PlayStation), xb (Xbox), ns (Nintendo Switch).
+			Requires a server restart to change (set via General Settings -> Platform Lobby).
 		-->
 		<ProcessMod Name="platform_lobby" ApplyOnStart="true">
 			<ProcessEdits>

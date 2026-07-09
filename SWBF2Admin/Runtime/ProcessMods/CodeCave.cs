@@ -25,7 +25,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
             set
             {
                 value = value.Replace("0x", "");
-                _redirectOffset = long.Parse(value.Replace("0x", ""), NumberStyles.HexNumber);
+                _redirectOffset = long.Parse(value, NumberStyles.HexNumber);
             }
         }
 
@@ -43,9 +43,8 @@ namespace SWBF2Admin.Runtime.ProcessMods
             }
             set 
             { 
-                value = value.Replace("0x", ""); 
+                value = value.Replace("0x", "");
                 _customAddresses = value
-                    .Replace("0x", "")
                     .Split(',')
                     .Where(x => !string.IsNullOrWhiteSpace(x))
                     .Select(x => long.Parse(x, NumberStyles.HexNumber))
@@ -53,7 +52,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
             }
         }
 
-        private IntPtr CaveAddress;
+        public IntPtr CaveAddress { get; private set; }
         private IntPtr JmpAddress;
         private long _redirectOffset;
         private byte[] _caveBytes;
@@ -92,7 +91,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
         {
             long returnAddr = JmpAddress.ToInt64() + OriginalBytes.Length;
             return IntPtr.Size == 8
-                ? GetAbsJmpBytes(new IntPtr(returnAddr), padTooOriginalLength: false)
+                ? GetAbsJmpBytes(new IntPtr(returnAddr), padToOriginalLength: false)
                 : GetRelJmpBackBytes(returnAddr);
         }
 
@@ -104,7 +103,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
                 0xE9, 0, 0, 0, 0
             };
 
-            long endOfCave = CaveAddress.ToInt64() + _caveBytes.Length + 5;
+            long endOfCave = CaveAddress.ToInt64() + _caveBytes.Length + 5;   //+5 = the E9 jmp appended after the cave
             int displacement = checked((int)(returnAddr - endOfCave));
             BitConverter.GetBytes(displacement).CopyTo(jmpBytes, 1);
             return jmpBytes;
@@ -140,7 +139,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
         }
 
         [MoonSharpHidden]
-        private byte[] GetAbsJmpBytes(IntPtr dst, bool padTooOriginalLength = true)
+        private byte[] GetAbsJmpBytes(IntPtr dst, bool padToOriginalLength = true)
         {
             byte[] jmpBytes = new byte[]
             {
@@ -149,7 +148,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
 
             BitConverter.GetBytes((long)dst).CopyTo(jmpBytes, 2);
 
-            return padTooOriginalLength
+            return padToOriginalLength
                 ? PadWithNops(jmpBytes, OriginalBytes.Length)
                 : jmpBytes;
         }
@@ -175,6 +174,13 @@ namespace SWBF2Admin.Runtime.ProcessMods
         {
             reader.WriteBytes(JmpAddress, OriginalBytes);
             reader.FreeMemory(CaveAddress);
+            CaveAddress = IntPtr.Zero;
+        }
+
+        [MoonSharpHidden]
+        public void ResetAllocation()
+        {
+            CaveAddress = IntPtr.Zero;
         }
         [MoonSharpHidden]
         private byte[] InjectCustomAddresses(ProcessMemoryReader reader)

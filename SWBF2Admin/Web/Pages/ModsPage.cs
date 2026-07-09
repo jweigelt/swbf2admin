@@ -187,7 +187,6 @@ namespace SWBF2Admin.Web.Pages
             if (enabled) Core.Mods.ApplyMod(mod);
             else Core.Mods.RevertMod(mod);
 
-            //Announce the change in chat, mirroring the applymods command, when the server is online.
             if (Core.Server.Status == ServerStatus.Online)
                 Core.Rcon.Say($"{(enabled ? "Applied" : "Reverted")} mod {mod.Name}");
         }
@@ -202,7 +201,7 @@ namespace SWBF2Admin.Web.Pages
 
             Core.BF2.SaveConfig();
 
-            //Process mods can only be written while the reader is attached to a running game.
+            //Only writable while attached to a running game
             if (Core.Server.Status == ServerStatus.Online && Core.BF2.ProcessOpened)
             {
                 if (enabled) Core.BF2.ApplyMod(mod);

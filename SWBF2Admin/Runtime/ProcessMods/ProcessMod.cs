@@ -34,7 +34,6 @@ namespace SWBF2Admin.Runtime.ProcessMods
             foreach (ProcessEdit edit in ProcessEdits)
             {
                 edit.Apply(reader);
-                
             }
 
             foreach (CodeCave codeCave in CodeCaves)

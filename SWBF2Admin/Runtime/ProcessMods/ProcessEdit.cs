@@ -1,6 +1,7 @@
 ﻿using SWBF2Admin.Runtime.Readers;
 using SWBF2Admin.Utility;
 using System.Globalization;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace SWBF2Admin.Runtime.ProcessMods
@@ -32,12 +33,12 @@ namespace SWBF2Admin.Runtime.ProcessMods
         public void Apply(ProcessMemoryReader reader)
         {
             reader.WriteBytes(reader.GetModuleBase(_moduleOffset), PatchedBytes);
-            Logger.Log(LogLevel.Verbose, "Applied process edit at offset 0x{0} with bytes: {1}", _moduleOffset.ToString("X"), string.Join(" ", PatchedBytes.ToString()));
+            Logger.Log(LogLevel.Verbose, "Applied process edit at offset 0x{0} with bytes: {1}", _moduleOffset.ToString("X"), string.Join(" ", PatchedBytes.Select(b => b.ToString("X2"))));
         }
         public void Revert(ProcessMemoryReader reader)
         {
             reader.WriteBytes(reader.GetModuleBase(_moduleOffset), OriginalBytes);
-            Logger.Log(LogLevel.Verbose, "Reverted process edit at offset 0x{0} with bytes: {1}", _moduleOffset.ToString("X"), string.Join(" ", OriginalBytes.ToString()));
+            Logger.Log(LogLevel.Verbose, "Reverted process edit at offset 0x{0} with bytes: {1}", _moduleOffset.ToString("X"), string.Join(" ", OriginalBytes.Select(b => b.ToString("X2"))));
         }
     }
 }

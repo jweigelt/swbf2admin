@@ -28,7 +28,6 @@ namespace SWBF2Admin.Runtime.ApplyMods
     {
         private string serverDir;
         private LvlWriterConfig config;
-        //Save back to whichever file we loaded from
         private string configFileName = "";
         public LvlWriter(AdminCore core) : base(core) { }
         public virtual List<LvlMod> Mods { get { return config?.Mods ?? new List<LvlMod>(); } }
@@ -42,7 +41,6 @@ namespace SWBF2Admin.Runtime.ApplyMods
                 this.config = Core.Files.ReadConfig<LvlWriterConfig>(configFileName, "SWBF2Admin.Resources.cfg.mods.aspyr.xml");
             } else
             {
-                //Empty lets FileHandler use the default path from ConfigFileInfo
                 configFileName = "";
                 this.config = Core.Files.ReadConfig<LvlWriterConfig>();
             }
@@ -99,7 +97,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
             }
         }
 
-        //Update the file in place so hand-authored XML comments survive; full rewrite only as a fallback
+        //Patch in place to keep XML comments; rewrite only on failure
         public void SaveConfig()
         {
             string fileName = string.IsNullOrEmpty(configFileName)
@@ -132,7 +130,6 @@ namespace SWBF2Admin.Runtime.ApplyMods
             return info[0].FileName;
         }
 
-        //Only rewrites the Enabled attribute, leaving the rest of the file untouched
         private void UpdateConfigInPlace(string fileName)
         {
             XmlDocument doc = new XmlDocument { PreserveWhitespace = true };

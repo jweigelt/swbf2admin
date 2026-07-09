@@ -79,6 +79,7 @@ namespace SWBF2Admin.Web.Pages
                     if (Core.Config.EnableRuntime && Core.Server.Status == ServerStatus.Online)
                     {
                         Core.Scheduler.PushTask(() => Core.Rcon.UpdateServerSettings(changes));
+                        Core.Scheduler.PushTask(() => Core.BF2.UpdateSpawnDelay());
                     }
 
                     try

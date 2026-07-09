@@ -278,7 +278,6 @@ namespace SWBF2Admin.Runtime.Readers
             return targetPointerSize == 8
                 ? new IntPtr(BitConverter.ToInt64(buf, 0))
                 : new IntPtr(BitConverter.ToInt32(buf, 0));
-
         }
         #endregion
 

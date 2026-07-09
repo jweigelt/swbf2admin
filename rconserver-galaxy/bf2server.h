@@ -101,11 +101,6 @@ enum MapStatus : BYTE {
 void bf2server_init();
 
 /**
-*	Patches update timing routine
-**/
-void bf2server_patch_ups();
-
-/**
 *	Fixes the /norender arg which normally crashes with the gog/steam binaries
 **/
 void bf2server_patch_norender();
@@ -134,6 +129,11 @@ void bf2server_patch_maphang();
 *	Distance lag patch by @donhomerj
 **/
 void bf2server_patch_distance_lag();
+
+/**
+*	/waitlate grace period (turns the host waits for a late move); compile-time constant.
+**/
+void bf2server_patch_waitlate_grace();
 
 /**
 *	Patches SetSpawnDelay() so it uses our own spawn value per default

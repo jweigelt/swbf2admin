@@ -168,8 +168,8 @@ namespace SWBF2Admin.Runtime.Rcon
         #region TX
         /// <summary>
         /// Filters command string to prevent injection vulns
-        /// <note>Only escapes a '/' at a token boundary, leaving slashes inside words like URLs intact.</note>
         /// </summary>
+        /// <remarks>Only escapes a '/' at a token boundary, leaving slashes inside words like URLs intact.</remarks>
         /// <param name="cmd"></param>
         /// <returns></returns>
         public string FilterString(string cmd)
@@ -179,7 +179,6 @@ namespace SWBF2Admin.Runtime.Rcon
             char[] chars = cmd.ToCharArray();
             for (int i = 0; i < chars.Length; i++)
             {
-                //a '/' can only start a new command at a token boundary
                 if (chars[i] == '/' && (i == 0 || char.IsWhiteSpace(chars[i - 1])))
                 {
                     chars[i] = '\\';

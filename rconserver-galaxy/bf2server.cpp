@@ -29,7 +29,8 @@ void bf2server_init() {
 	bf2server_patch_maphang();
 	bf2server_patch_dedicated();
 	bf2server_patch_distance_lag();
-	//bf2server_patch_netupdate();
+	bf2server_patch_netupdate();
+	bf2server_patch_waitlate_grace();
 
 	chatCCAddr = reinterpret_cast<DWORD>(&bf2server_chat_cc);
 	bf2server_set_chat_cc();
@@ -177,30 +178,25 @@ void bf2server_patch_maphang()
 
 void bf2server_patch_distance_lag()
 {
-	BYTE checkFakeWorldPatch[] = {
-		//test ecx,ecx -> nop
-		0x90, 0x90
-	};
-
-	BYTE fakeWorldPatch[] = {
-		//call offset 1D4000 -> nop
-		0x90, 0x90, 0x90, 0x90, 0x90
-	};
-
 	BYTE playerMovesPatch[] = {
 		//0x05 -> 0x20
 		0x20
 	};
 
-	BYTE distanceLagPatch[] = {
-		//0x0400 -> 0x1fa0
-		0xa0, 0x1f, 0x00, 0x00
-	};
-
-	bf2server_patch_asm(0x001bbefd, (void*)checkFakeWorldPatch, sizeof(checkFakeWorldPatch));
-	bf2server_patch_asm(0x001bbf29, (void*)fakeWorldPatch, sizeof(fakeWorldPatch));
 	bf2server_patch_asm(0x001d38b8, (void*)playerMovesPatch, sizeof(playerMovesPatch));
-	bf2server_patch_asm(0x003e9268, (void*)distanceLagPatch, sizeof(distanceLagPatch));
+}
+
+void bf2server_patch_waitlate_grace()
+{
+	// /waitlate grace = how many turns the host waits for a late client move before
+	// force-advancing (NetHostAdvanceTurns @ 0x005BAACD: MOV [EBP-0x18], 3). ONLY affects
+	// waitlate (nowaitlate forces grace 0), and does NOT re-enable the rollback replay /
+	// fast-timer (gated on netWaitLate==0, untouched). Lower = tighter hit-reg / snappier;
+	// higher = wait longer for the correct move. Range 0..127.
+	BYTE grace = 1;   // <-- compile-time tweak: 0/1 = tighter hit-reg, 3 = stock waitlate
+
+	//imm32 low byte of MOV [EBP-0x18], 3 @ 0x005BAACD: 03 -> grace
+	bf2server_patch_asm(0x005BAAD0 - 0x400000, (void*)&grace, sizeof(grace));
 }
 
 void bf2server_patch_asm(DWORD_PTR offset, void * patch, size_t patchSize)
@@ -303,49 +299,174 @@ void bf2server_patch_spawnvalue()
 	bf2server_patch_asm(OFFSET_SPAWNVALUE_MOD_FLOAT, (void*)&spawnValueAddr, sizeof(DWORD));
 }
 
+
+// Sending each client an update every tick (needed for 30 UPS) breaks two things:
+//  - RTT corruption (root bug): on a full send window SendUpdate2 writes out of
+//    bounds over the smoothed RTT (SRTT = now), so its next-send delay explodes and
+//    starves the client. Stock avoids it by not sending on a full window; our
+//    window-gate bypass removes that guard. Hook D skips the OOB write.
+//  - Dropped create-confirms: a new object is re-sent every tick until the client
+//    confirms it, but the client keeps only the newest packet per receive pass, so
+//    the confirm is coalesced away and the object is rebuilt from a partial snapshot
+//    with uninitialized fields. Hooks A+B pace an un-confirmed client at the normal
+//    RTT-adaptive delay so the confirm survives; every tick once confirmed.
+//
+// Three code-cave detours (jmp preserves each function's EBP frame):
+//   Hook D 0x5D2DF1 (SendUpdate2): skip the out-of-bounds window-slot write.
+//   Hook A 0x5CE582 (WriteObjects): record whether this send emitted a create.
+//   Hook B 0x5D2E8F (SendUpdate2): un-confirmed create -> RTT delay, else next tick.
+
+static DWORD g_curDstAddr;        // &_curDst (dest client index)         VA 0x01FA9C2C
+static DWORD g_wo_resume;          // WriteObjects resume (after MOV)      VA 0x005CE58C
+static DWORD g_su2_resume;         // SendUpdate2 resume (after IMUL)      VA 0x005D2E99
+static DWORD g_su2_mark_resume;    // SendUpdate2 do-mark resume           VA 0x005D2DFB
+static DWORD g_su2_skip_resume;    // SendUpdate2 skip-mark resume         VA 0x005D2E21
+static DWORD g_getTimeFn;          // "get now (float secs)" fn           VA 0x005B3840
+static BYTE  g_pendCreate[256];   // per-client: last send emitted a create (zero-init;
+                                  // 256 >> any player-index cap, so no overflow)
+static DWORD g_pendCreateAddr;    // = &g_pendCreate[0]
+
+// Hook A @ 0x5CE582. Overwrites MOV dword[EBP-0x84],6 (10 bytes; 7 used, resume
+// 0x5CE58C). The create-list terminator's convergence point, so local_11 is final.
+void __declspec(naked) bf2_pendcreate_cc()
+{
+    __asm {
+        pushad
+        mov   eax, dword ptr [g_curDstAddr]
+        mov   eax, dword ptr [eax]          // _curDst (dest client index)
+        movzx ecx, byte ptr [ebp-11h]       // local_11: emitted a CREATE this send?
+        mov   edx, dword ptr [g_pendCreateAddr]
+        mov   byte ptr [edx+eax], cl        // g_pendCreate[_curDst] = local_11
+        popad
+        mov   dword ptr [ebp-84h], 6        // redo overwritten MOV [EBP-0x84],0x6
+        mov   eax, dword ptr [g_wo_resume]
+        jmp   eax                           // resume 0x5CE58C
+    }
+}
+
+// Hook D @ 0x5D2DF1 (SendUpdate2, the RTT root fix). The slot-search loop exits with
+// local_4=2 when both send-window slots are full (only reachable once the window gate
+// is bypassed). Stock then marks a nonexistent "slot 2": MOVSS [P+2*4+0x1bc] =
+// [P+0x1C4] = SRTT, writing `now` into the smoothed RTT -> RTT/delay/ping all run away
+// (confirmed live via HW write-BP). Fix: if no slot is free, skip the marking - the
+// send still goes out, just untracked this once, and SRTT stays real. Overwrites CALL
+// 0x5b3840 (5) + 2 bytes of MOVSS[EBP-0x14] (7 total); do-mark redoes both, resumes
+// 0x5D2DFB. EAX dead at loop exit.
+void __declspec(naked) bf2_su2_slotfix_cc()
+{
+    __asm {
+        cmp   dword ptr [ebp-4], 2          // local_4: free slot idx, or 2 if none free
+        jb    su2_domark
+        mov   eax, dword ptr [g_su2_skip_resume]   // no free slot -> skip marking (0x5D2E21)
+        jmp   eax
+    su2_domark:
+        call  dword ptr [g_getTimeFn]       // redo CALL 0x5b3840 -> XMM0 = now (secs)
+        movss dword ptr [ebp-14h], xmm0     // redo MOVSS [EBP-0x14], XMM0
+        mov   eax, dword ptr [g_su2_mark_resume]
+        jmp   eax                           // resume 0x5D2DFB (mark the free slot)
+    }
+}
+
+// Hook B @ 0x5D2E8F. Overwrites ADD ECX,[EBP-0x18] (3 bytes) + 4 bytes of the following
+// IMUL (7 total; resume 0x5D2E99). ECX = serverHostTurn. Un-confirmed create -> schedule
+// next send at the real stock delay [EBP-0x18] (RTT-adaptive, correct only because Hook D
+// keeps SRTT sane); else +1 tick (full 30 UPS). Replaces the send-every-tick byte patch.
+void __declspec(naked) bf2_su2_delay_cc()
+{
+    __asm {
+        mov   edx, dword ptr [ebp+8]        // client index (SendUpdate2 param)
+        mov   eax, dword ptr [g_pendCreateAddr]
+        movzx eax, byte ptr [eax+edx]       // g_pendCreate[idx]
+        test  eax, eax
+        jz    su2_fast
+        add   ecx, dword ptr [ebp-18h]      // pending create -> real ping-adaptive delay
+        jmp   su2_done
+    su2_fast:
+        add   ecx, 1                        // no pending create -> +1 (full 30 UPS)
+    su2_done:
+        imul  edx, dword ptr [ebp+8], 208h  // redo overwritten IMUL EDX,[EBP+8],0x208
+        mov   eax, dword ptr [g_su2_resume]
+        jmp   eax                           // resume 0x5D2E99 (MOV [EDX+0x1ECEF74],ECX)
+    }
+}
+
+void bf2server_patch_send_scheduling()
+{
+    g_curDstAddr      = (DWORD)(moduleBase + 0x1BA9C2C); // _curDst          0x01FA9C2C
+    g_wo_resume       = (DWORD)(moduleBase + 0x1CE58C);  // WO resume        0x005CE58C
+    g_su2_resume      = (DWORD)(moduleBase + 0x1D2E99);  // SU2 resume       0x005D2E99
+    g_su2_mark_resume = (DWORD)(moduleBase + 0x1D2DFB);  // SU2 do-mark      0x005D2DFB
+    g_su2_skip_resume = (DWORD)(moduleBase + 0x1D2E21);  // SU2 skip-mark    0x005D2E21
+    g_getTimeFn       = (DWORD)(moduleBase + 0x1B3840);  // get-now fn       0x005B3840
+    g_pendCreateAddr  = (DWORD)&g_pendCreate[0];
+
+    // Hook D @ 0x5D2DF1 (SendUpdate2): RTT root fix - skip the out-of-bounds window-slot
+    // write on a full window, so the smoothed RTT is never overwritten with `now`.
+    BYTE d[] = { 0xB8, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xE0 };
+    *(DWORD*)&d[1] = (DWORD)&bf2_su2_slotfix_cc;
+    bf2server_patch_asm(0x005D2DF1 - 0x400000, d, sizeof(d));
+
+    // Hook A @ 0x5CE582 (WriteObjects): record per-client "this send emitted a create".
+    BYTE a[] = { 0xB8, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xE0 };
+    *(DWORD*)&a[1] = (DWORD)&bf2_pendcreate_cc;
+    bf2server_patch_asm(0x005CE582 - 0x400000, a, sizeof(a));
+
+    // Hook B @ 0x5D2E8F (SendUpdate2): conditional pacing; replaces the send-every-tick patch.
+    BYTE b[] = { 0xB8, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xE0 };
+    *(DWORD*)&b[1] = (DWORD)&bf2_su2_delay_cc;
+    bf2server_patch_asm(0x005D2E8F - 0x400000, b, sizeof(b));
+}
+
 void bf2server_patch_netupdate()
 {
-    // Configure IsSendWindowOpen to resend
-    // faster on dropped packet
-    BYTE send_window_patch[] = {
-            //0F 86 9C 00 00 00 -> 90 90 90 90 90 90
-            0x90, 0x90,0x90, 0x90,0x90, 0x90
+    // GameLoop::Update: skip the per-tick render/present call -> CPU headroom to hold 30 UPS.
+    BYTE render_patch[] = {
+        //call 0x6be110 (E8 11 A8 18 00) -> nop x5
+        0x90, 0x90, 0x90, 0x90, 0x90
     };
+    bf2server_patch_asm(0x005338FA - 0x400000,
+        reinterpret_cast<void*>(render_patch), sizeof(render_patch));
 
-    bf2server_patch_asm(0x005D30FB-0x400000,
-                        reinterpret_cast<void*>(send_window_patch),
-                        sizeof(send_window_patch));
-
-    // Remote per Client outbound bandwidth limiter
-    BYTE pipe_full_patch[] = {
-            //EB 80 -> 90 90
-            0x90, 0x90
+    // WindowCreate msg loop: Sleep(10) -> Sleep(0) on the inactive-window path, so
+    // the OS doesn't throttle the tick loop when the server window loses focus.
+    BYTE window_sleep_patch[] = {
+        //push 0x0A -> push 0x00
+        0x6A, 0x00
     };
+    bf2server_patch_asm(0x00618B03 - 0x400000,
+        reinterpret_cast<void*>(window_sleep_patch), sizeof(window_sleep_patch));
 
-    bf2server_patch_asm(0x005C9D2F-0x400000,
-                        reinterpret_cast<void*>(pipe_full_patch),
-                        sizeof(pipe_full_patch));
-
-    // set next update timestamp in SentUpdate so we
-    // can immediately tx in next server tick
-    BYTE send_update_patch[] = {
-            //03 4D E8 -> 81 C1 01
-            0x83, 0xC1, 0x01
+    // SendToClients: raise the per-call send budget from netCurMaxPlayers/2 to
+    // netCurMaxPlayers so every player gets an update each call (the rate gate at
+    // 0x5C9D16 keeps it to one send per client per turn).
+    BYTE send_all_patch[] = {
+        //cdq; sub eax,edx; sar eax,1  = the "/2" (99 2B C2 D1 F8) -> nop x5
+        0x90, 0x90, 0x90, 0x90, 0x90
     };
+    bf2server_patch_asm(0x005C9C19 - 0x400000,
+        reinterpret_cast<void*>(send_all_patch), sizeof(send_all_patch));
 
-    bf2server_patch_asm(0x005D2E8F-0x400000,
-                        reinterpret_cast<void*>(send_update_patch),
-                        sizeof(send_update_patch));
+    // SendToClients: bypass the ack-window gate (IsSendWindowOpen 0x5D3070) so a scheduled
+    // send is never withheld waiting on the window (JNZ 0x75 -> JMP 0xEB @ 0x5C9D56). This
+    // is what exposes the SendUpdate2 out-of-bounds write that Hook D fixes. Safe: the
+    // next-send gate (0x5C9D0E) runs first and paces un-confirmed creates (see above).
+    BYTE send_window_patch[] = { 0xEB };   // 0x75 -> 0xEB
+    bf2server_patch_asm(0x005C9D56 - 0x400000,
+        reinterpret_cast<void*>(send_window_patch), sizeof(send_window_patch));
 
-    BYTE cur_players_patch[] = {
-            //cdq
-            //sub eax, edx
-            //sar eax, 1
-            //-> mov eax, 0x40
-            0xb8, 0x40, 0x00, 0x00, 0x00
+    // Fix the SendUpdate2 RTT corruption (Hook D) and pace un-confirmed creates at the
+    // stock delay (Hooks A/B); also replaces the send-every-tick byte patch above.
+    bf2server_patch_send_scheduling();
+
+    // SendToClients: remove the outbound bandwidth limiter (IsPipeFull skip @ 0x5C9D40).
+    // Optional / no-op at scrim bandwidth (16 Mbit, ~10 players never fill the shared
+    // leaky bucket); only matters on a constrained uplink.
+    BYTE pipe_full_off_patch[] = {
+        //skip-if-IsPipeFull jmp (E9 53 FF FF FF) -> nop x5
+        0x90, 0x90, 0x90, 0x90, 0x90
     };
-    *(DWORD*)&cur_players_patch[1] = 1024;
-    bf2server_patch_asm(OFFSET_UPS_CLIENT_LIMITER, cur_players_patch, sizeof(cur_players_patch));
+    bf2server_patch_asm(0x005C9D40 - 0x400000,
+        reinterpret_cast<void*>(pipe_full_off_patch), sizeof(pipe_full_off_patch));
 
 }
 

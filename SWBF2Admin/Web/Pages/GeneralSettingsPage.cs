@@ -125,7 +125,7 @@ namespace SWBF2Admin.Web.Pages
                         Core.Scheduler.PushTask(() => Core.Rcon.UpdateServerSettings(changes));
                     }
 
-                    //preserve the announcement text (not editable in WebAdmin) by loading the existing config first
+                    //Load existing config first to keep the announcement text
                     ScheduleConfiguration scheduleCfg = Core.Files.ReadConfig<ScheduleConfiguration>();
                     scheduleCfg.EnableScheduledRestart = p.EnableScheduledRestart;
                     scheduleCfg.RestartThreshold = p.RestartThresholdMinutes * 60;

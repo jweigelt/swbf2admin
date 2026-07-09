@@ -48,7 +48,7 @@ namespace SWBF2Admin.Runtime.Watchdog
         public override void OnInit()
         {
             base.OnInit();
-            //restart between maps so we don't kick players mid-game
+            //Restart on map change, not mid-game
             Core.Rcon.GameEnded += new EventHandler(Server_GameEnded);
         }
 
@@ -93,7 +93,7 @@ namespace SWBF2Admin.Runtime.Watchdog
             if (restartPending && !isRestarting)
             {
                 Logger.Log(LogLevel.Info, "Map ended - performing scheduled restart");
-                isRestarting = true; //make sure we don't try to restart twice
+                isRestarting = true;
                 Core.Server.Restart();
             }
         }
