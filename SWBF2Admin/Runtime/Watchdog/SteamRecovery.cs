@@ -41,7 +41,7 @@ namespace SWBF2Admin.Runtime.Watchdog
         private const int STEAM_LOGIN_WAIT = 30000;      //ms to let Steam relaunch + log back in
 
         //failsafe so a never-completing restart can't wedge the ladder
-        private const int ACTION_PENDING_TIMEOUT = GAME_STOP_WAIT + STEAM_SHUTDOWN_WAIT + STEAM_LOGIN_WAIT + 120000;
+        private const int RECOVERY_TIMEOUT = GAME_STOP_WAIT + STEAM_SHUTDOWN_WAIT + STEAM_LOGIN_WAIT + 120000;
 
         private int graceSeconds;
         private int cooldownSeconds;
@@ -49,9 +49,7 @@ namespace SWBF2Admin.Runtime.Watchdog
 
         private DateTime serverStartTime;
         private DateTime lastSteamCycle = DateTime.MinValue;
-        private DateTime actionStartedTime = DateTime.MinValue;
         private int stage = STAGE_HEALTHY;
-        private bool actionPending;
 
         public SteamRecovery(AdminCore core) : base(core) { }
 
@@ -67,7 +65,6 @@ namespace SWBF2Admin.Runtime.Watchdog
         {
             //keep 'stage' across restarts so the ladder can escalate; only rcon recovery resets it
             serverStartTime = DateTime.Now;
-            actionPending = false;
             EnableUpdates();
         }
 
@@ -93,19 +90,7 @@ namespace SWBF2Admin.Runtime.Watchdog
                 return;
             }
 
-            //give each (re)start a grace window; don't act while a restart is in flight
-            if (actionPending)
-            {
-                if ((DateTime.Now - actionStartedTime).TotalMilliseconds > ACTION_PENDING_TIMEOUT)
-                {
-                    Logger.Log(LogLevel.Warning, "Recovery action didn't complete in time - clearing pending state to allow escalation.");
-                    actionPending = false;
-                }
-                else
-                {
-                    return;
-                }
-            }
+            //give each (re)start a grace window before acting
             if ((DateTime.Now - serverStartTime).TotalSeconds <= graceSeconds) return;
 
             switch (stage)
@@ -113,8 +98,6 @@ namespace SWBF2Admin.Runtime.Watchdog
                 case STAGE_HEALTHY:
                     Logger.Log(LogLevel.Warning, "Server is online but Rcon hasn't responded for >{0}s - restarting server (step 1/3).", graceSeconds.ToString());
                     stage = STAGE_RESTARTED;
-                    actionPending = true;
-                    actionStartedTime = DateTime.Now;
                     Core.Server.Restart();
                     break;
 
@@ -123,40 +106,46 @@ namespace SWBF2Admin.Runtime.Watchdog
                         return; //within Steam-cycle cooldown - wait
                     Logger.Log(LogLevel.Warning, "Rcon still not responding after restart - cycling Steam, then restarting (step 2/3).");
                     stage = STAGE_STEAM_CYCLED;
-                    actionPending = true;
-                    actionStartedTime = DateTime.Now;
                     lastSteamCycle = DateTime.Now;
-                    CycleSteamThenRestart();
+
+                    Core.Server.Stop(ServerStopReason.STOP_EXIT);
+                    Core.Scheduler.PushDelayedTask(ShutdownSteam, GAME_STOP_WAIT);
+
+                    Core.Scheduler.PushDelayedTask(AbortOnFailure, RECOVERY_TIMEOUT);
                     break;
 
                 default: //STAGE_STEAM_CYCLED: ladder exhausted
-                    Logger.Log(LogLevel.Error, "Rcon still not responding after Steam restart - giving up.");
                     stage = STAGE_GAVE_UP;
                     DisableUpdates();
                     break;
             }
         }
 
-        private void CycleSteamThenRestart()
+        //single timer fired after the Steam cycle: disable the watchdog if rcon still hasn't recovered
+        private void AbortOnFailure()
         {
-            string steamExe = Path.Combine(steamPath, "steam.exe");
+            if (stage == STAGE_GAVE_UP || stage == STAGE_HEALTHY) return;
+            Logger.Log(LogLevel.Error, "Server/Rcon didn't recover after Steam cycle - aborting.");
+            stage = STAGE_GAVE_UP;
+            DisableUpdates();
+        }
 
-            //stop the game first - Steam won't shut down while a game it launched is running
-            Core.Server.Stop(ServerStopReason.STOP_EXIT);
+        private void ShutdownSteam()
+        {
+            try { Process.Start(Path.Combine(steamPath, "steam.exe"), "-shutdown"); }
+            catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam shutdown failed ({0})", ex.Message); }
 
-            Core.Scheduler.PushDelayedTask(() =>
-            {
-                try { Process.Start(steamExe, "-shutdown"); }
-                catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam shutdown failed ({0})", ex.Message); }
+            //relaunch Steam after 10s
+            Core.Scheduler.PushDelayedTask(RelaunchSteam, STEAM_SHUTDOWN_WAIT);
+        }
 
-                Core.Scheduler.PushDelayedTask(() =>
-                {
-                    try { Process.Start(steamExe); }
-                    catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam relaunch failed ({0})", ex.Message); }
+        private void RelaunchSteam()
+        {
+            try { Process.Start(Path.Combine(steamPath, "steam.exe")); }
+            catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam relaunch failed ({0})", ex.Message); }
 
-                    Core.Scheduler.PushDelayedTask(() => Core.Server.Start(), STEAM_LOGIN_WAIT);
-                }, STEAM_SHUTDOWN_WAIT);
-            }, GAME_STOP_WAIT);
+            //restart the server after 30s
+            Core.Scheduler.PushDelayedTask(() => Core.Server.Start(), STEAM_LOGIN_WAIT);
         }
     }
 }
