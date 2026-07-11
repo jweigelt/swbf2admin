@@ -77,12 +77,22 @@ namespace SWBF2Admin.Runtime.Commands.Misc
             if (enable)
             {
                 SendFormatted(OnApply, "{mod}", mod.Name);
-                Core.BF2.ApplyMod(mod);
+                mod.Enabled = true;
+                mod.ApplyOnStart = true;
+                Core.BF2.SaveConfig();
+
+                if (Core.Server.Status == ServerStatus.Online && Core.BF2.ProcessOpened)
+                    Core.BF2.ApplyMod(mod);
             }
             else
             {
                 SendFormatted(OnRevert, "{mod}", mod.Name);
-                Core.BF2.RevertMod(mod);
+                mod.Enabled = false;
+                mod.ApplyOnStart = false;
+                Core.BF2.SaveConfig();
+
+                if (Core.Server.Status == ServerStatus.Online && Core.BF2.ProcessOpened)
+                    Core.BF2.RevertMod(mod);
             }
 
             return true;

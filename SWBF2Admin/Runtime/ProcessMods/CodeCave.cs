@@ -52,6 +52,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
             }
         }
 
+        [XmlIgnore]
         public IntPtr CaveAddress { get; private set; }
         private IntPtr JmpAddress;
         private long _redirectOffset;

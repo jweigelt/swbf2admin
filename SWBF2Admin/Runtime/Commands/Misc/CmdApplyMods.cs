@@ -70,11 +70,15 @@ namespace SWBF2Admin.Runtime.Commands.Misc
             if (enable)
             {
                 SendFormatted(OnApply, "{mod}", mod.Name);
+                mod.Enabled = true;
+                Core.Mods.SaveConfig();
                 Core.Mods.ApplyMod(mod);
             }
             else
             {
                 SendFormatted(OnRevert, "{mod}", mod.Name);
+                mod.Enabled = false;
+                Core.Mods.SaveConfig();
                 Core.Mods.RevertMod(mod);
             }
 

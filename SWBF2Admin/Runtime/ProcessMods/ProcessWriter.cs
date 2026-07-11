@@ -115,6 +115,7 @@ namespace SWBF2Admin.Runtime.Readers
 
             ProcessMod mod = Mods.Find(m => m.Name == SPAWN_DELAY_MOD);
             if (mod == null || mod.CodeCaves.Count == 0) return;
+            if (!mod.Enabled) return;
 
             CodeCave cave = mod.CodeCaves[0];
 
@@ -143,6 +144,7 @@ namespace SWBF2Admin.Runtime.Readers
 
             ProcessMod mod = Mods.Find(m => m.Name == SPAWN_DELAY_MOD);
             if (mod == null || mod.CodeCaves.Count == 0) return;
+            if (!mod.Enabled) return;
 
             CodeCave cave = mod.CodeCaves[0];
             if (cave.CaveAddress == IntPtr.Zero) return;
