@@ -17,6 +17,7 @@
  */
 
 using SWBF2Admin.Config;
+using SWBF2Admin.Gameserver;
 using SWBF2Admin.Runtime.ProcessMods;
 using SWBF2Admin.Structures;
 

@@ -36,11 +36,12 @@ namespace SWBF2Admin.Runtime.Watchdog
         private const int STAGE_STEAM_CYCLED = 2;
         private const int STAGE_GAVE_UP = 3;
 
+        private const int GAME_STOP_WAIT = 5000;         //ms to let the game exit before shutting Steam
         private const int STEAM_SHUTDOWN_WAIT = 10000;   //ms to let 'steam -shutdown' finish
         private const int STEAM_LOGIN_WAIT = 30000;      //ms to let Steam relaunch + log back in
 
-        //failsafe timeout so a never-completing restart can't wedge the ladder
-        private const int ACTION_PENDING_TIMEOUT_MS = STEAM_SHUTDOWN_WAIT + STEAM_LOGIN_WAIT + 120000;
+        //failsafe so a never-completing restart can't wedge the ladder
+        private const int ACTION_PENDING_TIMEOUT = GAME_STOP_WAIT + STEAM_SHUTDOWN_WAIT + STEAM_LOGIN_WAIT + 120000;
 
         private int graceSeconds;
         private int cooldownSeconds;
@@ -95,7 +96,7 @@ namespace SWBF2Admin.Runtime.Watchdog
             //give each (re)start a grace window; don't act while a restart is in flight
             if (actionPending)
             {
-                if ((DateTime.Now - actionStartedTime).TotalMilliseconds > ACTION_PENDING_TIMEOUT_MS)
+                if ((DateTime.Now - actionStartedTime).TotalMilliseconds > ACTION_PENDING_TIMEOUT)
                 {
                     Logger.Log(LogLevel.Warning, "Recovery action didn't complete in time - clearing pending state to allow escalation.");
                     actionPending = false;
@@ -136,21 +137,26 @@ namespace SWBF2Admin.Runtime.Watchdog
             }
         }
 
-        /// <summary>Shuts Steam down, relaunches it, then restarts the server, spacing the steps so the work thread never blocks.</summary>
         private void CycleSteamThenRestart()
         {
             string steamExe = Path.Combine(steamPath, "steam.exe");
 
-            try { Process.Start(steamExe, "-shutdown"); }
-            catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam shutdown failed ({0})", ex.Message); }
+            //stop the game first - Steam won't shut down while a game it launched is running
+            Core.Server.Stop(ServerStopReason.STOP_EXIT);
 
             Core.Scheduler.PushDelayedTask(() =>
             {
-                try { Process.Start(steamExe); }
-                catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam relaunch failed ({0})", ex.Message); }
+                try { Process.Start(steamExe, "-shutdown"); }
+                catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam shutdown failed ({0})", ex.Message); }
 
-                Core.Scheduler.PushDelayedTask(() => Core.Server.Restart(), STEAM_LOGIN_WAIT);
-            }, STEAM_SHUTDOWN_WAIT);
+                Core.Scheduler.PushDelayedTask(() =>
+                {
+                    try { Process.Start(steamExe); }
+                    catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam relaunch failed ({0})", ex.Message); }
+
+                    Core.Scheduler.PushDelayedTask(() => Core.Server.Start(), STEAM_LOGIN_WAIT);
+                }, STEAM_SHUTDOWN_WAIT);
+            }, GAME_STOP_WAIT);
         }
     }
 }
