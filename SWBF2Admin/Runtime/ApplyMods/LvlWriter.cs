@@ -81,7 +81,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "Failed to revert mod \"{0}\" {1}", mod.Name, e.Message);
+                Logger.Log(LogLevel.Warning, "Failed to apply mod \"{0}\" {1}", mod.Name, e.Message);
             }
         }
 
@@ -93,7 +93,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "Failed to apply mod \"{0}\" {1}", mod.Name, e.Message);
+                Logger.Log(LogLevel.Warning, "Failed to revert mod \"{0}\" {1}", mod.Name, e.Message);
             }
         }
 

@@ -39,12 +39,16 @@ namespace SWBF2Admin.Runtime.Watchdog
         private const int STEAM_SHUTDOWN_WAIT = 10000;   //ms to let 'steam -shutdown' finish
         private const int STEAM_LOGIN_WAIT = 30000;      //ms to let Steam relaunch + log back in
 
+        //failsafe timeout so a never-completing restart can't wedge the ladder
+        private const int ACTION_PENDING_TIMEOUT_MS = STEAM_SHUTDOWN_WAIT + STEAM_LOGIN_WAIT + 120000;
+
         private int graceSeconds;
         private int cooldownSeconds;
         private string steamPath;
 
         private DateTime serverStartTime;
         private DateTime lastSteamCycle = DateTime.MinValue;
+        private DateTime actionStartedTime = DateTime.MinValue;
         private int stage = STAGE_HEALTHY;
         private bool actionPending;
 
@@ -89,7 +93,18 @@ namespace SWBF2Admin.Runtime.Watchdog
             }
 
             //give each (re)start a grace window; don't act while a restart is in flight
-            if (actionPending) return;
+            if (actionPending)
+            {
+                if ((DateTime.Now - actionStartedTime).TotalMilliseconds > ACTION_PENDING_TIMEOUT_MS)
+                {
+                    Logger.Log(LogLevel.Warning, "Recovery action didn't complete in time - clearing pending state to allow escalation.");
+                    actionPending = false;
+                }
+                else
+                {
+                    return;
+                }
+            }
             if ((DateTime.Now - serverStartTime).TotalSeconds <= graceSeconds) return;
 
             switch (stage)
@@ -98,6 +113,7 @@ namespace SWBF2Admin.Runtime.Watchdog
                     Logger.Log(LogLevel.Warning, "Server is online but Rcon hasn't responded for >{0}s - restarting server (step 1/3).", graceSeconds.ToString());
                     stage = STAGE_RESTARTED;
                     actionPending = true;
+                    actionStartedTime = DateTime.Now;
                     Core.Server.Restart();
                     break;
 
@@ -107,6 +123,7 @@ namespace SWBF2Admin.Runtime.Watchdog
                     Logger.Log(LogLevel.Warning, "Rcon still not responding after restart - cycling Steam, then restarting (step 2/3).");
                     stage = STAGE_STEAM_CYCLED;
                     actionPending = true;
+                    actionStartedTime = DateTime.Now;
                     lastSteamCycle = DateTime.Now;
                     CycleSteamThenRestart();
                     break;

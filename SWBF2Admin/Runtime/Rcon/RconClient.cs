@@ -47,6 +47,8 @@ namespace SWBF2Admin.Runtime.Rcon
         {
             ServerPassword = Core.Server.Settings.AdminPw;
             ServerIPEP = new IPEndPoint(IPAddress.Parse(Core.Server.Settings.IP), Core.Server.Settings.RconPort);
+            //reset liveness so watchdogs measure staleness from this session only
+            LastRx = DateTime.MinValue;
             //Rcon can take up to 10 seconds to start on some CC versions
             Core.Scheduler.PushDelayedTask(() => Start(), 10000);
         }

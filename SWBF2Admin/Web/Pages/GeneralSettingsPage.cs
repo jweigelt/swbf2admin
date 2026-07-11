@@ -47,7 +47,7 @@ namespace SWBF2Admin.Web.Pages
             public bool EnableScheduledRestart { get; set; }
             public int RestartThresholdMinutes { get; set; }
             public bool EnableRestartAnnouncement { get; set; }
-            public int AnnouncementIntervalMinutes { get; set; }
+            public int AnnouncementIntervalSeconds { get; set; }
         }
 
         class GeneralSettingsResponse
@@ -57,7 +57,7 @@ namespace SWBF2Admin.Web.Pages
             public bool EnableScheduledRestart { get; }
             public int RestartThresholdMinutes { get; }
             public bool EnableRestartAnnouncement { get; }
-            public int AnnouncementIntervalMinutes { get; }
+            public int AnnouncementIntervalSeconds { get; }
             public GeneralSettingsResponse(ServerSettings settings, List<DeviceInfo> networkDevices, ScheduleConfiguration schedule)
             {
                 Settings = settings;
@@ -65,7 +65,7 @@ namespace SWBF2Admin.Web.Pages
                 EnableScheduledRestart = schedule.EnableScheduledRestart;
                 RestartThresholdMinutes = schedule.RestartThreshold / 60;
                 EnableRestartAnnouncement = schedule.EnableRestartAnnouncement;
-                AnnouncementIntervalMinutes = schedule.AnnouncementInterval / 60;
+                AnnouncementIntervalSeconds = schedule.AnnouncementInterval;
             }
         }
 
@@ -130,7 +130,7 @@ namespace SWBF2Admin.Web.Pages
                     scheduleCfg.EnableScheduledRestart = p.EnableScheduledRestart;
                     scheduleCfg.RestartThreshold = p.RestartThresholdMinutes * 60;
                     scheduleCfg.EnableRestartAnnouncement = p.EnableRestartAnnouncement;
-                    scheduleCfg.AnnouncementInterval = p.AnnouncementIntervalMinutes * 60;
+                    scheduleCfg.AnnouncementInterval = p.AnnouncementIntervalSeconds;
 
                     try
                     {

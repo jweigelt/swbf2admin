@@ -108,7 +108,7 @@ namespace SWBF2Admin.Runtime.Readers
 
                 if (targetModule == null)
                 {
-                    Logger.Log(LogLevel.Warning, "Could not find module \"{0}\" in process.", moduleName);
+                    Logger.Log(LogLevel.Verbose, "Could not find module \"{0}\" in process.", moduleName);
                     IsProcessOpen = false;
                     return false;
                 }

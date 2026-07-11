@@ -239,7 +239,7 @@ namespace SWBF2Admin
                 if (se.Reason == ServerStopReason.STOP_RESTART)
                 {
                     Logger.Log(LogLevel.Verbose, "Restarting server...");
-                    Server.Start();
+                    Scheduler.PushDelayedTask(() => Server.Start(), Config.AutoRestartDelay);
                 }
             }
         }

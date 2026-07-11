@@ -250,6 +250,10 @@ namespace SWBF2Admin.Runtime.Readers
 
         private bool TryOpenReader(int maxAttempts = 100, int sleepMs = 100)
         {
+            //already attached (e.g. OnInit reattach then OnServerStart) - don't reopen or re-log
+            if (ProcessOpened && Core.Server.ServerProcess != null && !Core.Server.ServerProcess.HasExited)
+                return true;
+
             for (int i = 0; i < maxAttempts; i++)
             {
                 if (Core.Server.ServerProcess == null || Core.Server.ServerProcess.HasExited)

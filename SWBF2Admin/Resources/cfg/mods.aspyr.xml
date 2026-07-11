@@ -345,7 +345,7 @@
 			Files: ALL1.LVL, ALL2.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
 			Mods: Modify rocket launcher splash damage halfway between PC and PS2/Xbox (1.5/3.5).
 		-->
-		<LvlMod Name="xb_rocket_splash">
+		<LvlMod Name="mid_rocket_splash">
 			<HexEdits>
 				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB551C" PatchedBytes="312E35" OriginalBytes="312E30" />
 				<HexEdit FileName="all2.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="5CB552C" PatchedBytes="332E35" OriginalBytes="332E30" />
@@ -392,25 +392,10 @@
 
 		<!-- 
 			Files: ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
-			Mods: Adjust the sniper rifle rounds per clip from 8 to 5 to be similar to the Xbox/PS2 version,
-						and adjust the sniper rifle shot delay from 0.8 to 1.0 to be similar to the Xbox/PS2 version.
+			Mods: Adjust the sniper rifle shot delay from 0.8 to 1.0 to be similar to the Xbox/PS2 version.
 		-->
-		<LvlMod Name="ps2_sniper_specs">
+		<LvlMod Name="ps2_sniper_delay">
 			<HexEdits>
-				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (all1.lvl) -->
-				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11DBE4AC" PatchedBytes="35" OriginalBytes="38" />
-				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="12761664" PatchedBytes="35" OriginalBytes="38" />
-				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="194C2398" PatchedBytes="35" OriginalBytes="38" />
-				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (cis.lvl) -->
-				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="A5769D0" PatchedBytes="35" OriginalBytes="38" />
-				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (imp.lvl) -->
-				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="108C1100" PatchedBytes="35" OriginalBytes="38" />
-				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="114E92B8" PatchedBytes="35" OriginalBytes="38" />
-				<!-- Adjust the sniper rifle rounds per clip from 8 to 5 (rep.lvl) -->
-				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="D4B2518" PatchedBytes="35" OriginalBytes="38" />
-				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="120EBB04" PatchedBytes="35" OriginalBytes="38" />
-				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="190CEE30" PatchedBytes="35" OriginalBytes="38" />
-				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19D50E08" PatchedBytes="35" OriginalBytes="38" />
 				<!-- Adjust the sniper rifle shot delay from 0.8 to 1.0 (all1.lvl) -->
 				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11DBE4CC" PatchedBytes="312E30" OriginalBytes="302E38" />
 				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="12761684" PatchedBytes="312E30" OriginalBytes="302E38" />
@@ -425,25 +410,6 @@
 				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="120EBB24" PatchedBytes="312E30" OriginalBytes="302E38" />
 				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="190CEE50" PatchedBytes="312E30" OriginalBytes="302E38" />
 				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="19D50E28" PatchedBytes="312E30" OriginalBytes="302E38" />
-			</HexEdits>
-		</LvlMod>
-
-		<!-- 
-			Files: ALL1.LVL, CIS.LVL, IMP.LVL, REP.LVL [Patch 3]
-			Mods: Modify mine dispenser ammo count so it will become similar to the Xbox/PS2 version.
-		-->
-		<LvlMod Name="ps2_mine_ammo">
-			<HexEdits>
-				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="EFB97E8" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FC13138" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="11673C8C" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="all1.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1912129C" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="cis.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="9233B28" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="FA44AF8" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="imp.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="105D69D4" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="1044DF80" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="116AAF10" PatchedBytes="34" OriginalBytes="33" />
-				<HexEdit FileName="rep.lvl" LevelDir="/data2/_lvl_common/side" StartAddress="18DD3210" PatchedBytes="34" OriginalBytes="33" />
 			</HexEdits>
 		</LvlMod>
 

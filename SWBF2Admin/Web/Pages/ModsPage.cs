@@ -206,6 +206,8 @@ namespace SWBF2Admin.Web.Pages
             {
                 if (enabled) Core.BF2.ApplyMod(mod);
                 else Core.BF2.RevertMod(mod);
+
+                Core.Rcon.Say($"{(enabled ? "Applied" : "Reverted")} mod {mod.Name}");
             }
         }
     }

@@ -82,7 +82,10 @@ namespace SWBF2Admin.Runtime.Watchdog
         {
             if (!config.EnableRestartAnnouncement || string.IsNullOrEmpty(config.RestartAnnouncement)) return;
             if (Core.Players.PlayerList.Count < 1) return;
-            if ((DateTime.Now - lastAnnouncement).TotalSeconds < config.AnnouncementInterval) return;
+
+            //Half a poll cycle of tolerance so a due announcement isn't skipped by timer jitter.
+            double tolerance = (UpdateInterval / 1000.0) / 2.0;
+            if ((DateTime.Now - lastAnnouncement).TotalSeconds < config.AnnouncementInterval - tolerance) return;
 
             Core.Rcon.Say(config.RestartAnnouncement);
             lastAnnouncement = DateTime.Now;
