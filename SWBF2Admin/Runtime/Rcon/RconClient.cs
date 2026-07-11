@@ -92,6 +92,11 @@ namespace SWBF2Admin.Runtime.Rcon
         public string ServerPassword { get; set; }
 
         /// <summary>
+        /// time of the last data received from the server; used by SteamRecovery as a liveness signal
+        /// </summary>
+        public DateTime LastRx { get; private set; } = DateTime.MinValue;
+
+        /// <summary>
         /// max. time (in ms) before a packet is dropped if the server doesn't respond
         /// </summary>
         private int PacketTimeout { get; set; } = 500;
@@ -137,6 +142,7 @@ namespace SWBF2Admin.Runtime.Rcon
             try
             {
                 Login();
+                LastRx = DateTime.Now;
                 Logger.Log(LogLevel.Info, "Login OK. Rcon ready.");
             }
             catch (RconNotAuthorizedException e)
@@ -408,6 +414,7 @@ namespace SWBF2Admin.Runtime.Rcon
                         bytesRead = 0;
                     }
                     // Logger.Log(LogLevel.Verbose, "Read rcon message: {0} bytes", message.Length.ToString());
+                    LastRx = DateTime.Now;
                     ProcessMessage(message);
 
                     bytesRead = 0;

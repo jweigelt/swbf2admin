@@ -138,6 +138,13 @@ namespace SWBF2Admin
                     components.Add(new EmptyRestart(this));
                 }
 
+                //Steam-session recovery only makes sense for the Steam-backed server types
+                if (Config.EnableSteamRecovery &&
+                    (Config.ServerType == GameserverType.Aspyr || Config.ServerType == GameserverType.Steam))
+                {
+                    components.Add(new SteamRecovery(this));
+                }
+
                 components.Add(Schedule);
             }
 

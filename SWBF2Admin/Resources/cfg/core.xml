@@ -41,7 +41,16 @@
   <!--time (in seconds) the server has to be empty before it is restarted-->
   <EmptyRestartThreshold>3600</EmptyRestartThreshold>
   <!--time (in milliseconds) between checks-->
-  <EmptyRestartCheckInterval>30000</EmptyRestartCheckInterval> 
+  <EmptyRestartCheckInterval>30000</EmptyRestartCheckInterval>
+
+  <!--recover a stale Steam session on Aspyr/Steam servers (restart, then cycle Steam, then give up if rcon stays unresponsive)-->
+  <EnableSteamRecovery>false</EnableSteamRecovery>
+  <!--seconds the server may be online with rcon unresponsive before recovery acts-->
+  <SteamRecoveryGraceSeconds>90</SteamRecoveryGraceSeconds>
+  <!--minimum seconds between Steam client restarts-->
+  <SteamRecoveryCooldownSeconds>1800</SteamRecoveryCooldownSeconds>
+  <!--time (in milliseconds) between checks-->
+  <SteamRecoveryCheckInterval>30000</SteamRecoveryCheckInterval>
 
   <!--command line arguments passed to BattlefrontII.exe-->
   <ServerArgs>/win /norender /nosound /nointro /autonet dedicated /resolution 640 480</ServerArgs>

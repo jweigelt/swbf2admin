@@ -37,6 +37,7 @@ namespace SWBF2Admin.Gameserver
     {
         private const string DLLLOADER_FILENAME_32 = "DllLoader_32.exe";
         private const string DLLLOADER_FILENAME_64 = "DllLoader_64.exe";
+        private const string ASPYR_PID_FILE = "/settings/BattlefrontII.pid";
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
         private const int STEAMMODE_MAX_RETRY = 30;
 
@@ -141,9 +142,50 @@ namespace SWBF2Admin.Gameserver
             return null;
         }
 
+        private Process FindProcessByPidFile()
+        {
+            //Aspyr writes its pid to settings/BattlefrontII.pid, so we can re-attach to this instance's server directly
+            string pidFile = Path.GetFullPath(ServerPath + ASPYR_PID_FILE);
+            if (!File.Exists(pidFile))
+            {
+                return null;
+            }
+
+            try
+            {
+                if (!int.TryParse(File.ReadAllText(pidFile).Trim(), out int pid))
+                {
+                    Logger.Log(LogLevel.Warning, "Ignoring malformed pid file '{0}'", pidFile);
+                    return null;
+                }
+
+                Process p = Process.GetProcessById(pid);
+                if (!p.ProcessName.Equals(ServerProcessName, StringComparison.OrdinalIgnoreCase))
+                {
+                    //pid got reused by an unrelated process
+                    return null;
+                }
+
+                Logger.Log(LogLevel.Info, "Found running server process '{0}' ({1}) via pid file, re-attaching...", p.MainWindowTitle, p.Id.ToString());
+                return p;
+            }
+            catch (ArgumentException)
+            {
+                //stale pid file, process no longer running
+                return null;
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Warning, "Can't re-attach via pid file '{0}' ({1})", pidFile, e.Message);
+                return null;
+            }
+        }
+
         private bool Attach(bool starting)
         {
-            serverProcess = FindProcess(ServerProcessName);
+            serverProcess = (serverType == GameserverType.Aspyr)
+                ? FindProcessByPidFile()
+                : FindProcess(ServerProcessName);
             if (serverProcess != null)
             {
                 serverProcess.EnableRaisingEvents = true;
