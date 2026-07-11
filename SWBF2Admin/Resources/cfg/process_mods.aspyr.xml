@@ -48,7 +48,7 @@
 				jmp   rax
 				dd    <spawn float>                ; ApplySpawnDelay writes these 4 bytes (default 15.0)
 		-->
-		<ProcessMod Name="spawn_delay" ApplyOnStart="false">
+		<ProcessMod Name="spawn_delay" ApplyOnStart="true">
 			<CodeCaves>
 				<CodeCave
 					MemoryAllocatedSize="64"
@@ -110,6 +110,26 @@
 		</ProcessMod>
 
 		<!--
+			DistanceLagFix_Aspyr (playerMovesPatch)
+
+			WritePlayerMoves (Battlefront2.dll+28D8A0) relays only the N nearest players'
+			per-turn moves to each client (N = 5), so distant players' inputs (e.g. fire) are
+			dropped -> distance lag / invisible ordnance. Raise N to 32; the distance-sorted
+			selector holds 64, so there is headroom.
+
+			Patch at Battlefront2.dll+28DA82: mov dword[rsp+0x40], 5   ; imm low byte 05 -> 20 @+28DA86
+			Galaxy equivalent: mov dword[ebp-0x1c], 5 @0x5D38B5 (imm @0x5D38B8).
+		-->
+		<ProcessMod Name="distance_lag_fix" ApplyOnStart="true">
+			<ProcessEdits>
+				<ProcessEdit
+					ModuleOffset="0x28DA86"
+					OriginalBytes="05"
+					PatchedBytes="20"/>
+			</ProcessEdits>
+		</ProcessMod>
+
+		<!--
 			MapHangFix_Aspyr
 
 			The gate function Battlefront2.dll+269120 (NetGame::IsGameOver, the CC
@@ -155,7 +175,7 @@
 			so clobbering rax in the trampoline is harmless. The cave jumps back through
 			r11 before reaching the framework's auto-appended jump-back, keeping eax.
 		-->
-		<ProcessMod Name="maphang_fix" ApplyOnStart="false">
+		<ProcessMod Name="maphang_fix" ApplyOnStart="true">
 			<ProcessEdits>
 				<ProcessEdit
 					ModuleOffset="0x269124"
@@ -174,23 +194,102 @@
 		</ProcessMod>
 
 		<!--
-			DistanceLagFix_Aspyr (playerMovesPatch)
+			SpawnQueueFix_Aspyr
 
-			WritePlayerMoves (Battlefront2.dll+28D8A0) relays only the N nearest players'
-			per-turn moves to each client (N = 5), so distant players' inputs (e.g. fire) are
-			dropped -> distance lag / invisible ordnance. Raise N to 32; the distance-sorted
-			selector holds 64, so there is headroom.
+			Fixes the team-wide spawn lockout ("spawn timer stuck at 1"). Every human spawn
+			is gated by a per-team spawn queue ticket (NetPlayer+158; array Battlefront2.dll
+			+9E04F0, stride 200): only ticket 0 may spawn, and each spawn decrements every
+			same-team ticket above the spawner ("everyone move up one"). NetGame::RemovePlayer
+			(+281980) never compacts the queue, so a player who leaves while holding a ticket
+			leaves a hole; once the hole migrates to 0, no connected player holds ticket 0 and
+			the respawn tick's gate (call to +271E90 at +C0839) silently refuses the whole
+			team until map change.
 
-			Patch at Battlefront2.dll+28DA82: mov dword[rsp+0x40], 5   ; imm low byte 05 -> 20 @+28DA86
-			Galaxy equivalent: mov dword[ebp-0x1c], 5 @0x5D38B5 (imm @0x5D38B8).
+			Fix: retarget that one call to a replacement gate that lets the player holding the
+			SMALLEST live ticket (>= 0, playing, same team) spawn instead of only ticket 0.
+			Holes are skipped, spawn order is preserved, and the normal on-spawn dequeue keeps
+			compacting the queue. The gate's other caller (+98430, spawn-screen HUD) keeps the
+			original function, which it needs for the raw ticket number.
+
+			Call retarget at Battlefront2.dll+C0839 (in the respawn tick +BFD30):
+				call +271E90  ->  call +271EE3       ; E8 52161B00 -> E8 A5161B00
+
+			Stub at Battlefront2.dll+271EE3 (12 of the 13 INT3 pad bytes after +271E90's ret):
+				; CodeCave writer installs an absolute jump to the allocated cave here.
+
+			Cave (in: ecx = player index; out: eax = 0 spawn / nonzero blocked, same contract
+			as the original gate; touches volatile registers only):
+				mov  r10, NETCURMAXPLAYERS      ; {0} = Battlefront2.dll+E765C0
+				mov  eax, -1
+				test ecx, ecx
+				js   fail                       ; idx < 0 -> -1 (blocked)
+				cmp  ecx, [r10]
+				jge  fail                       ; idx >= netCurMaxPlayers -> -1
+				cmp  ecx, 0x40
+				jae  fail                       ; playing mask is 64-bit
+				mov  edx, [r10]                 ; edx = netCurMaxPlayers
+				jmp  cont
+			fail:
+				ret
+			cont:
+				mov  r10, PLAYINGMASK           ; {1} = Battlefront2.dll+9E0228 (IsPLaying bits)
+				mov  r10, [r10]
+				bt   r10, rcx
+				jnc  fail                       ; not playing -> -1
+				mov  r11, NETPLAYERS            ; {2} = Battlefront2.dll+9E04F0
+				mov  r9d, ecx
+				shl  r9, 9                      ; idx * 200
+				add  r9, r11
+				mov  eax, [r9+158]              ; eax = my ticket
+				test eax, eax
+				jle  done                       ; 0 -> spawn; -1 (not queued) -> blocked
+				movzx r8d, byte [r9+154]        ; r8b = my team
+				mov  ecx, edx
+				cmp  ecx, 0x40
+				jle  L1
+				mov  ecx, 0x40                  ; clamp scan to mask width
+			L1:
+				xor  edx, edx                   ; j = 0
+			lp:
+				cmp  edx, ecx
+				jge  allow                      ; scanned everyone -> I hold the minimum
+				bt   r10, rdx
+				jnc  nxt                        ; j not playing (a leaver's hole lands here)
+				mov  r9d, edx
+				shl  r9, 9
+				add  r9, r11
+				cmp  r8b, [r9+154]
+				jne  nxt                        ; other team
+				mov  r9d, [r9+158]
+				test r9d, r9d
+				js   nxt                        ; not queued
+				cmp  r9d, eax
+				jl   done                       ; smaller live ticket ahead -> blocked (eax = my ticket)
+			nxt:
+				inc  edx
+				jmp  lp
+			allow:
+				xor  eax, eax                   ; spawn
+			done:
+				ret                             ; back to +C083E; the framework's auto-appended
+				                                ; jump-back after the cave is never reached
 		-->
-		<ProcessMod Name="distance_lag_fix" ApplyOnStart="false">
+		<ProcessMod Name="spawnbug_fix" ApplyOnStart="true">
 			<ProcessEdits>
 				<ProcessEdit
-					ModuleOffset="0x28DA86"
-					OriginalBytes="05"
-					PatchedBytes="20"/>
+					ModuleOffset="0xC0839"
+					OriginalBytes="E852161B00"
+					PatchedBytes="E8A5161B00"/>
 			</ProcessEdits>
+
+			<CodeCaves>
+				<CodeCave
+					MemoryAllocatedSize="256"
+					RedirectModuleOffset="0x271EE3"
+					OriginalBytes="CCCCCCCCCCCCCCCCCCCCCCCC"
+					CustomAddresses="0xE765C0,0x9E0228,0x9E04F0"
+					CaveBytes="49BA{0}B8FFFFFFFF85C9780F413B0A7D0A83F9407305418B12EB01C349BA{1}4D8B12490FA3CA73EC49BB{2}4189C949C1E1094D01D9418B815801000085C07E4A450FB6815401000089D183F9407E05B94000000031D239CA7D2E490FA3D273244189D149C1E1094D01D9453A81540100007511458B89580100004585C978054139C17C06FFC2EBCE31C0C3"/>
+			</CodeCaves>
 		</ProcessMod>
 
 		<!--
@@ -201,7 +300,7 @@
 			server only shows up for players on the matching one. Overwrite the code to move it
 			between lobbies. The value comes from WebAdmin and is written by ProcessWriter.ApplyPlatform().
 
-			Valid codes: pc, ps (PlayStation), xb (Xbox), ns (Nintendo Switch).
+			Valid Codes: pc, ps (PlayStation), xb (Xbox), ns (Nintendo Switch).
 			Requires a server restart to change (set via General Settings -> Platform Lobby).
 		-->
 		<ProcessMod Name="platform_lobby" ApplyOnStart="true">

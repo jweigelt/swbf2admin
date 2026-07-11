@@ -39,32 +39,6 @@
 			</HexEdits>
 		</LvlMod>
 
-		<LvlMod Name="nerfed_rocket">
-			<HexEdits>
-				<!--damage-->
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="186DF0" PatchedString="0" OriginalString="5"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="3F8214" PatchedString="0" OriginalString="5"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="11B0B64" PatchedString="0" OriginalString="5"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="1234804" PatchedString="0" OriginalString="5"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="12B1E34" PatchedString="0" OriginalString="5"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="1335BC8" PatchedString="0" OriginalString="5"/>
-				<!--shake-->
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="186E78" PatchedString="0" OriginalString="1"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="3F829C" PatchedString="0" OriginalString="1"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="11B0BEC" PatchedString="0" OriginalString="1"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="123488C" PatchedString="0" OriginalString="1"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="12B1EBC" PatchedString="0" OriginalString="1"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="1335C50" PatchedString="0" OriginalString="1"/>
-				<!--push-->
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="186EAC" PatchedString="0" OriginalString="2"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="3F82D0" PatchedString="0" OriginalString="2"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="11B0C20" PatchedString="0" OriginalString="2"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="12348C0" PatchedString="0" OriginalString="2"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="12B1EF0" PatchedString="0" OriginalString="2"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="1335C84" PatchedString="0" OriginalString="2"/>
-			</HexEdits>
-		</LvlMod>
-
 		<LvlMod Name="no_chewie">
 			<HexEdits>
 				<!--chewie-->
@@ -84,6 +58,16 @@
 				<HexEdit FileName="SIDE/cis.lvl" StartAddress="007994A8" PatchedString="00" OriginalString="12"/>
 				<!--leia-->
 				<!--can't disable leia using default files (-> has default hp)-->
+			</HexEdits>
+		</LvlMod>
+
+		<!--Remove jetpack from fetts-->
+		<LvlMod Name="no_jetpack">
+			<HexEdits>
+				<HexEdit FileName="SIDE/cis.lvl" StartAddress="007995CC" PatchedString="1.00" OriginalString="0.25"/>
+				<HexEdit FileName="SIDE/cis.lvl" StartAddress="007995E0" PatchedString="1.00" OriginalString="0.24"/>
+				<HexEdit FileName="SIDE/imp.lvl" StartAddress="002B40F4" PatchedString="1.00" OriginalString="0.25"/>
+				<HexEdit FileName="SIDE/imp.lvl" StartAddress="002B4108" PatchedString="1.00" OriginalString="0.24"/>
 			</HexEdits>
 		</LvlMod>
 
@@ -131,13 +115,29 @@
 			</HexEdits>
 		</LvlMod>
 
-		<!--Remove jetpack from fetts-->
-		<LvlMod Name="no_jetpack">
+		<LvlMod Name="nerfed_rocket">
 			<HexEdits>
-				<HexEdit FileName="SIDE/cis.lvl" StartAddress="007995CC" PatchedString="1.00" OriginalString="0.25"/>
-				<HexEdit FileName="SIDE/cis.lvl" StartAddress="007995E0" PatchedString="1.00" OriginalString="0.24"/>
-				<HexEdit FileName="SIDE/imp.lvl" StartAddress="002B40F4" PatchedString="1.00" OriginalString="0.25"/>
-				<HexEdit FileName="SIDE/imp.lvl" StartAddress="002B4108" PatchedString="1.00" OriginalString="0.24"/>
+				<!--damage-->
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="186DF0" PatchedString="0" OriginalString="5"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="3F8214" PatchedString="0" OriginalString="5"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="11B0B64" PatchedString="0" OriginalString="5"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="1234804" PatchedString="0" OriginalString="5"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="12B1E34" PatchedString="0" OriginalString="5"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="1335BC8" PatchedString="0" OriginalString="5"/>
+				<!--shake-->
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="186E78" PatchedString="0" OriginalString="1"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="3F829C" PatchedString="0" OriginalString="1"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="11B0BEC" PatchedString="0" OriginalString="1"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="123488C" PatchedString="0" OriginalString="1"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="12B1EBC" PatchedString="0" OriginalString="1"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="1335C50" PatchedString="0" OriginalString="1"/>
+				<!--push-->
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="186EAC" PatchedString="0" OriginalString="2"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="3F82D0" PatchedString="0" OriginalString="2"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="11B0C20" PatchedString="0" OriginalString="2"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="12348C0" PatchedString="0" OriginalString="2"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="12B1EF0" PatchedString="0" OriginalString="2"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="1335C84" PatchedString="0" OriginalString="2"/>
 			</HexEdits>
 		</LvlMod>
 
@@ -154,6 +154,30 @@
 				<HexEdit FileName="side/rep.lvl" StartAddress="8CA5B0" PatchedString="0" OriginalString="4"/>
 				<HexEdit FileName="side/all.lvl" StartAddress="5AFE28" PatchedString="0" OriginalString="4"/>
 				<HexEdit FileName="side/all.lvl" StartAddress="6188E0" PatchedString="0" OriginalString="4"/>
+			</HexEdits>
+		</LvlMod>
+
+		<LvlMod Name="fusion_range">
+			<HexEdits>
+				<HexEdit FileName="SIDE/cis.lvl" StartAddress="BAD454" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/cis.lvl" StartAddress="DB5970" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/rep.lvl" StartAddress="BB03EC" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/rep.lvl" StartAddress="D509A0" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/rep.lvl" StartAddress="E6DEFC" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/rep.lvl" StartAddress="11CE88C" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/rep.lvl" StartAddress="135BD60" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/imp.lvl" StartAddress="6A409C" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/imp.lvl" StartAddress="709428" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/imp.lvl" StartAddress="965570" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="A96C" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="4605C8" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="4DA4C4" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="6FA218" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="A02798" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="A919FC" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="B20C68" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="BAFFC0" PatchedString="1E3" OriginalString="4.0"/>
+				<HexEdit FileName="SIDE/all.lvl" StartAddress="E3FBF0" PatchedString="1E3" OriginalString="4.0"/>
 			</HexEdits>
 		</LvlMod>
 
@@ -200,30 +224,6 @@
 				<HexEdit FileName="SIDE/imp.lvl" StartAddress="10CD63C" PatchedString="0" OriginalString="8"/>
 				<!--all_hover_combatspeeder-->
 				<HexEdit FileName="SIDE/all.lvl" StartAddress="882890" PatchedString="0" OriginalString="8"/>
-			</HexEdits>
-		</LvlMod>
-
-		<LvlMod Name="fusion_range">
-			<HexEdits>
-				<HexEdit FileName="SIDE/cis.lvl" StartAddress="BAD454" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/cis.lvl" StartAddress="DB5970" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/rep.lvl" StartAddress="BB03EC" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/rep.lvl" StartAddress="D509A0" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/rep.lvl" StartAddress="E6DEFC" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/rep.lvl" StartAddress="11CE88C" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/rep.lvl" StartAddress="135BD60" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/imp.lvl" StartAddress="6A409C" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/imp.lvl" StartAddress="709428" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/imp.lvl" StartAddress="965570" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="A96C" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="4605C8" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="4DA4C4" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="6FA218" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="A02798" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="A919FC" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="B20C68" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="BAFFC0" PatchedString="1E3" OriginalString="4.0"/>
-				<HexEdit FileName="SIDE/all.lvl" StartAddress="E3FBF0" PatchedString="1E3" OriginalString="4.0"/>
 			</HexEdits>
 		</LvlMod>
 

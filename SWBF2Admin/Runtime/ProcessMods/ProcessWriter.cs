@@ -123,17 +123,12 @@ namespace SWBF2Admin.Runtime.Readers
 
             try
             {
+                //Install the cave with its XML default float on first apply, then always
+                //overwrite cave+0x14 (the inline float literal) with the live delay.
                 if (cave.CaveAddress == IntPtr.Zero)
-                {
-                    //movss xmm6,[float]; jmp back. {0}=return addr, trailing bytes=the delay float
-                    cave.CaveBytes = "F30F10350C00000048B8{0}FFE0" + BitConverter.ToString(f).Replace("-", "");
                     mod.Apply(reader);
-                }
-                else
-                {
-                    //cave+0x14 = the inline float literal
-                    reader.WriteBytes(IntPtr.Add(cave.CaveAddress, 0x14), f);
-                }
+
+                reader.WriteBytes(IntPtr.Add(cave.CaveAddress, 0x14), f);
                 Logger.Log(LogLevel.Info, "Set spawn delay to {0}s", seconds.ToString());
             }
             catch (Exception ex)
