@@ -29,6 +29,8 @@ namespace SWBF2Admin.Runtime.Watchdog
         private bool restartPending;
         private bool isRestarting;
 
+        private const int GAME_END_RESTART_DELAY = 5000; //let clients receive end-of-game packets before restart
+
         public ScheduledRestart(AdminCore core) : base(core) { }
 
         public override void Configure(CoreConfiguration config)
@@ -97,7 +99,7 @@ namespace SWBF2Admin.Runtime.Watchdog
             {
                 Logger.Log(LogLevel.Info, "Map ended - performing scheduled restart");
                 isRestarting = true;
-                Core.Server.Restart();
+                Core.Scheduler.PushDelayedTask(() => Core.Server.Restart(), GAME_END_RESTART_DELAY);
             }
         }
     }

@@ -34,7 +34,7 @@
   <!--automatically restart the server when it crashes-->
   <AutoRestartServer>true</AutoRestartServer>
   <!--time (in milliseconds) until the server restarts-->
-  <AutoRestartDelay>30000</AutoRestartDelay>
+  <AutoRestartDelay>5000</AutoRestartDelay>
 
   <!--automatically restart server if it has been empty for a given amount of time-->
   <EnableEmptyRestart>true</EnableEmptyRestart>
