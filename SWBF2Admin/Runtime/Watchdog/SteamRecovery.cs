@@ -25,9 +25,7 @@ using System.IO;
 namespace SWBF2Admin.Runtime.Watchdog
 {
     /// <summary>
-    /// Aspyr/Steam only: recovers from a stale Steam session. If the server is up but rcon
-    /// stops responding, restarts it; if still unresponsive, cycles the Steam client once;
-    /// if still unresponsive, gives up (no restart loop).
+    /// Restarts the server, then Steam if rcon remains unresponsive.
     /// </summary>
     public class SteamRecovery : ComponentBase
     {
@@ -40,7 +38,7 @@ namespace SWBF2Admin.Runtime.Watchdog
         private const int STEAM_SHUTDOWN_WAIT = 10000;   //ms to let 'steam -shutdown' finish
         private const int STEAM_LOGIN_WAIT = 30000;      //ms to let Steam relaunch + log back in
 
-        //failsafe so a never-completing restart can't wedge the ladder
+        //Do not wait forever if a scheduled recovery step never runs
         private const int RECOVERY_TIMEOUT = GAME_STOP_WAIT + STEAM_SHUTDOWN_WAIT + STEAM_LOGIN_WAIT + 120000;
 
         private int graceSeconds;
@@ -69,7 +67,7 @@ namespace SWBF2Admin.Runtime.Watchdog
 
         public override void OnServerStart(EventArgs e)
         {
-            //keep 'stage' across restarts so the ladder can escalate; only rcon recovery resets it
+            //Keep recovery progress across server restarts; reset it when rcon responds again
             serverStartTime = DateTime.Now;
             firstTickLogged = false;
             postGraceLogged = false;
@@ -98,49 +96,50 @@ namespace SWBF2Admin.Runtime.Watchdog
                 LogDiagnosticState("post-grace evaluation");
             }
 
-            //only while the process is up and online (crashes are handled by AutoRestart)
+            //Only recover a server that is still running; normal restart handling covers exits
             Process proc = Core.Server.ServerProcess;
             if (proc == null || proc.HasExited || Core.Server.Status != ServerStatus.Online)
                 return;
 
+            //Use /status to check whether rcon is responding
             DateTime lastSuccessfulStatusResponse = Core.Rcon.LastSuccessfulStatusResponse;
             if (lastSuccessfulStatusResponse != DateTime.MinValue &&
                 (DateTime.Now - lastSuccessfulStatusResponse).TotalSeconds <= graceSeconds)
             {
                 if (stage != STAGE_HEALTHY)
                 {
-                    Logger.Log(LogLevel.Info, "Validated Rcon status response received - recovery reset.");
+                    Logger.Log(LogLevel.Info, "Rcon is responding again. Recovery reset.");
                     stage = STAGE_HEALTHY;
                 }
                 return;
             }
 
-            //give each (re)start a grace window before acting
             if ((DateTime.Now - serverStartTime).TotalSeconds <= graceSeconds) return;
 
             switch (stage)
             {
                 case STAGE_HEALTHY:
-                    Logger.Log(LogLevel.Warning, "Server is online but Rcon hasn't responded for >{0}s - restarting server (step 1/3).", graceSeconds.ToString());
+                    Logger.Log(LogLevel.Warning, "Rcon has not responded for {0}s. Restarting server (step 1/3).", graceSeconds.ToString());
                     stage = STAGE_RESTARTED;
                     Core.Server.Restart();
                     break;
 
                 case STAGE_RESTARTED:
                     if ((DateTime.Now - lastSteamCycle).TotalSeconds < cooldownSeconds)
-                        return; //within Steam-cycle cooldown - wait
-                    Logger.Log(LogLevel.Warning, "Rcon still not responding after restart - cycling Steam, then restarting (step 2/3).");
+                        return;
+                    Logger.Log(LogLevel.Warning, "Rcon is still not responding after the server restart. Restarting Steam and the server (step 2/3).");
                     stage = STAGE_STEAM_CYCLED;
                     lastSteamCycle = DateTime.Now;
 
                     LogSteamProcessSnapshot("cycle scheduled");
+                    //Steam will not shut down while a game it launched is running
                     Core.Server.Stop(ServerStopReason.STOP_EXIT);
                     Core.Scheduler.PushDelayedTask(ShutdownSteam, GAME_STOP_WAIT);
 
                     Core.Scheduler.PushDelayedTask(AbortOnFailure, RECOVERY_TIMEOUT);
                     break;
 
-                case STAGE_STEAM_CYCLED: //ladder exhausted
+                case STAGE_STEAM_CYCLED:
                     AbortOnFailure();
                     break;
             }
@@ -178,11 +177,11 @@ namespace SWBF2Admin.Runtime.Watchdog
                 serverAge.ToString("F1"), lastRxAge, lastValidStatusAge);
         }
 
-        //single timer fired after the Steam cycle: disable the watchdog if rcon still hasn't recovered
+        //Give up if rcon still does not respond after restarting Steam
         private void AbortOnFailure()
         {
             if (stage == STAGE_GAVE_UP || stage == STAGE_HEALTHY) return;
-            Logger.Log(LogLevel.Error, "Server/Rcon didn't recover after Steam cycle - aborting.");
+            Logger.Log(LogLevel.Error, "Rcon did not recover after restarting Steam. Recovery disabled (step 3/3).");
             stage = STAGE_GAVE_UP;
             DisableUpdates();
         }
@@ -199,7 +198,6 @@ namespace SWBF2Admin.Runtime.Watchdog
             }
             catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam shutdown failed ({0})", ex.Message); }
 
-            //relaunch Steam after 10s
             Core.Scheduler.PushDelayedTask(RelaunchSteam, STEAM_SHUTDOWN_WAIT);
         }
 
@@ -215,7 +213,6 @@ namespace SWBF2Admin.Runtime.Watchdog
             }
             catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam relaunch failed ({0})", ex.Message); }
 
-            //restart the server after 30s
             Core.Scheduler.PushDelayedTask(RestartServerAfterSteamCycle, STEAM_LOGIN_WAIT);
         }
 

@@ -201,7 +201,7 @@ namespace SWBF2Admin.Web.Pages
 
             Core.BF2.SaveConfig();
 
-            //Only writable while attached to a running game
+            //Apply the change now only while the process reader is attached
             if (Core.Server.Status == ServerStatus.Online && Core.BF2.ProcessOpened)
             {
                 if (enabled) Core.BF2.ApplyMod(mod);

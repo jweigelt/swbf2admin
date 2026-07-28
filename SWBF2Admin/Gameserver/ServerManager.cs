@@ -144,7 +144,7 @@ namespace SWBF2Admin.Gameserver
 
         private Process FindProcessByPidFile()
         {
-            //Aspyr writes its pid to settings/BattlefrontII.pid, so we can re-attach to this instance's server directly
+            //Use Aspyr's PID file to reattach to this server instance
             string pidFile = Path.GetFullPath(ServerPath + ASPYR_PID_FILE);
             if (!File.Exists(pidFile))
             {
@@ -162,7 +162,7 @@ namespace SWBF2Admin.Gameserver
                 Process p = Process.GetProcessById(pid);
                 if (!p.ProcessName.Equals(ServerProcessName, StringComparison.OrdinalIgnoreCase))
                 {
-                    //pid got reused by an unrelated process
+                    //Ignore the PID if it now belongs to another process
                     return null;
                 }
 
@@ -171,7 +171,7 @@ namespace SWBF2Admin.Gameserver
             }
             catch (ArgumentException)
             {
-                //stale pid file, process no longer running
+                //The PID file can remain after the server exits
                 return null;
             }
             catch (Exception e)
@@ -215,8 +215,7 @@ namespace SWBF2Admin.Gameserver
                 ProcessArgs = ServerArgs;
                 if (serverType == GameserverType.Aspyr)
                 {
-                    // Classic's headless path has unstable pacing. Do not pass the
-                    // Galaxy-only /norender argument to the Aspyr executable.
+                    //Aspyr servers become unstable with /norender
                     ProcessArgs = ProcessArgs.Replace("/norender", "",
                         StringComparison.OrdinalIgnoreCase);
                     ProcessArgs += " /bf2";

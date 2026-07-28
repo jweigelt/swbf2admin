@@ -40,7 +40,7 @@ namespace SWBF2Admin.Runtime.Watchdog
         }
 
         /// <summary>
-        /// Re-reads schedule.xml so changes apply on the next server start
+        /// Reloads schedule.xml and applies the new settings.
         /// </summary>
         public void ReloadConfig()
         {

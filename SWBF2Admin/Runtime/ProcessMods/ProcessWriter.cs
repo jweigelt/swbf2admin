@@ -39,6 +39,7 @@ namespace SWBF2Admin.Runtime.Readers
                 _config = Core.Files.ReadConfig<ProcessWriterConfig>();
             }
 
+            //Start each mod in the state saved for the next server launch
             foreach (ProcessMod mod in _config.Mods)
                 mod.Enabled = mod.ApplyOnStart;
         }
@@ -169,7 +170,7 @@ namespace SWBF2Admin.Runtime.Readers
 
         private bool TryOpenReader(int maxAttempts = 100, int sleepMs = 100)
         {
-            //already attached (e.g. OnInit reattach then OnServerStart) - don't reopen or re-log
+            //Do not reopen the reader when startup events overlap
             if (ProcessOpened && reader.IsProcessOpen && Core.Server.ServerProcess != null)
             {
                 try
@@ -182,7 +183,7 @@ namespace SWBF2Admin.Runtime.Readers
                 }
                 catch (Exception)
                 {
-                    // The process changed or exited; fall through and reattach.
+                    //The server changed or exited; reopen the reader
                 }
             }
 
@@ -205,8 +206,7 @@ namespace SWBF2Admin.Runtime.Readers
 
                     if (reader.Open(process, moduleName))
                     {
-                        // Do not retain a handle to a process superseded by another
-                        // restart while this attempt was in progress.
+                        //Do not keep a handle opened for an earlier server process
                         System.Diagnostics.Process currentProcess = Core.Server.ServerProcess;
                         if (currentProcess == null || currentProcess.Id != reader.ProcessId)
                         {
@@ -227,8 +227,7 @@ namespace SWBF2Admin.Runtime.Readers
                 }
                 catch (Exception ex)
                 {
-                    // Treat startup/process-lifecycle failures as transient. A
-                    // single module-enumeration race must not escape this loop.
+                    //Errors while the process starts are temporary; keep trying until the retry limit
                     lastError = ex.Message;
                     reader.Close();
                 }

@@ -158,8 +158,7 @@ namespace SWBF2Admin.Runtime.Readers
             }
             catch (Exception ex)
             {
-                // Module enumeration can fail transiently while Windows is still
-                // initializing a freshly restarted process. The caller retries.
+                //A newly started process may not expose all modules immediately
                 LastOpenError = ex.Message;
                 return false;
             }

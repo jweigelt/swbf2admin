@@ -41,6 +41,7 @@ namespace SWBF2Admin.Runtime.Rcon
         private const int STARTUP_STATUS_DIAGNOSTIC_SECONDS = 180;
 
         private readonly object rxLock = new object();
+        //Store ticks so this timestamp can be safely shared between threads
         private long lastSuccessfulStatusResponseTicks = DateTime.MinValue.Ticks;
         private DateTime serverSessionStartTime = DateTime.MinValue;
 
@@ -50,7 +51,7 @@ namespace SWBF2Admin.Runtime.Rcon
         {
             ServerPassword = Core.Server.Settings.AdminPw;
             ServerIPEP = new IPEndPoint(IPAddress.Parse(Core.Server.Settings.IP), Core.Server.Settings.RconPort);
-            //reset liveness so watchdogs measure staleness from this session only
+            //Reset activity from the previous server session
             LastRx = DateTime.MinValue;
             Interlocked.Exchange(ref lastSuccessfulStatusResponseTicks, DateTime.MinValue.Ticks);
             serverSessionStartTime = DateTime.Now;
@@ -99,12 +100,12 @@ namespace SWBF2Admin.Runtime.Rcon
         public string ServerPassword { get; set; }
 
         /// <summary>
-        /// time of the last data received from the server; used by SteamRecovery as a liveness signal
+        /// Time of the last message received over rcon.
         /// </summary>
         public DateTime LastRx { get; private set; } = DateTime.MinValue;
 
         /// <summary>
-        /// time of the last successfully parsed response to a status command
+        /// Time of the last successful /status response.
         /// </summary>
         public DateTime LastSuccessfulStatusResponse
         {
@@ -267,6 +268,7 @@ namespace SWBF2Admin.Runtime.Rcon
                 {
                     StatusPacket statusPacket = packet as StatusPacket;
                     LogStartupStatusDiagnostic(lastMessageTemp, statusPacket);
+                    //Rcon can answer before startup finishes; wait for a current map before resetting recovery
                     if (packet.PacketOk && statusPacket?.Info != null &&
                         !string.IsNullOrWhiteSpace(statusPacket.Info.CurrentMap))
                     {

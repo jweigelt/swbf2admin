@@ -55,7 +55,6 @@ namespace SWBF2Admin.Config
         public int EmptyRestartThreshold { get; set; } = 3600;
         public int EmptyRestartCheckInterval { get; set; } = 30000;
 
-        //Steam-session recovery (only used for Aspyr/Steam server types)
         public bool EnableSteamRecovery { get; set; } = false;
         public int SteamRecoveryGraceSeconds { get; set; } = 90;
         public int SteamRecoveryCooldownSeconds { get; set; } = 1800;
