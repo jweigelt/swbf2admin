@@ -46,6 +46,10 @@ typedef DWORD windows_ptr_t;
 #define OFFSET_DEDICATED_FIX  0x005D800F - 0x400000
 
 #define OFFSET_SPAWNVALUE_MOD_FLOAT 0x0058D605 - 0x400000 + 4
+#define OFFSET_PREGAME_END_BRANCH 0x005C4F35 - 0x400000
+#define OFFSET_PREGAME_VANISH_CALL 0x005C4F37 - 0x400000
+#define OFFSET_VANISH_ALL_PLAYERS 0x005C50D0 - 0x400000
+#define OFFSET_SPAWN_MANAGER 0x01EB0FE8 - 0x400000
 
 #define OFFSET_MAPFIX_DETOUR 0x005B6076 - 0x400000
 #define OFFSET_MAPFIX_RETN 0x005B607D- 0x400000
@@ -136,9 +140,19 @@ void bf2server_patch_distance_lag();
 void bf2server_patch_waitlate_grace();
 
 /**
+*	Sets the recurring object-state budget scale used by WriteObjects.
+**/
+void bf2server_patch_object_budget();
+
+/**
 *	Patches SetSpawnDelay() so it uses our own spawn value per default
 **/
 void bf2server_patch_spawnvalue();
+
+/**
+*	Resets the team spawn wave at the pregame-to-live transition.
+**/
+void bf2server_patch_pregame_spawn();
 
 /**
 *	Patches the server's update timing

@@ -50,6 +50,8 @@ namespace SWBF2Admin.Runtime.Watchdog
         private DateTime serverStartTime;
         private DateTime lastSteamCycle = DateTime.MinValue;
         private int stage = STAGE_HEALTHY;
+        private bool firstTickLogged;
+        private bool postGraceLogged;
 
         public SteamRecovery(AdminCore core) : base(core) { }
 
@@ -59,13 +61,21 @@ namespace SWBF2Admin.Runtime.Watchdog
             graceSeconds = config.SteamRecoveryGraceSeconds;
             cooldownSeconds = config.SteamRecoveryCooldownSeconds;
             steamPath = config.SteamPath;
+
+            Logger.Log(LogLevel.Info,
+                "Steam recovery configured: grace={0}s, cooldown={1}s, check={2}ms, steamPath=\"{3}\".",
+                graceSeconds.ToString(), cooldownSeconds.ToString(), UpdateInterval.ToString(), steamPath);
         }
 
         public override void OnServerStart(EventArgs e)
         {
             //keep 'stage' across restarts so the ladder can escalate; only rcon recovery resets it
             serverStartTime = DateTime.Now;
+            firstTickLogged = false;
+            postGraceLogged = false;
             EnableUpdates();
+
+            LogDiagnosticState("armed");
         }
 
         public override void OnServerStop()
@@ -75,16 +85,31 @@ namespace SWBF2Admin.Runtime.Watchdog
 
         protected override void OnUpdate()
         {
+            if (!firstTickLogged)
+            {
+                firstTickLogged = true;
+                LogDiagnosticState("first tick");
+            }
+
+            if (!postGraceLogged &&
+                (DateTime.Now - serverStartTime).TotalSeconds > graceSeconds)
+            {
+                postGraceLogged = true;
+                LogDiagnosticState("post-grace evaluation");
+            }
+
             //only while the process is up and online (crashes are handled by AutoRestart)
             Process proc = Core.Server.ServerProcess;
             if (proc == null || proc.HasExited || Core.Server.Status != ServerStatus.Online)
                 return;
 
-            if ((DateTime.Now - Core.Rcon.LastRx).TotalSeconds <= graceSeconds)
+            DateTime lastSuccessfulStatusResponse = Core.Rcon.LastSuccessfulStatusResponse;
+            if (lastSuccessfulStatusResponse != DateTime.MinValue &&
+                (DateTime.Now - lastSuccessfulStatusResponse).TotalSeconds <= graceSeconds)
             {
                 if (stage != STAGE_HEALTHY)
                 {
-                    Logger.Log(LogLevel.Info, "Rcon responding again - recovery reset.");
+                    Logger.Log(LogLevel.Info, "Validated Rcon status response received - recovery reset.");
                     stage = STAGE_HEALTHY;
                 }
                 return;
@@ -108,17 +133,49 @@ namespace SWBF2Admin.Runtime.Watchdog
                     stage = STAGE_STEAM_CYCLED;
                     lastSteamCycle = DateTime.Now;
 
+                    LogSteamProcessSnapshot("cycle scheduled");
                     Core.Server.Stop(ServerStopReason.STOP_EXIT);
                     Core.Scheduler.PushDelayedTask(ShutdownSteam, GAME_STOP_WAIT);
 
                     Core.Scheduler.PushDelayedTask(AbortOnFailure, RECOVERY_TIMEOUT);
                     break;
 
-                default: //STAGE_STEAM_CYCLED: ladder exhausted
-                    stage = STAGE_GAVE_UP;
-                    DisableUpdates();
+                case STAGE_STEAM_CYCLED: //ladder exhausted
+                    AbortOnFailure();
                     break;
             }
+        }
+
+        private void LogDiagnosticState(string checkpoint)
+        {
+            DateTime now = DateTime.Now;
+            string processState;
+
+            try
+            {
+                Process process = Core.Server.ServerProcess;
+                processState = process == null
+                    ? "process=<null>"
+                    : string.Format("pid={0}, exited={1}", process.Id, process.HasExited);
+            }
+            catch (Exception ex)
+            {
+                processState = "process=<" + ex.GetType().Name + ">";
+            }
+
+            string lastRxAge = Core.Rcon.LastRx == DateTime.MinValue
+                ? "never"
+                : Math.Max(0, (now - Core.Rcon.LastRx).TotalSeconds).ToString("F1") + "s";
+            DateTime lastSuccessfulStatusResponse = Core.Rcon.LastSuccessfulStatusResponse;
+            string lastValidStatusAge = lastSuccessfulStatusResponse == DateTime.MinValue
+                ? "never"
+                : Math.Max(0, (now - lastSuccessfulStatusResponse).TotalSeconds).ToString("F1") + "s";
+            double serverAge = Math.Max(0, (now - serverStartTime).TotalSeconds);
+
+            Logger.Log(LogLevel.Info,
+                "Steam recovery diagnostic ({0}): status={1}, {2}, stage={3}, serverAge={4}s, lastRxAge={5}, lastValidStatusAge={6}.",
+                checkpoint, Core.Server.Status.ToString(), processState, stage.ToString(),
+                serverAge.ToString("F1"), lastRxAge, lastValidStatusAge);
         }
 
         //single timer fired after the Steam cycle: disable the watchdog if rcon still hasn't recovered
@@ -132,7 +189,14 @@ namespace SWBF2Admin.Runtime.Watchdog
 
         private void ShutdownSteam()
         {
-            try { Process.Start(Path.Combine(steamPath, "steam.exe"), "-shutdown"); }
+            LogSteamProcessSnapshot("before shutdown command");
+            Logger.Log(LogLevel.Info, "Steam recovery: executing steam.exe -shutdown.");
+            try
+            {
+                using Process command = Process.Start(Path.Combine(steamPath, "steam.exe"), "-shutdown");
+                Logger.Log(LogLevel.Info, "Steam shutdown command launched: pid={0}.",
+                    command == null ? "<null>" : command.Id.ToString());
+            }
             catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam shutdown failed ({0})", ex.Message); }
 
             //relaunch Steam after 10s
@@ -141,11 +205,65 @@ namespace SWBF2Admin.Runtime.Watchdog
 
         private void RelaunchSteam()
         {
-            try { Process.Start(Path.Combine(steamPath, "steam.exe")); }
+            LogSteamProcessSnapshot("after shutdown wait");
+            Logger.Log(LogLevel.Info, "Steam recovery: executing steam.exe -silent.");
+            try
+            {
+                using Process command = Process.Start(Path.Combine(steamPath, "steam.exe"), "-silent");
+                Logger.Log(LogLevel.Info, "Steam relaunch command launched: pid={0}.",
+                    command == null ? "<null>" : command.Id.ToString());
+            }
             catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam relaunch failed ({0})", ex.Message); }
 
             //restart the server after 30s
-            Core.Scheduler.PushDelayedTask(() => Core.Server.Start(), STEAM_LOGIN_WAIT);
+            Core.Scheduler.PushDelayedTask(RestartServerAfterSteamCycle, STEAM_LOGIN_WAIT);
+        }
+
+        private void RestartServerAfterSteamCycle()
+        {
+            LogSteamProcessSnapshot("before server restart");
+            Logger.Log(LogLevel.Info, "Steam recovery: Steam login wait complete; restarting server.");
+            Core.Server.Start();
+        }
+
+        private void LogSteamProcessSnapshot(string checkpoint)
+        {
+            try
+            {
+                Process[] processes = Process.GetProcessesByName("steam");
+                if (processes.Length == 0)
+                {
+                    Logger.Log(LogLevel.Info, "Steam process diagnostic ({0}): no steam.exe process found.", checkpoint);
+                    return;
+                }
+
+                string[] details = new string[processes.Length];
+                for (int i = 0; i < processes.Length; ++i)
+                {
+                    Process process = processes[i];
+                    try
+                    {
+                        details[i] = string.Format("pid={0}, session={1}, started={2}",
+                            process.Id, process.SessionId, process.StartTime.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                    }
+                    catch (Exception ex)
+                    {
+                        details[i] = string.Format("pid={0}, details=<{1}>", process.Id, ex.GetType().Name);
+                    }
+                    finally
+                    {
+                        process.Dispose();
+                    }
+                }
+
+                Logger.Log(LogLevel.Info, "Steam process diagnostic ({0}): {1}.",
+                    checkpoint, string.Join("; ", details));
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warning, "Steam process diagnostic ({0}) failed ({1})",
+                    checkpoint, ex.Message);
+            }
         }
     }
 }

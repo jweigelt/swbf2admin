@@ -119,6 +119,8 @@ namespace SWBF2Admin
             components.Add(WebAdmin);
             components.Add(Plugins);
 
+            bool steamRecoveryRegistered = false;
+
             if (config.EnableRuntime)
             {
                 components.Add(Rcon);
@@ -143,10 +145,16 @@ namespace SWBF2Admin
                     (Config.ServerType == GameserverType.Aspyr || Config.ServerType == GameserverType.Steam))
                 {
                     components.Add(new SteamRecovery(this));
+                    steamRecoveryRegistered = true;
                 }
 
                 components.Add(Schedule);
             }
+
+            Logger.Log(LogLevel.Info,
+                "Steam recovery registration: enabled={0}, runtime={1}, serverType={2}, registered={3}.",
+                Config.EnableSteamRecovery.ToString(), Config.EnableRuntime.ToString(),
+                Config.ServerType.ToString(), steamRecoveryRegistered.ToString());
 
             Scheduler.TickDelay = Config.TickDelay;
 
@@ -218,13 +226,19 @@ namespace SWBF2Admin
             Logger.Log(LogLevel.Verbose, "Starting runtime management...");
             Scheduler.PushDelayedTask(() =>
             {
-                try
+                foreach (ComponentBase component in components)
                 {
-                    foreach (ComponentBase h in components) h.OnServerStart(e);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(LogLevel.Error, "Failed to start runtime management ({0})", ex.Message);
+                    try
+                    {
+                        component.OnServerStart(e);
+                    }
+                    catch (Exception ex)
+                    {
+                        Exception cause = ex.GetBaseException();
+                        Logger.Log(LogLevel.Error,
+                            "Failed to start runtime management in component {0}: {1}: {2}",
+                            component.GetType().Name, cause.GetType().Name, cause.Message);
+                    }
                 }
             }, config.RuntimeStartDelay);
         }
@@ -232,7 +246,21 @@ namespace SWBF2Admin
         private void Server_Stopped(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
-            foreach (ComponentBase h in components) h.OnServerStop();
+            foreach (ComponentBase component in components)
+            {
+                try
+                {
+                    component.OnServerStop();
+                }
+                catch (Exception ex)
+                {
+                    Exception cause = ex.GetBaseException();
+                    Logger.Log(LogLevel.Error,
+                        "Failed to stop runtime management in component {0}: {1}: {2}",
+                        component.GetType().Name, cause.GetType().Name, cause.Message);
+                }
+            }
+
             if (e != null)
             {
                 var se = (StopEventArgs)e;

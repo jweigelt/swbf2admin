@@ -38,8 +38,11 @@ namespace SWBF2Admin.Runtime.Rcon
         private const string STATUS_MESSAGE_GAME_HAS_ENDED = "Game has ended";
         private const string STATUS_MESSAGE_SERVER_IS_BUSY = "busy";
         private const int CHAR_LIMIT = 120; // Really its 128
+        private const int STARTUP_STATUS_DIAGNOSTIC_SECONDS = 180;
 
         private readonly object rxLock = new object();
+        private long lastSuccessfulStatusResponseTicks = DateTime.MinValue.Ticks;
+        private DateTime serverSessionStartTime = DateTime.MinValue;
 
         public RconClient(AdminCore core) : base(core) { }
 
@@ -49,6 +52,8 @@ namespace SWBF2Admin.Runtime.Rcon
             ServerIPEP = new IPEndPoint(IPAddress.Parse(Core.Server.Settings.IP), Core.Server.Settings.RconPort);
             //reset liveness so watchdogs measure staleness from this session only
             LastRx = DateTime.MinValue;
+            Interlocked.Exchange(ref lastSuccessfulStatusResponseTicks, DateTime.MinValue.Ticks);
+            serverSessionStartTime = DateTime.Now;
             //Rcon can take up to 10 seconds to start on some CC versions
             Core.Scheduler.PushDelayedTask(() => Start(), 10000);
         }
@@ -97,6 +102,14 @@ namespace SWBF2Admin.Runtime.Rcon
         /// time of the last data received from the server; used by SteamRecovery as a liveness signal
         /// </summary>
         public DateTime LastRx { get; private set; } = DateTime.MinValue;
+
+        /// <summary>
+        /// time of the last successfully parsed response to a status command
+        /// </summary>
+        public DateTime LastSuccessfulStatusResponse
+        {
+            get { return new DateTime(Interlocked.Read(ref lastSuccessfulStatusResponseTicks)); }
+        }
 
         /// <summary>
         /// max. time (in ms) before a packet is dropped if the server doesn't respond
@@ -203,6 +216,7 @@ namespace SWBF2Admin.Runtime.Rcon
         public void SendPacket(RconPacket packet)
         {
             string lastMessageTemp;
+            bool isStatusCommand = string.Equals(packet.Command, "status", StringComparison.OrdinalIgnoreCase);
             lock (rxLock)
             {
                 lastMessage = null;
@@ -240,17 +254,70 @@ namespace SWBF2Admin.Runtime.Rcon
 
             if (lastMessageTemp == STATUS_MESSAGE_SERVER_IS_BUSY)
             {
+                if (isStatusCommand)
+                {
+                    LogStartupStatusDiagnostic(lastMessageTemp, packet as StatusPacket);
+                }
                 Logger.Log(LogLevel.Verbose, "Server is busy - dropping rcon packet");
             }
             else
             {
                 packet.HandleResponse(lastMessageTemp);
+                if (isStatusCommand)
+                {
+                    StatusPacket statusPacket = packet as StatusPacket;
+                    LogStartupStatusDiagnostic(lastMessageTemp, statusPacket);
+                    if (packet.PacketOk && statusPacket?.Info != null &&
+                        !string.IsNullOrWhiteSpace(statusPacket.Info.CurrentMap))
+                    {
+                        Interlocked.Exchange(ref lastSuccessfulStatusResponseTicks, DateTime.Now.Ticks);
+                    }
+                }
             }
 
             lock (rxLock)
             {
                 lastMessage = null;
             }
+        }
+
+        private void LogStartupStatusDiagnostic(string response, StatusPacket statusPacket)
+        {
+            DateTime now = DateTime.Now;
+            if (Core.Config.ServerType != Config.GameserverType.Aspyr ||
+                serverSessionStartTime == DateTime.MinValue ||
+                (now - serverSessionStartTime).TotalSeconds > STARTUP_STATUS_DIAGNOSTIC_SECONDS)
+            {
+                return;
+            }
+
+            ServerInfo info = statusPacket?.Info;
+            int rows = string.IsNullOrEmpty(response) ? 0 : response.Split('\n').Length;
+
+            Logger.Log(LogLevel.Info,
+                "Rcon startup status diagnostic: serverAge={0}s, packetOk={1}, rows={2}, " +
+                "serverName=\"{3}\", serverIP=\"{4}\", version=\"{5}\", maxPlayers=\"{6}\", " +
+                "password=\"{7}\", currentMap=\"{8}\", nextMap=\"{9}\", gameMode=\"{10}\", " +
+                "players=\"{11}\", scores=\"{12}\", tickets=\"{13}\", ffEnabled=\"{14}\", " +
+                "heroes=\"{15}\", raw=\"{16}\".",
+                Math.Max(0, (now - serverSessionStartTime).TotalSeconds).ToString("F1"),
+                (statusPacket?.PacketOk ?? false).ToString(), rows.ToString(),
+                EscapeDiagnosticValue(info?.ServerName), EscapeDiagnosticValue(info?.ServerIP),
+                EscapeDiagnosticValue(info?.Version), EscapeDiagnosticValue(info?.MaxPlayers),
+                EscapeDiagnosticValue(info?.Password), EscapeDiagnosticValue(info?.CurrentMap),
+                EscapeDiagnosticValue(info?.NextMap), EscapeDiagnosticValue(info?.GameMode),
+                EscapeDiagnosticValue(info?.Players), EscapeDiagnosticValue(info?.Scores),
+                EscapeDiagnosticValue(info?.Tickets), EscapeDiagnosticValue(info?.FFEnabled),
+                EscapeDiagnosticValue(info?.Heroes), EscapeDiagnosticValue(response));
+        }
+
+        private static string EscapeDiagnosticValue(string value)
+        {
+            if (value == null) return "<null>";
+            return value.Replace("\\", "\\\\")
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n")
+                .Replace("\"", "\\\"");
         }
 
         /// <summary>

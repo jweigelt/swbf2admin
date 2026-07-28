@@ -4,10 +4,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace SWBF2Admin.Runtime.Readers
 {
-    public class ProcessMemoryReader
+    public class ProcessMemoryReader : IDisposable
     {
         #region imports
         [Flags]
@@ -47,9 +48,13 @@ namespace SWBF2Admin.Runtime.Readers
 
         #endregion
 
+        private readonly object handleLock = new object();
         private IntPtr hProc = IntPtr.Zero;
         private IntPtr moduleBase;
-        public bool IsProcessOpen { get; private set; } =false;
+        public bool IsProcessOpen { get; private set; } = false;
+        public int? ProcessId { get; private set; }
+        public string LastOpenError { get; private set; }
+
         public IntPtr GetModuleBase(long offset)
         {
             return new nint(moduleBase.ToInt64() + offset);
@@ -71,133 +76,161 @@ namespace SWBF2Admin.Runtime.Readers
         #region open
         public bool Open(Process process, string moduleName)
         {
-            Logger.Log(LogLevel.Verbose, "Trying to open process module \"{0}\"...", moduleName);
+            Close();
+            LastOpenError = null;
 
             if (process == null)
             {
-                IsProcessOpen = false;
+                LastOpenError = "The server process is not available.";
                 return false;
             }
 
-            hProc = OpenProcess(ProcessAccessFlags.All, false, process.Id);
+            IntPtr openedHandle = IntPtr.Zero;
 
-            if (hProc == IntPtr.Zero)
+            try
             {
-                IsProcessOpen = false;
-                return false;
-            }
-
-            process.Refresh();
-
-            if (string.IsNullOrEmpty(moduleName))
-            {
-                moduleBase = process.MainModule.BaseAddress;
-            }
-            else
-            {
-                ProcessModule targetModule = null;
-
-                foreach (ProcessModule module in process.Modules)
+                int processId = process.Id;
+                process.Refresh();
+                if (process.HasExited)
                 {
-                    if (string.Equals(module.ModuleName, moduleName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        targetModule = module;
-                        break;
-                    }
-                }
-
-                if (targetModule == null)
-                {
-                    Logger.Log(LogLevel.Verbose, "Could not find module \"{0}\" in process.", moduleName);
-                    IsProcessOpen = false;
+                    LastOpenError = "The server process exited while attaching.";
                     return false;
                 }
 
-                moduleBase = targetModule.BaseAddress;
-                Logger.Log(LogLevel.Verbose, "Found module \"{0}\"", moduleName);
+                IntPtr foundModuleBase;
+
+                if (string.IsNullOrEmpty(moduleName))
+                {
+                    ProcessModule mainModule = process.MainModule;
+                    if (mainModule == null)
+                    {
+                        LastOpenError = "The process main module is not available yet.";
+                        return false;
+                    }
+
+                    foundModuleBase = mainModule.BaseAddress;
+                }
+                else
+                {
+                    ProcessModule targetModule = null;
+
+                    foreach (ProcessModule module in process.Modules)
+                    {
+                        if (string.Equals(module.ModuleName, moduleName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            targetModule = module;
+                            break;
+                        }
+                    }
+
+                    if (targetModule == null)
+                    {
+                        LastOpenError = string.Format("Module \"{0}\" is not loaded yet.", moduleName);
+                        return false;
+                    }
+
+                    foundModuleBase = targetModule.BaseAddress;
+                }
+
+                const ProcessAccessFlags requiredAccess =
+                    ProcessAccessFlags.VirtualMemoryOperation |
+                    ProcessAccessFlags.VirtualMemoryRead |
+                    ProcessAccessFlags.VirtualMemoryWrite |
+                    ProcessAccessFlags.QueryInformation;
+
+                openedHandle = OpenProcess(requiredAccess, false, processId);
+                if (openedHandle == IntPtr.Zero)
+                {
+                    LastOpenError = new Win32Exception(Marshal.GetLastWin32Error(), "OpenProcess failed.").Message;
+                    return false;
+                }
+
+                lock (handleLock)
+                {
+                    hProc = openedHandle;
+                    openedHandle = IntPtr.Zero;
+                    moduleBase = foundModuleBase;
+                    ProcessId = processId;
+                    IsProcessOpen = true;
+                }
+
+                return true;
             }
-            IsProcessOpen = true;
-            return true;
+            catch (Exception ex)
+            {
+                // Module enumeration can fail transiently while Windows is still
+                // initializing a freshly restarted process. The caller retries.
+                LastOpenError = ex.Message;
+                return false;
+            }
+            finally
+            {
+                if (openedHandle != IntPtr.Zero)
+                    CloseHandle(openedHandle);
+            }
         }
 
         public void Open(int pid)
         {
             try
             {
-                Process proc = Process.GetProcessById(pid);
-                if (proc == null) { }
-                hProc = OpenProcess(ProcessAccessFlags.All, false, proc.Id);
-                if (hProc == IntPtr.Zero) throw new Exception("OpenProcess() failed.");
-
-                moduleBase = proc.MainModule.BaseAddress;
-                IsProcessOpen = true;
+                using Process proc = Process.GetProcessById(pid);
+                if (!Open(proc, null))
+                    throw new Exception(LastOpenError ?? "OpenProcess failed.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                IsProcessOpen=false;
-                throw new Exception($"No process found for id: {pid}");
+                Close();
+                throw new Exception($"No process found for id: {pid}", ex);
             }
         }
+
         public bool Open(Process process)
         {
-            if (process == null)
-            {
-                IsProcessOpen = false;
-                return false;
-            }
-
-            hProc = OpenProcess(ProcessAccessFlags.All, false, process.Id);
-            if (hProc == IntPtr.Zero)
-            {
-                IsProcessOpen = false;
-                return false;
-            }
-
-            moduleBase = process.MainModule.BaseAddress;
-            IsProcessOpen = true;
-            return true;
+            return Open(process, null);
         }
+
         public bool Open(string name)
         {
             try
             {
                 Process[] procs = Process.GetProcessesByName(name);
 
-                if (procs.Length < 1)
+                foreach (Process proc in procs)
                 {
-                    IsProcessOpen = false;
-                    return false;
+                    using (proc)
+                    {
+                        if (Open(proc, null))
+                            return true;
+                    }
                 }
 
-                Process proc = null;
-                foreach (var p in procs)
-                {
-                    proc = p;
-                    break;
-                }
-
-                if (proc == null)
-                {
-                    IsProcessOpen = false;
-                    return false;
-                }
-
-                hProc = OpenProcess(ProcessAccessFlags.All, false, proc.Id);
-                if (hProc == IntPtr.Zero) 
-                {
-                    IsProcessOpen = false;
-                    return false;
-                }
-
-                moduleBase = proc.MainModule.BaseAddress;
-                IsProcessOpen = true;
-                return true;
-
-            }catch (Exception)
-            {
-                IsProcessOpen = false;
+                LastOpenError ??= string.Format("No process named \"{0}\" is available.", name);
                 return false;
             }
+            catch (Exception ex)
+            {
+                LastOpenError = ex.Message;
+                Close();
+                return false;
+            }
+        }
+
+        public void Close()
+        {
+            IntPtr handle;
+
+            lock (handleLock)
+            {
+                handle = hProc;
+                hProc = IntPtr.Zero;
+                moduleBase = IntPtr.Zero;
+                ProcessId = null;
+                IsProcessOpen = false;
+            }
+
+            if (handle != IntPtr.Zero)
+                CloseHandle(handle);
         }
         #endregion
 
@@ -356,12 +389,15 @@ namespace SWBF2Admin.Runtime.Readers
             return address;
         }
 
+        public void Dispose()
+        {
+            Close();
+            GC.SuppressFinalize(this);
+        }
+
         ~ProcessMemoryReader()
         {
-            if (hProc != IntPtr.Zero)
-            {
-                CloseHandle(hProc);
-            }
+            Close();
         }
     }
 }

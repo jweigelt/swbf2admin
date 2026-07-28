@@ -16,7 +16,7 @@ If you are planning on hosting a GoG/Steam server you will need a GOG Galaxy acc
 ### Minimal setup
 Extract all files to a destination of your choice, run SWBF2Admin.exe. You will be prompted to set webadmin credentials. Enter username and password of your choice. Close SWBF2Admin afterwards.
 
-Should you ever forget your credentials, run `reset_webcredentials.bat` for resetting all web admin accounts. 
+Should you ever forget your credentials, run `reset_webcredentials.bat` for resetting all web admin accounts.
 
 #### Platform Selection
 
@@ -43,18 +43,21 @@ If you have any active firewall, the web admin port (8080 TCP in this case) has 
 
 If you prefer to use an encrypted connection, you may change the protocol specified in `WebAdminPrefix` from `http://` to `https://`. Note that when using HTTPS, a matching SSL certificate has to be installed into your machine's certificate store.
 
-#### Optional: enabling runtime managament
-*Do not enable runtime management when running the 2024 Aspyr `Battlefront Classic Collection` release.*
+#### Optional: enabling runtime management
 
-If you want to use features like ingame commands or announce broadcasts, runtime management has be enabled.
+If you want to use features like ingame commands or announce broadcasts, runtime management has to be enabled.
 To enable runtime management, open `./cfg/core.xml`, set
 ```xml
-  <EnableRuntime>true</EnableRuntime>
+<EnableRuntime>true</EnableRuntime>
 ```
+
+The 2017 GOG and 2024 Aspyr releases use `RconServer_32.dll` and
+`RconServer_64.dll`, respectively. Their matching `DllLoader` executable and
+RconServer DLL must be present in the configured server directory.
 
 *When using runtime management, the !gimmeadmin command will add the first user to execute  it to the "Admin" group. Make sure you are the first one! The command is deactivated after one use.*
 
-*If you are using the 2017 GOG release, set GamePort & RconPort in Server Settings to the same value.*
+*For the 2017 GOG and 2024 Aspyr releases, set GamePort and RconPort in Server Settings to the same value.*
 
 ### Preparing the gameserver
 
@@ -94,7 +97,7 @@ Do not uninstall the original game or GOG Galaxy after copying the data.
 
 ##### Gamespy / "Swbfspy"
 1) Install the original dedicated server package
-2) Copy the contents of it's installation folder (the one containing `BattlefrontII.exe`) to the `server` folder in SWBF2Admin's installation directory 
+2) Copy the contents of it's installation folder (the one containing `BattlefrontII.exe`) to the `server` folder in SWBF2Admin's installation directory
 
 ### First launch
 1) Start `SWBF2Admin.exe`
@@ -150,7 +153,7 @@ To delete a ban, just right click it. A context menu will show up - click on "De
 
 ### Settings
 
-Once you made any changes, the page will notify you that the changes weren't saved yet. 
+Once you made any changes, the page will notify you that the changes weren't saved yet.
 Five seconds after you made your last change, all settings will automatically be saved.
 Settings are also saved immediately if you change to another page, so you don't have to wait.
 
@@ -356,7 +359,7 @@ Use the following template for your XML file:
   <UserConfig>
 	<CustomConfig>...</CustomConfig>
 	...
-  </UserConfig>  
+  </UserConfig>
 </DynamicCommand>
 ```
 
@@ -372,7 +375,7 @@ function init()
 end
 
 function run(player, command, params)
-		
+
 end
 ```
 
@@ -443,12 +446,12 @@ ShowAll = -1
 Keyhash = 0
 IPAddress = 1
 ```
- 
+
 PlayerBan
 ```
 (const number)DURATION_PERMANENT = -1
-(number)DatabaseId 
-(string)DateStr 
+(number)DatabaseId
+(string)DateStr
 (number)Duration - ban duration in seconds
 (boolean)Expired - true if the ban expired
 (number) TypeId - ban type (see BanType def.)
@@ -464,8 +467,8 @@ PlayerBan
 PlayerBan
 ```
 (const number)DURATION_PERMANENT = -1
-(number)DatabaseId 
-(string)DateStr 
+(number)DatabaseId
+(string)DateStr
 (number)Duration - ban duration in seconds
 (boolean)Expired - true if the ban expired
 (number) TypeId - ban type (see BanType def.)

@@ -215,6 +215,10 @@ namespace SWBF2Admin.Gameserver
                 ProcessArgs = ServerArgs;
                 if (serverType == GameserverType.Aspyr)
                 {
+                    // Classic's headless path has unstable pacing. Do not pass the
+                    // Galaxy-only /norender argument to the Aspyr executable.
+                    ProcessArgs = ProcessArgs.Replace("/norender", "",
+                        StringComparison.OrdinalIgnoreCase);
                     ProcessArgs += " /bf2";
                     //ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
                     if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
@@ -227,6 +231,11 @@ namespace SWBF2Admin.Gameserver
                 status = ServerStatus.Starting;
 
                 Environment.SetEnvironmentVariable("SPAWN_TIMER", Core.Server.Settings.AutoAnnouncePeriod.ToString());
+                if (serverType == GameserverType.Aspyr)
+                {
+                    Environment.SetEnvironmentVariable("PLATFORM_LOBBY",
+                        Core.Server.Settings.Platform?.ToLowerInvariant());
+                }
 
                 ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerExecutable), ProcessArgs)
                 {
@@ -326,8 +335,9 @@ namespace SWBF2Admin.Gameserver
 
         private void InjectRconDllIfRequired()
         {
-            //Add GameserverType.Aspyr if using RconServer
-            if (serverType == GameserverType.GoG || serverType == GameserverType.Steam)
+            if (serverType == GameserverType.GoG ||
+                serverType == GameserverType.Steam ||
+                serverType == GameserverType.Aspyr)
             {
                 string loader;
                 string dll;

@@ -21,9 +21,6 @@ namespace SWBF2Admin.Runtime.Readers
         private bool isAspyr = false;
         private string configFileName = "";
 
-        private const string SPAWN_DELAY_MOD = "spawn_delay";
-        private const string PLATFORM_MOD = "platform_lobby";
-
         public override void Configure(CoreConfiguration config)
         {
             isAspyr = config.ServerType == GameserverType.Aspyr;
@@ -83,6 +80,7 @@ namespace SWBF2Admin.Runtime.Readers
         public override void OnServerStop()
         {
             ProcessOpened = false;
+            reader.Close();
 
             foreach (ProcessMod mod in Mods)
                 foreach (CodeCave cave in mod.CodeCaves)
@@ -90,98 +88,19 @@ namespace SWBF2Admin.Runtime.Readers
 
             DisableUpdates();
         }
+
+        public override void OnDeInit()
+        {
+            ProcessOpened = false;
+            reader.Close();
+        }
         public void ApplyMod(ProcessMod mod)
         {
-            if (isAspyr && mod.Name == SPAWN_DELAY_MOD)
-            {
-                ApplySpawnDelay();
-                return;
-            }
-            if (isAspyr && mod.Name == PLATFORM_MOD)
-            {
-                ApplyPlatform();
-                return;
-            }
             mod.Apply(reader);
         }
         public void RevertMod(ProcessMod mod)
         {
             mod.Revert(reader);
-        }
-
-        public void ApplySpawnDelay()
-        {
-            if (!isAspyr || !ProcessOpened) return;
-
-            ProcessMod mod = Mods.Find(m => m.Name == SPAWN_DELAY_MOD);
-            if (mod == null || mod.CodeCaves.Count == 0) return;
-            if (!mod.Enabled) return;
-
-            CodeCave cave = mod.CodeCaves[0];
-
-            float seconds = (float)Core.Server.Settings.AutoAnnouncePeriod;
-            byte[] f = BitConverter.GetBytes(seconds);
-
-            try
-            {
-                //Install the cave with its XML default float on first apply, then always
-                //overwrite cave+0x14 (the inline float literal) with the live delay.
-                if (cave.CaveAddress == IntPtr.Zero)
-                    mod.Apply(reader);
-
-                reader.WriteBytes(IntPtr.Add(cave.CaveAddress, 0x14), f);
-                Logger.Log(LogLevel.Info, "Set spawn delay to {0}s", seconds.ToString());
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogLevel.Warning, "Failed to apply spawn delay {0}", ex.Message);
-            }
-        }
-
-        public void UpdateSpawnDelay()
-        {
-            if (!isAspyr || !ProcessOpened) return;
-
-            ProcessMod mod = Mods.Find(m => m.Name == SPAWN_DELAY_MOD);
-            if (mod == null || mod.CodeCaves.Count == 0) return;
-            if (!mod.Enabled) return;
-
-            CodeCave cave = mod.CodeCaves[0];
-            if (cave.CaveAddress == IntPtr.Zero) return;
-
-            byte[] f = BitConverter.GetBytes((float)Core.Server.Settings.AutoAnnouncePeriod);
-            try
-            {
-                //cave+0x14 = the inline float literal
-                reader.WriteBytes(IntPtr.Add(cave.CaveAddress, 0x14), f);
-                Logger.Log(LogLevel.Info, "Updated spawn delay to {0}s", Core.Server.Settings.AutoAnnouncePeriod.ToString());
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogLevel.Warning, "Failed to update spawn delay {0}", ex.Message);
-            }
-        }
-
-        public void ApplyPlatform()
-        {
-            if (!isAspyr || !ProcessOpened) return;
-
-            ProcessMod mod = Mods.Find(m => m.Name == PLATFORM_MOD);
-            if (mod == null || mod.ProcessEdits.Count == 0) return;
-
-            string platform = Core.Server.Settings.Platform;
-            if (string.IsNullOrEmpty(platform) || platform.Length != 2) return;
-            mod.ProcessEdits[0].PatchedBytes = System.Text.Encoding.ASCII.GetBytes(platform);
-
-            try
-            {
-                mod.Apply(reader);
-                Logger.Log(LogLevel.Info, "Set server platform to \"{0}\"", platform);
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogLevel.Warning, "Failed to apply server platform {0}", ex.Message);
-            }
         }
 
         //Patch in place to keep XML comments; rewrite only on failure
@@ -251,25 +170,76 @@ namespace SWBF2Admin.Runtime.Readers
         private bool TryOpenReader(int maxAttempts = 100, int sleepMs = 100)
         {
             //already attached (e.g. OnInit reattach then OnServerStart) - don't reopen or re-log
-            if (ProcessOpened && Core.Server.ServerProcess != null && !Core.Server.ServerProcess.HasExited)
-                return true;
+            if (ProcessOpened && reader.IsProcessOpen && Core.Server.ServerProcess != null)
+            {
+                try
+                {
+                    if (!Core.Server.ServerProcess.HasExited &&
+                        reader.ProcessId == Core.Server.ServerProcess.Id)
+                    {
+                        return true;
+                    }
+                }
+                catch (Exception)
+                {
+                    // The process changed or exited; fall through and reattach.
+                }
+            }
+
+            ProcessOpened = false;
+            reader.Close();
+            string lastError = null;
+
+            Logger.Log(LogLevel.Verbose, "Trying to open process module \"{0}\"...", moduleName);
 
             for (int i = 0; i < maxAttempts; i++)
             {
-                if (Core.Server.ServerProcess == null || Core.Server.ServerProcess.HasExited)
+                System.Diagnostics.Process process = Core.Server.ServerProcess;
+                if (process == null)
                     return false;
 
-                if (reader.Open(Core.Server.ServerProcess, moduleName))
+                try
                 {
-                    Logger.Log(LogLevel.Info, "Opened process reader to module \"{0}\", target64={1}.", moduleName, reader.IsTarget64Bit.ToString());
-                    ProcessOpened = true;
-                    return true;
+                    if (process.HasExited)
+                        return false;
+
+                    if (reader.Open(process, moduleName))
+                    {
+                        // Do not retain a handle to a process superseded by another
+                        // restart while this attempt was in progress.
+                        System.Diagnostics.Process currentProcess = Core.Server.ServerProcess;
+                        if (currentProcess == null || currentProcess.Id != reader.ProcessId)
+                        {
+                            lastError = "The server process changed while the reader was attaching.";
+                            reader.Close();
+                        }
+                        else
+                        {
+                            Logger.Log(LogLevel.Info, "Opened process reader to module \"{0}\", target64={1}.", moduleName, reader.IsTarget64Bit.ToString());
+                            ProcessOpened = true;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        lastError = reader.LastOpenError;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Treat startup/process-lifecycle failures as transient. A
+                    // single module-enumeration race must not escape this loop.
+                    lastError = ex.Message;
+                    reader.Close();
                 }
 
-                System.Threading.Thread.Sleep(sleepMs);
+                if (i + 1 < maxAttempts)
+                    System.Threading.Thread.Sleep(sleepMs);
             }
 
-            Logger.Log(LogLevel.Warning, "Failed to attach process reader to module \"{0}\".", moduleName);
+            Logger.Log(LogLevel.Warning,
+                "Failed to attach process reader to module \"{0}\" after {1} attempts. Last error: {2}",
+                moduleName, maxAttempts.ToString(), lastError ?? "unknown");
             return false;
         }
     }

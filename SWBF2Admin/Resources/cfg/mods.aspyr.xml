@@ -584,24 +584,115 @@
 		</LvlMod>
 
 		<!--
+			File: POL1.LVL (Mod Tools Created) (38,092,876 bytes)
+			Mods: Modify all damage regions to issue 0 damage so that all characters may breathe outside.
+		-->
+		<LvlMod Name="pol_spacewalk">
+			<HexEdits>
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131758" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="213181C" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21318E0" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21319A4" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131A68" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131B34" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131BF8" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131CBC" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131D80" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131E44" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131F08" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2131FC8" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="213208C" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132150" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132218" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21322D8" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="213239C" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132460" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132524" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21325E8" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21326AC" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132770" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132838" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21328F8" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21329C0" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132A88" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132B48" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132C08" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132CC8" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132D88" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132E48" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132F0C" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2132FD4" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2133094" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2133154" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2133214" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21332D8" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2133398" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="213345C" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2133524" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21335EC" PatchedBytes="3030" OriginalBytes="3630" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21336B4" PatchedBytes="3030" OriginalBytes="3630" />
+			</HexEdits>
+		</LvlMod>
+
+		<!--
 			File: POL1.LVL (Mod Tools Created)
-			Mods: Lower all three hangar shield MaxHealth (999999.0 -> 10000.0) and AddHealth
-						(50000.0 -> 300.0), and change their Team value from 0 to 3 so AI bots will attack them.
+			Mods: Modify three AI barriers and several AI connections to allow AI bots to pass freely
+					between the hangars and the outside areas. Meant to be used together with pol_spacewalk.
+		-->
+		<LvlMod Name="pol_ai_spacewalk">
+			<HexEdits>
+				<!-- Modify three AI barriers to allow AI bots to pass between the hangars and the outside areas -->
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="693054" PatchedBytes="32" OriginalBytes="33" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="693988" PatchedBytes="32" OriginalBytes="33" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="6950C8" PatchedBytes="32" OriginalBytes="33" />
+				<!-- Modify several AI connections to allow AI bots to pass between the hangars and the outside areas -->
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="C77BE" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B2BC2" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="232B0F6" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="C77A4" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B2BA8" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="232B0DC" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="C754E" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B2952" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="232AE86" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="C7534" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B2938" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="232AE6C" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="C7568" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B296C" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="232AEA0" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="C7360" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B2764" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="232AC98" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B2BDC" PatchedBytes="0D" OriginalBytes="0C" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="C77D8" PatchedBytes="0D" OriginalBytes="0E" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="232B110" PatchedBytes="0D" OriginalBytes="0E" />
+			</HexEdits>
+		</LvlMod>
+
+		<!--
+			File: POL1.LVL (Mod Tools Created)
+			Mods: Lower all three hangar shield MaxHealth (999999.0 -> 10000.0) and AddHealth (50000.0 -> 300.0),
+					lower their RespawnTime (999999 -> 60), and change their Team value from 0 to 3 so AI bots will attack them.
 		-->
 		<LvlMod Name="pol_shields_destructible">
 			<HexEdits>
 				<!-- Shield MaxHealth 999999.0 -> 10000.0 -->
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1246A3C" PatchedBytes="31303030302E3000" OriginalBytes="3939393939392E30" />
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1248A4C" PatchedBytes="31303030302E3000" OriginalBytes="3939393939392E30" />
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1E7951C" PatchedBytes="31303030302E3000" OriginalBytes="3939393939392E30" />
-				<!-- Shield AddHealth 50000.0 -> 300.0 (patched null-padded to 7 bytes to match the original length) -->
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1246A54" PatchedBytes="3330302E300000" OriginalBytes="35303030302E30" />
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1248A64" PatchedBytes="3330302E300000" OriginalBytes="35303030302E30" />
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1E79534" PatchedBytes="3330302E300000" OriginalBytes="35303030302E30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="121F118" PatchedBytes="31303030302E3000" OriginalBytes="3939393939392E30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1221128" PatchedBytes="31303030302E3000" OriginalBytes="3939393939392E30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1E51BF8" PatchedBytes="31303030302E3000" OriginalBytes="3939393939392E30" />
+				<!-- Shield AddHealth 50000.0 -> 300.0 -->
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="121F130" PatchedBytes="3330302E300000" OriginalBytes="35303030302E30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1221140" PatchedBytes="3330302E300000" OriginalBytes="35303030302E30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1E51C10" PatchedBytes="3330302E300000" OriginalBytes="35303030302E30" />
+				<!-- Shield RespawnTime 999999 -> 60 (source notes flag this one as possibly not working) -->
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="121F144" PatchedBytes="363000000000" OriginalBytes="393939393939" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1221154" PatchedBytes="363000000000" OriginalBytes="393939393939" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="1E51C24" PatchedBytes="363000000000" OriginalBytes="393939393939" />
 				<!-- Shield Team 0 -> 3 so AI bots may attack the shields -->
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21579C8" PatchedBytes="33" OriginalBytes="30" />
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2155E84" PatchedBytes="33" OriginalBytes="30" />
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="2155FDC" PatchedBytes="33" OriginalBytes="30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="212E560" PatchedBytes="33" OriginalBytes="30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="212E6B8" PatchedBytes="33" OriginalBytes="30" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="21300A4" PatchedBytes="33" OriginalBytes="30" />
 			</HexEdits>
 		</LvlMod>
 
@@ -611,8 +702,8 @@
 		-->
 		<LvlMod Name="pol_flag_lookout">
 			<HexEdits>
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22C789F" PatchedBytes="0000003E54313F00000000C8A2383F000000000000803F00000000C8A238BF000000003E54313F6891C5C200000442E9267B42" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF3333D4420000D841CBA17442" />
-				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22C739D" PatchedBytes="0000003E54313F00000000C8A2383F000000000000803F00000000C8A238BF000000003E54313F6891C5C200000442E9267B42" OriginalBytes="000000AE1136BF00000080A8F633BF000000000000803F00000080A8F6333F00000000AE1136BF1283D7C2CBA1834181558AC2" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B53A5" PatchedBytes="0000006A9339BF000000805B5830BF000000000000803F000000805B58303F000000006A9339BFFA3EC0C2E3A50C425A647042" OriginalBytes="000000000080BF0000008000000000000000000000803F000000800000000000000000000080BF3333D4420000D841CBA17442" />
+				<HexEdit FileName="pol1.lvl" LevelDir="/data2/_lvl_common/pol" StartAddress="22B5161" PatchedBytes="0000006A9339BF000000805B5830BF000000000000803F000000805B58303F000000006A9339BFFA3EC0C2E3A50C425A647042" OriginalBytes="000000AE1136BF00000080A8F633BF000000000000803F00000080A8F6333F00000000AE1136BF1283D7C2CBA1834181558AC2" />
 			</HexEdits>
 		</LvlMod>
 

@@ -16,6 +16,7 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using SWBF2Admin.Config;
+using SWBF2Admin.Gameserver;
 using SWBF2Admin.Utility;
 using System;
 
@@ -45,6 +46,17 @@ namespace SWBF2Admin.Runtime.Watchdog
         {
             config = Core.Files.ReadConfig<ScheduleConfiguration>();
             UpdateInterval = config.CheckInterval;
+
+            //honor a live enable/disable - disabling also cancels any queued restart
+            if (config.EnableScheduledRestart)
+            {
+                if (Core.Server.Status == ServerStatus.Online) EnableUpdates();
+            }
+            else
+            {
+                restartPending = false;
+                DisableUpdates();
+            }
         }
 
         public override void OnInit()
