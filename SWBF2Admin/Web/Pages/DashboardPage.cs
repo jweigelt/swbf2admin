@@ -47,12 +47,12 @@ namespace SWBF2Admin.Web.Pages
                     if (p.NewStatusId == (int)ServerStatus.Online)
                     {
                         WebServer.LogAudit(user, "started the server");
-                        Core.Server.Start();
+                        Core.StartServer();
                     }
                     else if (p.NewStatusId == (int)ServerStatus.Offline)
                     {
                         WebServer.LogAudit(user, "stopped the server");
-                        Core.Server.Stop();
+                        Core.StopServer();
                     }
                     break;
             }

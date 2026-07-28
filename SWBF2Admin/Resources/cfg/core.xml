@@ -20,6 +20,9 @@
     - Aspyr (2024 Aspyr Release)
   -->
   <ServerType>GoG</ServerType>
+
+  <!--direct transport policy for patched GOG servers-->
+  <DirectTransportPolicy>Disabled</DirectTransportPolicy>
   
   <!--
     path to server's GameData folder

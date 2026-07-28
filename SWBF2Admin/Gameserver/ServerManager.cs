@@ -21,6 +21,7 @@ using SWBF2Admin.Utility;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace SWBF2Admin.Gameserver
 {
@@ -61,6 +62,7 @@ namespace SWBF2Admin.Gameserver
 
         private int steamLaunchRetryCount = 0;
         private GameserverType serverType;
+        private int startRequestId;
 
         public ServerManager(AdminCore core) : base(core) { }
 
@@ -113,9 +115,9 @@ namespace SWBF2Admin.Gameserver
                 }
                 else if (++steamLaunchRetryCount > STEAMMODE_MAX_RETRY)
                 {
-                    Logger.Log(LogLevel.Error, "Server didn't start after {0} retries. Assuming it has crashed.", steamLaunchRetryCount.ToString());
-                    status = ServerStatus.Offline;
-                    DisableUpdates();
+                    HandleStartFailure(string.Format(
+                        "Server didn't start after {0} retries.",
+                        steamLaunchRetryCount));
                 }
 
             }
@@ -183,26 +185,22 @@ namespace SWBF2Admin.Gameserver
 
         private bool Attach(bool starting)
         {
-            serverProcess = (serverType == GameserverType.Aspyr)
+            Process process = (serverType == GameserverType.Aspyr)
                 ? FindProcessByPidFile()
                 : FindProcess(ServerProcessName);
-            if (serverProcess != null)
+            if (process != null)
             {
-                serverProcess.EnableRaisingEvents = true;
-                serverProcess.Exited += new EventHandler(ServerProcess_Exited);
+                Interlocked.Increment(ref startRequestId);
+                serverProcess = process;
+                process.EnableRaisingEvents = true;
+                process.Exited += new EventHandler(ServerProcess_Exited);
                 status = ServerStatus.Online;
+
+                ApplyProcessSettings(process);
+                if (!ProcessIsActive(process)) return false;
 
                 InvokeEvent(ServerStarted, this, new StartEventArgs(!starting));
                 if (starting) InjectRconDllIfRequired();
-                if (Core.Config.EnableHighPriority)
-                {
-                    serverProcess.PriorityClass = ProcessPriorityClass.High;
-                }
-                if (Core.Config.SetAffinity)
-                {
-                    serverProcess.ProcessorAffinity = (IntPtr)Core.Config.ProcessAffinity;
-                    Logger.Log(LogLevel.Info, "Process Affinity: 0x{0}", serverProcess.ProcessorAffinity.ToString("X"));
-                }
                 return true;
             }
             return false;
@@ -210,86 +208,112 @@ namespace SWBF2Admin.Gameserver
 
         public void Start()
         {
-            if (serverProcess == null)
+            if (status != ServerStatus.Offline || serverProcess != null)
             {
-                ProcessArgs = ServerArgs;
-                if (serverType == GameserverType.Aspyr)
+                return;
+            }
+
+            int requestId = Interlocked.Increment(ref startRequestId);
+            status = ServerStatus.Starting;
+
+            ProcessStartInfo startInfo;
+            try
+            {
+                startInfo = CreateStartInfo();
+            }
+            catch (Exception ex)
+            {
+                HandleStartFailure(ex.Message);
+                return;
+            }
+
+            Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ProcessArgs);
+
+            //if we're in steam mode, steam will start a launcher exe prior to the actual game
+            if (serverType == GameserverType.Steam)
+            {
+                InvokeEvent(SteamServerStarting, this, new EventArgs());
+                steamLaunchRetryCount = 0;
+                status = ServerStatus.SteamPending;
+                Core.Scheduler.PushDelayedTask(() =>
                 {
-                    //Aspyr servers become unstable with /norender
-                    ProcessArgs = ProcessArgs.Replace("/norender", "",
-                        StringComparison.OrdinalIgnoreCase);
-                    ProcessArgs += " /bf2";
-                    //ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
-                    if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
+                    if (requestId != Volatile.Read(ref startRequestId) ||
+                        status != ServerStatus.SteamPending)
                     {
-                        ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
+                        return;
                     }
-                }
 
-                Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ProcessArgs);
-                status = ServerStatus.Starting;
-
-                Environment.SetEnvironmentVariable("SPAWN_TIMER", Core.Server.Settings.AutoAnnouncePeriod.ToString());
-                if (serverType == GameserverType.Aspyr)
-                {
-                    Environment.SetEnvironmentVariable("PLATFORM_LOBBY",
-                        Core.Server.Settings.Platform?.ToLowerInvariant());
-                }
-
-                ProcessStartInfo startInfo = new ProcessStartInfo(Core.Files.ParseFileName(ServerExecutable), ProcessArgs)
-                {
-                    WorkingDirectory = Core.Files.ParseFileName(ServerPath)
-                };
-
-                //if we're in steam mode, steam will start a launcher exe prior to the actual game
-                if (serverType == GameserverType.Steam)
-                {
-                    InvokeEvent(SteamServerStarting, this, new EventArgs());
-                    steamLaunchRetryCount = 0;
-                    Core.Scheduler.PushDelayedTask(() =>
+                    try
                     {
                         serverProcess = Process.Start(startInfo);
+                        if (serverProcess == null)
+                        {
+                            throw new InvalidOperationException("Process.Start returned null.");
+                        }
                         serverProcess.EnableRaisingEvents = true;
                         serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                    }, 5000);
-                    status = ServerStatus.SteamPending;
-                }
-                else
+                    }
+                    catch (Exception ex)
+                    {
+                        HandleStartFailure(ex.Message);
+                    }
+                }, 5000);
+            }
+            else
+            {
+                Process process;
+                try
                 {
-                    serverProcess = Process.Start(startInfo);
-                    serverProcess.EnableRaisingEvents = true;
-                    serverProcess.Exited += new EventHandler(ServerProcess_Exited);
-                    if (Core.Config.EnableHighPriority)
+                    process = Process.Start(startInfo);
+                    if (process == null)
                     {
-                        serverProcess.PriorityClass = ProcessPriorityClass.High;
+                        throw new InvalidOperationException("Process.Start returned null.");
                     }
-                    if (Core.Config.SetAffinity)
-                    {
-                        serverProcess.ProcessorAffinity = (IntPtr)Core.Config.ProcessAffinity;
-                        Logger.Log(LogLevel.Info, "Process Affinity: 0x{0}", serverProcess.ProcessorAffinity.ToString("X"));
-                    }
+                    serverProcess = process;
                     status = ServerStatus.Online;
-                    InvokeEvent(ServerStarted, this, new StartEventArgs(false));
-                    InjectRconDllIfRequired();
+                    process.EnableRaisingEvents = true;
+                    process.Exited += new EventHandler(ServerProcess_Exited);
                 }
+                catch (Exception ex)
+                {
+                    HandleStartFailure(ex.Message);
+                    return;
+                }
+
+                ApplyProcessSettings(process);
+                if (!ProcessIsActive(process)) return;
+                InvokeEvent(ServerStarted, this, new StartEventArgs(false));
+                InjectRconDllIfRequired();
             }
         }
 
         public void Stop(ServerStopReason reason = ServerStopReason.STOP_EXIT)
         {
+            Interlocked.Increment(ref startRequestId);
             if (serverProcess != null)
             {
                 Logger.Log(LogLevel.Info, "Stopping Server...");
+                bool sendShutdown = Core.Config.EnableRuntime && status == ServerStatus.Online;
                 status = ServerStatus.Stopping;
                 stopReason = reason;
 
-                if (Core.Config.EnableRuntime)
+                Process process = serverProcess;
+                if (sendShutdown)
                 {
                     Logger.Log(LogLevel.Verbose, "Asking server to stop");
                     Core.Scheduler.PushTask(() => { Core.Rcon.SendCommand("shutdown"); });
-                    Core.Scheduler.PushDelayedTask(() => KillServer(), 1000);
+                    Core.Scheduler.PushDelayedTask(() => KillServer(process), 1000);
                 }
-                else KillServer();
+                else KillServer(process);
+            }
+            else
+            {
+                status = ServerStatus.Offline;
+                DisableUpdates();
+                if (reason == ServerStopReason.STOP_RESTART)
+                {
+                    ScheduleStart();
+                }
             }
         }
 
@@ -298,26 +322,55 @@ namespace SWBF2Admin.Gameserver
             Stop(ServerStopReason.STOP_RESTART);
         }
 
-        private void KillServer()
+        private void KillServer(Process process)
         {
-            if (!serverProcess.HasExited)
+            if (process == null) return;
+
+            try
             {
-                Logger.Log(LogLevel.Verbose, "Stopping process...");
-                serverProcess.Kill();
-                serverProcess = null;
+                if (!process.HasExited)
+                {
+                    Logger.Log(LogLevel.Verbose, "Stopping process...");
+                    process.Kill();
+                }
+            }
+            catch (InvalidOperationException) { }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Error, "Failed to stop server process. ({0})", ex.Message);
             }
         }
 
         private void ServerProcess_Exited(object sender, EventArgs e)
         {
-            Process p = serverProcess;
+            Process exitedProcess = sender as Process;
+            if (exitedProcess == null || !ReferenceEquals(exitedProcess, serverProcess)) return;
+
             serverProcess = null;
 
             if (status != ServerStatus.Stopping && status != ServerStatus.SteamPending)
             {
-                Logger.Log(LogLevel.Warning, "Server has crashed.");
+                bool directTransportFailure = false;
+                try
+                {
+                    directTransportFailure = exitedProcess.ExitCode == 0xD1;
+                }
+                catch (InvalidOperationException) { }
+                if (directTransportFailure)
+                {
+                    Logger.Log(LogLevel.Error, "Direct transport startup failed.");
+                }
+                else
+                {
+                    Logger.Log(LogLevel.Warning, "Server has crashed.");
+                }
                 status = ServerStatus.Offline;
                 InvokeEvent(ServerCrashed, this, new EventArgs());
+                if (Core.Config.AutoRestartServer)
+                {
+                    Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restarting server...");
+                    ScheduleStart();
+                }
             }
             else if (status == ServerStatus.SteamPending)
             {
@@ -329,7 +382,112 @@ namespace SWBF2Admin.Gameserver
                 Logger.Log(LogLevel.Info, "Server stopped.");
                 status = ServerStatus.Offline;
                 InvokeEvent(ServerStopped, this, new StopEventArgs(stopReason));
+                if (stopReason == ServerStopReason.STOP_RESTART)
+                {
+                    Logger.Log(LogLevel.Verbose, "Restarting server...");
+                    ScheduleStart();
+                }
             }
+        }
+
+        private void HandleStartFailure(string message)
+        {
+            Interlocked.Increment(ref startRequestId);
+            Process process = serverProcess;
+            serverProcess = null;
+            KillServer(process);
+            status = ServerStatus.Offline;
+            DisableUpdates();
+            Logger.Log(LogLevel.Error, "Failed to start server. ({0})", message);
+            InvokeEvent(ServerCrashed, this, new EventArgs());
+
+            if (Core.Config.AutoRestartServer)
+            {
+                Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restarting server...");
+                ScheduleStart();
+            }
+        }
+
+        private void ScheduleStart()
+        {
+            int requestId = Interlocked.Increment(ref startRequestId);
+            Core.Scheduler.PushDelayedTask(() =>
+            {
+                if (requestId != Volatile.Read(ref startRequestId) ||
+                    status != ServerStatus.Offline || serverProcess != null)
+                {
+                    return;
+                }
+
+                Start();
+            }, Core.Config.AutoRestartDelay);
+        }
+
+        private ProcessStartInfo CreateStartInfo()
+        {
+            ProcessArgs = ServerArgs;
+            if (serverType == GameserverType.Aspyr)
+            {
+                //Aspyr servers become unstable with /norender
+                ProcessArgs = ProcessArgs.Replace("/norender", "",
+                    StringComparison.OrdinalIgnoreCase);
+                ProcessArgs += " /bf2";
+                //ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
+                if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
+                {
+                    ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
+                }
+            }
+
+            Environment.SetEnvironmentVariable("SPAWN_TIMER", Core.Server.Settings.AutoAnnouncePeriod.ToString());
+            if (serverType == GameserverType.Aspyr)
+            {
+                Environment.SetEnvironmentVariable("PLATFORM_LOBBY",
+                    Core.Server.Settings.Platform?.ToLowerInvariant());
+            }
+
+            ProcessStartInfo startInfo = new ProcessStartInfo(
+                Core.Files.ParseFileName(ServerExecutable), ProcessArgs)
+            {
+                WorkingDirectory = Core.Files.ParseFileName(ServerPath)
+            };
+            startInfo.Environment["BF2_DIRECT_POLICY"] =
+                Core.Config.DirectTransportPolicy.ToString();
+            return startInfo;
+        }
+
+        private void ApplyProcessSettings(Process process)
+        {
+            try
+            {
+                if (Core.Config.EnableHighPriority)
+                {
+                    process.PriorityClass = ProcessPriorityClass.High;
+                }
+                if (Core.Config.SetAffinity)
+                {
+                    process.ProcessorAffinity = (IntPtr)Core.Config.ProcessAffinity;
+                    Logger.Log(LogLevel.Info, "Process Affinity: 0x{0}", process.ProcessorAffinity.ToString("X"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warning, "Failed to configure server process. ({0})", ex.Message);
+            }
+        }
+
+        private bool ProcessIsActive(Process process)
+        {
+            if (!ReferenceEquals(process, serverProcess)) return false;
+
+            try
+            {
+                if (!process.HasExited) return true;
+            }
+            catch (InvalidOperationException) { }
+
+            ServerProcess_Exited(process, EventArgs.Empty);
+            return false;
         }
 
         private void InjectRconDllIfRequired()

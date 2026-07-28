@@ -24,11 +24,18 @@ namespace SWBF2Admin.Runtime.Watchdog
 {
     public class ScheduledRestart : ComponentBase
     {
+        private enum RestartState
+        {
+            Waiting,
+            WaitingForMapEnd,
+            RestartQueued
+        }
+
         private ScheduleConfiguration config;
         private DateTime serverStartTime;
-        private DateTime lastAnnouncement;
-        private bool restartPending;
-        private bool isRestarting;
+        private DateTime nextAnnouncementTime;
+        private RestartState state;
+        private int restartRequestId;
 
         private const int GAME_END_RESTART_DELAY = 5000; //let clients receive end-of-game packets before restart
 
@@ -47,72 +54,125 @@ namespace SWBF2Admin.Runtime.Watchdog
             config = Core.Files.ReadConfig<ScheduleConfiguration>();
             UpdateInterval = config.CheckInterval;
 
-            //honor a live enable/disable - disabling also cancels any queued restart
-            if (config.EnableScheduledRestart)
+            if (!config.EnableScheduledRestart)
             {
-                if (Core.Server.Status == ServerStatus.Online) EnableUpdates();
-            }
-            else
-            {
-                restartPending = false;
+                ResetSchedule();
                 DisableUpdates();
+                return;
+            }
+
+            if (Core.Server.Status == ServerStatus.Online)
+            {
+                EnableUpdates();
+                ReconcileSchedule();
             }
         }
 
         public override void OnInit()
         {
-            base.OnInit();
             //Restart on map change, not mid-game
             Core.Rcon.GameEnded += new EventHandler(Server_GameEnded);
         }
 
+        public override void OnDeInit()
+        {
+            Core.Rcon.GameEnded -= new EventHandler(Server_GameEnded);
+            ResetSchedule();
+            DisableUpdates();
+        }
+
         public override void OnServerStart(EventArgs e)
         {
-            restartPending = false;
-            isRestarting = false;
+            ResetSchedule();
             serverStartTime = DateTime.Now;
-            lastAnnouncement = DateTime.Now;
             if (config.EnableScheduledRestart) EnableUpdates();
         }
 
         public override void OnServerStop()
         {
+            ResetSchedule();
+            serverStartTime = DateTime.MinValue;
             DisableUpdates();
         }
 
         protected override void OnUpdate()
         {
-            if (!restartPending && (DateTime.Now - serverStartTime).TotalSeconds > config.RestartThreshold)
+            if (state == RestartState.Waiting && RestartIsDue())
             {
-                Logger.Log(LogLevel.Info, "Server has been running for {0} seconds - scheduling a restart for the next map change", config.RestartThreshold.ToString());
-                restartPending = true;
-                lastAnnouncement = DateTime.MinValue;
+                WaitForMapEnd();
             }
 
-            if (restartPending) Announce();
+            if (state == RestartState.WaitingForMapEnd) Announce();
         }
 
         private void Announce()
         {
             if (!config.EnableRestartAnnouncement || string.IsNullOrEmpty(config.RestartAnnouncement)) return;
             if (Core.Players.PlayerList.Count < 1) return;
-
-            //Half a poll cycle of tolerance so a due announcement isn't skipped by timer jitter.
-            double tolerance = (UpdateInterval / 1000.0) / 2.0;
-            if ((DateTime.Now - lastAnnouncement).TotalSeconds < config.AnnouncementInterval - tolerance) return;
+            if (DateTime.Now < nextAnnouncementTime) return;
 
             Core.Rcon.Say(config.RestartAnnouncement);
-            lastAnnouncement = DateTime.Now;
+            nextAnnouncementTime = DateTime.Now.AddSeconds(config.AnnouncementInterval);
         }
 
         private void Server_GameEnded(object sender, EventArgs e)
         {
-            if (restartPending && !isRestarting)
+            if (state == RestartState.WaitingForMapEnd)
             {
                 Logger.Log(LogLevel.Info, "Map ended - performing scheduled restart");
-                isRestarting = true;
-                Core.Scheduler.PushDelayedTask(() => Core.Server.Restart(), GAME_END_RESTART_DELAY);
+                state = RestartState.RestartQueued;
+                int requestId = ++restartRequestId;
+                Core.Scheduler.PushDelayedTask(() => RestartServer(requestId), GAME_END_RESTART_DELAY);
             }
+        }
+
+        private void RestartServer(int requestId)
+        {
+            if (requestId != restartRequestId ||
+                state != RestartState.RestartQueued ||
+                !config.EnableScheduledRestart ||
+                Core.Server.Status != ServerStatus.Online)
+            {
+                return;
+            }
+
+            state = RestartState.Waiting;
+            DisableUpdates();
+            Core.Server.Restart();
+        }
+
+        private void ReconcileSchedule()
+        {
+            if (serverStartTime == DateTime.MinValue) return;
+
+            if (!RestartIsDue())
+            {
+                ResetSchedule();
+            }
+            else if (state == RestartState.Waiting)
+            {
+                WaitForMapEnd();
+            }
+        }
+
+        private void WaitForMapEnd()
+        {
+            Logger.Log(LogLevel.Info, "Server has been running for {0} seconds - scheduling a restart for the next map change", config.RestartThreshold.ToString());
+            state = RestartState.WaitingForMapEnd;
+            nextAnnouncementTime = DateTime.Now;
+        }
+
+        private bool RestartIsDue()
+        {
+            return serverStartTime != DateTime.MinValue &&
+                (DateTime.Now - serverStartTime).TotalSeconds >= config.RestartThreshold;
+        }
+
+        private void ResetSchedule()
+        {
+            ++restartRequestId;
+            state = RestartState.Waiting;
+            nextAnnouncementTime = DateTime.MinValue;
         }
     }
 }

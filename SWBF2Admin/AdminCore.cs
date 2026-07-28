@@ -63,6 +63,8 @@ namespace SWBF2Admin
         public PluginManager Plugins { get; }
         public ProcessWriter BF2 { get; }
         public ScheduledRestart Schedule { get; }
+        private SteamRecovery steamRecovery;
+        private int runtimeRequestId;
 
         private readonly List<ComponentBase> components = new List<ComponentBase>();
 
@@ -104,6 +106,24 @@ namespace SWBF2Admin
             Schedule = new ScheduledRestart(this);
         }
 
+        public void StartServer()
+        {
+            Scheduler.PushTask(() =>
+            {
+                steamRecovery?.CancelRecovery();
+                Server.Start();
+            });
+        }
+
+        public void StopServer()
+        {
+            Scheduler.PushTask(() =>
+            {
+                steamRecovery?.CancelRecovery();
+                Server.Stop();
+            });
+        }
+
         public void Run(string[] args)
         {
             Logger.Log(LogLevel.Info, Log.CORE_START, Util.GetProductName(), Util.GetProductVersion(), Util.GetProductAuthor());
@@ -118,8 +138,6 @@ namespace SWBF2Admin
             components.Add(Server);
             components.Add(WebAdmin);
             components.Add(Plugins);
-
-            bool steamRecoveryRegistered = false;
 
             if (config.EnableRuntime)
             {
@@ -143,17 +161,12 @@ namespace SWBF2Admin
                 if (Config.EnableSteamRecovery &&
                     (Config.ServerType == GameserverType.Aspyr || Config.ServerType == GameserverType.Steam))
                 {
-                    components.Add(new SteamRecovery(this));
-                    steamRecoveryRegistered = true;
+                    steamRecovery = new SteamRecovery(this);
+                    components.Add(steamRecovery);
                 }
 
                 components.Add(Schedule);
             }
-
-            Logger.Log(LogLevel.Info,
-                "Steam recovery registration: enabled={0}, runtime={1}, serverType={2}, registered={3}.",
-                Config.EnableSteamRecovery.ToString(), Config.EnableRuntime.ToString(),
-                Config.ServerType.ToString(), steamRecoveryRegistered.ToString());
 
             Scheduler.TickDelay = Config.TickDelay;
 
@@ -223,8 +236,11 @@ namespace SWBF2Admin
         private void Server_Started(object sender, EventArgs e)
         {
             Logger.Log(LogLevel.Verbose, "Starting runtime management...");
+            int requestId = ++runtimeRequestId;
             Scheduler.PushDelayedTask(() =>
             {
+                if (requestId != runtimeRequestId || Server.Status != ServerStatus.Online) return;
+
                 foreach (ComponentBase component in components)
                 {
                     try
@@ -244,6 +260,7 @@ namespace SWBF2Admin
 
         private void Server_Stopped(object sender, EventArgs e)
         {
+            ++runtimeRequestId;
             Logger.Log(LogLevel.Verbose, "Stopping runtime management...");
             foreach (ComponentBase component in components)
             {
@@ -259,26 +276,11 @@ namespace SWBF2Admin
                         component.GetType().Name, cause.GetType().Name, cause.Message);
                 }
             }
-
-            if (e != null)
-            {
-                var se = (StopEventArgs)e;
-                if (se.Reason == ServerStopReason.STOP_RESTART)
-                {
-                    Logger.Log(LogLevel.Verbose, "Restarting server...");
-                    Scheduler.PushDelayedTask(() => Server.Start(), Config.AutoRestartDelay);
-                }
-            }
         }
 
         private void Server_Crashed(object sender, EventArgs e)
         {
             Server_Stopped(sender, null);
-            if (Config.AutoRestartServer)
-            {
-                Logger.Log(LogLevel.Info, "Automatic restart is enabled. Restarting server...");
-                Scheduler.PushDelayedTask(() => Server.Start(), Config.AutoRestartDelay);
-            }
         }
 
         private void Rcon_Disconnected(object sender, EventArgs e)

@@ -8,7 +8,6 @@ namespace SWBF2Admin.Runtime.Watchdog
     {
         private DateTime lastSeenNotEmpty;
         private int restartThreshold;
-        private bool isRestarting;
 
         public EmptyRestart(AdminCore core) : base(core) { }
 
@@ -18,15 +17,9 @@ namespace SWBF2Admin.Runtime.Watchdog
             restartThreshold = config.EmptyRestartThreshold;
         }
 
-        public override void OnInit()
-        {
-            base.OnInit();
-        }
-
         public override void OnServerStart(EventArgs e)
         {
             EnableUpdates();
-            isRestarting = false;
             lastSeenNotEmpty = DateTime.Now;
         }
 
@@ -41,11 +34,11 @@ namespace SWBF2Admin.Runtime.Watchdog
             {
                 lastSeenNotEmpty = DateTime.Now;
             }
-            else if (!isRestarting && (DateTime.Now - lastSeenNotEmpty).TotalSeconds > restartThreshold)
+            else if ((DateTime.Now - lastSeenNotEmpty).TotalSeconds > restartThreshold)
             {
                 Logger.Log(LogLevel.Info, "Server has been empty for {0} seconds - restarting it", restartThreshold.ToString());
+                DisableUpdates();
                 Core.Server.Restart();
-                isRestarting = true; //make sure we don't try to restart twice
             }
         }
     }

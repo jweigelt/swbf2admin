@@ -29,27 +29,26 @@ namespace SWBF2Admin.Runtime.Watchdog
     /// </summary>
     public class SteamRecovery : ComponentBase
     {
-        private const int STAGE_HEALTHY = 0;
-        private const int STAGE_RESTARTED = 1;
-        private const int STAGE_STEAM_CYCLED = 2;
-        private const int STAGE_GAVE_UP = 3;
+        private enum RecoveryState
+        {
+            Monitoring,
+            VerifyingServerRestart,
+            RestartingSteam,
+            VerifyingSteamRestart,
+            Failed
+        }
 
-        private const int GAME_STOP_WAIT = 5000;         //ms to let the game exit before shutting Steam
         private const int STEAM_SHUTDOWN_WAIT = 10000;   //ms to let 'steam -shutdown' finish
         private const int STEAM_LOGIN_WAIT = 30000;      //ms to let Steam relaunch + log back in
 
-        //Do not wait forever if a scheduled recovery step never runs
-        private const int RECOVERY_TIMEOUT = GAME_STOP_WAIT + STEAM_SHUTDOWN_WAIT + STEAM_LOGIN_WAIT + 120000;
-
         private int graceSeconds;
         private int cooldownSeconds;
-        private string steamPath;
+        private string steamExe;
 
         private DateTime serverStartTime;
-        private DateTime lastSteamCycle = DateTime.MinValue;
-        private int stage = STAGE_HEALTHY;
-        private bool firstTickLogged;
-        private bool postGraceLogged;
+        private DateTime lastSteamRestart = DateTime.MinValue;
+        private RecoveryState state = RecoveryState.Monitoring;
+        private int recoveryRequestId;
 
         public SteamRecovery(AdminCore core) : base(core) { }
 
@@ -58,209 +57,230 @@ namespace SWBF2Admin.Runtime.Watchdog
             UpdateInterval = config.SteamRecoveryCheckInterval;
             graceSeconds = config.SteamRecoveryGraceSeconds;
             cooldownSeconds = config.SteamRecoveryCooldownSeconds;
-            steamPath = config.SteamPath;
-
-            Logger.Log(LogLevel.Info,
-                "Steam recovery configured: grace={0}s, cooldown={1}s, check={2}ms, steamPath=\"{3}\".",
-                graceSeconds.ToString(), cooldownSeconds.ToString(), UpdateInterval.ToString(), steamPath);
+            steamExe = Path.Combine(config.SteamPath, "steam.exe");
         }
 
         public override void OnServerStart(EventArgs e)
         {
-            //Keep recovery progress across server restarts; reset it when rcon responds again
             serverStartTime = DateTime.Now;
-            firstTickLogged = false;
-            postGraceLogged = false;
-            EnableUpdates();
 
-            LogDiagnosticState("armed");
+            if (state == RecoveryState.RestartingSteam)
+            {
+                ResetRecovery();
+            }
+
+            EnableUpdates();
         }
 
         public override void OnServerStop()
         {
             DisableUpdates();
+
+            if (state == RecoveryState.RestartingSteam)
+            {
+                ShutdownSteam();
+            }
+            else if (state == RecoveryState.Monitoring || state == RecoveryState.Failed)
+            {
+                ++recoveryRequestId;
+            }
+        }
+
+        public override void OnDeInit()
+        {
+            ++recoveryRequestId;
+            DisableUpdates();
         }
 
         protected override void OnUpdate()
         {
-            if (!firstTickLogged)
+            Process process = Core.Server.ServerProcess;
+            if (process == null || process.HasExited ||
+                Core.Server.Status != ServerStatus.Online)
             {
-                firstTickLogged = true;
-                LogDiagnosticState("first tick");
-            }
-
-            if (!postGraceLogged &&
-                (DateTime.Now - serverStartTime).TotalSeconds > graceSeconds)
-            {
-                postGraceLogged = true;
-                LogDiagnosticState("post-grace evaluation");
-            }
-
-            //Only recover a server that is still running; normal restart handling covers exits
-            Process proc = Core.Server.ServerProcess;
-            if (proc == null || proc.HasExited || Core.Server.Status != ServerStatus.Online)
                 return;
+            }
 
-            //Use /status to check whether rcon is responding
-            DateTime lastSuccessfulStatusResponse = Core.Rcon.LastSuccessfulStatusResponse;
-            if (lastSuccessfulStatusResponse != DateTime.MinValue &&
-                (DateTime.Now - lastSuccessfulStatusResponse).TotalSeconds <= graceSeconds)
+            if (RconIsResponding())
             {
-                if (stage != STAGE_HEALTHY)
+                if (state != RecoveryState.Monitoring)
                 {
                     Logger.Log(LogLevel.Info, "Rcon is responding again. Recovery reset.");
-                    stage = STAGE_HEALTHY;
+                    ResetRecovery();
                 }
                 return;
             }
 
             if ((DateTime.Now - serverStartTime).TotalSeconds <= graceSeconds) return;
 
-            switch (stage)
+            switch (state)
             {
-                case STAGE_HEALTHY:
-                    Logger.Log(LogLevel.Warning, "Rcon has not responded for {0}s. Restarting server (step 1/3).", graceSeconds.ToString());
-                    stage = STAGE_RESTARTED;
+                case RecoveryState.Monitoring:
+                    Logger.Log(LogLevel.Warning,
+                        "Rcon has not responded for {0}s. Restarting server (step 1/3).",
+                        graceSeconds.ToString());
+                    state = RecoveryState.VerifyingServerRestart;
                     Core.Server.Restart();
                     break;
 
-                case STAGE_RESTARTED:
-                    if ((DateTime.Now - lastSteamCycle).TotalSeconds < cooldownSeconds)
-                        return;
-                    Logger.Log(LogLevel.Warning, "Rcon is still not responding after the server restart. Restarting Steam and the server (step 2/3).");
-                    stage = STAGE_STEAM_CYCLED;
-                    lastSteamCycle = DateTime.Now;
-
-                    LogSteamProcessSnapshot("cycle scheduled");
-                    //Steam will not shut down while a game it launched is running
-                    Core.Server.Stop(ServerStopReason.STOP_EXIT);
-                    Core.Scheduler.PushDelayedTask(ShutdownSteam, GAME_STOP_WAIT);
-
-                    Core.Scheduler.PushDelayedTask(AbortOnFailure, RECOVERY_TIMEOUT);
+                case RecoveryState.VerifyingServerRestart:
+                    RestartSteam();
                     break;
 
-                case STAGE_STEAM_CYCLED:
-                    AbortOnFailure();
+                case RecoveryState.VerifyingSteamRestart:
+                    FailRecovery("Rcon did not recover after restarting Steam. Recovery paused until Rcon responds (step 3/3).");
+                    break;
+
+                case RecoveryState.Failed:
                     break;
             }
         }
 
-        private void LogDiagnosticState(string checkpoint)
+        public void CancelRecovery()
         {
-            DateTime now = DateTime.Now;
-            string processState;
-
-            try
+            ++recoveryRequestId;
+            if (state != RecoveryState.Failed)
             {
-                Process process = Core.Server.ServerProcess;
-                processState = process == null
-                    ? "process=<null>"
-                    : string.Format("pid={0}, exited={1}", process.Id, process.HasExited);
-            }
-            catch (Exception ex)
-            {
-                processState = "process=<" + ex.GetType().Name + ">";
+                state = RecoveryState.Monitoring;
             }
 
-            string lastRxAge = Core.Rcon.LastRx == DateTime.MinValue
-                ? "never"
-                : Math.Max(0, (now - Core.Rcon.LastRx).TotalSeconds).ToString("F1") + "s";
-            DateTime lastSuccessfulStatusResponse = Core.Rcon.LastSuccessfulStatusResponse;
-            string lastValidStatusAge = lastSuccessfulStatusResponse == DateTime.MinValue
-                ? "never"
-                : Math.Max(0, (now - lastSuccessfulStatusResponse).TotalSeconds).ToString("F1") + "s";
-            double serverAge = Math.Max(0, (now - serverStartTime).TotalSeconds);
-
-            Logger.Log(LogLevel.Info,
-                "Steam recovery diagnostic ({0}): status={1}, {2}, stage={3}, serverAge={4}s, lastRxAge={5}, lastValidStatusAge={6}.",
-                checkpoint, Core.Server.Status.ToString(), processState, stage.ToString(),
-                serverAge.ToString("F1"), lastRxAge, lastValidStatusAge);
+            if (Core.Server.Status == ServerStatus.Online) EnableUpdates();
+            else DisableUpdates();
         }
 
-        //Give up if rcon still does not respond after restarting Steam
-        private void AbortOnFailure()
+        private bool RconIsResponding()
         {
-            if (stage == STAGE_GAVE_UP || stage == STAGE_HEALTHY) return;
-            Logger.Log(LogLevel.Error, "Rcon did not recover after restarting Steam. Recovery disabled (step 3/3).");
-            stage = STAGE_GAVE_UP;
-            DisableUpdates();
+            //Use /status to check whether rcon is responding
+            DateTime lastResponse = Core.Rcon.LastSuccessfulStatusResponse;
+            return lastResponse >= serverStartTime &&
+                (DateTime.Now - lastResponse).TotalSeconds <= graceSeconds;
+        }
+
+        private void RestartSteam()
+        {
+            double cooldownRemaining = cooldownSeconds -
+                (DateTime.Now - lastSteamRestart).TotalSeconds;
+            if (cooldownRemaining > 0)
+            {
+                FailRecovery(string.Format(
+                    "Steam recovery was not repeated because the previous Steam restart was too recent ({0}s remaining).",
+                    Math.Ceiling(cooldownRemaining)));
+                return;
+            }
+
+            Logger.Log(LogLevel.Warning,
+                "Rcon is still not responding after the server restart. Restarting Steam and the server (step 2/3).");
+            state = RecoveryState.RestartingSteam;
+            lastSteamRestart = DateTime.Now;
+            ++recoveryRequestId;
+            //Steam will not shut down while a game it launched is running
+            Core.Server.Stop(ServerStopReason.STOP_EXIT);
         }
 
         private void ShutdownSteam()
         {
-            LogSteamProcessSnapshot("before shutdown command");
-            Logger.Log(LogLevel.Info, "Steam recovery: executing steam.exe -shutdown.");
-            try
-            {
-                using Process command = Process.Start(Path.Combine(steamPath, "steam.exe"), "-shutdown");
-                Logger.Log(LogLevel.Info, "Steam shutdown command launched: pid={0}.",
-                    command == null ? "<null>" : command.Id.ToString());
-            }
-            catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam shutdown failed ({0})", ex.Message); }
+            if (state != RecoveryState.RestartingSteam) return;
 
-            Core.Scheduler.PushDelayedTask(RelaunchSteam, STEAM_SHUTDOWN_WAIT);
+            if (!File.Exists(steamExe))
+            {
+                FailRecovery(string.Format("Steam recovery failed because '{0}' does not exist.", steamExe));
+                return;
+            }
+
+            Logger.Log(LogLevel.Info, "Steam recovery: shutting down Steam.");
+            if (!StartSteam("-shutdown", "Steam shutdown")) return;
+
+            int requestId = recoveryRequestId;
+            Core.Scheduler.PushDelayedTask(() => RelaunchSteam(requestId), STEAM_SHUTDOWN_WAIT);
         }
 
-        private void RelaunchSteam()
+        private void RelaunchSteam(int requestId)
         {
-            LogSteamProcessSnapshot("after shutdown wait");
-            Logger.Log(LogLevel.Info, "Steam recovery: executing steam.exe -silent.");
-            try
+            if (!RecoveryIsCurrent(requestId) ||
+                !TryGetSteamRunning(out bool steamRunning)) return;
+            if (steamRunning)
             {
-                using Process command = Process.Start(Path.Combine(steamPath, "steam.exe"), "-silent");
-                Logger.Log(LogLevel.Info, "Steam relaunch command launched: pid={0}.",
-                    command == null ? "<null>" : command.Id.ToString());
+                FailRecovery("Steam recovery failed because Steam did not shut down.");
+                return;
             }
-            catch (Exception ex) { Logger.Log(LogLevel.Warning, "Steam relaunch failed ({0})", ex.Message); }
 
-            Core.Scheduler.PushDelayedTask(RestartServerAfterSteamCycle, STEAM_LOGIN_WAIT);
+            Logger.Log(LogLevel.Info, "Steam recovery: starting Steam.");
+            if (!StartSteam("-silent", "Steam relaunch")) return;
+
+            Core.Scheduler.PushDelayedTask(() => RestartServer(requestId), STEAM_LOGIN_WAIT);
         }
 
-        private void RestartServerAfterSteamCycle()
+        private void RestartServer(int requestId)
         {
-            LogSteamProcessSnapshot("before server restart");
-            Logger.Log(LogLevel.Info, "Steam recovery: Steam login wait complete; restarting server.");
+            if (!RecoveryIsCurrent(requestId)) return;
+
+            if (Core.Server.Status != ServerStatus.Offline)
+            {
+                FailRecovery(string.Format(
+                    "Steam recovery could not start the server while it was {0}.",
+                    Core.Server.Status));
+                return;
+            }
+
+            Logger.Log(LogLevel.Info, "Steam recovery: starting server.");
+            state = RecoveryState.VerifyingSteamRestart;
             Core.Server.Start();
+
+            if (Core.Server.Status == ServerStatus.Offline)
+            {
+                FailRecovery("Steam recovery failed to start the server.");
+            }
         }
 
-        private void LogSteamProcessSnapshot(string checkpoint)
+        private bool TryGetSteamRunning(out bool running)
         {
             try
             {
                 Process[] processes = Process.GetProcessesByName("steam");
-                if (processes.Length == 0)
-                {
-                    Logger.Log(LogLevel.Info, "Steam process diagnostic ({0}): no steam.exe process found.", checkpoint);
-                    return;
-                }
-
-                string[] details = new string[processes.Length];
-                for (int i = 0; i < processes.Length; ++i)
-                {
-                    Process process = processes[i];
-                    try
-                    {
-                        details[i] = string.Format("pid={0}, session={1}, started={2}",
-                            process.Id, process.SessionId, process.StartTime.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                    }
-                    catch (Exception ex)
-                    {
-                        details[i] = string.Format("pid={0}, details=<{1}>", process.Id, ex.GetType().Name);
-                    }
-                    finally
-                    {
-                        process.Dispose();
-                    }
-                }
-
-                Logger.Log(LogLevel.Info, "Steam process diagnostic ({0}): {1}.",
-                    checkpoint, string.Join("; ", details));
+                running = processes.Length > 0;
+                foreach (Process process in processes) process.Dispose();
+                return true;
             }
             catch (Exception ex)
             {
-                Logger.Log(LogLevel.Warning, "Steam process diagnostic ({0}) failed ({1})",
-                    checkpoint, ex.Message);
+                running = false;
+                FailRecovery(string.Format("Steam recovery could not check the Steam process ({0})", ex.Message));
+                return false;
             }
+        }
+
+        private bool StartSteam(string arguments, string action)
+        {
+            try
+            {
+                using Process command = Process.Start(steamExe, arguments);
+                if (command != null) return true;
+                FailRecovery(action + " failed because Process.Start returned null.");
+            }
+            catch (Exception ex)
+            {
+                FailRecovery(string.Format("{0} failed ({1})", action, ex.Message));
+            }
+            return false;
+        }
+
+        private bool RecoveryIsCurrent(int requestId)
+        {
+            return requestId == recoveryRequestId &&
+                state == RecoveryState.RestartingSteam;
+        }
+
+        private void ResetRecovery()
+        {
+            ++recoveryRequestId;
+            state = RecoveryState.Monitoring;
+        }
+
+        private void FailRecovery(string message)
+        {
+            ++recoveryRequestId;
+            state = RecoveryState.Failed;
+            Logger.Log(LogLevel.Error, message);
         }
     }
 }
