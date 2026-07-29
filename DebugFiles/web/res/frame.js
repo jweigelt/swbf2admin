@@ -5,7 +5,8 @@ function MainFrame() {
     var base = this;
     this.statusTimer = null;
     this.online = false;
-	this.enableRuntime = null;
+    this.enableRuntime = null;
+    this.enableMemoryReader = null;
     this.activePage = null;
     this.stopEvent = null;
 
@@ -69,19 +70,21 @@ function MainFrame() {
     this.setStatus = function (s) {
         if (base.activePage != null && base.online != s.Online) base.activePage.onStatusChange(s.Online);
         base.online = s.Online;
-		
-		if(base.enableRuntime != s.EnableRuntime) {
-			base.enableRuntime = s.EnableRuntime;		
-		
-			$("#navigation").children("a").each(function(i,e) {
-				if($(e).hasClass("runtime")) {
-					if(s.EnableRuntime) 
-						$(e).show();
-					else $(e).hide();
-				}
-			});
-		}
-		
+
+        if (base.enableRuntime != s.EnableRuntime ||
+            base.enableMemoryReader != s.EnableMemoryReader) {
+            base.enableRuntime = s.EnableRuntime;
+            base.enableMemoryReader = s.EnableMemoryReader;
+
+            $("#navigation").children("a").each(function (i, e) {
+                if ($(e).hasClass("runtime") || $(e).hasClass("memoryreader")) {
+                    var visible = (!$(e).hasClass("runtime") || s.EnableRuntime) &&
+                        (!$(e).hasClass("memoryreader") || s.EnableMemoryReader);
+                    $(e).toggle(visible);
+                }
+            });
+        }
+
         $("i#status").css("color", (base.online ? "#7fd173" : "#ff5e42"));
     };
 }

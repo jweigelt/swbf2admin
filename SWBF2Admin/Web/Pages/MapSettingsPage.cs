@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of SWBF2Admin (https://github.com/jweigelt/swbf2admin). 
  * Copyright(C) 2017, 2018  Jan Weigelt <jan@lekeks.de>
  *
@@ -19,6 +19,7 @@ using SWBF2Admin.Gameserver;
 using SWBF2Admin.Structures;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 
@@ -37,15 +38,17 @@ namespace SWBF2Admin.Web.Pages
         class MapSaveResponse
         {
             public bool Ok { get; set; }
+            public bool RestartRequired { get; set; }
             public string Error { get; set; }
             public MapSaveResponse(Exception e)
             {
                 Ok = false;
                 Error = e.Message;
             }
-            public MapSaveResponse()
+            public MapSaveResponse(bool restartRequired)
             {
                 Ok = true;
+                RestartRequired = restartRequired;
             }
         }
 
@@ -109,6 +112,9 @@ namespace SWBF2Admin.Web.Pages
             sRMtx.WaitOne();
             try
             {
+                string rotationFile = Core.Config.ServerPath + "/settings/ServerRotation.cfg";
+                List<string> currentMapRot = Core.Files.FileExists(rotationFile) ? ServerMap.ReadMapRotation(Core) : new List<string>();
+                bool mapOrderChanged = HasSameMaps(currentMapRot, mapRot) && !currentMapRot.SequenceEqual(mapRot);
                 ServerMap.SaveMapRotation(Core, mapRot);
 
                 if (Core.Config.EnableRuntime && Core.Server.Status == ServerStatus.Online)
@@ -127,7 +133,7 @@ namespace SWBF2Admin.Web.Pages
                         Core.Scheduler.PushTask(() => Core.Rcon.SendCommand("randomize", p.Randomize ? "1" : "0")); 
                     }
                 }
-                r = new MapSaveResponse();
+                r = new MapSaveResponse(mapOrderChanged && Core.Config.EnableRuntime && Core.Server.Status == ServerStatus.Online);
             }
             catch (Exception e)
             {
@@ -158,6 +164,18 @@ namespace SWBF2Admin.Web.Pages
             }
 
             return r;
+        }
+
+        private bool HasSameMaps(List<string> first, List<string> second)
+        {
+            if (first.Count != second.Count) return false;
+
+            List<string> remaining = new List<string>(second);
+            foreach (string map in first)
+            {
+                if (!remaining.Remove(map)) return false;
+            }
+            return true;
         }
 
     }

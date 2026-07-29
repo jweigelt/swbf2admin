@@ -1,0 +1,22 @@
+BasedOnStyle: Microsoft
+IndentWidth: 4
+TabWidth: 4
+UseTab: Always
+AccessModifierOffset: -4
+ColumnLimit: 120
+BreakBeforeBraces: Allman
+PointerAlignment: Right
+ReferenceAlignment: Right
+SortIncludes: Never
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+NamespaceIndentation: None
+IndentPPDirectives: None
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+SpaceBeforeParens: ControlStatements
+LineEnding: CRLF

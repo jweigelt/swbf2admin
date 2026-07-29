@@ -25,7 +25,13 @@ namespace SWBF2Admin.Web.Pages
         {
             public bool Online { get; set; }
             public bool EnableRuntime { get; set; }
-            public DefaultApiResponse(bool online, bool enableRuntime) { Online = online; EnableRuntime = enableRuntime; }
+            public bool EnableMemoryReader { get; set; }
+            public DefaultApiResponse(bool online, bool enableRuntime, bool enableMemoryReader)
+            {
+                Online = online;
+                EnableRuntime = enableRuntime;
+                EnableMemoryReader = enableMemoryReader;
+            }
         }
 
         public DefaultPage(AdminCore core) : base(core, "/", "frame.htm") { }
@@ -45,7 +51,10 @@ namespace SWBF2Admin.Web.Pages
 
             if (p.Action.Equals("status_get"))
             {
-                WebAdmin.SendHtml(ctx, ToJson(new DefaultApiResponse(Core.Server.Status == ServerStatus.Online, Core.Config.EnableRuntime)));
+                WebAdmin.SendHtml(ctx, ToJson(new DefaultApiResponse(
+                    Core.Server.Status == ServerStatus.Online,
+                    Core.Config.EnableRuntime,
+                    Core.Config.EnableMemoryReader)));
             }
         }
 

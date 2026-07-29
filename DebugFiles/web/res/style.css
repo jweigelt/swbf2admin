@@ -571,7 +571,24 @@ table.maprot :first-child {
 }
 
 table.maprot tbody {
-	min-height: 4em;
+    min-height: 4em;
+}
+
+table.maprot tbody tr[draggable="true"] {
+    cursor: grab;
+}
+
+table.maprot tbody tr.dragging {
+    cursor: grabbing;
+    opacity: .5;
+}
+
+table.maprot tbody tr.drop-before {
+    box-shadow: inset 0 2px #ffffff;
+}
+
+table.maprot tbody tr.drop-after {
+    box-shadow: inset 0 -2px #ffffff;
 }
 
 

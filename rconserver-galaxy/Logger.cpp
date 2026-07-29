@@ -4,10 +4,14 @@
 
 #include "Logger.h"
 
-void _Logger::log(LogLevel level, const char *msg, ...) {
+_Logger Logger;
+
+void _Logger::log(LogLevel level, const char *msg, ...)
+{
 	va_list args;
 
-	if (minLevelStdout <= level) {
+	if (minLevelStdout <= level)
+	{
 		printf("%s", LOG_LEVELS[level]);
 		va_start(args, msg);
 		vprintf(msg, args);
@@ -15,7 +19,8 @@ void _Logger::log(LogLevel level, const char *msg, ...) {
 		printf("\n");
 	}
 
-	if (minLevelFile <= level) {
+	if (minLevelFile <= level)
+	{
 		va_start(args, msg);
 		auto len = (size_t)vsnprintf(nullptr, 0, msg, args) + 1;
 		va_end(args);
@@ -28,21 +33,25 @@ void _Logger::log(LogLevel level, const char *msg, ...) {
 	}
 }
 
-void _Logger::SetMinLevelStdout(LogLevel level) {
+void _Logger::SetMinLevelStdout(LogLevel level)
+{
 	minLevelStdout = level;
 }
 
-void _Logger::SetMinLevelFile(LogLevel level) {
+void _Logger::SetMinLevelFile(LogLevel level)
+{
 	minLevelFile = level;
 }
 
-void _Logger::SetFileName(const std::string &fileName) {
+void _Logger::SetFileName(const std::string &fileName)
+{
 	logFile = fileName;
 }
 
-void _Logger::LogToFile(const char *s) {
-    std::unique_lock<std::mutex> lg(mtx);
-    std::ofstream f;
+void _Logger::LogToFile(const char *s)
+{
+	std::unique_lock<std::mutex> lg(mtx);
+	std::ofstream f;
 	f.open(logFile, std::ofstream::app);
 	f << s << "\n";
 	f.close();

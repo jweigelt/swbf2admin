@@ -13,24 +13,53 @@ function Maps() {
     this.mapList = [];
     this.events = new EventDisplay("#maps_div_events");
     this.pending = false;
+    this.draggedRow = null;
+    this.dragSource = null;
+    this.insertBeforeRow = null;
 
     this.onInit = function () {
         base.updateInstalledMaps();
 
-        $("#maps_table_rotation").on("drop", function (e) {
-            base.addMap(JSON.parse(e.originalEvent.dataTransfer.getData("map")));
+        $("#maps_table_rotation tbody").on("dragstart", "tr", function (e) {
+            base.draggedRow = this;
+            base.dragSource = "rotation";
+            $(this).addClass("dragging");
+            e.originalEvent.dataTransfer.effectAllowed = "move";
+            e.originalEvent.dataTransfer.setData("map", JSON.stringify(base.getRowMap(this)));
         });
 
-        $("#maps_table_installed").on("drop", function (e) {
-            base.dropMap(JSON.parse(e.originalEvent.dataTransfer.getData("map")));
+        $("#maps_table_installed tbody").on("dragstart", "tr", function (e) {
+            base.draggedRow = null;
+            base.dragSource = "installed";
+            e.originalEvent.dataTransfer.effectAllowed = "copy";
+            e.originalEvent.dataTransfer.setData("map", JSON.stringify(base.getRowMap(this)));
         });
 
         $("#maps_table_rotation").on("dragover", function (e) {
             e.preventDefault();
+            base.showDropTarget(e);
         });
 
         $("#maps_table_installed").on("dragover", function (e) {
+            if (base.dragSource == "rotation") e.preventDefault();
+        });
+
+        $("#maps_table_rotation").on("drop", function (e) {
             e.preventDefault();
+            e.stopPropagation();
+            base.dropOnRotation(e);
+        });
+
+        $("#maps_table_installed").on("drop", function (e) {
+            e.preventDefault();
+            if (base.dragSource == "rotation") base.dropMap();
+        });
+
+        $("#maps_table_rotation, #maps_table_installed").on("dragend", function () {
+            base.clearDropTarget();
+            $(base.draggedRow).removeClass("dragging");
+            base.draggedRow = null;
+            base.dragSource = null;
         });
 
         $("#maps_input_randomize_enable").change(function(e) {
@@ -54,7 +83,8 @@ function Maps() {
     this.setSaved = function (r) {
         if (r != false) {
             if (r.Ok) {
-                base.events.ShowInfo("Settings saved.");
+                if (r.RestartRequired) base.events.ShowWarning("Map order saved. The new order will take effect after the next server restart.");
+                else base.events.ShowInfo("Settings saved.");
                 base.pending = false;
             } else {
                 base.events.ShowError(r.Error);
@@ -82,28 +112,83 @@ function Maps() {
         });
     };
 
+    this.getRowMap = function (row) {
+        return {
+            id: $(row).data("id"),
+            flags: $(row).data("flags"),
+            name: $(row).data("name"),
+            nicename: $(row).data("nicename")
+        };
+    };
+
+    this.getDropTarget = function (e) {
+        var row = $(e.target).closest("#maps_table_rotation tbody tr")[0];
+        if (row == null) return { row: null, before: false };
+
+        var rect = row.getBoundingClientRect();
+        return { row: row, before: e.originalEvent.clientY < rect.top + rect.height / 2 };
+    };
+
+    this.showDropTarget = function (e) {
+        var target = base.getDropTarget(e);
+        base.clearDropTarget();
+        if (target.row != null && target.row != base.draggedRow) {
+            $(target.row).addClass(target.before ? "drop-before" : "drop-after");
+        }
+    };
+
+    this.clearDropTarget = function () {
+        $("#maps_table_rotation tbody tr").removeClass("drop-before drop-after");
+    };
+
+    this.dropOnRotation = function (e) {
+        var target = base.getDropTarget(e);
+        var tbody = $("#maps_table_rotation tbody")[0];
+        var insertBefore = target.row == null || target.before ? target.row : target.row.nextSibling;
+
+        base.clearDropTarget();
+        if (base.dragSource == "rotation" && base.draggedRow != null) {
+            var rows = $(tbody).children().toArray();
+            tbody.insertBefore(base.draggedRow, insertBefore);
+
+            var changed = false;
+            $(tbody).children().each(function (i, row) {
+                if (rows[i] != row) changed = true;
+            });
+            if (changed) base.setSaved(false);
+        } else if (base.dragSource == "installed") {
+            base.insertBeforeRow = insertBefore;
+            base.addMap(JSON.parse(e.originalEvent.dataTransfer.getData("map")));
+        }
+    };
+
+    this.createRotationRow = function (map, name) {
+        var gm = name.split("_")[1];
+        return $(
+            '<tr data-id="' + map.id + '" data-flags="' + map.flags + '" data-name="' + name + '" data-nicename="' + map.nicename + '" draggable="true">' +
+            '<td><span class="' + (gm == "1flag" ? "ctf" : gm) + '">' + gm.toUpperCase() + '</span></td>' +
+            "<td>" + map.nicename + "</td>" +
+            "<td>" + name + "</td>" +
+            "</tr>");
+    };
+
     this.dialogOK = function (m) {
         var tb = $("#maps_table_rotation tbody");
+        var added = false;
         $("#maps_div_add input").each(function (i, e) {
-
             if ($(e).prop('checked')) {
-                var gm = $(e).data("map").split("_")[1];
-
-                var tr = $(
-                    '<tr data-id="' + m.id + '" data-flags="' + m.flags + '" data-name="' + m.name + $(e).data("map") + '" data-nicename="' + m.nicename + '" draggable="true">' +
-                    '<td><span class="' + (gm == "1flag" ? "ctf" : gm) + '">' + gm.toUpperCase() + '</span></td>' +
-                    "<td>" + m.nicename + "</td>" +
-                    "<td>" + m.name + $(e).data("map") + "</td>" +
-                    "</tr>");
-                tb.append(tr);
-
-                tr.on("dragstart", function (e) {
-                    var m = { id: $(this).data("id"), flags: $(this).data("flags"), name: $(this).data("name"), nicename: $(this).data("nicename") };
-                    e.originalEvent.dataTransfer.setData("map", JSON.stringify(m));
-                });
+                var name = m.name + $(e).data("map");
+                var tr = base.createRotationRow(m, name);
+                if (base.insertBeforeRow != null && $.contains(tb[0], base.insertBeforeRow)) {
+                    tb[0].insertBefore(tr[0], base.insertBeforeRow);
+                } else {
+                    tb.append(tr);
+                }
+                added = true;
             }
         });
-        base.setSaved(false);
+        base.insertBeforeRow = null;
+        if (added) base.setSaved(false);
     };
 
     this.addMap = function (map) {
@@ -115,14 +200,13 @@ function Maps() {
         base.dialog.show(map);
     };
 
-    this.dropMap = function (map) {
+    this.dropMap = function () {
+        if (base.draggedRow == null) return;
+        $(base.draggedRow).removeClass("dragging");
+        $(base.draggedRow).remove();
+        base.draggedRow = null;
+        base.dragSource = null;
         base.setSaved(false);
-        $("#maps_table_rotation tbody tr").each(function (i, e) {
-            if ($(e).data("name") == map.name) {
-                $(e).remove();
-                return false;
-            }
-        });
     };
 
     this.setInstalledMaps = function (r) {
@@ -139,11 +223,6 @@ function Maps() {
                 "<td>" + base.getModeIndicators(m) + "</td>" +
                 "</tr>");
             tb.append(tr);
-
-            tr.on("dragstart", function (e) {
-                var m = { id: $(this).data("id"), flags: $(this).data("flags"), name: $(this).data("name"), nicename: $(this).data("nicename") };
-                e.originalEvent.dataTransfer.setData("map", JSON.stringify(m));
-            });
         }
 
         base.updateMapRotation();
@@ -185,22 +264,8 @@ function Maps() {
         for (var x in r.Maps) {
             var name = r.Maps[x];
             var m = base.getMap(name);
-            var gm = name.split("_")[1];
-
-            var tr = $(
-                '<tr data-id="' + m.DatabaseId + '" data-flags="' + m.Flags + '" data-name="' + name + '" data-nicename="' + m.NiceName + '" draggable="true">' +
-                '<td><span class="' + (gm == "1flag" ? "ctf" : gm) + '">' + gm.toUpperCase() + '</span></td>' +
-                "<td>" + m.NiceName + "</td>" +
-                "<td>" + name + "</td>" +
-                "</tr>");
-            tb.append(tr);
-
-            tr.on("dragstart", function (e) {
-                var m = { id: $(this).data("id"), flags: $(this).data("flags"), name: $(this).data("name"), nicename: $(this).data("nicename") };
-                e.originalEvent.dataTransfer.setData("map", JSON.stringify(m));
-            });
-
-            tb.append(tr);
+            var map = { id: m.DatabaseId, flags: m.Flags, nicename: m.NiceName };
+            tb.append(base.createRotationRow(map, name));
         }
         $("#maps_input_randomize_enable").prop("checked", r.Randomize);
     };
