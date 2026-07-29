@@ -50,17 +50,20 @@ namespace SWBF2Admin.Runtime.Rcon
             ServerPassword = Core.Server.Settings.AdminPw;
             ServerIPEP = new IPEndPoint(IPAddress.Parse(Core.Server.Settings.IP), Core.Server.Settings.RconPort);
             Interlocked.Exchange(ref lastSuccessfulStatusResponseTicks, DateTime.MinValue.Ticks);
+            int requestId = Interlocked.Increment(ref startRequestId);
             //Rcon can take up to 10 seconds to start on some CC versions
-            Core.Scheduler.PushDelayedTask(() => Start(), 10000);
+            Core.Scheduler.PushDelayedTask(() => Start(requestId), 10000);
         }
 
         public override void OnServerStop()
         {
+            Interlocked.Increment(ref startRequestId);
             Stop();
         }
 
         public override void OnDeInit()
         {
+            Interlocked.Increment(ref startRequestId);
             Stop();
         }
 
@@ -108,6 +111,7 @@ namespace SWBF2Admin.Runtime.Rcon
         private int PacketTimeout { get; set; } = 500;
 
         private bool running = false;
+        private int startRequestId;
 
         private Thread workThread;
 
@@ -125,8 +129,14 @@ namespace SWBF2Admin.Runtime.Rcon
         /// <summary>
         /// Connects to rcon-server and authenticates
         /// </summary>
-        private void Start()
+        private void Start(int requestId)
         {
+            if (requestId != Volatile.Read(ref startRequestId) ||
+                Core.Server.Status != Gameserver.ServerStatus.Online)
+            {
+                return;
+            }
+
             if (running) return;
 
             client = new TcpClient();

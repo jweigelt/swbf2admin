@@ -4,7 +4,7 @@
 
 	<Mods>
 		<!--Show "Hard" cap status on Command Posts by: Michael -->
-		<ProcessMod Name="hardcap_status" ApplyOnStart="true">
+		<ProcessMod Name="hardcap_status" ApplyOnStart="false">
 			<ProcessEdits>
 				<ProcessEdit ModuleOffset="0x1CC853" PatchedBytes="9090" OriginalBytes="7469"/>
 			</ProcessEdits>
@@ -28,7 +28,7 @@
     F3 0F 10 05 {0}          movss xmm0,[BattlefrontII.exe+3E7328] 
     <app plugs in the return jump here>
     -->
-		<ProcessMod Name="no_team_damage" ApplyOnStart="true">
+		<ProcessMod Name="no_team_damage" ApplyOnStart="false">
 			<CodeCaves>
 				<CodeCave
           MemoryAllocatedSize="128"

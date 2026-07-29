@@ -40,6 +40,7 @@ namespace SWBF2Admin.Web.Pages
             DashboardApiParams p = null;
             if ((p = TryJsonParse<DashboardApiParams>(ctx, postData)) == null) return;
 
+            ServerStatus responseStatus = Core.Server.Status;
 
             switch (p.Action)
             {
@@ -48,18 +49,20 @@ namespace SWBF2Admin.Web.Pages
                     {
                         WebServer.LogAudit(user, "started the server");
                         Core.StartServer();
+                        responseStatus = ServerStatus.Starting;
                     }
                     else if (p.NewStatusId == (int)ServerStatus.Offline)
                     {
                         WebServer.LogAudit(user, "stopped the server");
                         Core.StopServer();
+                        responseStatus = ServerStatus.Stopping;
                     }
                     break;
             }
 
             ServerInfo info = Core.Game.LatestInfo;
             if (info == null) info = new ServerInfo(); //Send default if no info recieved yet
-            info.Status = Core.Server.Status;
+            info.Status = responseStatus;
             WebAdmin.SendHtml(ctx, ToJson(info));
         }
     }
