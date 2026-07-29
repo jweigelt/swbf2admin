@@ -3,30 +3,60 @@
 										 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<Mods>
-		<!-- Simple byte patch -->
-		<ProcessMod Name="ExamplePatch" ApplyOnStart="false">
+		<!--Show "Hard" cap status on Command Posts by: Michael -->
+		<ProcessMod Name="hardcap_status" ApplyOnStart="true">
 			<ProcessEdits>
-				<!-- Offset -->
-				<ProcessEdit
-					ModuleOffset="0x00000000"
-					OriginalBytes="00"
-					PatchedBytes="90"/>
+				<ProcessEdit ModuleOffset="0x1CC853" PatchedBytes="9090" OriginalBytes="7469"/>
 			</ProcessEdits>
 		</ProcessMod>
 
-		<!-- Code Cave Template -->
-		<ProcessMod Name="ExampleCodeCave" ApplyOnStart="false">
+		<!-- 
+    No team damage, but allow self damage
+
+    cave:
+    50                       push eax
+    8B 03                    mov eax,[ebx]
+    85 C0                    test eax,eax
+    74 0F                    je normal_damage_handling
+    3B 86 0C 03 00 00        cmp eax,[esi+30C]
+    75 07                    jne normal_damage_handling
+    58                       pop eax
+    68 {1}                   push BattlefrontII.exe+88F33
+    C3                       ret
+
+    58                       pop eax
+    F3 0F 10 05 {0}          movss xmm0,[BattlefrontII.exe+3E7328] 
+    <app plugs in the return jump here>
+    -->
+		<ProcessMod Name="no_team_damage" ApplyOnStart="true">
 			<CodeCaves>
-				<!--
-					CustomAddresses are module offsets and will be converted to full addresses using module offset and base address. 
-				-->
 				<CodeCave
-					MemoryAllocatedSize="512"
-					RedirectModuleOffset="0x00000000"
-					OriginalBytes="0000000000"
-					CustomAddresses="0x1BA9C3C"
-					CaveBytes="48B8{0}"/>
+          MemoryAllocatedSize="128"
+          RedirectModuleOffset="0x88F24"
+          OriginalBytes="F30F10052873E800"
+          CustomAddresses="0x3E7328,0x88F33"
+          CaveBytes="508B0385C0740F3B860C03000075075868{1}C358F30F1005{0}" />
 			</CodeCaves>
 		</ProcessMod>
+
+		<!--
+    If swapping units at a Command Post in Conquest and the Command Post you spawned at
+    no longer belongs to your team your character will be despawned. This patch fixes that
+
+    89 B8 98010000        - mov [eax+00000198],edi  <- original instruction, "pointer to CP of last region character entered"
+    89 B8 44010000        - mov [eax+00000144],edi  <- update the spawned at CP with same CP object (if still in unit select while CP is neutralized you'll still be despawned)
+    E9 8BD29FFD           - jmp BattlefrontII.exe+7D29C
+    -->
+		<ProcessMod Name="despawn_patch" ApplyOnStart="true">
+			<CodeCaves>
+				<CodeCave
+          MemoryAllocatedSize="32"
+          RedirectModuleOffset="0x7D296"
+          OriginalBytes="89B898010000"
+          CustomAddresses=""
+          CaveBytes="89B89801000089B844010000"/>
+			</CodeCaves>
+		</ProcessMod>
+		
 	</Mods>
 </ProcessWriterConfig>

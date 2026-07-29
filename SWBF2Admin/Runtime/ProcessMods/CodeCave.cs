@@ -58,10 +58,12 @@ namespace SWBF2Admin.Runtime.ProcessMods
         private long _redirectOffset;
         private byte[] _caveBytes;
         private List<long> _customAddresses;
+        private bool isTarget64Bit;
 
         [MoonSharpHidden]
         public void CreateCodeCave(ProcessMemoryReader reader)
         {
+            isTarget64Bit = reader.IsTarget64Bit;
             CaveAddress = reader.AllocateMemory(MemoryAllocatedSize);
             JmpAddress = reader.GetModuleBase(_redirectOffset);
 
@@ -78,20 +80,20 @@ namespace SWBF2Admin.Runtime.ProcessMods
             _caveBytes = _caveBytes.Concat(jmpBackBytes).ToArray();
 
             // Write to memory
-            reader.WriteBytes(JmpAddress, jmpBytes);
             reader.WriteBytes(CaveAddress, _caveBytes);
+            reader.WriteBytes(JmpAddress, jmpBytes);
         }
         [MoonSharpHidden]
         private byte[] GetJmpBytes()
         {
-            return IntPtr.Size == 8 ? GetAbsJmpBytes(CaveAddress) : GetRelJmpBytes(CaveAddress);
+            return isTarget64Bit ? GetAbsJmpBytes(CaveAddress) : GetRelJmpBytes(CaveAddress);
         }
 
         [MoonSharpHidden]
         private byte[] GetJmpBackBytes()
         {
             long returnAddr = JmpAddress.ToInt64() + OriginalBytes.Length;
-            return IntPtr.Size == 8
+            return isTarget64Bit
                 ? GetAbsJmpBytes(new IntPtr(returnAddr), padToOriginalLength: false)
                 : GetRelJmpBackBytes(returnAddr);
         }
@@ -193,7 +195,7 @@ namespace SWBF2Admin.Runtime.ProcessMods
             {
                 IntPtr address = reader.GetModuleBase(_customAddresses[i]);
 
-                byte[] addressBytes = IntPtr.Size == 8
+                byte[] addressBytes = isTarget64Bit
                     ? BitConverter.GetBytes(address.ToInt64())
                     : BitConverter.GetBytes(address.ToInt32());
 

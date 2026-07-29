@@ -4,76 +4,64 @@
 
 	<Mods>
 		<!-- ASPYR (Classic Collection) PROCESS MODS -->
-		
-		<!--
-			InstantSpawn_Aspyr
 
-			In the respawn tick (Battlefront2.dll+BFD30) a character's spawn gate is set to
-			reinforcementCount + 1, and spawning is blocked while reinforcementCount < spawnGate
-			(the character waits for the next reinforcement wave). NOP the increment so the gate
-			holds reinforcementCount itself, which is never < the count, and the wait is skipped.
-
-			Overrides the configured RconServer spawn delay (spawns immediately).
-
-			Hook at Battlefront2.dll+C0520:
-				inc edx  ->  nop nop        ; [char+1A8] = count instead of count + 1
-		-->
+		<!-- Instant Spawn - Overrides spawn delay patch -->
 		<ProcessMod Name="instant_spawn" ApplyOnStart="false">
 			<ProcessEdits>
 				<ProcessEdit
-					ModuleOffset="0xC0520"
-					OriginalBytes="FFC2"
-					PatchedBytes= "9090"/>
+          ModuleOffset="0xC0520"
+          OriginalBytes="FFC2"
+          PatchedBytes= "9090"/>
 			</ProcessEdits>
 		</ProcessMod>
 
 		<!--
-			NoTeamDamage_Aspyr
+      NoTeamDamage_Aspyr
 
-			Hook at Battlefront2.dll+FE019:
-				push rax
-				jmp Battlefront2.dll+FE923      ; relative jump to nearby INT3 stub
-				nop 2
+      Hook at Battlefront2.dll+FE019:
+        push rax
+        jmp Battlefront2.dll+FE923      ; relative jump to nearby INT3 stub
+        nop 2
 
-			Stub at Battlefront2.dll+FE923:
-				; CodeCave writer places trampoline/stub here
-				; Stub performs absolute jump to allocated cave memory
+      Stub at Battlefront2.dll+FE923:
+        ; CodeCave writer places trampoline/stub here
+        ; Stub performs absolute jump to allocated cave memory
 
-			Cave:
-				mov rax,[r15]                    ; rax = attacking character
-				test rax,rax
-				je applyModifier
+      Cave:
+        mov rax,[r15]                    ; rax = attacking character
+        test rax,rax
+        je applyModifier
 
-				cmp rax,[r14+000004A0]           ; compare attacker character to victim entity's character
-				je skipModifier                  ; same character/self damage -> skip team modifier
+        cmp rax,[r14+000004A0]           ; compare attacker character to victim entity's character
+        je skipModifier                  ; same character/self damage -> skip team modifier
 
-			applyModifier:
-				pop rax
-				mov r11,Battlefront2.dll+63B460  ; original float modifier address
-				mulss xmm6,[r11]
-				mov r11,Battlefront2.dll+FE021   ; return after overwritten bytes
-				jmp r11
+      applyModifier:
+        pop rax
+        mov r11,Battlefront2.dll+63B460  ; original float modifier address
+        mulss xmm6,[r11]
+        mov r11,Battlefront2.dll+FE021   ; return after overwritten bytes
+        jmp r11
 
-			skipModifier:
-				pop rax
-				mov r11,Battlefront2.dll+FE021
-				jmp r11
-		-->
+      skipModifier:
+        pop rax
+        mov r11,Battlefront2.dll+FE021
+        jmp r11
+    -->
 		<ProcessMod Name="no_team_damage" ApplyOnStart="false">
 			<ProcessEdits>
 				<ProcessEdit
-					ModuleOffset="0xFE019"
-					OriginalBytes="F30F59353FD45300"
-					PatchedBytes="50E9040900006690"/>
+          ModuleOffset="0xFE019"
+          OriginalBytes="F30F59353FD45300"
+          PatchedBytes="50E9040900006690"/>
 			</ProcessEdits>
 
 			<CodeCaves>
 				<CodeCave
-					MemoryAllocatedSize="512"
-					RedirectModuleOffset="0xFE923"
-					OriginalBytes="CCCCCCCCCCCCCCCCCCCCCCCCCC"
-					CustomAddresses="0x63B460,0xFE021"
-					CaveBytes="498B074885C00F840D000000493B86A00400000F841D0000005849BB{0}F3410F593349BB{1}41FFE35849BB{1}41FFE3"/>
+          MemoryAllocatedSize="512"
+          RedirectModuleOffset="0xFE923"
+          OriginalBytes="CCCCCCCCCCCCCCCCCCCCCCCCCC"
+          CustomAddresses="0x63B460,0xFE021"
+          CaveBytes="498B074885C00F840D000000493B86A00400000F841D0000005849BB{0}F3410F593349BB{1}41FFE35849BB{1}41FFE3"/>
 			</CodeCaves>
 		</ProcessMod>
 
