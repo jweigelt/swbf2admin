@@ -86,7 +86,7 @@ namespace SWBF2Admin
                     Console.WriteLine("Passwords don't match.");
             } while (!pwd.Equals(confirmPwd));
 
-            Database.InsertWebUser(new WebUser(name, PBKDF2.HashPassword(Util.Md5(pwd))));
+            Database.InsertWebUser(new WebUser(name, PBKDF2.HashPassword(pwd)));
         }
 
         public AdminCore()

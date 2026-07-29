@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
@@ -32,13 +33,37 @@ namespace SWBF2Admin.Web
     public class WebServer : ComponentBase
     {
         private const int NETSH_WAIT = 1500;
+        private const int AUTH_CACHE_SECONDS = 300;
+        private const int AUTH_LOG_INTERVAL_SECONDS = 10;
+        private const double AUTH_ATTEMPTS_PER_SECOND = 5.0;
+        private const double AUTH_ATTEMPT_BURST = 10.0;
+
         private enum WinErrorCode
         {
             AccessDenied = 5
         }
 
+        private class AuthCacheEntry
+        {
+            public WebUser User { get; }
+            public byte[] CredentialTag { get; }
+            public long ExpiresAt { get; }
+
+            public AuthCacheEntry(WebUser user, byte[] credentialTag, long expires)
+            {
+                User = user;
+                CredentialTag = credentialTag;
+                ExpiresAt = expires;
+            }
+        }
+
         private List<WebPage> webpages = new List<WebPage>();
-        private Dictionary<string, WebUser> authCache = new Dictionary<string, WebUser>();
+        private readonly Dictionary<string, AuthCacheEntry> authCache = new Dictionary<string, AuthCacheEntry>();
+        private readonly byte[] authCacheKey = RandomNumberGenerator.GetBytes(32);
+        private double authAttemptTokens = AUTH_ATTEMPT_BURST;
+        private long lastAuthAttemptRefill = Stopwatch.GetTimestamp();
+        private DateTime nextAuthRejectionLog = DateTime.MinValue;
+        private int suppressedAuthRejections;
 
         private string prefix = "http://localhost:8080/";
         private Thread workThread;
@@ -75,8 +100,6 @@ namespace SWBF2Admin.Web
 
             RegisterPage<WebUsersPage>();
             RegisterPage<AboutPage>();
-
-            RegisterPage<GameEditPage>();
 
             if (enabled) Start();
         }
@@ -186,24 +209,21 @@ namespace SWBF2Admin.Web
 
             Logger.Log(LogLevel.Verbose, Log.WEB_REQUEST, url.ToString());
 
-            //TODO: there seems to be a bug with Dictionaries,
-            //sometimes TryGet() seems to return true even though lower/upper-case does not match
-            //however when trying to Remove / Get from the dict using the same string an exception is thrown
-            //causing a crash. Using try-catch for now so we can stay up if this bug occurs.
+            HttpStatusCode authFailure;
             try
             {
-                user = CheckAuth(ctx);
+                user = CheckAuth(ctx, out authFailure);
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "Authcache error: {0}", e.ToString());
+                Logger.Log(LogLevel.Warning, "Authentication error: {0}", e.ToString());
                 SendHttpStatus(ctx, HttpStatusCode.Unauthorized);
                 return;
             }
 
             if (user == null)
             {
-                SendHttpStatus(ctx, HttpStatusCode.Unauthorized);
+                SendHttpStatus(ctx, authFailure);
                 return;
             }
 
@@ -235,48 +255,103 @@ namespace SWBF2Admin.Web
             }
         }
 
-        private WebUser CheckAuth(HttpListenerContext ctx)
+        private WebUser CheckAuth(HttpListenerContext ctx, out HttpStatusCode failureStatus)
         {
-            HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)ctx.User.Identity;
-
-            if (authCache.TryGetValue(identity.Name, out WebUser user))
+            failureStatus = HttpStatusCode.Unauthorized;
+            if (ctx.User?.Identity is not HttpListenerBasicIdentity identity ||
+                string.IsNullOrEmpty(identity.Name) || identity.Password == null)
             {
-                if (!PBKDF2.VerifyPassword(Util.Md5(identity.Password), user.PasswordHash))
-                {
-                    user = Core.Database.GetWebUser(identity.Name, identity.Password);
-                    if (user != null)
-                    {
-                        authCache.Remove(user.Username);
-                        authCache.Add(user.Username, user);
-                        Core.Database.UpdateLastSeen(user);
-                    }
-                    else
-                    {
-                        Logger.Log(LogLevel.Info, "User {0} ({1}): invalid login (cached/password mismatch)", identity.Name, ctx.Request.RemoteEndPoint.ToString());
-                    }
-                }
+                return null;
             }
-            else
-            {
-                user = Core.Database.GetWebUser(identity.Name, Util.Md5(identity.Password));
 
-                if (user != null)
+            long now = Stopwatch.GetTimestamp();
+            byte[] credentialTag = CreateCredentialTag(identity.Name, identity.Password);
+            if (authCache.TryGetValue(identity.Name, out AuthCacheEntry entry))
+            {
+                if (entry.ExpiresAt <= now)
                 {
-                    authCache.Add(user.Username, user);
-                    Core.Database.UpdateLastSeen(user);
+                    authCache.Remove(identity.Name);
                 }
-                else
+                else if (CryptographicOperations.FixedTimeEquals(
+                    credentialTag, entry.CredentialTag))
                 {
-                    Logger.Log(LogLevel.Info, "User {0} ({1}): invalid login (db/password mismatch)", identity.Name, ctx.Request.RemoteEndPoint.ToString());
+                    entry.User.IPEP = ctx.Request.RemoteEndPoint;
+                    return entry.User;
                 }
             }
 
-            if (user != null)
+            if (!TryConsumeAuthAttempt())
             {
-                user.IPEP = ctx.Request.RemoteEndPoint;
+                failureStatus = HttpStatusCode.TooManyRequests;
+                ctx.Response.Headers["Retry-After"] = "1";
+                LogAuthRejection(identity.Name, ctx.Request.RemoteEndPoint);
+                return null;
             }
+
+            WebUser user = Core.Database.GetWebUser(identity.Name, identity.Password);
+            if (user == null)
+            {
+                LogAuthRejection(identity.Name, ctx.Request.RemoteEndPoint);
+                return null;
+            }
+
+            authCache[identity.Name] = new AuthCacheEntry(user, credentialTag,
+                now + AUTH_CACHE_SECONDS * Stopwatch.Frequency);
+            Core.Database.UpdateLastSeen(user);
+            user.IPEP = ctx.Request.RemoteEndPoint;
 
             return user;
+        }
+
+        private byte[] CreateCredentialTag(string username, string password)
+        {
+            byte[] credential = Encoding.UTF8.GetBytes(username + ":" + password);
+            try
+            {
+                return HMACSHA256.HashData(authCacheKey, credential);
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(credential);
+            }
+        }
+
+        private bool TryConsumeAuthAttempt()
+        {
+            long now = Stopwatch.GetTimestamp();
+            double elapsed = (double)(now - lastAuthAttemptRefill) / Stopwatch.Frequency;
+            authAttemptTokens = Math.Min(AUTH_ATTEMPT_BURST,
+                authAttemptTokens + elapsed * AUTH_ATTEMPTS_PER_SECOND);
+            lastAuthAttemptRefill = now;
+
+            if (authAttemptTokens < 1.0) return false;
+
+            authAttemptTokens -= 1.0;
+            return true;
+        }
+
+        private void LogAuthRejection(string username, IPEndPoint remoteEndPoint)
+        {
+            DateTime now = DateTime.UtcNow;
+            if (now < nextAuthRejectionLog)
+            {
+                suppressedAuthRejections++;
+                return;
+            }
+
+            string suppressed = suppressedAuthRejections > 0
+                ? string.Format(" ({0} additional attempts suppressed)", suppressedAuthRejections)
+                : string.Empty;
+            Logger.Log(LogLevel.Info, "Web login rejected for {0} ({1}){2}",
+                username, remoteEndPoint?.ToString() ?? "unknown", suppressed);
+
+            suppressedAuthRejections = 0;
+            nextAuthRejectionLog = now.AddSeconds(AUTH_LOG_INTERVAL_SECONDS);
+        }
+
+        public void ClearAuthCache()
+        {
+            authCache.Clear();
         }
 
         public void SendHttpStatus(HttpListenerContext ctx, HttpStatusCode code)

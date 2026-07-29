@@ -16,7 +16,6 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using SWBF2Admin.Database;
-using SWBF2Admin.Utility;
 using System.Net;
 
 namespace SWBF2Admin.Web.Pages
@@ -37,6 +36,7 @@ namespace SWBF2Admin.Web.Pages
         {
             WebUserApiParams p = null;
             if ((p = TryJsonParse<WebUserApiParams>(ctx, postData)) == null) return;
+            bool clearAuthCache = false;
 
             switch (p.Action)
             {
@@ -44,18 +44,26 @@ namespace SWBF2Admin.Web.Pages
                     break;
                 case "users_create":
                     WebServer.LogAudit(user, "created user {0}", p.Username);
-                    Core.Database.InsertWebUser(new WebUser(p.Username, PBKDF2.HashPassword(Util.Md5(p.SpaceInvaders))));
+                    Core.Database.InsertWebUser(new WebUser(p.Username, PBKDF2.HashPassword(p.SpaceInvaders)));
+                    clearAuthCache = true;
                     break;
                 case "users_edit":
                     WebServer.LogAudit(user, "modified user {0}", p.Username);
-                    Core.Database.UpdateWebUser(new WebUser(p.Id, p.Username, PBKDF2.HashPassword(Util.Md5(p.SpaceInvaders))), p.UpdateSpaceInvaders);
+                    string passwordHash = p.UpdateSpaceInvaders
+                        ? PBKDF2.HashPassword(p.SpaceInvaders)
+                        : null;
+                    Core.Database.UpdateWebUser(
+                        new WebUser(p.Id, p.Username, passwordHash), p.UpdateSpaceInvaders);
+                    clearAuthCache = true;
                     break;
                 case "users_delete":
                     WebServer.LogAudit(user, "deleted user {0}", p.Username);
                     Core.Database.DeleteWebUser(new WebUser(p.Id));
+                    clearAuthCache = true;
                     break;
             }
 
+            if (clearAuthCache) WebAdmin.ClearAuthCache();
             WebAdmin.SendHtml(ctx, ToJson(Core.Database.GetWebUsers()));
         }
     }
