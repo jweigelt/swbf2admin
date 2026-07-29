@@ -38,7 +38,8 @@ namespace SWBF2Admin.Gameserver
     {
         private const string DLLLOADER_FILENAME_32 = "DllLoader_32.exe";
         private const string DLLLOADER_FILENAME_64 = "DllLoader_64.exe";
-        private const string ASPYR_PID_FILE = "/settings/BattlefrontII.pid";
+        private const string ASPYR_PID_FILE = "BattlefrontII.pid";
+        private const int DIRECT_TRANSPORT_FAILURE_EXIT_CODE = 0xD1;
         private const int STEAMMODE_PDECT_TIMEOUT = 1000;
         private const int STEAMMODE_MAX_RETRY = 30;
 
@@ -58,7 +59,6 @@ namespace SWBF2Admin.Gameserver
         private ServerStopReason stopReason = ServerStopReason.STOP_EXIT;
         public ServerSettings Settings { get; set; }
         public virtual Process ServerProcess { get { return serverProcess; } }
-        private string ProcessArgs;
 
         private int steamLaunchRetryCount = 0;
         private GameserverType serverType;
@@ -147,7 +147,7 @@ namespace SWBF2Admin.Gameserver
         private Process FindProcessByPidFile()
         {
             //Use Aspyr's PID file to reattach to this server instance
-            string pidFile = Path.GetFullPath(ServerPath + ASPYR_PID_FILE);
+            string pidFile = Path.GetFullPath(Path.Combine(ServerPath, "settings", ASPYR_PID_FILE));
             if (!File.Exists(pidFile))
             {
                 return null;
@@ -165,6 +165,7 @@ namespace SWBF2Admin.Gameserver
                 if (!p.ProcessName.Equals(ServerProcessName, StringComparison.OrdinalIgnoreCase))
                 {
                     //Ignore the PID if it now belongs to another process
+                    p.Dispose();
                     return null;
                 }
 
@@ -200,7 +201,7 @@ namespace SWBF2Admin.Gameserver
                 if (!ProcessIsActive(process)) return false;
 
                 InvokeEvent(ServerStarted, this, new StartEventArgs(!starting));
-                if (starting) InjectRconDllIfRequired();
+                if (starting) InjectRconDllIfRequired(process);
                 return true;
             }
             return false;
@@ -227,7 +228,7 @@ namespace SWBF2Admin.Gameserver
                 return;
             }
 
-            Logger.Log(LogLevel.Info, "Launching server with args '{0}'", ProcessArgs);
+            Logger.Log(LogLevel.Info, "Launching server with args '{0}'", startInfo.Arguments);
 
             //if we're in steam mode, steam will start a launcher exe prior to the actual game
             if (serverType == GameserverType.Steam)
@@ -283,7 +284,7 @@ namespace SWBF2Admin.Gameserver
                 ApplyProcessSettings(process);
                 if (!ProcessIsActive(process)) return;
                 InvokeEvent(ServerStarted, this, new StartEventArgs(false));
-                InjectRconDllIfRequired();
+                InjectRconDllIfRequired(process);
             }
         }
 
@@ -353,7 +354,7 @@ namespace SWBF2Admin.Gameserver
                 bool directTransportFailure = false;
                 try
                 {
-                    directTransportFailure = exitedProcess.ExitCode == 0xD1;
+                    directTransportFailure = exitedProcess.ExitCode == DIRECT_TRANSPORT_FAILURE_EXIT_CODE;
                 }
                 catch (InvalidOperationException) { }
                 if (directTransportFailure)
@@ -425,17 +426,17 @@ namespace SWBF2Admin.Gameserver
 
         private ProcessStartInfo CreateStartInfo()
         {
-            ProcessArgs = ServerArgs;
+            string processArgs = ServerArgs;
             if (serverType == GameserverType.Aspyr)
             {
                 //Aspyr servers become unstable with /norender
-                ProcessArgs = ProcessArgs.Replace("/norender", "",
+                processArgs = processArgs.Replace("/norender", "",
                     StringComparison.OrdinalIgnoreCase);
-                ProcessArgs += " /bf2";
-                //ProcessArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
+                processArgs += " /bf2";
+                //processArgs += " /netregion \"" + Core.Server.Settings.NetRegion + "\"";
                 if (!string.IsNullOrEmpty(Core.Server.Settings.Password))
                 {
-                    ProcessArgs += " /password \"" + Core.Server.Settings.Password + "\"";
+                    processArgs += " /password \"" + Core.Server.Settings.Password + "\"";
                 }
             }
 
@@ -447,7 +448,7 @@ namespace SWBF2Admin.Gameserver
             }
 
             ProcessStartInfo startInfo = new ProcessStartInfo(
-                Core.Files.ParseFileName(ServerExecutable), ProcessArgs)
+                Core.Files.ParseFileName(ServerExecutable), processArgs)
             {
                 WorkingDirectory = Core.Files.ParseFileName(ServerPath)
             };
@@ -490,33 +491,35 @@ namespace SWBF2Admin.Gameserver
             return false;
         }
 
-        private void InjectRconDllIfRequired()
+        private void InjectRconDllIfRequired(Process process)
         {
-            if (serverType == GameserverType.GoG ||
-                serverType == GameserverType.Steam ||
-                serverType == GameserverType.Aspyr)
+            if (serverType != GameserverType.GoG &&
+                serverType != GameserverType.Aspyr)
             {
-                string loader;
-                string dll;
-                if (serverType == GameserverType.Aspyr)
-                {
-                    loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_64}";
-                    dll = "RconServer_64.dll";
-                }
-                else
-                {
-                    loader = $"{Core.Files.ParseFileName(Core.Config.ServerPath)}/{DLLLOADER_FILENAME_32}";
-                    dll = "RconServer_32.dll";
-                }
-                
-                if (File.Exists(loader))
-                {
-                    Process.Start(loader, string.Format("--pid {0} --dll {1}", serverProcess.Id, dll));
-                }
-                else
-                {
-                    Logger.Log(LogLevel.Error, "Can't find {0}", loader);
-                }
+                return;
+            }
+
+            string loader;
+            string dll;
+            if (serverType == GameserverType.Aspyr)
+            {
+                loader = Path.Combine(ServerPath, DLLLOADER_FILENAME_64);
+                dll = "RconServer_64.dll";
+            }
+            else
+            {
+                loader = Path.Combine(ServerPath, DLLLOADER_FILENAME_32);
+                dll = "RconServer_32.dll";
+            }
+
+            if (File.Exists(loader))
+            {
+                using Process loaderProcess = Process.Start(loader,
+                    string.Format("--pid {0} --dll {1}", process.Id, dll));
+            }
+            else
+            {
+                Logger.Log(LogLevel.Error, "Can't find {0}", loader);
             }
         }
     }

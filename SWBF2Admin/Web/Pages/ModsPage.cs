@@ -21,7 +21,6 @@ using SWBF2Admin.Runtime.ProcessMods;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 
 namespace SWBF2Admin.Web.Pages
 {
@@ -29,8 +28,6 @@ namespace SWBF2Admin.Web.Pages
     {
         private const string TYPE_FILE = "file";
         private const string TYPE_PROCESS = "process";
-
-        private Mutex modMtx = new Mutex();
 
         class ModsApiParams : ApiRequestParams
         {
@@ -120,8 +117,6 @@ namespace SWBF2Admin.Web.Pages
 
         private ModsListResponse GetMods()
         {
-            ModsListResponse r;
-            modMtx.WaitOne();
             try
             {
                 List<ModInfo> mods = new List<ModInfo>();
@@ -132,23 +127,16 @@ namespace SWBF2Admin.Web.Pages
                 foreach (ProcessMod mod in Core.BF2.Mods)
                     mods.Add(new ModInfo(TYPE_PROCESS, mod.Name, mod.Enabled));
 
-                r = new ModsListResponse(mods);
+                return new ModsListResponse(mods);
             }
             catch (Exception e)
             {
-                r = new ModsListResponse(e);
+                return new ModsListResponse(e);
             }
-            finally
-            {
-                modMtx.ReleaseMutex();
-            }
-            return r;
         }
 
         private ModsToggleResponse ToggleMod(ModsApiParams p)
         {
-            ModsToggleResponse r;
-            modMtx.WaitOne();
             try
             {
                 if (TYPE_FILE.Equals(p.Type))
@@ -163,17 +151,12 @@ namespace SWBF2Admin.Web.Pages
                 {
                     throw new Exception($"Unknown mod type \"{p.Type}\".");
                 }
-                r = new ModsToggleResponse();
+                return new ModsToggleResponse();
             }
             catch (Exception e)
             {
-                r = new ModsToggleResponse(e);
+                return new ModsToggleResponse(e);
             }
-            finally
-            {
-                modMtx.ReleaseMutex();
-            }
-            return r;
         }
 
         private void ToggleFileMod(string name, bool enabled)
@@ -181,11 +164,7 @@ namespace SWBF2Admin.Web.Pages
             LvlMod mod = Core.Mods.Mods.Find(m => m.Name == name);
             if (mod == null) throw new Exception($"File mod \"{name}\" not found.");
 
-            mod.Enabled = enabled;
-            Core.Mods.SaveConfig();
-
-            if (enabled) Core.Mods.ApplyMod(mod);
-            else Core.Mods.RevertMod(mod);
+            Core.Mods.SetModEnabled(mod, enabled);
 
             if (Core.Server.Status == ServerStatus.Online)
                 Core.Rcon.Say($"{(enabled ? "Applied" : "Reverted")} mod {mod.Name}");
@@ -196,17 +175,8 @@ namespace SWBF2Admin.Web.Pages
             ProcessMod mod = Core.BF2.Mods.Find(m => m.Name == name);
             if (mod == null) throw new Exception($"Process mod \"{name}\" not found.");
 
-            mod.Enabled = enabled;
-            mod.ApplyOnStart = enabled;
-
-            Core.BF2.SaveConfig();
-
-            //Apply the change now only while the process reader is attached
-            if (Core.Server.Status == ServerStatus.Online && Core.BF2.ProcessOpened)
+            if (Core.BF2.SetModEnabled(mod, enabled))
             {
-                if (enabled) Core.BF2.ApplyMod(mod);
-                else Core.BF2.RevertMod(mod);
-
                 Core.Rcon.Say($"{(enabled ? "Applied" : "Reverted")} mod {mod.Name}");
             }
         }

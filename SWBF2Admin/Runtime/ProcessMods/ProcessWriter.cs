@@ -3,8 +3,9 @@ using SWBF2Admin.Runtime.ProcessMods;
 using SWBF2Admin.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Xml;
+using System.Threading;
 
 namespace SWBF2Admin.Runtime.Readers
 {
@@ -12,19 +13,17 @@ namespace SWBF2Admin.Runtime.Readers
     {
         public virtual List<ProcessMod> Mods { get { return _config?.Mods ?? new List<ProcessMod>(); } }
 
-        public bool ProcessOpened;
         public ProcessMemoryReader reader = new ProcessMemoryReader();
         private ProcessWriterConfig _config;
         public ProcessWriter(AdminCore core) : base(core) { }
         public bool IsWarmup = true;
         private string moduleName = "BattlefrontII.exe";
-        private bool isAspyr = false;
         private string configFileName = "";
+        private readonly object modLock = new object();
 
         public override void Configure(CoreConfiguration config)
         {
-            isAspyr = config.ServerType == GameserverType.Aspyr;
-            if (isAspyr)
+            if (config.ServerType == GameserverType.Aspyr)
             {
                 moduleName = "Battlefront2.dll";
                 reader.SetTargetPointerSize(8);
@@ -35,44 +34,45 @@ namespace SWBF2Admin.Runtime.Readers
             {
                 moduleName = "BattlefrontII.exe";
                 reader.SetTargetPointerSize(4);
-                configFileName = "";
+                configFileName = Core.Files.GetConfigFileName<ProcessWriterConfig>();
                 _config = Core.Files.ReadConfig<ProcessWriterConfig>();
             }
-
-            //Start each mod in the state saved for the next server launch
-            foreach (ProcessMod mod in _config.Mods)
-                mod.Enabled = mod.ApplyOnStart;
         }
 
         public override void OnInit()
         {
-            if (Core.Server.ServerProcess != null)
+            lock (modLock)
             {
-                Logger.Log(LogLevel.Verbose, "Found running process. Trying to open reader");
-                TryOpenReader();
+                if (Core.Server.ServerProcess != null)
+                {
+                    Logger.Log(LogLevel.Verbose, "Found running process. Trying to open reader");
+                    TryOpenReader();
+                }
             }
         }
         public override void OnServerStart(EventArgs e)
         {
-            if (TryOpenReader())
+            lock (modLock)
             {
-                foreach (ProcessMod mod in Mods)
+                if (TryOpenReader())
                 {
-                    try
+                    foreach (ProcessMod mod in Mods)
                     {
-                        if (mod.ApplyOnStart)
+                        try
                         {
-                            mod.Enabled = true;
-                            ApplyMod(mod);
-                        } else if (mod.RevertOnStart)
+                            if (mod.ApplyOnStart)
+                            {
+                                ApplyMod(mod);
+                            } else if (mod.RevertOnStart)
+                            {
+                                RevertMod(mod);
+                            }
+                        }
+                        catch (Exception ex)
                         {
-                            RevertMod(mod);
+                            Logger.Log(LogLevel.Warning, "Failed to apply process mod \"{0}\" {1}", mod.Name, ex.Message);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Log(LogLevel.Warning, "Failed to apply process mod \"{0}\" {1}", mod.Name, ex.Message);
-                    };
                 }
             }
             EnableUpdates();
@@ -80,38 +80,60 @@ namespace SWBF2Admin.Runtime.Readers
 
         public override void OnServerStop()
         {
-            ProcessOpened = false;
-            reader.Close();
+            lock (modLock)
+            {
+                reader.Close();
 
-            foreach (ProcessMod mod in Mods)
-                foreach (CodeCave cave in mod.CodeCaves)
-                    cave.ResetAllocation();
+                foreach (ProcessMod mod in Mods)
+                    foreach (CodeCave cave in mod.CodeCaves)
+                        cave.ResetAllocation();
+            }
 
             DisableUpdates();
         }
 
         public override void OnDeInit()
         {
-            ProcessOpened = false;
-            reader.Close();
+            lock (modLock)
+            {
+                reader.Close();
+            }
         }
         public void ApplyMod(ProcessMod mod)
         {
-            mod.Apply(reader);
+            lock (modLock)
+            {
+                mod.Apply(reader);
+            }
         }
         public void RevertMod(ProcessMod mod)
         {
-            mod.Revert(reader);
+            lock (modLock)
+            {
+                mod.Revert(reader);
+            }
         }
 
-        //Patch in place to keep XML comments; rewrite only on failure
-        public void SaveConfig()
+        public bool SetModEnabled(ProcessMod mod, bool enabled)
         {
-            string fileName = string.IsNullOrEmpty(configFileName)
-                ? GetConfigFileName()
-                : configFileName;
+            lock (modLock)
+            {
+                mod.Enabled = enabled;
+                SaveConfig();
 
-            if (!File.Exists(fileName))
+                if (Core.Server.Status != Gameserver.ServerStatus.Online || !reader.IsProcessOpen)
+                    return false;
+
+                if (enabled) ApplyMod(mod);
+                else RevertMod(mod);
+                return true;
+            }
+        }
+
+        //Preserve XML comments unless the targeted update fails
+        private void SaveConfig()
+        {
+            if (!File.Exists(configFileName))
             {
                 Core.Files.WriteConfig(_config, configFileName);
                 return;
@@ -119,64 +141,31 @@ namespace SWBF2Admin.Runtime.Readers
 
             try
             {
-                UpdateConfigInPlace(fileName);
+                Dictionary<string, string> values = new Dictionary<string, string>();
+                foreach (ProcessMod mod in _config.Mods)
+                    values[mod.Name] = mod.ApplyOnStart.ToString().ToLowerInvariant();
+
+                Core.Files.UpdateConfigAttributes(configFileName, "ProcessMod", "Name", "ApplyOnStart", values);
+                Logger.Log(LogLevel.Verbose, "Updated process mods config \"{0}\" in place.", configFileName);
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "Failed to update \"{0}\" in place, rewriting it: {1}", fileName, e.Message);
+                Logger.Log(LogLevel.Warning, "Failed to update \"{0}\" in place, rewriting it: {1}", configFileName, e.Message);
                 Core.Files.WriteConfig(_config, configFileName);
             }
-        }
-
-        private string GetConfigFileName()
-        {
-            ConfigFileInfo[] info = (ConfigFileInfo[])typeof(ProcessWriterConfig)
-                .GetCustomAttributes(typeof(ConfigFileInfo), false);
-            if (info.Length == 0)
-                throw new Exception("No [ConfigFileInfo] attribute on ProcessWriterConfig.");
-            return info[0].FileName;
-        }
-
-        //Only persists ApplyOnStart (Enabled is runtime-only)
-        private void UpdateConfigInPlace(string fileName)
-        {
-            XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
-            doc.Load(fileName);
-
-            foreach (ProcessMod mod in _config.Mods)
-            {
-                XmlElement node = FindModNode(doc, mod.Name);
-                if (node == null) continue;
-
-                node.SetAttribute("ApplyOnStart", XmlConvert.ToString(mod.ApplyOnStart));
-            }
-
-            doc.Save(fileName);
-            Logger.Log(LogLevel.Verbose, "Updated process mods config \"{0}\" in place.", fileName);
-        }
-
-        private static XmlElement FindModNode(XmlDocument doc, string name)
-        {
-            foreach (XmlNode node in doc.GetElementsByTagName("ProcessMod"))
-            {
-                if (node is XmlElement element &&
-                    string.Equals(element.GetAttribute("Name"), name, StringComparison.Ordinal))
-                {
-                    return element;
-                }
-            }
-            return null;
         }
 
         private bool TryOpenReader(int maxAttempts = 100, int sleepMs = 100)
         {
             //Do not reopen the reader when startup events overlap
-            if (ProcessOpened && reader.IsProcessOpen && Core.Server.ServerProcess != null)
+            Process process = Core.Server.ServerProcess;
+            if (reader.IsProcessOpen && process != null)
             {
                 try
                 {
-                    if (!Core.Server.ServerProcess.HasExited &&
-                        reader.ProcessId == Core.Server.ServerProcess.Id)
+                    if (!process.HasExited &&
+                        reader.ProcessId == process.Id &&
+                        ReferenceEquals(process, Core.Server.ServerProcess))
                     {
                         return true;
                     }
@@ -187,7 +176,6 @@ namespace SWBF2Admin.Runtime.Readers
                 }
             }
 
-            ProcessOpened = false;
             reader.Close();
             string lastError = null;
 
@@ -195,7 +183,7 @@ namespace SWBF2Admin.Runtime.Readers
 
             for (int i = 0; i < maxAttempts; i++)
             {
-                System.Diagnostics.Process process = Core.Server.ServerProcess;
+                process = Core.Server.ServerProcess;
                 if (process == null)
                     return false;
 
@@ -207,7 +195,7 @@ namespace SWBF2Admin.Runtime.Readers
                     if (reader.Open(process, moduleName))
                     {
                         //Do not keep a handle opened for an earlier server process
-                        System.Diagnostics.Process currentProcess = Core.Server.ServerProcess;
+                        Process currentProcess = Core.Server.ServerProcess;
                         if (currentProcess == null || currentProcess.Id != reader.ProcessId)
                         {
                             lastError = "The server process changed while the reader was attaching.";
@@ -216,7 +204,6 @@ namespace SWBF2Admin.Runtime.Readers
                         else
                         {
                             Logger.Log(LogLevel.Info, "Opened process reader to module \"{0}\", target64={1}.", moduleName, reader.IsTarget64Bit.ToString());
-                            ProcessOpened = true;
                             return true;
                         }
                     }
@@ -233,7 +220,7 @@ namespace SWBF2Admin.Runtime.Readers
                 }
 
                 if (i + 1 < maxAttempts)
-                    System.Threading.Thread.Sleep(sleepMs);
+                    Thread.Sleep(sleepMs);
             }
 
             Logger.Log(LogLevel.Warning,

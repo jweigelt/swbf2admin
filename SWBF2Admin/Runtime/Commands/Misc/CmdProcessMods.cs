@@ -17,7 +17,6 @@
  */
 
 using SWBF2Admin.Config;
-using SWBF2Admin.Gameserver;
 using SWBF2Admin.Runtime.ProcessMods;
 using SWBF2Admin.Structures;
 
@@ -75,26 +74,8 @@ namespace SWBF2Admin.Runtime.Commands.Misc
                 return false;
             }
 
-            if (enable)
-            {
-                SendFormatted(OnApply, "{mod}", mod.Name);
-                mod.Enabled = true;
-                mod.ApplyOnStart = true;
-                Core.BF2.SaveConfig();
-
-                if (Core.Server.Status == ServerStatus.Online && Core.BF2.ProcessOpened)
-                    Core.BF2.ApplyMod(mod);
-            }
-            else
-            {
-                SendFormatted(OnRevert, "{mod}", mod.Name);
-                mod.Enabled = false;
-                mod.ApplyOnStart = false;
-                Core.BF2.SaveConfig();
-
-                if (Core.Server.Status == ServerStatus.Online && Core.BF2.ProcessOpened)
-                    Core.BF2.RevertMod(mod);
-            }
+            SendFormatted(enable ? OnApply : OnRevert, "{mod}", mod.Name);
+            Core.BF2.SetModEnabled(mod, enable);
 
             return true;
         }

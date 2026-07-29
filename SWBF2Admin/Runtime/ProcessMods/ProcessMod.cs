@@ -20,7 +20,11 @@ namespace SWBF2Admin.Runtime.ProcessMods
         public bool RevertOnStart { get; set; } = false;
 
         [XmlIgnore]
-        public bool Enabled { get; set; } = false;
+        public bool Enabled
+        {
+            get { return ApplyOnStart; }
+            set { ApplyOnStart = value; }
+        }
 
         [MoonSharpHidden]
         public List<ProcessEdit> ProcessEdits { get; set; } = new List<ProcessEdit>();

@@ -17,8 +17,10 @@
  */
 using SWBF2Admin.Utility;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace SWBF2Admin.Config
@@ -210,6 +212,36 @@ namespace SWBF2Admin.Config
             if (fileName == "") fileName = GetFileInfo<T>().FileName;
             CreateDirectoryStructure(fileName);
             WriteXmlFile<T>(obj, fileName);
+        }
+
+        public string GetConfigFileName<T>()
+        {
+            return GetFileInfo<T>().FileName;
+        }
+
+        /// <summary>
+        /// Updates selected attributes without removing existing XML comments.
+        /// </summary>
+        public void UpdateConfigAttributes(string fileName, string elementName,
+            string keyAttribute, string valueAttribute, IReadOnlyDictionary<string, string> values)
+        {
+            XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
+            doc.Load(fileName);
+
+            foreach (KeyValuePair<string, string> value in values)
+            {
+                foreach (XmlNode node in doc.GetElementsByTagName(elementName))
+                {
+                    if (node is XmlElement element &&
+                        string.Equals(element.GetAttribute(keyAttribute), value.Key, StringComparison.Ordinal))
+                    {
+                        element.SetAttribute(valueAttribute, value.Value);
+                        break;
+                    }
+                }
+            }
+
+            doc.Save(fileName);
         }
 
         /// <summary>

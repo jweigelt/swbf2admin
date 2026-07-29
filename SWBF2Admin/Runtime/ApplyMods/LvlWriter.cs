@@ -20,7 +20,6 @@ using SWBF2Admin.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
 
 namespace SWBF2Admin.Runtime.ApplyMods
 {
@@ -29,6 +28,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
         private string serverDir;
         private LvlWriterConfig config;
         private string configFileName = "";
+        private readonly object modLock = new object();
         public LvlWriter(AdminCore core) : base(core) { }
         public virtual List<LvlMod> Mods { get { return config?.Mods ?? new List<LvlMod>(); } }
 
@@ -41,7 +41,7 @@ namespace SWBF2Admin.Runtime.ApplyMods
                 this.config = Core.Files.ReadConfig<LvlWriterConfig>(configFileName, "SWBF2Admin.Resources.cfg.mods.aspyr.xml");
             } else
             {
-                configFileName = "";
+                configFileName = Core.Files.GetConfigFileName<LvlWriterConfig>();
                 this.config = Core.Files.ReadConfig<LvlWriterConfig>();
             }
             serverDir = Core.Files.ParseFileName(config.ServerPath);
@@ -66,45 +66,61 @@ namespace SWBF2Admin.Runtime.ApplyMods
 
         public void RevertAll()
         {
-            foreach (LvlMod mod in config.Mods)
+            lock (modLock)
             {
-                if (mod.RevertOnStart) ApplyMod(mod);
-                else if (mod.ApplyOnStart) RevertMod(mod);
+                foreach (LvlMod mod in config.Mods)
+                {
+                    if (mod.RevertOnStart) ApplyMod(mod);
+                    else if (mod.ApplyOnStart) RevertMod(mod);
+                }
             }
         }
 
         public void ApplyMod(LvlMod mod)
         {
-            try
+            lock (modLock)
             {
-                mod.Apply(Core.Files, serverDir);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogLevel.Warning, "Failed to apply mod \"{0}\" {1}", mod.Name, e.Message);
+                try
+                {
+                    mod.Apply(Core.Files, serverDir);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogLevel.Warning, "Failed to apply mod \"{0}\" {1}", mod.Name, e.Message);
+                }
             }
         }
 
         public void RevertMod(LvlMod mod)
         {
-            try
+            lock (modLock)
             {
-                mod.Revert(Core.Files, serverDir);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogLevel.Warning, "Failed to revert mod \"{0}\" {1}", mod.Name, e.Message);
+                try
+                {
+                    mod.Revert(Core.Files, serverDir);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogLevel.Warning, "Failed to revert mod \"{0}\" {1}", mod.Name, e.Message);
+                }
             }
         }
 
-        //Patch in place to keep XML comments; rewrite only on failure
-        public void SaveConfig()
+        public void SetModEnabled(LvlMod mod, bool enabled)
         {
-            string fileName = string.IsNullOrEmpty(configFileName)
-                ? GetConfigFileName()
-                : configFileName;
+            lock (modLock)
+            {
+                mod.Enabled = enabled;
+                SaveConfig();
+                if (enabled) ApplyMod(mod);
+                else RevertMod(mod);
+            }
+        }
 
-            if (!File.Exists(fileName))
+        //Preserve XML comments unless the targeted update fails
+        private void SaveConfig()
+        {
+            if (!File.Exists(configFileName))
             {
                 Core.Files.WriteConfig(config, configFileName);
                 return;
@@ -112,52 +128,18 @@ namespace SWBF2Admin.Runtime.ApplyMods
 
             try
             {
-                UpdateConfigInPlace(fileName);
+                Dictionary<string, string> values = new Dictionary<string, string>();
+                foreach (LvlMod mod in config.Mods)
+                    values[mod.Name] = mod.Enabled.ToString().ToLowerInvariant();
+
+                Core.Files.UpdateConfigAttributes(configFileName, "LvlMod", "Name", "Enabled", values);
+                Logger.Log(LogLevel.Verbose, "Updated mods config \"{0}\" in place.", configFileName);
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Warning, "Failed to update \"{0}\" in place, rewriting it: {1}", fileName, e.Message);
+                Logger.Log(LogLevel.Warning, "Failed to update \"{0}\" in place, rewriting it: {1}", configFileName, e.Message);
                 Core.Files.WriteConfig(config, configFileName);
             }
-        }
-
-        private static string GetConfigFileName()
-        {
-            ConfigFileInfo[] info = (ConfigFileInfo[])typeof(LvlWriterConfig)
-                .GetCustomAttributes(typeof(ConfigFileInfo), false);
-            if (info.Length == 0)
-                throw new Exception("No [ConfigFileInfo] attribute on LvlWriterConfig.");
-            return info[0].FileName;
-        }
-
-        private void UpdateConfigInPlace(string fileName)
-        {
-            XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
-            doc.Load(fileName);
-
-            foreach (LvlMod mod in config.Mods)
-            {
-                XmlElement node = FindModNode(doc, mod.Name);
-                if (node == null) continue;
-
-                node.SetAttribute("Enabled", XmlConvert.ToString(mod.Enabled));
-            }
-
-            doc.Save(fileName);
-            Logger.Log(LogLevel.Verbose, "Updated mods config \"{0}\" in place.", fileName);
-        }
-
-        private static XmlElement FindModNode(XmlDocument doc, string name)
-        {
-            foreach (XmlNode node in doc.GetElementsByTagName("LvlMod"))
-            {
-                if (node is XmlElement element &&
-                    string.Equals(element.GetAttribute("Name"), name, StringComparison.Ordinal))
-                {
-                    return element;
-                }
-            }
-            return null;
         }
     }
 }

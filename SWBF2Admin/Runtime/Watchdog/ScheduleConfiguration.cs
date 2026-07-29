@@ -27,9 +27,9 @@ namespace SWBF2Admin.Runtime.Watchdog
         public bool EnableScheduledRestart { get; set; } = false;
 
         /// <summary>
-        /// Time (in seconds) the server has to be running before it is restarted at the next map change
+        /// Time (in minutes) the server has to be running before it is restarted
         /// </summary>
-        public int RestartThreshold { get; set; } = 21600;
+        public int RestartThresholdMinutes { get; set; } = 360;
 
         /// <summary>
         /// Enable broadcasting a message before the scheduled restart
@@ -37,18 +37,18 @@ namespace SWBF2Admin.Runtime.Watchdog
         public bool EnableRestartAnnouncement { get; set; } = true;
 
         /// <summary>
-        /// Message broadcasted before the scheduled restart
+        /// Announcement template supporting {minutes} and {seconds}
         /// </summary>
-        public string RestartAnnouncement { get; set; } = "The server will restart after the current map.";
+        public string RestartAnnouncement { get; set; } = "The server will restart in {minutes} minute(s).";
+
+        /// <summary>
+        /// Number of minutes before the restart to begin announcements
+        /// </summary>
+        public int RestartCountdownMinutes { get; set; } = 15;
 
         /// <summary>
         /// Time (in seconds) between restart announcements
         /// </summary>
         public int AnnouncementInterval { get; set; } = 300;
-
-        /// <summary>
-        /// Time (in milliseconds) between checks
-        /// </summary>
-        public int CheckInterval { get; set; } = 60000;
     }
 }

@@ -29,23 +29,19 @@ function Mods() {
 
         var file = "";
         var process = "";
-        var fi = 0;
-        var pi = 0;
 
         for (var x in r.Mods) {
             var m = r.Mods[x];
             var row = base.buildRow(m);
             if (m.Type == "process") {
                 process += row;
-                pi++;
             } else {
                 file += row;
-                fi++;
             }
         }
 
-        base.fillTable("#mods_tbl_file", "#mods_tr_nofile", file, fi);
-        base.fillTable("#mods_tbl_process", "#mods_tr_noprocess", process, pi);
+        base.fillTable("#mods_tbl_file", "#mods_tr_nofile", file);
+        base.fillTable("#mods_tbl_process", "#mods_tr_noprocess", process);
 
         $(".mods_toggle").change(function () {
             base.toggleMod($(this).data("type"), $(this).data("name"), $(this).prop("checked"));
@@ -59,10 +55,10 @@ function Mods() {
             "</tr>";
     };
 
-    this.fillTable = function (table, emptyRow, rows, count) {
+    this.fillTable = function (table, emptyRow, rows) {
         $(table + " tbody .mods_row").remove();
         $(table + " tbody").append(rows);
-        if (count == 0) {
+        if (rows.length == 0) {
             $(emptyRow).show();
         } else {
             $(emptyRow).hide();

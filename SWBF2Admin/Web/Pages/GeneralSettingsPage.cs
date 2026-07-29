@@ -47,6 +47,7 @@ namespace SWBF2Admin.Web.Pages
             public bool EnableScheduledRestart { get; set; }
             public int RestartThresholdMinutes { get; set; }
             public bool EnableRestartAnnouncement { get; set; }
+            public int RestartCountdownMinutes { get; set; }
             public int AnnouncementIntervalSeconds { get; set; }
         }
 
@@ -57,14 +58,16 @@ namespace SWBF2Admin.Web.Pages
             public bool EnableScheduledRestart { get; }
             public int RestartThresholdMinutes { get; }
             public bool EnableRestartAnnouncement { get; }
+            public int RestartCountdownMinutes { get; }
             public int AnnouncementIntervalSeconds { get; }
             public GeneralSettingsResponse(ServerSettings settings, List<DeviceInfo> networkDevices, ScheduleConfiguration schedule)
             {
                 Settings = settings;
                 NetworkDevices = networkDevices;
                 EnableScheduledRestart = schedule.EnableScheduledRestart;
-                RestartThresholdMinutes = schedule.RestartThreshold / 60;
+                RestartThresholdMinutes = schedule.RestartThresholdMinutes;
                 EnableRestartAnnouncement = schedule.EnableRestartAnnouncement;
+                RestartCountdownMinutes = schedule.RestartCountdownMinutes;
                 AnnouncementIntervalSeconds = schedule.AnnouncementInterval;
             }
         }
@@ -125,15 +128,16 @@ namespace SWBF2Admin.Web.Pages
                         Core.Scheduler.PushTask(() => Core.Rcon.UpdateServerSettings(changes));
                     }
 
-                    //Load existing config first to keep the announcement text
-                    ScheduleConfiguration scheduleCfg = Core.Files.ReadConfig<ScheduleConfiguration>();
-                    scheduleCfg.EnableScheduledRestart = p.EnableScheduledRestart;
-                    scheduleCfg.RestartThreshold = p.RestartThresholdMinutes * 60;
-                    scheduleCfg.EnableRestartAnnouncement = p.EnableRestartAnnouncement;
-                    scheduleCfg.AnnouncementInterval = p.AnnouncementIntervalSeconds;
-
                     try
                     {
+                        //Load existing config first to keep the announcement text
+                        ScheduleConfiguration scheduleCfg = Core.Files.ReadConfig<ScheduleConfiguration>();
+                        scheduleCfg.EnableScheduledRestart = p.EnableScheduledRestart;
+                        scheduleCfg.RestartThresholdMinutes = p.RestartThresholdMinutes;
+                        scheduleCfg.EnableRestartAnnouncement = p.EnableRestartAnnouncement;
+                        scheduleCfg.RestartCountdownMinutes = p.RestartCountdownMinutes;
+                        scheduleCfg.AnnouncementInterval = p.AnnouncementIntervalSeconds;
+
                         Core.Server.Settings.WriteToFile(Core);
                         Core.Files.WriteConfig(scheduleCfg);
                         if (Core.Config.EnableRuntime) Core.Scheduler.PushTask(() => Core.Schedule.ReloadConfig());
