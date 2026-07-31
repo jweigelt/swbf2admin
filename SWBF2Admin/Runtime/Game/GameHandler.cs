@@ -16,6 +16,7 @@
  * along with SWBF2Admin. If not, see<http://www.gnu.org/licenses/>.
  */
 using SWBF2Admin.Config;
+using SWBF2Admin.Gameserver;
 using SWBF2Admin.Runtime.Rcon.Packets;
 using SWBF2Admin.Structures;
 using SWBF2Admin.Utility;
@@ -29,6 +30,7 @@ namespace SWBF2Admin.Runtime.Game
 
         private GameInfo currentGame = null;
         private ServerInfo latestInfo = null;
+        private int startRequestId;
 
         public virtual ServerInfo LatestInfo { get { return latestInfo; } }
         public virtual GameInfo LatestGame
@@ -56,11 +58,15 @@ namespace SWBF2Admin.Runtime.Game
 
         public override void OnServerStart(EventArgs e)
         {
+            int requestId = ++startRequestId;
             EnableUpdates();
             //make sure that the server finished loading -> we add a bit of delay here
             //otherwise we would create a game using the server's loading params (CON w/o map)
             Core.Scheduler.PushDelayedTask(() =>
             {
+                if (requestId != startRequestId ||
+                    Core.Server.Status != ServerStatus.Online) return;
+
                 if (config.EnableGameStatsLogging)
                     StatsInitGame();
                 else
@@ -70,6 +76,7 @@ namespace SWBF2Admin.Runtime.Game
 
         public override void OnServerStop()
         {
+            ++startRequestId;
             DisableUpdates();
             if (config.EnableGameStatsLogging) StatsSaveGame();
         }

@@ -1,6 +1,6 @@
 #pragma once
 #pragma comment(lib, "Ws2_32.lib")
-#include <WS2tcpip.h>
+#include <WinSock2.h>
 #include <atomic>
 #include <stdint.h>
 #include <vector>

@@ -87,7 +87,8 @@ bool RconClient::checkLogin()
 void RconClient::handleCommand(std::string const &command)
 {
 	std::string res;
-	if (bf2server_idle() && bf2server_get_map_status() == MAP_IDLE)
+	if (bf2server_idle() && bf2server_get_map_status() == MAP_IDLE &&
+		(command != "/status" || bf2server_status_ready()))
 	{
 
 		if (!dispatchInternal(command, res))

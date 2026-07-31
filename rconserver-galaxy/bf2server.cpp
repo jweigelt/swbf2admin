@@ -844,8 +844,8 @@ void bf2server_patch_preplay_disconnect()
 	DWORD callAddress = static_cast<DWORD>(moduleBase + kShellDropDisconnectCallRva);
 
 	// Remove abandoned players from next-playing membership before a match.
-	// 0x5DDFDF/0x5E42E4: CALL SetNotPlaying -> CALL preplay_disconnect_cc
-	// in both shell and post-load disconnect paths.
+	// 0x5DDFDF/0x5E42E4: CALL 0x5B3A90 -> CALL preplay_disconnect_cc;
+	// the wrapper uses SetNotPlaying for full membership cleanup.
 	*reinterpret_cast<DWORD *>(&callPatch[1]) = reinterpret_cast<DWORD>(&preplay_disconnect_cc) - (callAddress + 5);
 	bf2server_patch_asm(kShellDropDisconnectCallRva, callPatch, sizeof(callPatch));
 
@@ -1067,6 +1067,12 @@ bool bf2server_idle()
 {
 	DWORD addr = moduleBase + OFFSET_IDLE;
 	return (*(BYTE *)addr) == 1;
+}
+
+bool bf2server_status_ready()
+{
+	auto teams = *reinterpret_cast<DWORD **>(moduleBase + OFFSET_TEAM_ARRAY);
+	return teams != nullptr && teams[1] != 0 && teams[2] != 0;
 }
 
 void bf2server_mapfix_tick()

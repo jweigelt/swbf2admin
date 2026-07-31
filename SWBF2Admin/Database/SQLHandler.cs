@@ -24,7 +24,6 @@ using SWBF2Admin.Utility;
 using SWBF2Admin.Web;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 
 namespace SWBF2Admin.Database
@@ -40,7 +39,10 @@ namespace SWBF2Admin.Database
         public string MySQLUser { get; set; } = "root";
         public string MySQLPassword { get; set; } = "";
         public string MySQLDatabase { get; set; } = "swbf2";
-        private DbConnection connection = null;
+        private readonly object sqliteLock = new object();
+        private SqliteConnection sqliteConnection;
+        private string mySqlConnectionString;
+        private volatile bool initialized;
 
         public SQLHandler(AdminCore core) : base(core) { }
 
@@ -52,10 +54,25 @@ namespace SWBF2Admin.Database
             MySQLDatabase = config.MySQLDatabaseName;
             MySQLUser = config.MySQLUsername;
             MySQLPassword = config.MySQLPassword;
+
+            if (SQLType == DbType.MySQL)
+            {
+                mySqlConnectionString = new MySqlConnectionStringBuilder
+                {
+                    Server = MySQLHost,
+                    Database = MySQLDatabase,
+                    UserID = MySQLUser,
+                    Password = MySQLPassword,
+                    Pooling = true
+                }.ConnectionString;
+            }
         }
         public override void OnInit()
         {
-            Open();
+            if (!Open())
+            {
+                throw new InvalidOperationException("Database initialization failed.");
+            }
         }
         public override void OnDeInit()
         {
@@ -64,7 +81,7 @@ namespace SWBF2Admin.Database
 
         public bool Open()
         {
-            if (connection != null)
+            if (initialized)
             {
                 Logger.Log(LogLevel.Warning, "[SQL] Database connection already open");
                 return true;
@@ -72,113 +89,123 @@ namespace SWBF2Admin.Database
 
             Logger.Log(LogLevel.Verbose, "[SQL] Opening database connection...");
 
-            if (SQLType == DbType.SQLite)
-                connection = new SqliteConnection(string.Format("Data Source={0};", SQLiteFileName));
-            else
-                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};", MySQLHost, MySQLDatabase, MySQLUser, MySQLPassword));
-
             try
             {
-                connection.Open();
+                if (SQLType == DbType.SQLite)
+                {
+                    sqliteConnection = new SqliteConnection(
+                        string.Format("Data Source={0};", SQLiteFileName));
+                    sqliteConnection.Open();
+                }
+                else
+                {
+                    using MySqlConnection connection =
+                        new MySqlConnection(mySqlConnectionString);
+                    connection.Open();
+                }
+
+                initialized = true;
                 Logger.Log(LogLevel.Info, "[SQL] Database OK.");
                 return true;
             }
             catch (Exception e)
             {
+                sqliteConnection?.Dispose();
+                sqliteConnection = null;
                 Logger.Log(LogLevel.Error, "[SQL] Couldn't open database : {0}", e.Message);
                 return false;
             }
-
         }
         public void Close()
         {
-            if (connection != null)
+            if (!initialized) return;
+
+            lock (sqliteLock)
             {
-                connection.Close();
-                connection = null;
-                Logger.Log(LogLevel.Info, "[SQL] Database closed.");
+                sqliteConnection?.Dispose();
+                sqliteConnection = null;
+                initialized = false;
+            }
+
+            Logger.Log(LogLevel.Info, "[SQL] Database closed.");
+        }
+
+        private T WithConnection<T>(Func<DbConnection, T> operation)
+        {
+            try
+            {
+                if (SQLType == DbType.SQLite)
+                {
+                    lock (sqliteLock)
+                    {
+                        if (!initialized)
+                        {
+                            throw new InvalidOperationException("Database is not open.");
+                        }
+                        return operation(sqliteConnection);
+                    }
+                }
+
+                if (!initialized)
+                {
+                    throw new InvalidOperationException("Database is not open.");
+                }
+
+                using DbConnection connection =
+                    new MySqlConnection(mySqlConnectionString);
+                connection.Open();
+                return operation(connection);
+            }
+            catch (DbException e)
+            {
+                Logger.Log(LogLevel.Error, "[SQL] Database operation failed: {0}", e.Message);
+                throw;
             }
         }
-        private DbDataReader Query(string query, params object[] parameters)
+
+        private T Query<T>(string query, Func<DbDataReader, T> read,
+            params object[] parameters)
         {
             Logger.Log(LogLevel.VerboseSQL, "[SQL] Query: {0}", query);
-            DbDataReader reader = null;
-            try
-            {
-                if (connection.State != ConnectionState.Open) { connection.Open(); }
-                reader = BuildCommand(query, parameters).ExecuteReader();
-                return reader;
-            }
-            catch (Exception e)
-            {
-                if (reader != null)
-                {
-                    if (!reader.IsClosed) reader.Close();
-                }
 
-                //Handle MySQL inactivity error
-                //This is a really hacky fix that should not exist.
-                if (e.Message == "The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.")
-                {
-                    Logger.Log(LogLevel.VerboseSQL, "[SQL] Inactivity timeout. Reconnecting...");
-                    connection.Close();
-                    return Query(query, parameters);
-                }
-
-                Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
-                return null;
-            }
+            return WithConnection(connection =>
+            {
+                using DbCommand command = BuildCommand(connection, query, parameters);
+                using DbDataReader reader = command.ExecuteReader();
+                return read(reader);
+            });
         }
-        private void NonQuery(string query, params object[] parameters)
+
+        private int NonQuery(string query, params object[] parameters)
         {
             Logger.Log(LogLevel.VerboseSQL, "[SQL] NonQuery: {0}", query);
-            try
+
+            return WithConnection(connection =>
             {
-                if (connection.State != ConnectionState.Open) connection.Open();
-                BuildCommand(query, parameters).ExecuteNonQuery();
-            }
-            catch (Exception e)
-            {
-                //Handle MySQL inactivity error
-                //This is a really hacky fix that should not exist.
-                if (e.Message == "The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.")
-                {
-                    Logger.Log(LogLevel.VerboseSQL, "[SQL] Inactivity timeout. Reconnecting...");
-                    connection.Close();
-                    NonQuery(query, parameters);
-                }
-                else
-                {
-                    Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
-                }
-            }
+                using DbCommand command = BuildCommand(connection, query, parameters);
+                return command.ExecuteNonQuery();
+            });
         }
+
         private object ScalarQuery(string query, params object[] parameters)
         {
             Logger.Log(LogLevel.VerboseSQL, "[SQL] ScalarQuery: {0}", query);
-            try
+
+            return WithConnection(connection =>
             {
-                if (connection.State != ConnectionState.Open) connection.Open();
-                return BuildCommand(query, parameters).ExecuteScalar();
-            }
-            catch (Exception e)
-            {
-                //Handle MySQL inactivity error
-                //This is a really hacky fix that should not exist.
-                if (e.Message == "The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.")
-                {
-                    Logger.Log(LogLevel.VerboseSQL, "[SQL] Inactivity timeout. Reconnecting...");
-                    connection.Close();
-                    return ScalarQuery(query, parameters);
-                }
-                
-                Logger.Log(LogLevel.Error, "[SQL] Query failed : {0}", e.Message);
-                return null;
-            }
+                using DbCommand command = BuildCommand(connection, query, parameters);
+                return command.ExecuteScalar();
+            });
         }
 
-        private DbCommand BuildCommand(string query, params object[] parameters)
+        private DbCommand BuildCommand(DbConnection connection, string query,
+            params object[] parameters)
         {
+            if ((parameters.Length & 1) != 0)
+            {
+                throw new ArgumentException("SQL parameters must contain name/value pairs.");
+            }
+
             query = query.Replace("prefix_", SQLTablePrefix);
             DbCommand command;
             if (SQLType == DbType.SQLite)
@@ -188,20 +215,12 @@ namespace SWBF2Admin.Database
 
             for (int i = 0; i < parameters.Length; i += 2)
             {
-                if (parameters.Length < i)
-                {
-                    Logger.Log(LogLevel.Error, "[SQL] No value for parameter '{0}' specified", parameters[i].ToString());
-                }
-                else
-                {
-                    DbParameter p = command.CreateParameter();
-                    p.ParameterName = parameters[i].ToString();
-                    p.Value = parameters[i + 1];
-
-                    command.Parameters.Add(p);
-                }
+                DbParameter p = command.CreateParameter();
+                p.ParameterName = parameters[i].ToString();
+                p.Value = parameters[i + 1] ?? DBNull.Value;
+                command.Parameters.Add(p);
             }
-            command.Prepare();
+
             return command;
         }
 
@@ -222,12 +241,9 @@ namespace SWBF2Admin.Database
 
 
         #region Util
-        private bool HasRows(DbDataReader reader)
+        private bool HasRows(string query, params object[] parameters)
         {
-            if (reader == null) return false;
-            bool r = reader.HasRows;
-            reader.Dispose();
-            return r;
+            return Query(query, reader => reader.Read(), parameters);
         }
         private long GetTimestamp()
         {
@@ -264,16 +280,6 @@ namespace SWBF2Admin.Database
             if (DBNull.Value.Equals(reader[field])) return 0;
             if (SQLType == DbType.SQLite) return (long)reader[field];
             else return reader.GetInt32(reader.GetOrdinal(field));
-        }
-        private long LastInsertId()
-        {
-            string sql = (SQLType == DbType.SQLite ? "SELECT last_insert_rowid()" : "SELECT last_insert_id()");
-            object ro = ScalarQuery(sql);
-            if (ro != null)
-            {
-                return (long)ro;
-            }
-            return -1;
         }
         #endregion
 
@@ -347,21 +353,23 @@ namespace SWBF2Admin.Database
             ";
             */
             string sql = "SELECT player_id FROM view_permissions WHERE permission_name = @permission_name AND player_id = @player_id";
-            return HasRows(Query(sql, "@player_id", player.DatabaseId, "@permission_name", permission.Name));
+            return HasRows(sql, "@player_id", player.DatabaseId,
+                "@permission_name", permission.Name);
         }
 
         public IDictionary<int, Permission> GetPermissions()
         {
             string sql = "SELECT id, permission_name FROM prefix_permissions";
-            IDictionary<int, Permission> permissions = new Dictionary<int, Permission>();
-            using (DbDataReader reader = Query(sql))
+            IDictionary<int, Permission> permissions = Query(sql, reader =>
             {
+                IDictionary<int, Permission> result = new Dictionary<int, Permission>();
                 while (reader.Read())
                 {
                     Permission p = new Permission(RI(reader, "id"), RS(reader, "permission_name"));
-                    permissions.Add(p.Id, p);
+                    result.Add(p.Id, p);
                 }
-            }
+                return result;
+            });
             Permission.InitPermissions(permissions);
             return permissions;
         }
@@ -372,9 +380,9 @@ namespace SWBF2Admin.Database
             GetPermissions();
             string sql =
                 "SELECT id, group_level, group_welcome, group_welcome_enable, group_default, group_name FROM prefix_groups";
-            IDictionary<string, PermissionGroup> permissionGroups = new Dictionary<string, PermissionGroup>();
-            using (DbDataReader reader = Query(sql))
+            return Query(sql, reader =>
             {
+                IDictionary<string, PermissionGroup> permissionGroups = new Dictionary<string, PermissionGroup>();
                 while (reader.Read())
                 {
                     string groupName = RS(reader, "group_name");
@@ -385,8 +393,8 @@ namespace SWBF2Admin.Database
                     }
                     //                    permissionGroups[groupName] = new PermissionGroup(groupName, );
                 }
-            }
-            return permissionGroups;
+                return permissionGroups;
+            });
         }
 
         //TODO: cache groups
@@ -394,7 +402,7 @@ namespace SWBF2Admin.Database
         {
             string sql = "SELECT * FROM prefix_groups WHERE lower(group_name) = @group_name LIMIT 1";
 
-            using (DbDataReader reader = Query(sql, "@group_name", name.ToLower()))
+            return Query(sql, reader =>
             {
                 if (reader.Read())
                 {
@@ -406,15 +414,15 @@ namespace SWBF2Admin.Database
                          RS(reader, "group_welcome_new"),
                         (RL(reader, "group_welcome_enable") == 1));
                 }
-            }
-            return null;
+                return null;
+            }, "@group_name", name.ToLower());
         }
 
         public PlayerGroup GetTopGroup()
         {
             string sql = "SELECT * FROM prefix_groups ORDER BY group_level DESC LIMIT 1";
 
-            using (DbDataReader reader = Query(sql))
+            return Query(sql, reader =>
             {
                 if (reader.Read())
                 {
@@ -427,8 +435,8 @@ namespace SWBF2Admin.Database
                         (RL(reader, "group_welcome_enable") == 1));
 
                 }
-            }
-            return null;
+                return null;
+            });
         }
 
         private PlayerGroup ReadGroup(DbDataReader reader)
@@ -450,15 +458,11 @@ namespace SWBF2Admin.Database
         {
             string sql =
                "SELECT * " +
-               "FROM " +
-                   "prefix_groups " +
-               "WHERE group_default = 1";
+                "FROM " +
+                    "prefix_groups " +
+                "WHERE group_default = 1";
 
-            using (DbDataReader reader = Query(sql))
-            {
-                return ReadGroup(reader);
-            }
-
+            return Query(sql, ReadGroup);
         }
 
         public PlayerGroup GetTopGroup(Player player)
@@ -471,30 +475,29 @@ namespace SWBF2Admin.Database
                 "WHERE player_id = @player_id " +
                 "ORDER BY group_level DESC LIMIT 1";
 
-            using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId))
+            PlayerGroup group = Query(sql, ReadGroup,
+                "@player_id", player.DatabaseId);
+            if (group != null)
             {
-                PlayerGroup group = ReadGroup(reader);
-                if (group == null)
-                {
-                    reader.Close();
-                    PlayerGroup defaultGroup = GetDefaultGroup();
-                    if (defaultGroup != null) AddPlayerGroup(player, defaultGroup);
-                    return defaultGroup;
-                }
                 return group;
             }
+
+            PlayerGroup defaultGroup = GetDefaultGroup();
+            if (defaultGroup != null) AddPlayerGroup(player, defaultGroup);
+            return defaultGroup;
         }
 
         public bool GroupEmpty(PlayerGroup group)
         {
             string sql = "SELECT id FROM prefix_players_groups where group_id = @group_id";
-            return !(HasRows(Query(sql, "@group_id", group.Id)));
+            return !HasRows(sql, "@group_id", group.Id);
         }
 
         public bool IsGroupMember(Player player, PlayerGroup group)
         {
             string sql = "SELECT id FROM prefix_players_groups WHERE player_id = @player_id AND group_id = @group_id";
-            return (HasRows(Query(sql, "@player_id", player.DatabaseId, "@group_id", group.Id)));
+            return HasRows(sql, "@player_id", player.DatabaseId,
+                "@group_id", group.Id);
         }
 
         public void AddPlayerGroup(Player player, PlayerGroup group)
@@ -530,7 +533,11 @@ namespace SWBF2Admin.Database
                 "OR (player_last_name = @name AND ban_type = " + ((int)BanType.Alias).ToString() + ")) " +
                 "AND ((ban_timestamp + ban_duration) > @timestamp OR ban_duration < 0)";
 
-            return (HasRows(Query(sql, "@keyhash", player.KeyHash, "@ip", player.RemoteAddressStr, "@name", player.Name, "@timestamp", GetTimestamp())));
+            return HasRows(sql,
+                "@keyhash", player.KeyHash,
+                "@ip", player.RemoteAddressStr,
+                "@name", player.Name,
+                "@timestamp", GetTimestamp());
         }
         public void InsertBan(PlayerBan ban)
         {
@@ -552,6 +559,15 @@ namespace SWBF2Admin.Database
             playerExp += "%";
             adminExp += "%";
             reasonExp += "%";
+            List<object> parameters = new List<object>
+            {
+                "@player_exp", playerExp,
+                "@admin_exp", adminExp,
+                "@superuser_id", Player.SUPERUSER.DatabaseId,
+                "@reason_exp", reasonExp,
+                "@max_rows", maxRows,
+                "@date_timestamp", timestamp
+            };
 
             string sql =
                 "SELECT " +
@@ -578,23 +594,25 @@ namespace SWBF2Admin.Database
                     "ban_reason LIKE @reason_exp AND " +
                     "(ban_timestamp) > @date_timestamp";
 
-            if (!expired) sql += " AND ((ban_timestamp + ban_duration) > @timestamp OR ban_duration < 0)";
-            if (banType != (int)BanType.ShowAll) sql += " AND ban_type = @ban_type";
+            if (!expired)
+            {
+                sql += " AND ((ban_timestamp + ban_duration) > @timestamp OR ban_duration < 0)";
+                parameters.Add("@timestamp");
+                parameters.Add(GetTimestamp());
+            }
+            if (banType != (int)BanType.ShowAll)
+            {
+                sql += " AND ban_type = @ban_type";
+                parameters.Add("@ban_type");
+                parameters.Add(banType);
+            }
 
             sql += " ORDER BY ban_timestamp LIMIT @max_rows";
 
 
-            List<PlayerBan> bans = new List<PlayerBan>();
-            using (DbDataReader reader = Query(sql,
-                "@player_exp", playerExp,
-                "@admin_exp", adminExp,
-                "@superuser_id", Player.SUPERUSER.DatabaseId,
-                "@reason_exp", reasonExp,
-                "@timestamp", GetTimestamp(),
-                "@max_rows", maxRows,
-                "@date_timestamp", timestamp,
-                "@ban_type", banType))
+            return Query(sql, reader =>
             {
+                List<PlayerBan> bans = new List<PlayerBan>();
                 while (reader.Read())
                 {
                     bans.Add(new PlayerBan(
@@ -610,8 +628,8 @@ namespace SWBF2Admin.Database
                         RL(reader, "player_id"),
                         RL(reader, "admin_id")));
                 }
-            }
-            return bans;
+                return bans;
+            }, parameters.ToArray());
         }
         public List<PlayerBan> GetBans(string playerExp, string adminExp, string reasonExp, bool expired, int banType, DateTime date, int maxRows)
         {
@@ -636,7 +654,7 @@ namespace SWBF2Admin.Database
                 "prefix_players " +
                 "WHERE player_keyhash = @keyhash";
 
-            return (HasRows(Query(sql, "@keyhash", player.KeyHash)));
+            return HasRows(sql, "@keyhash", player.KeyHash);
         }
 
         public void InsertPlayer(Player player)
@@ -690,7 +708,7 @@ namespace SWBF2Admin.Database
                     "ORDER BY id DESC " +
                     "LIMIT 1";
 
-            using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId, "@game_id", gameId.DatabaseId))
+            return Query(sql, reader =>
             {
                 if (reader.Read())
                 {
@@ -704,8 +722,9 @@ namespace SWBF2Admin.Database
                         TeamId = RI(reader, "stat_team_id")
                     };
                 }
-            }
-            return null;
+                return null;
+            }, "@player_id", player.DatabaseId,
+                "@game_id", gameId.DatabaseId);
         }
 
         public void UpdatePlayer(Player player)
@@ -730,15 +749,20 @@ namespace SWBF2Admin.Database
                 "SELECT id, player_visits FROM prefix_players " +
                 "WHERE player_keyhash = @keyhash";
 
-            using (DbDataReader reader = Query(sql, "@keyhash", player.KeyHash))
+            bool found = Query(sql, reader =>
             {
-                if (reader.HasRows)
+                if (reader.Read())
                 {
-                    reader.Read();
                     player.DatabaseId = RI(reader, "id");
                     player.TotalVisits = RI(reader, "player_visits");
+                    return true;
                 }
-                else Logger.Log(LogLevel.Warning, "Couldn't find player info for player \"{0}\". (keyhash: {1})", player.Name, player.KeyHash);
+                return false;
+            }, "@keyhash", player.KeyHash);
+
+            if (!found)
+            {
+                Logger.Log(LogLevel.Warning, "Couldn't find player info for player \"{0}\". (keyhash: {1})", player.Name, player.KeyHash);
             }
             player.IsBanned = IsBanned(player);
         }
@@ -749,7 +773,7 @@ namespace SWBF2Admin.Database
                 "id = (SELECT MAX(id) FROM prefix_stats_games) AND " +
                 "game_ended_timestamp = 0";
 
-            using (DbDataReader reader = Query(sql))
+            return Query(sql, reader =>
             {
                 if (reader.Read())
                 {
@@ -762,8 +786,8 @@ namespace SWBF2Admin.Database
                         RI(reader, "game_team1_tickets"),
                         RI(reader, "game_team2_tickets"));
                 }
-            }
-            return null;
+                return null;
+            });
         }
 
         public void CloseGame(GameInfo game)
@@ -826,7 +850,7 @@ namespace SWBF2Admin.Database
                 "FROM prefix_stats " +
                     "WHERE player_id = @player_id";
 
-            using (DbDataReader reader = Query(sql, "@player_id", player.DatabaseId))
+            return Query(sql, reader =>
             {
                 if (reader.Read())
                 {
@@ -838,8 +862,8 @@ namespace SWBF2Admin.Database
                         RI(reader, "total_deaths"),
                         RI(reader, "total_score"));
                 }
-            }
-            return null;
+                return null;
+            }, "@player_id", player.DatabaseId);
         }
 
         public GameInfo ReadMatch(DbDataReader reader)
@@ -861,17 +885,21 @@ namespace SWBF2Admin.Database
         public GameInfo GetMatch(int id)
         {
             string sql = "SELECT * FROM prefix_stats_games WHERE id = @game_id";
-            using (DbDataReader reader = Query(sql, "@game_id", id))
+            return Query(sql, reader =>
             {
                 if (reader.Read()) return ReadMatch(reader);
-                else return null;
-            }
+                return null;
+            }, "@game_id", id);
         }
 
         public List<GameInfo> GetMatches(string nameExp, string mapExp, bool onlySelected, DateTime dateFrom, DateTime dateUntil, int page, int maxRows)
         {
             string where = string.Empty;
-
+            List<object> parameters = new List<object>
+            {
+                "@from_timestamp", GetTimestamp(dateFrom),
+                "@until_timestamp", GetTimestamp(dateUntil)
+            };
 
             if (onlySelected) where += "game_selected = 1 AND ";
             where += "game_started_timestamp > @from_timestamp AND game_started_timestamp < @until_timestamp";
@@ -880,34 +908,35 @@ namespace SWBF2Admin.Database
             {
                 nameExp = $"%{nameExp}%";
                 where += " AND game_name like @name_exp";
+                parameters.Add("@name_exp");
+                parameters.Add(nameExp);
             }
 
             if (mapExp.Length > 0)
             {
                 mapExp = $"%{mapExp}%";
                 where += " AND game_map like @map_exp";
+                parameters.Add("@map_exp");
+                parameters.Add(mapExp);
             }
 
             where += " AND game_ended_timestamp > 0";
 
             string sql = $"SELECT * FROM prefix_stats_games WHERE {where} ORDER BY game_started_timestamp DESC LIMIT @page,@max_rows";
+            parameters.Add("@page");
+            parameters.Add(page * maxRows);
+            parameters.Add("@max_rows");
+            parameters.Add(maxRows);
 
-            List<GameInfo> stats = new List<GameInfo>();
-            using (DbDataReader reader = Query(sql,
-                "@name_exp", nameExp,
-                "@map_exp", mapExp,
-                "@from_timestamp", GetTimestamp(dateFrom),
-                "@until_timestamp", GetTimestamp(dateUntil),
-                "@page", page * maxRows,
-                "@max_rows", maxRows))
+            return Query(sql, reader =>
             {
+                List<GameInfo> stats = new List<GameInfo>();
                 while (reader.Read())
                 {
                     stats.Add(ReadMatch(reader));
                 }
-            }
-
-            return stats;
+                return stats;
+            }, parameters.ToArray());
         }
         public List<Player> GetMatchPlayerStats(int gameID)
         {
@@ -917,9 +946,9 @@ namespace SWBF2Admin.Database
                 "INNER JOIN prefix_players ON player_id = prefix_players.id " +
                 "WHERE game_id = @game_id";
 
-            List<Player> stats = new List<Player>();
-            using (DbDataReader reader = Query(sql, "@game_id", gameID))
+            return Query(sql, reader =>
             {
+                List<Player> stats = new List<Player>();
                 while (reader.Read())
                 {
                     stats.Add(new Player(
@@ -931,8 +960,8 @@ namespace SWBF2Admin.Database
                         RS(reader, "player_keyhash"),
                         RS(reader, "stat_team")));
                 }
-            }
-            return stats;
+                return stats;
+            }, "@game_id", gameID);
         }
 
         public void DeleteMatch(int id)
@@ -953,15 +982,13 @@ namespace SWBF2Admin.Database
 
         public int GetTotalMatches()
         {
-            DbDataReader reader = Query("SELECT count(*) FROM prefix_stats_games as match_count");
-            return RI(reader, "match_count");
-
+            return Convert.ToInt32(ScalarQuery("SELECT count(*) FROM prefix_stats_games"));
         }
 
         private int GetStatSum(string field)
         {
-            DbDataReader reader = Query($"SELECT sum({field}) FROM prefix_stats as total_sum");
-            return RI(reader, "total_sum");
+            return Convert.ToInt32(ScalarQuery(
+                $"SELECT coalesce(sum({field}), 0) FROM prefix_stats"));
         }
 
         public int GetTotalKills()
@@ -981,8 +1008,7 @@ namespace SWBF2Admin.Database
 
         public int GetTotalPlayers()
         {
-            DbDataReader reader = Query("SELECT count(*) FROM prefix_players as player_count");
-            return RI(reader, "player_count");
+            return Convert.ToInt32(ScalarQuery("SELECT count(*) FROM prefix_players"));
         }
 
         #endregion
@@ -997,42 +1023,32 @@ namespace SWBF2Admin.Database
                 "prefix_web_users " +
                 "WHERE user_name = @username";
 
-            string hash;
-            long id;
-            string storedUsername;
-            DateTime lastVisit;
-
-            using (DbDataReader reader = Query(sql, "@username", username))
+            WebUser user = Query(sql, reader =>
             {
                 if (reader.Read())
                 {
-                    id = RL(reader, "id");
-                    storedUsername = RS(reader, "user_name");
-                    hash = RS(reader, "user_password");
-                    lastVisit = GetDateTime(RU(reader, "user_lastvisit"));
+                    return new WebUser(
+                        RL(reader, "id"),
+                        RS(reader, "user_name"),
+                        RS(reader, "user_password"),
+                        GetDateTime(RU(reader, "user_lastvisit")));
                 }
-                else
-                {
-                    return null;
-                }
-            }
+                return null;
+            }, "@username", username);
 
-            if (PBKDF2.IsLegacyHash(hash))
+            if (user == null) return null;
+
+            if (PBKDF2.IsLegacyHash(user.PasswordHash))
             {
-                if (!PBKDF2.VerifyLegacyPassword(password, hash)) return null;
+                if (!PBKDF2.VerifyLegacyPassword(password, user.PasswordHash)) return null;
 
-                hash = PBKDF2.HashPassword(password);
-                WebUser user = new WebUser(id, storedUsername, hash, lastVisit);
+                user = new WebUser(user.Id, user.Username,
+                    PBKDF2.HashPassword(password), user.LastVisit);
                 UpdateWebUser(user, true);
                 return user;
             }
 
-            if (PBKDF2.VerifyPassword(password, hash))
-            {
-                return new WebUser(id, storedUsername, hash, lastVisit);
-            }
-
-            return null;
+            return PBKDF2.VerifyPassword(password, user.PasswordHash) ? user : null;
         }
         public void UpdateLastSeen(WebUser user)
         {
@@ -1042,17 +1058,17 @@ namespace SWBF2Admin.Database
         }
         public List<WebUser> GetWebUsers()
         {
-            List<WebUser> users = new List<WebUser>();
             string sql = "SELECT * FROM prefix_web_users";
 
-            using (DbDataReader reader = Query(sql))
+            return Query(sql, reader =>
             {
+                List<WebUser> users = new List<WebUser>();
                 while (reader.Read())
                 {
                     users.Add(new WebUser(RL(reader, "id"), RS(reader, "user_name"), RS(reader, "user_password"), GetDateTime(RU(reader, "user_lastvisit"))));
                 }
-            }
-            return users;
+                return users;
+            });
         }
 
         public void InsertWebUser(WebUser user)
@@ -1064,12 +1080,19 @@ namespace SWBF2Admin.Database
         }
         public void UpdateWebUser(WebUser user, bool updatePwd)
         {
-            string sql = "UPDATE prefix_web_users SET " +
-                "user_name = @username";
-            if (updatePwd) sql += ", user_password = @password";
-            sql += " WHERE id = @user_id";
-
-            NonQuery(sql, "@username", user.Username, "@password", user.PasswordHash, "@user_id", user.Id);
+            if (updatePwd)
+            {
+                NonQuery("UPDATE prefix_web_users SET user_name = @username, user_password = @password WHERE id = @user_id",
+                    "@username", user.Username,
+                    "@password", user.PasswordHash,
+                    "@user_id", user.Id);
+            }
+            else
+            {
+                NonQuery("UPDATE prefix_web_users SET user_name = @username WHERE id = @user_id",
+                    "@username", user.Username,
+                    "@user_id", user.Id);
+            }
         }
         public void DeleteWebUser(WebUser user)
         {
@@ -1079,10 +1102,7 @@ namespace SWBF2Admin.Database
 
         public bool WebUserExists()
         {
-            using (DbDataReader reader = Query("SELECT id from prefix_web_users"))
-            {
-                return HasRows(reader);
-            }
+            return HasRows("SELECT id from prefix_web_users");
         }
 
         public void TruncateWebUsers()
@@ -1123,36 +1143,44 @@ namespace SWBF2Admin.Database
         }
         public List<ServerMap> GetMaps(string exp = "", string niceExp = "")
         {
-            List<ServerMap> maps = new List<ServerMap>();
-
             string sql =
                 "SELECT " +
                 "* " +
                 "FROM " +
                 "prefix_maps";
+            List<string> filters = new List<string>();
+            List<object> parameters = new List<object>();
 
             if (exp != "")
             {
                 exp = $"%{exp}%";
-                sql += " WHERE map_name like @exp";
+                filters.Add("map_name like @exp");
+                parameters.Add("@exp");
+                parameters.Add(exp);
             }
 
             if (niceExp != "")
             {
                 niceExp = $"%{niceExp}%";
-                sql += " OR map_nice_name LIKE @nice_exp";
+                filters.Add("map_nice_name LIKE @nice_exp");
+                parameters.Add("@nice_exp");
+                parameters.Add(niceExp);
             }
 
-
-            using (DbDataReader reader = Query(sql, "@exp", exp, "@nice_exp", niceExp))
+            if (filters.Count > 0)
             {
+                sql += " WHERE " + string.Join(" OR ", filters);
+            }
+
+            return Query(sql, reader =>
+            {
+                List<ServerMap> maps = new List<ServerMap>();
                 while (reader.Read())
                 {
                     maps.Add(new ServerMap(RL(reader, "id"), RS(reader, "map_name"), RS(reader, "map_nice_name"), RL(reader, "map_gametype_flags")));
                 }
-            }
-
-            return maps;
+                return maps;
+            }, parameters.ToArray());
         }
 
         #endregion

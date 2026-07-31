@@ -44,6 +44,7 @@
 
 #define OFFSET_GAMEPORT 0x3E9EF4
 #define OFFSET_IDLE		0x01E58EBD - 0x400000;
+#define OFFSET_TEAM_ARRAY 0x007EAAA0 - 0x400000
 
 #define OFFSET_UPS_CLIENT_LIMITER 0x005C9C19 - 0x400000
 
@@ -208,6 +209,11 @@ MapStatus bf2server_get_map_status();
  * Checks whether the server is busy loading
  **/
 bool bf2server_idle();
+
+/**
+ * Checks whether /status can read the team scores
+ **/
+bool bf2server_status_ready();
 
 /**
  *	Resets the map-hang counter while map status is idle

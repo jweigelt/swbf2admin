@@ -1,5 +1,5 @@
 #pragma once
-#include <WS2tcpip.h>
+#include <WinSock2.h>
 #include <vector>
 #include <functional>
 #include <thread>
