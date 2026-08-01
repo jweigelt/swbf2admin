@@ -20,6 +20,7 @@ set(SOURCES
 )
 
 add_library(RconServer_32 SHARED ${SOURCES})
+target_link_libraries(RconServer_32 PRIVATE Ws2_32)
 target_compile_definitions(RconServer_32 PRIVATE
     WIN32_LEAN_AND_MEAN
     NOMINMAX
@@ -32,7 +33,12 @@ if(MSVC)
     target_compile_options(RconServer_32 PRIVATE /W4 /permissive-)
 endif()
 
-set_target_properties(RconServer_32 PROPERTIES PREFIX "")
+set_target_properties(RconServer_32 PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+    PREFIX ""
+)
 
 add_custom_command(TARGET RconServer_32 POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/out"

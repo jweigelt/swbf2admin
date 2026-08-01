@@ -48,7 +48,7 @@ namespace SWBF2Admin.Runtime.Rcon
         public override void OnServerStart(EventArgs e)
         {
             ServerPassword = Core.Server.Settings.AdminPw;
-            ServerIPEP = new IPEndPoint(IPAddress.Parse(Core.Server.Settings.IP), Core.Server.Settings.RconPort);
+            ServerIPEP = new IPEndPoint(IPAddress.Loopback, Core.Server.Settings.RconPort);
             Interlocked.Exchange(ref lastSuccessfulStatusResponseTicks, DateTime.MinValue.Ticks);
             int requestId = Interlocked.Increment(ref startRequestId);
             //Rcon can take up to 10 seconds to start on some CC versions

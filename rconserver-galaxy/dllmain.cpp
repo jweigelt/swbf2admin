@@ -1,56 +1,74 @@
-#include "config.h"
 #include "RconServer.h"
+#include "Logger.h"
 #include "bf2server.h"
 #include <Windows.h>
 #include <atomic>
+#include <cstdio>
+#include <cstdint>
 
-static RconServer *dllmain_server;
-static std::atomic_bool dllmain_running = false;
-HANDLE dllmain_hThread;
-
-DWORD WINAPI Run(LPVOID p)
+namespace
 {
+constexpr std::uint16_t kMaxRconConnections = 8;
+static std::atomic_bool dllmain_running = false;
+} // namespace
+
+DWORD WINAPI Run(LPVOID module)
+{
+	bool processExitRequested = false;
+
 #ifdef _DEBUG
 	Logger.SetMinLevelFile(LogLevel_VERBOSE);
 #else
-	Logger.SetMinLevelFile(LogLevel_WARNING);
+	Logger.SetMinLevelFile(LogLevel_INFO);
 #endif
-	Logger.log(LogLevel_VERBOSE, "DLL loaded...");
+	const bool patchesApplied = bf2server_init();
+	if (patchesApplied)
+		Logger.log(LogLevel_INFO, "RconServer_32 loaded; patches applied; spawn timer %gs.",
+				   bf2server_get_spawnvalue());
+	else
+	{
+		Logger.log(LogLevel_ERROR, "RconServer_32 patch installation failed.");
+		return 0;
+	}
 
-	dllmain_server = new RconServer(MAX_CONNECTIONS);
-	bool rconStarted = dllmain_server->start();
+	RconServer server(kMaxRconConnections);
+	bool rconStarted = server.start();
 
 	MapStatus prevStatus = MAP_IDLE;
-	MapStatus newStatus = MAP_IDLE;
-	unsigned int pendingEndgames = 0;
+	bool endgamePending = false;
 	while (dllmain_running)
 	{
-		newStatus = bf2server_get_map_status();
-		if (newStatus != prevStatus && newStatus != MAP_IDLE)
-		{
-			++pendingEndgames;
-		}
+		const MapStatus newStatus = bf2server_get_map_status();
+		if (prevStatus == MAP_IDLE && newStatus != MAP_IDLE) endgamePending = true;
 		prevStatus = newStatus;
-		if (bf2server_pump_chat())
+		if (bf2server_pump_chat() && endgamePending)
 		{
-			while (pendingEndgames > 0)
-			{
-				Logger.log(LogLevel_VERBOSE, "Detected endgame");
-				if (rconStarted) dllmain_server->reportEndgame();
-				--pendingEndgames;
-			}
+			Logger.log(LogLevel_VERBOSE, "Detected endgame");
+			if (rconStarted) server.reportEndgame();
+			endgamePending = false;
 		}
 		bf2server_mapfix_tick();
 		Sleep(50);
 #ifdef _DEBUG
-		if (GetAsyncKeyState(VK_ESCAPE) && GetAsyncKeyState(VK_BACK)) dllmain_running = false;
+		const bool escapeDown = (GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0;
+		const bool backspaceDown = (GetAsyncKeyState(VK_BACK) & 0x8000) != 0;
+		if (escapeDown && backspaceDown)
+		{
+			processExitRequested = true;
+			dllmain_running = false;
+		}
 #endif
 	}
 
-	if (rconStarted) dllmain_server->stop();
-	delete dllmain_server;
+	if (rconStarted) server.stop();
+	if (processExitRequested)
+	{
+		Logger.log(LogLevel_INFO, "Debug shutdown complete; exiting process.");
+		std::fflush(nullptr);
+		ExitProcess(0);
+	}
 
-	FreeLibraryAndExitThread((HMODULE)p, 0);
+	FreeLibraryAndExitThread(static_cast<HMODULE>(module), 0);
 }
 
 BOOL WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, IN LPVOID)
@@ -58,15 +76,21 @@ BOOL WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, IN LPVOID)
 	switch (dwReason)
 	{
 	case DLL_PROCESS_ATTACH:
+	{
 		DisableThreadLibraryCalls(hModule);
-		bf2server_init();
 		dllmain_running = true;
-		dllmain_hThread = CreateThread(0, 0, Run, hModule, 0, 0);
+		HANDLE worker = CreateThread(0, 0, Run, hModule, 0, 0);
+		if (worker == nullptr)
+		{
+			dllmain_running = false;
+			return FALSE;
+		}
+		CloseHandle(worker);
 		break;
+	}
 
 	case DLL_PROCESS_DETACH:
 		dllmain_running = false;
-		if (dllmain_hThread) WaitForSingleObject(dllmain_hThread, 1000);
 		break;
 	}
 

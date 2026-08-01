@@ -1,16 +1,13 @@
 #pragma once
-#pragma comment(lib, "Ws2_32.lib")
 #include <WinSock2.h>
 #include <atomic>
-#include <stdint.h>
-#include <vector>
+#include <cstdint>
+#include <memory>
 #include <mutex>
 #include <thread>
-#include <memory>
-#include <algorithm>
-#include <inttypes.h>
+#include <vector>
+
 #include "RconClient.h"
-#include "Logger.h"
 
 class RconServer
 {
@@ -19,19 +16,19 @@ public:
 	~RconServer();
 	bool start();
 	void stop();
-	void listen();
 	void reportEndgame();
 
 private:
 	std::atomic_bool running = false;
 	std::mutex mtx;
-	std::vector<RconClient *> clients;
+	std::vector<std::unique_ptr<RconClient>> clients;
 	SOCKET listenSocket;
 
 	uint16_t port;
 	uint16_t maxClients;
-	void onClientDisconnect(RconClient *client);
+	void listen();
+	void removeFinishedClientsLocked();
 	void onChatInput(std::string const &msg);
 
-	std::shared_ptr<std::thread> workThread;
+	std::thread workThread;
 };

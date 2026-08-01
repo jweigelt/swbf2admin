@@ -1,58 +1,42 @@
-//
-// Created by jan on 8/16/18.
-//
-
 #include "Logger.h"
 
-_Logger Logger;
+#include <cstdarg>
+#include <cstdio>
+#include <fstream>
 
-void _Logger::log(LogLevel level, const char *msg, ...)
+namespace
 {
-	va_list args;
+constexpr const char *kLogFile = "./rconserver_log.txt";
+constexpr const char *kLogLevels[] = {"DEBUG | ", "INFO  | ", "WARN  | ", "ERROR | "};
+} // namespace
 
+LoggerImpl Logger;
+
+void LoggerImpl::log(LogLevel level, const char *format, ...)
+{
+	if (minLevelStdout > level && minLevelFile > level) return;
+
+	char message[4096] = {};
+	va_list args;
+	va_start(args, format);
+	vsnprintf(message, sizeof(message), format, args);
+	va_end(args);
+	message[sizeof(message) - 1] = '\0';
+
+	std::lock_guard<std::mutex> lock(mtx);
 	if (minLevelStdout <= level)
 	{
-		printf("%s", LOG_LEVELS[level]);
-		va_start(args, msg);
-		vprintf(msg, args);
-		va_end(args);
-		printf("\n");
+		printf("%s%s\n", kLogLevels[level], message);
 	}
 
 	if (minLevelFile <= level)
 	{
-		va_start(args, msg);
-		auto len = (size_t)vsnprintf(nullptr, 0, msg, args) + 1;
-		va_end(args);
-
-		auto buffer = std::make_unique<char[]>(len);
-		va_start(args, msg);
-		vsnprintf(buffer.get(), len, msg, args);
-		va_end(args);
-		LogToFile(buffer.get());
+		std::ofstream file(kLogFile, std::ofstream::app);
+		file << kLogLevels[level] << message << '\n';
 	}
 }
 
-void _Logger::SetMinLevelStdout(LogLevel level)
-{
-	minLevelStdout = level;
-}
-
-void _Logger::SetMinLevelFile(LogLevel level)
+void LoggerImpl::SetMinLevelFile(LogLevel level)
 {
 	minLevelFile = level;
-}
-
-void _Logger::SetFileName(const std::string &fileName)
-{
-	logFile = fileName;
-}
-
-void _Logger::LogToFile(const char *s)
-{
-	std::unique_lock<std::mutex> lg(mtx);
-	std::ofstream f;
-	f.open(logFile, std::ofstream::app);
-	f << s << "\n";
-	f.close();
 }

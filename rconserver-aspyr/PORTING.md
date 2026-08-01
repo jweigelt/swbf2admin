@@ -36,14 +36,16 @@ original control flow is:
    details flags, invoke the game's RCON parser with output destination `-1`, and
    copy the native response buffer.
 
-The Classic harness preserves that protocol. Its implementation changes are
-engineering fixes, not protocol changes:
+The current Galaxy and Classic harnesses preserve that protocol and share the
+same engineering fixes:
 
-- `DllMain` only disables thread notifications and starts one bootstrap thread;
 - all partial `recv`/`send` operations are completed in loops;
 - native chat is copied into a bounded queue and broadcast off the game thread;
 - RCON command execution is serialized;
 - authentication uses the same MD5 source implementation as Galaxy;
+- sockets and client threads have deterministic ownership and shutdown;
+- Classic's `DllMain` starts a bootstrap worker because `Battlefront.exe` loads
+  `Battlefront2.dll` after injection;
 - x64 entry detours use documented instruction boundaries and relay/trampoline
   allocation rather than x86 naked inline assembly.
 
@@ -87,7 +89,7 @@ The remaining structural differences are intentional:
 | pre-play disconnect | replace two shell drop calls with `SetNotPlaying +0x5B9440` | `DropPlayer +0x2924B0`, `SetNotPlaying +0x285E30` | Ported; clears endpoint membership and retains Classic shell cleanup |
 | configurable spawn delay | redirects stock `15.0f` operand at `0x58D609` to DLL storage | callback `+0x22F000` forces `15.0f` only when networked | Ported as a full callback replacement using `SPAWN_TIMER` |
 | pregame spawn transition | `UpdatePreGame 0x5C4EF0`: `JLE -> JL`, wrap Vanish call | `UpdatePreGame +0x288400`: branch `+0x288447`, Vanish `+0x288770` | Ported with expanded Classic fields |
-| update scheduling | render/sleep, `/2` budget, slot guard, per-client CREATE acknowledgement fence | `SendToClients +0x283E10`, `SendUpdate2 +0x284B40`, CREATE writer `+0x289C20` | Network scheduling ported; render/sleep edits intentionally omitted |
+| update scheduling | render/sleep, `/2` budget, disabled send window, CREATE acknowledgement fence | `SendToClients +0x283E10`, `SendUpdate2 +0x284B40` | Full client selection and one-turn eligibility ported; native send-window, pipe, and render pacing retained |
 | RCON/chat/Lua bridge | parser `0x5B0030`, response/admin globals, `snprintf` operand hook, Lua C API | parser `+0x25C7E0`, response/admin globals, entry chat hook, `+0x3863A0` Lua wrapper | Ported |
 
 ## Classic-only runtime ports
@@ -168,45 +170,19 @@ wrapper used by native script callers.
 
 The port NOPs the five-byte signed divide sequence. The function still scans for
 the oldest eligible destination and retains `IsPipeFull`. Its sole call to
-`IsSendWindowOpen +0x276710` at `+0x283FB3` is redirected to a wrapper. The
-wrapper invokes the native function for slot timeout and congestion maintenance,
-then admits the destination unless its DLL-side CREATE fence remains active.
+`IsSendWindowOpen +0x276710` at `+0x283FB3` remains stock, so the native two-slot
+acknowledgement window continues to reject destinations until capacity opens.
 
-### Two-slot overflow and CREATE-aware cadence
+### Native-windowed one-turn cadence
 
 Classic `SendUpdate2 +0x284B40` scans two outstanding-update slots at
-`NetPlayer+0x1AC/+0x1B0`. Stock code falls through with index 2 when both are
-occupied and writes:
+`NetPlayer+0x1AC/+0x1B0`. `IsSendWindowOpen` prevents this function from running
+when the active acknowledgement window is full. It also clears timed-out slots
+and reduces the active window after loss.
 
-```asm
-284BAE  mov edx,[hostTurn]
-284BB4  mov [player + index*4 + 1ACh],edx
-284BCB  movss [player + index*4 + 1B4h],xmm0
-```
-
-Index 2 aliases the following fields. At `+0x284B7F`, the full-slot `JNC` is
-retargeted from the unsafe write block to the native pacing tail at `+0x284BD4`.
-The stock function therefore still completes its cadence work without indexing
-past the two physical slots.
-
-`WriteUpdate +0x28E910` owns two object-state maps at `NetPlayer+0x0` (A) and
-`NetPlayer+0x8` (B). B carries its update turn at `map+0x208`. Object creation is
-proven at `WriteObjects +0x28CF18 -> WriteCreate +0x289C20`; the writer hook
-records the destination's exact B pointer, turn, and send time after serializing
-a CREATE.
-
-`ReadSwitchResponses +0x27E100` resolves that transaction. ACK result 1 frees A,
-promotes B to A, and allocates a fresh B. NACK result 2 frees B and allocates a
-fresh B. The fence therefore clears as soon as either the pointer or turn stamp
-changes. Until then the scheduler skips every ordinary update for that client,
-preventing an interim update from replacing the CREATE transaction.
-
-If no response arrives within `max(SRTT + RTTVAR, 0.1 seconds)`, the wrapper
-performs the native NACK reset with `NetObjStateMap::Free +0x26F370` and
-`NetObjStateMap::Alloc +0x2685A0`. The CREATE can then be regenerated instead of
-holding the client indefinitely. At `SendUpdate2 +0x284C6B`, `ADD ECX,EAX`
-becomes `INC ECX`, making every unfenced destination eligible on the next host
-turn. This is the x64 semantic equivalent of Galaxy's frame-specific caves.
+At `SendUpdate2 +0x284C6B`, `ADD ECX,EAX` becomes `INC ECX`, making each
+destination eligible for reconsideration on the next host turn. Actual sends
+remain bounded by the native acknowledgement window and `IsPipeFull`.
 
 ### Object budget and ordinary-event pressure
 

@@ -1,4 +1,5 @@
 #include "bf2server.h"
+#include "Logger.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -17,7 +18,6 @@ DWORD tickAddr, mapfixRetnAddr;
 volatile LONG mapfixTicks;
 
 FLOAT spawnValue = 15.0f;
-DWORD_PTR spawnValueAddr;
 
 std::function<void(std::string const &msg)> chatCB;
 std::mutex commandMutex;
@@ -28,6 +28,14 @@ namespace
 {
 constexpr size_t kChatQueueLimit = 4096;
 constexpr size_t kChatPumpLimit = 64;
+constexpr DWORD kMaxNetPlayers = 64;
+constexpr DWORD kNetPlayerStride = 0x208;
+constexpr DWORD kObjectScopeCapacity = 64;
+constexpr DWORD kEventRingCapacity = 128;
+constexpr DWORD kEventRingMask = kEventRingCapacity - 1;
+constexpr DWORD kEventRecordSize = 0x50;
+constexpr DWORD kOrdnanceClassIdOffset = 0x38;
+constexpr float kEntityMinePriorityBase = 62501.0f;
 
 constexpr DWORD kJumpUsingEnergyRva = 0x004EDC60 - 0x00400000;
 constexpr DWORD kJumpPrimaryCallRva = 0x004EAEA2 - 0x00400000;
@@ -69,19 +77,63 @@ struct ServerJumpParameters
 JumpUsingEnergyFn serverJumpUsingEnergy;
 RollUsingEnergyFn serverRollUsingEnergy;
 SetNotPlayingFn serverSetNotPlaying;
+bool patchWritesSucceeded;
 
 } // namespace
 
 // Write patchSize bytes from patch to the module-relative offset.
 // Restore page protection and flush the instruction cache after the copy.
-static void bf2server_patch_asm(DWORD_PTR offset, void *patch, size_t patchSize)
+static void bf2server_patch_asm(DWORD_PTR offset, const void *patch, size_t patchSize)
 {
-	DWORD op, np;
-	DWORD addr = moduleBase + offset;
-	VirtualProtect((void *)addr, patchSize, PAGE_EXECUTE_READWRITE, &op);
-	memcpy((void *)addr, patch, patchSize);
-	FlushInstructionCache(GetCurrentProcess(), (void *)addr, patchSize);
-	VirtualProtect((void *)addr, patchSize, op, &np);
+	if (!patchWritesSucceeded) return;
+
+	auto address = reinterpret_cast<void *>(moduleBase + offset);
+	DWORD oldProtection;
+	if (!VirtualProtect(address, patchSize, PAGE_EXECUTE_READWRITE, &oldProtection))
+	{
+		const DWORD error = GetLastError();
+		patchWritesSucceeded = false;
+		Logger.log(LogLevel_ERROR, "Patch VirtualProtect failed at RVA 0x%08lX (%zu bytes): error %lu.",
+				   static_cast<unsigned long>(offset), patchSize, error);
+		return;
+	}
+
+	memcpy(address, patch, patchSize);
+	if (!FlushInstructionCache(GetCurrentProcess(), address, patchSize))
+	{
+		const DWORD error = GetLastError();
+		patchWritesSucceeded = false;
+		Logger.log(LogLevel_ERROR, "Patch cache flush failed at RVA 0x%08lX (%zu bytes): error %lu.",
+				   static_cast<unsigned long>(offset), patchSize, error);
+	}
+
+	DWORD unusedProtection;
+	if (!VirtualProtect(address, patchSize, oldProtection, &unusedProtection))
+	{
+		const DWORD error = GetLastError();
+		patchWritesSucceeded = false;
+		Logger.log(LogLevel_ERROR, "Patch protection restore failed at RVA 0x%08lX (%zu bytes): error %lu.",
+				   static_cast<unsigned long>(offset), patchSize, error);
+	}
+}
+
+template <size_t PatchSize> static void bf2server_patch_asm(DWORD_PTR offset, const BYTE (&patch)[PatchSize])
+{
+	bf2server_patch_asm(offset, patch, PatchSize);
+}
+
+template <typename T> static void bf2server_patch_value(DWORD_PTR offset, const T &value)
+{
+	bf2server_patch_asm(offset, &value, sizeof(value));
+}
+
+template <size_t PatchSize> static void bf2server_patch_rel32(DWORD_PTR offset, BYTE (&patch)[PatchSize], DWORD target)
+{
+	static_assert(PatchSize >= 5, "Relative patch must contain an opcode and displacement");
+	auto address = static_cast<DWORD>(moduleBase + offset);
+	const DWORD displacement = target - (address + 5);
+	memcpy(patch + 1, &displacement, sizeof(displacement));
+	bf2server_patch_asm(offset, patch);
 }
 
 // Platform compatibility patches.
@@ -102,7 +154,7 @@ void bf2server_patch_norender()
 					// jnz 0x6BB3A6 -> nop
 					0x90, 0x90};
 
-	bf2server_patch_asm(OFFSET_NORENDER_FIX, (void *)patch, sizeof(patch));
+	bf2server_patch_asm(OFFSET_NORENDER_FIX, patch);
 }
 
 void bf2server_patch_password()
@@ -127,7 +179,7 @@ void bf2server_patch_password()
 
 	*(DWORD *)&patch[14] = OFFSET_PASSWORD_PLAIN + moduleBase;
 
-	bf2server_patch_asm(OFFSET_PASSWORD_FIX, (void *)patch, sizeof(patch));
+	bf2server_patch_asm(OFFSET_PASSWORD_FIX, patch);
 }
 
 void bf2server_patch_dedicated()
@@ -142,8 +194,8 @@ void bf2server_patch_dedicated()
 							  //-> push 2
 							  0x6A, 0x02};
 
-	bf2server_patch_asm(OFFSET_NUMPLAYERS_MOD, (void *)numPlayersPatch, sizeof(numPlayersPatch));
-	bf2server_patch_asm(OFFSET_DEDICATED_FIX, (void *)serverTypePatch, sizeof(serverTypePatch));
+	bf2server_patch_asm(OFFSET_NUMPLAYERS_MOD, numPlayersPatch);
+	bf2server_patch_asm(OFFSET_DEDICATED_FIX, serverTypePatch);
 }
 
 // Security and stability patches.
@@ -157,8 +209,8 @@ void bf2server_patch_votekick_exploit()
 	BYTE kickPatch[] = {// call 005A22A0 -> nop
 						0x90, 0x90, 0x90, 0x90, 0x90};
 
-	bf2server_patch_asm(OFFSET_VOTECRASH_FIX, (void *)crashPatch, sizeof(crashPatch));
-	bf2server_patch_asm(OFFSET_VOTEKICK_FIX, (void *)kickPatch, sizeof(kickPatch));
+	bf2server_patch_asm(OFFSET_VOTECRASH_FIX, crashPatch);
+	bf2server_patch_asm(OFFSET_VOTEKICK_FIX, kickPatch);
 }
 
 static void __declspec(naked) bf2server_mapfix_cc()
@@ -191,7 +243,7 @@ void bf2server_patch_maphang()
 						  0xB8, 0x00, 0x00, 0x00, 0x00, 0xff, 0xe0};
 
 	*(DWORD *)&detourPatch[1] = (DWORD)&bf2server_mapfix_cc;
-	bf2server_patch_asm(OFFSET_MAPFIX_DETOUR, detourPatch, sizeof(detourPatch));
+	bf2server_patch_asm(OFFSET_MAPFIX_DETOUR, detourPatch);
 }
 
 // Network replication patches.
@@ -200,7 +252,7 @@ void bf2server_patch_distance_lag()
 	BYTE playerMovesPatch[] = {// 0x5D38B8: MOV [EBP-0x1C],5 -> 32 nearest player moves.
 							   0x20};
 
-	bf2server_patch_asm(0x001d38b8, (void *)playerMovesPatch, sizeof(playerMovesPatch));
+	bf2server_patch_asm(0x001d38b8, playerMovesPatch);
 }
 
 void bf2server_patch_waitlate_grace()
@@ -209,7 +261,7 @@ void bf2server_patch_waitlate_grace()
 	// 0x5BAAD0: grace immediate 3 -> 1; /nowaitlate remains 0.
 	BYTE grace = 1;
 
-	bf2server_patch_asm(0x005BAAD0 - 0x400000, (void *)&grace, sizeof(grace));
+	bf2server_patch_value(0x005BAAD0 - 0x400000, grace);
 }
 
 namespace
@@ -253,7 +305,7 @@ bool is_entity_mine_event(const BYTE *event)
 	if (*reinterpret_cast<const DWORD *>(event) != 0) return false;
 
 	auto findClass = reinterpret_cast<FindOrdnanceClassFn>(g_findOrdnanceClass);
-	void *ordnanceClass = findClass(*reinterpret_cast<const DWORD *>(event + 0x38));
+	void *ordnanceClass = findClass(*reinterpret_cast<const DWORD *>(event + kOrdnanceClassIdOffset));
 	if (ordnanceClass == nullptr) return false;
 
 	auto vtable = *reinterpret_cast<void ***>(ordnanceClass);
@@ -281,39 +333,32 @@ void insert_net_event(NetEventHeap *heap, DWORD index, float priority)
 // which candidates fit in the one-shot event section.
 void __cdecl bf2_collect_prioritized_events(NetEventHeap *heap)
 {
-	NetEventCandidate mines[128];
-	NetEventCandidate ordinary[128];
-	DWORD mineCount = 0;
+	NetEventCandidate ordinary[kEventRingCapacity];
 	DWORD ordinaryCount = 0;
 
 	DWORD base = static_cast<DWORD>(moduleBase);
 	DWORD destination = *reinterpret_cast<DWORD *>(base + 0x1BA9C2C);
-	if (destination >= 64) return;
-	DWORD index = *reinterpret_cast<DWORD *>(base + 0x1ACEF88 + destination * 0x208) & 0x7F;
-	DWORD head = *reinterpret_cast<DWORD *>(base + 0x1BA9C40) & 0x7F;
+	if (destination >= kMaxNetPlayers) return;
+	DWORD index = *reinterpret_cast<DWORD *>(base + 0x1ACEF88 + destination * kNetPlayerStride) & kEventRingMask;
+	DWORD head = *reinterpret_cast<DWORD *>(base + 0x1BA9C40) & kEventRingMask;
 	auto scoreEvent = reinterpret_cast<ScoreNetEventFn>(g_scoreNetEvent);
 
 	DWORD scanned = 0;
-	while (index != head && scanned < 128)
+	while (index != head && scanned < kEventRingCapacity)
 	{
-		const BYTE *event = reinterpret_cast<const BYTE *>(base + 0x1BA5240 + index * 0x50);
+		const BYTE *event = reinterpret_cast<const BYTE *>(base + 0x1BA5240 + index * kEventRecordSize);
 		float score = scoreEvent(event);
 		if (score >= 0.0f)
 		{
-			NetEventCandidate candidate = {index, score};
 			if (is_entity_mine_event(event))
-				mines[mineCount++] = candidate;
+				insert_net_event(heap, index, kEntityMinePriorityBase - score);
 			else
-				ordinary[ordinaryCount++] = candidate;
+				ordinary[ordinaryCount++] = {index, score};
 		}
-		index = (index + 1) & 0x7F;
+		index = (index + 1) & kEventRingMask;
 		++scanned;
 	}
 
-	for (DWORD candidate = 0; candidate < mineCount && heap->count < heap->capacity; ++candidate)
-	{
-		insert_net_event(heap, mines[candidate].index, 62501.0f - mines[candidate].score);
-	}
 	for (DWORD candidate = 0; candidate < ordinaryCount && heap->count < heap->capacity; ++candidate)
 	{
 		insert_net_event(heap, ordinary[candidate].index, -ordinary[candidate].score);
@@ -325,9 +370,9 @@ void __cdecl bf2_collect_prioritized_events(NetEventHeap *heap)
 // at the adjusted recurring-state budget.
 void __cdecl bf2_prioritize_entity_mines(DWORD *objects, DWORD count)
 {
-	if (count > 64) return;
+	if (count > kObjectScopeCapacity) return;
 
-	DWORD ordered[64];
+	DWORD ordered[kObjectScopeCapacity];
 	DWORD output = 0;
 	for (DWORD index = 0; index < count; ++index)
 	{
@@ -429,17 +474,12 @@ void bf2server_patch_object_budget()
 	// 0x5CE71C: state-budget block -> JMP bf2_object_budget_cc.
 	// The detour reproduces the skipped scale calculation before resuming.
 	BYTE detour[] = {0xE9, 0x00, 0x00, 0x00, 0x00};
-	DWORD site = static_cast<DWORD>(moduleBase + 0x005CE71C - 0x400000);
-	*reinterpret_cast<DWORD *>(&detour[1]) = reinterpret_cast<DWORD>(&bf2_object_budget_cc) - (site + sizeof(detour));
-	bf2server_patch_asm(0x005CE71C - 0x400000, detour, sizeof(detour));
+	bf2server_patch_rel32(0x005CE71C - 0x400000, detour, reinterpret_cast<DWORD>(&bf2_object_budget_cc));
 
 	// 0x5BFDAE: 64-candidate scan -> JMP bf2_event_collect_cc.
 	// The detour rebuilds the native heap with EntityMine creates first.
 	BYTE eventDetour[] = {0xE9, 0x00, 0x00, 0x00, 0x00};
-	DWORD eventSite = static_cast<DWORD>(moduleBase + 0x005BFDAE - 0x400000);
-	*reinterpret_cast<DWORD *>(&eventDetour[1]) =
-		reinterpret_cast<DWORD>(&bf2_event_collect_cc) - (eventSite + sizeof(eventDetour));
-	bf2server_patch_asm(0x005BFDAE - 0x400000, eventDetour, sizeof(eventDetour));
+	bf2server_patch_rel32(0x005BFDAE - 0x400000, eventDetour, reinterpret_cast<DWORD>(&bf2_event_collect_cc));
 }
 
 namespace
@@ -447,8 +487,6 @@ namespace
 // 30 UPS send-scheduling hooks.
 // Naked detours read the WriteObjects, scheduler, and SentUpdate EBP frames.
 
-constexpr DWORD kNetPlayerCount = 0x40;
-constexpr DWORD kNetPlayerStride = 0x208;
 constexpr DWORD kPendingMapOffset = 0x4;
 constexpr DWORD kMapTurnOffset = 0x104;
 constexpr DWORD kSrttOffset = 0x1C4;
@@ -466,30 +504,25 @@ static_assert(sizeof(CreateFence) == 0xC, "CreateFence assembly stride mismatch"
 using NetObjStateMapAllocFn = void *(__cdecl *)();
 using NetObjStateMapFreeFn = void(__thiscall *)(void *);
 
-static DWORD g_curDstAddr;		 // &_curDst (dest client index)        VA 0x01FA9C2C
-static DWORD g_netPlayersAddr;	 // per-client state                     VA 0x01ECEF50
-static DWORD g_netTimeAddr;		 // NetComm time                         VA 0x01FA5214
-static DWORD g_wo_resume;		 // WriteObjects resume after MOV        VA 0x005CE58C
-static DWORD g_send_resume;		 // scheduler continue                   VA 0x005C9D5D
-static DWORD g_send_skip_resume; // scheduler next-client                 VA 0x005C9C98
-static DWORD g_su2_time_resume;	 // SentUpdate post-time-call resume     VA 0x005D2DF6
-static DWORD g_su2_skip_resume;	 // SentUpdate skip-slot resume          VA 0x005D2E21
-static DWORD g_getTimeFn;		 // time function                        VA 0x005B3840
-static CreateFence g_createFences[kNetPlayerCount];
+static DWORD g_currentDestinationAddress;
+static DWORD g_netPlayersAddress;
+static DWORD g_netTimeAddress;
+static DWORD g_writeObjectsResume;
+static DWORD g_sendResume;
+static DWORD g_sendSkipResume;
+static DWORD g_sentUpdateTimeResume;
+static DWORD g_sentUpdateSkipResume;
+static DWORD g_getTime;
+static CreateFence g_createFences[kMaxNetPlayers];
 static NetObjStateMapAllocFn g_allocNetObjStateMap;
 static NetObjStateMapFreeFn g_freeNetObjStateMap;
-
-static void clear_create_fence(CreateFence &fence)
-{
-	fence = {};
-}
 
 // Hold a destination while map B still identifies the emitted CREATE turn.
 // Native ACK/NACK handling replaces or resets B; a timeout performs the same
 // pending-map reset as the native NACK path so the CREATE can be regenerated.
 bool __cdecl bf2_create_fence_blocks(int player)
 {
-	if (static_cast<DWORD>(player) >= kNetPlayerCount)
+	if (static_cast<DWORD>(player) >= kMaxNetPlayers)
 	{
 		return false;
 	}
@@ -500,13 +533,13 @@ bool __cdecl bf2_create_fence_blocks(int player)
 		return false;
 	}
 
-	auto playerState = reinterpret_cast<BYTE *>(g_netPlayersAddr + player * kNetPlayerStride);
+	auto playerState = reinterpret_cast<BYTE *>(g_netPlayersAddress + player * kNetPlayerStride);
 	auto pendingMap = *reinterpret_cast<void **>(playerState + kPendingMapOffset);
 
 	if (pendingMap != fence.pendingMap ||
 		*reinterpret_cast<int *>(static_cast<BYTE *>(pendingMap) + kMapTurnOffset) != fence.pendingTurn)
 	{
-		clear_create_fence(fence);
+		fence = {};
 		return false;
 	}
 
@@ -518,7 +551,7 @@ bool __cdecl bf2_create_fence_blocks(int player)
 		retryTime = kCreateRetryFloor;
 	}
 
-	float elapsed = *reinterpret_cast<float *>(g_netTimeAddr) - fence.sentTime;
+	float elapsed = *reinterpret_cast<float *>(g_netTimeAddress) - fence.sentTime;
 	if (!(elapsed > retryTime))
 	{
 		return true;
@@ -527,7 +560,7 @@ bool __cdecl bf2_create_fence_blocks(int player)
 	// ReadSwitchResponses result 2 frees B and installs a fresh pending map.
 	g_freeNetObjStateMap(pendingMap);
 	*reinterpret_cast<void **>(playerState + kPendingMapOffset) = g_allocNetObjStateMap();
-	clear_create_fence(fence);
+	fence = {};
 	return false;
 }
 
@@ -543,7 +576,7 @@ void __declspec(naked) bf2_create_fence_cc()
 		push  edx
 		cmp   byte ptr [ebp-11h], 0 // WriteObjects emitted-CREATE flag
 		jz    create_done
-		mov   eax, dword ptr [g_curDstAddr]
+		mov   eax, dword ptr [g_currentDestinationAddress]
 		mov   eax, dword ptr [eax]
 		cmp   eax, 40h
 		jae   create_done
@@ -552,12 +585,12 @@ void __declspec(naked) bf2_create_fence_cc()
 		lea   edx, g_createFences
 		add   edx, ecx
 		imul  eax, eax, 208h
-		mov   ecx, dword ptr [g_netPlayersAddr]
+		mov   ecx, dword ptr [g_netPlayersAddress]
 		mov   ecx, dword ptr [ecx+eax+4]
 		mov   dword ptr [edx], ecx
 		mov   eax, dword ptr [ecx+104h]
 		mov   dword ptr [edx+4], eax
-		mov   eax, dword ptr [g_netTimeAddr]
+		mov   eax, dword ptr [g_netTimeAddress]
 		mov   eax, dword ptr [eax]
 		mov   dword ptr [edx+8], eax
 	create_done:
@@ -566,7 +599,7 @@ void __declspec(naked) bf2_create_fence_cc()
 		pop   eax
 		popfd
 		mov   dword ptr [ebp-84h], 6
-		mov   eax, dword ptr [g_wo_resume]
+		mov   eax, dword ptr [g_writeObjectsResume]
 		jmp   eax
 	}
 }
@@ -585,10 +618,10 @@ void __declspec(naked) bf2_create_fence_gate_cc()
 		test  al, al
 		popad
 		jnz   create_blocked
-		mov   eax, dword ptr [g_send_resume]
+		mov   eax, dword ptr [g_sendResume]
 		jmp   eax
 	create_blocked:
-		mov   eax, dword ptr [g_send_skip_resume]
+		mov   eax, dword ptr [g_sendSkipResume]
 		jmp   eax
 	}
 }
@@ -601,11 +634,11 @@ void __declspec(naked) bf2_su2_slotfix_cc()
 	__asm {
 		cmp   dword ptr [ebp-4], 2 // local_4: free slot idx, or 2 if none free
 		jb    su2_domark
-		mov   eax, dword ptr [g_su2_skip_resume] // no free slot -> skip marking (0x5D2E21)
+		mov   eax, dword ptr [g_sentUpdateSkipResume] // no free slot -> skip marking (0x5D2E21)
 		jmp   eax
 	su2_domark:
-		call  dword ptr [g_getTimeFn] // redo CALL 0x5b3840 -> XMM0 = now (secs)
-		jmp   dword ptr [g_su2_time_resume] // resume 0x5D2DF6 (native MOVSS)
+		call  dword ptr [g_getTime] // redo CALL 0x5b3840 -> XMM0 = now (secs)
+		jmp   dword ptr [g_sentUpdateTimeResume] // resume 0x5D2DF6 (native MOVSS)
 	}
 }
 
@@ -614,44 +647,37 @@ void __declspec(naked) bf2_su2_slotfix_cc()
 // old interval-only CREATE delay and IsSendWindowOpen branch are replaced.
 void bf2server_patch_send_scheduling()
 {
-	g_curDstAddr = (DWORD)(moduleBase + 0x1BA9C2C);		 // _curDst          0x01FA9C2C
-	g_netPlayersAddr = (DWORD)(moduleBase + 0x1ACEF50);	 // player state     0x01ECEF50
-	g_netTimeAddr = (DWORD)(moduleBase + 0x1BA5214);	 // NetComm time     0x01FA5214
-	g_wo_resume = (DWORD)(moduleBase + 0x1CE58C);		 // WO resume        0x005CE58C
-	g_send_resume = (DWORD)(moduleBase + 0x1C9D5D);		 // scheduler resume 0x005C9D5D
-	g_send_skip_resume = (DWORD)(moduleBase + 0x1C9C98); // scheduler skip 0x005C9C98
-	g_su2_time_resume = (DWORD)(moduleBase + 0x1D2DF6);	 // SU2 native MOVSS 0x005D2DF6
-	g_su2_skip_resume = (DWORD)(moduleBase + 0x1D2E21);	 // SU2 skip-mark    0x005D2E21
-	g_getTimeFn = (DWORD)(moduleBase + 0x1B3840);		 // get-now fn       0x005B3840
+	g_currentDestinationAddress = static_cast<DWORD>(moduleBase + 0x1BA9C2C); // _curDst, VA 0x01FA9C2C
+	g_netPlayersAddress = static_cast<DWORD>(moduleBase + 0x1ACEF50);		  // player state, VA 0x01ECEF50
+	g_netTimeAddress = static_cast<DWORD>(moduleBase + 0x1BA5214);			  // NetComm time, VA 0x01FA5214
+	g_writeObjectsResume = static_cast<DWORD>(moduleBase + 0x1CE58C);		  // VA 0x005CE58C
+	g_sendResume = static_cast<DWORD>(moduleBase + 0x1C9D5D);				  // VA 0x005C9D5D
+	g_sendSkipResume = static_cast<DWORD>(moduleBase + 0x1C9C98);			  // VA 0x005C9C98
+	g_sentUpdateTimeResume = static_cast<DWORD>(moduleBase + 0x1D2DF6);		  // VA 0x005D2DF6
+	g_sentUpdateSkipResume = static_cast<DWORD>(moduleBase + 0x1D2E21);		  // VA 0x005D2E21
+	g_getTime = static_cast<DWORD>(moduleBase + 0x1B3840);
 	g_allocNetObjStateMap = reinterpret_cast<NetObjStateMapAllocFn>(moduleBase + 0x1B5670);
 	g_freeNetObjStateMap = reinterpret_cast<NetObjStateMapFreeFn>(moduleBase + 0x1B5720);
-	memset(g_createFences, 0, sizeof(g_createFences));
 
 	// 0x5D2DF1: CALL GetTime -> JMP bf2_su2_slotfix_cc.
 	// Prevent SentUpdate from writing beyond its two acknowledgement slots.
-	BYTE d[] = {0xE9, 0x00, 0x00, 0x00, 0x00};
-	DWORD dSite = static_cast<DWORD>(moduleBase + 0x005D2DF1 - 0x400000);
-	*(DWORD *)&d[1] = reinterpret_cast<DWORD>(&bf2_su2_slotfix_cc) - (dSite + sizeof(d));
-	bf2server_patch_asm(0x005D2DF1 - 0x400000, d, sizeof(d));
+	BYTE slotDetour[] = {0xE9, 0x00, 0x00, 0x00, 0x00};
+	bf2server_patch_rel32(0x005D2DF1 - 0x400000, slotDetour, reinterpret_cast<DWORD>(&bf2_su2_slotfix_cc));
 
 	// 0x5CE582: MOV [EBP-0x84],6 -> JMP bf2_create_fence_cc.
 	// Arm the fence only when this completed WriteObjects pass emitted CREATE.
-	BYTE a[] = {0xE9, 0x00, 0x00, 0x00, 0x00};
-	DWORD aSite = static_cast<DWORD>(moduleBase + 0x005CE582 - 0x400000);
-	*(DWORD *)&a[1] = reinterpret_cast<DWORD>(&bf2_create_fence_cc) - (aSite + sizeof(a));
-	bf2server_patch_asm(0x005CE582 - 0x400000, a, sizeof(a));
+	BYTE markerDetour[] = {0xE9, 0x00, 0x00, 0x00, 0x00};
+	bf2server_patch_rel32(0x005CE582 - 0x400000, markerDetour, reinterpret_cast<DWORD>(&bf2_create_fence_cc));
 
 	// 0x5C9D56: JNZ/JMP -> JMP bf2_create_fence_gate_cc; NOP x2.
 	// Block all ordinary updates between CREATE and its map-switch response.
-	BYTE b[] = {0xE9, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90};
-	DWORD bSite = static_cast<DWORD>(moduleBase + 0x005C9D56 - 0x400000);
-	*(DWORD *)&b[1] = reinterpret_cast<DWORD>(&bf2_create_fence_gate_cc) - (bSite + 5);
-	bf2server_patch_asm(0x005C9D56 - 0x400000, b, sizeof(b));
+	BYTE gateDetour[] = {0xE9, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90};
+	bf2server_patch_rel32(0x005C9D56 - 0x400000, gateDetour, reinterpret_cast<DWORD>(&bf2_create_fence_gate_cc));
 
 	// Keep unfenced destinations eligible again on the following server turn.
 	// 0x5D2E8F: ADD ECX,[EBP-0x18] -> ADD ECX,1.
-	BYTE c[] = {0x83, 0xC1, 0x01};
-	bf2server_patch_asm(0x005D2E8F - 0x400000, c, sizeof(c));
+	BYTE nextTurnPatch[] = {0x83, 0xC1, 0x01};
+	bf2server_patch_asm(0x005D2E8F - 0x400000, nextTurnPatch);
 }
 
 } // namespace
@@ -663,16 +689,15 @@ void bf2server_patch_netupdate()
 {
 	// 0x5338FA: CALL dedicated render/present -> NOP x5.
 	BYTE render_patch[] = {0x90, 0x90, 0x90, 0x90, 0x90};
-	bf2server_patch_asm(0x005338FA - 0x400000, reinterpret_cast<void *>(render_patch), sizeof(render_patch));
+	bf2server_patch_asm(0x005338FA - 0x400000, render_patch);
 
 	// 0x618B03: PUSH 10 -> PUSH 0 for inactive-window Sleep.
 	BYTE window_sleep_patch[] = {0x6A, 0x00};
-	bf2server_patch_asm(0x00618B03 - 0x400000, reinterpret_cast<void *>(window_sleep_patch),
-						sizeof(window_sleep_patch));
+	bf2server_patch_asm(0x00618B03 - 0x400000, window_sleep_patch);
 
 	// 0x5C9C19: remove signed /2 from the netCurMaxPlayers send budget.
 	BYTE send_all_patch[] = {0x90, 0x90, 0x90, 0x90, 0x90};
-	bf2server_patch_asm(OFFSET_UPS_CLIENT_LIMITER, reinterpret_cast<void *>(send_all_patch), sizeof(send_all_patch));
+	bf2server_patch_asm(OFFSET_UPS_CLIENT_LIMITER, send_all_patch);
 
 	// Apply one-turn scheduling with acknowledgement fencing for CREATE updates.
 	bf2server_patch_send_scheduling();
@@ -722,11 +747,9 @@ void bf2server_patch_speedpacks()
 {
 	g_weaponDispenserFireResume = static_cast<DWORD>(moduleBase + kWeaponDispenserFireRva + 6);
 	BYTE detour[] = {0xE9, 0x00, 0x00, 0x00, 0x00, 0x90};
-	DWORD site = static_cast<DWORD>(moduleBase + kWeaponDispenserFireRva);
 
 	// 0x684C90: Fire prologue -> JMP bf2_dispenser_fire_cc; NOP byte 6.
-	*reinterpret_cast<DWORD *>(&detour[1]) = reinterpret_cast<DWORD>(&bf2_dispenser_fire_cc) - (site + 5);
-	bf2server_patch_asm(kWeaponDispenserFireRva, detour, sizeof(detour));
+	bf2server_patch_rel32(kWeaponDispenserFireRva, detour, reinterpret_cast<DWORD>(&bf2_dispenser_fire_cc));
 }
 
 namespace
@@ -776,21 +799,15 @@ bool __fastcall server_jump_cc(void *soldier, void *)
 
 void bf2server_patch_locked_jump()
 {
-#ifdef GALAXY
 	serverJumpUsingEnergy = reinterpret_cast<JumpUsingEnergyFn>(moduleBase + kJumpUsingEnergyRva);
 	BYTE primaryPatch[] = {0xE8, 0x00, 0x00, 0x00, 0x00};
 	BYTE secondaryPatch[] = {0xE8, 0x00, 0x00, 0x00, 0x00};
-	DWORD primaryAddress = static_cast<DWORD>(moduleBase + kJumpPrimaryCallRva);
-	DWORD secondaryAddress = static_cast<DWORD>(moduleBase + kJumpSecondaryCallRva);
-	*reinterpret_cast<DWORD *>(&primaryPatch[1]) = reinterpret_cast<DWORD>(&server_jump_cc) - (primaryAddress + 5);
-	*reinterpret_cast<DWORD *>(&secondaryPatch[1]) = reinterpret_cast<DWORD>(&server_jump_cc) - (secondaryAddress + 5);
 
 	// Low-stamina jump fallback at both server jump call sites.
 	// 0x4EAEA2/0x4EB15C: CALL JumpUsingEnergy -> CALL server_jump_cc;
 	// the wrapper preserves stock handling outside the locked-jump state.
-	bf2server_patch_asm(kJumpPrimaryCallRva, primaryPatch, sizeof(primaryPatch));
-	bf2server_patch_asm(kJumpSecondaryCallRva, secondaryPatch, sizeof(secondaryPatch));
-#endif
+	bf2server_patch_rel32(kJumpPrimaryCallRva, primaryPatch, reinterpret_cast<DWORD>(&server_jump_cc));
+	bf2server_patch_rel32(kJumpSecondaryCallRva, secondaryPatch, reinterpret_cast<DWORD>(&server_jump_cc));
 }
 
 namespace
@@ -817,17 +834,13 @@ bool __fastcall server_roll_cc(void *soldier, void *)
 
 void bf2server_patch_infinite_sprint()
 {
-#ifdef GALAXY
 	serverRollUsingEnergy = reinterpret_cast<RollUsingEnergyFn>(moduleBase + kRollUsingEnergyRva);
 	BYTE callPatch[] = {0xE8, 0x00, 0x00, 0x00, 0x00};
-	DWORD callAddress = static_cast<DWORD>(moduleBase + kSprintRollCallRva);
-	*reinterpret_cast<DWORD *>(&callPatch[1]) = reinterpret_cast<DWORD>(&server_roll_cc) - (callAddress + 5);
 
 	// Clear sprint state when its RollUsingEnergy attempt is rejected.
 	// 0x4EB146: CALL RollUsingEnergy -> CALL server_roll_cc;
 	// the wrapper calls EndSprint only after a failed sprint-state roll.
-	bf2server_patch_asm(kSprintRollCallRva, callPatch, sizeof(callPatch));
-#endif
+	bf2server_patch_rel32(kSprintRollCallRva, callPatch, reinterpret_cast<DWORD>(&server_roll_cc));
 }
 
 // Player lifecycle and spawning patches.
@@ -838,21 +851,14 @@ static void __fastcall preplay_disconnect_cc(int player, void *)
 
 void bf2server_patch_preplay_disconnect()
 {
-#ifdef GALAXY
 	serverSetNotPlaying = reinterpret_cast<SetNotPlayingFn>(moduleBase + kSetNotPlayingRva);
 	BYTE callPatch[] = {0xE8, 0x00, 0x00, 0x00, 0x00};
-	DWORD callAddress = static_cast<DWORD>(moduleBase + kShellDropDisconnectCallRva);
 
 	// Remove abandoned players from next-playing membership before a match.
 	// 0x5DDFDF/0x5E42E4: CALL 0x5B3A90 -> CALL preplay_disconnect_cc;
 	// the wrapper uses SetNotPlaying for full membership cleanup.
-	*reinterpret_cast<DWORD *>(&callPatch[1]) = reinterpret_cast<DWORD>(&preplay_disconnect_cc) - (callAddress + 5);
-	bf2server_patch_asm(kShellDropDisconnectCallRva, callPatch, sizeof(callPatch));
-
-	callAddress = static_cast<DWORD>(moduleBase + kPostLoadDisconnectCallRva);
-	*reinterpret_cast<DWORD *>(&callPatch[1]) = reinterpret_cast<DWORD>(&preplay_disconnect_cc) - (callAddress + 5);
-	bf2server_patch_asm(kPostLoadDisconnectCallRva, callPatch, sizeof(callPatch));
-#endif
+	bf2server_patch_rel32(kShellDropDisconnectCallRva, callPatch, reinterpret_cast<DWORD>(&preplay_disconnect_cc));
+	bf2server_patch_rel32(kPostLoadDisconnectCallRva, callPatch, reinterpret_cast<DWORD>(&preplay_disconnect_cc));
 }
 
 void bf2server_patch_spawnvalue()
@@ -863,17 +869,17 @@ void bf2server_patch_spawnvalue()
 	{
 		char *end = nullptr;
 		const float parsed = std::strtof(envBuffer, &end);
-		if (end != envBuffer && std::isfinite(parsed) && parsed >= 0.0f)
+		if (end != envBuffer && *end == '\0' && std::isfinite(parsed) && parsed >= 0.0f)
 		{
 			spawnValue = parsed;
 		}
 	}
 	free(envBuffer);
-	spawnValueAddr = reinterpret_cast<DWORD>(&spawnValue);
+	DWORD spawnValueAddress = reinterpret_cast<DWORD>(&spawnValue);
 
 	// Configure the normal respawn-wave delay from SPAWN_TIMER.
 	// 0x58D609: stock 15.0f operand -> spawnValue.
-	bf2server_patch_asm(OFFSET_SPAWNVALUE_MOD_FLOAT, (void *)&spawnValueAddr, sizeof(DWORD));
+	bf2server_patch_value(OFFSET_SPAWNVALUE_MOD_FLOAT, spawnValueAddress);
 }
 
 // Warmup-to-play spawn transition.
@@ -939,14 +945,12 @@ void bf2server_patch_pregame_spawn()
 	// End pregame at equality instead of leaving one zero-time iteration.
 	// 0x5C4F35: JLE -> JL.
 	BYTE endAtZero = 0x7C;
-	bf2server_patch_asm(OFFSET_PREGAME_END_BRANCH, (void *)&endAtZero, sizeof(endAtZero));
+	bf2server_patch_value(OFFSET_PREGAME_END_BRANCH, endAtZero);
 
 	// Apply the timer and required-wave reset during the native transition.
 	// 0x5C4F37: CALL VanishAllPlayers -> CALL transition wrapper.
 	BYTE callPatch[] = {0xE8, 0x00, 0x00, 0x00, 0x00};
-	DWORD callAddress = static_cast<DWORD>(moduleBase + OFFSET_PREGAME_VANISH_CALL);
-	*(DWORD *)&callPatch[1] = reinterpret_cast<DWORD>(&bf2server_pregame_spawn_cc) - (callAddress + sizeof(callPatch));
-	bf2server_patch_asm(OFFSET_PREGAME_VANISH_CALL, (void *)callPatch, sizeof(callPatch));
+	bf2server_patch_rel32(OFFSET_PREGAME_VANISH_CALL, callPatch, reinterpret_cast<DWORD>(&bf2server_pregame_spawn_cc));
 }
 
 // RCON and game integration.
@@ -979,7 +983,7 @@ void bf2server_set_chat_cc()
 	chatCCAddr = reinterpret_cast<DWORD>(&bf2server_chat_cc);
 	auto addr = reinterpret_cast<DWORD>(&chatCCAddr);
 	// replace function pointer to snprintf with our own
-	bf2server_patch_asm(OFFSET_CHATSNPRINTF, (void *)&addr, sizeof(DWORD));
+	bf2server_patch_value(OFFSET_CHATSNPRINTF, addr);
 }
 
 int __cdecl bf2server_chat_cc(char *buf, size_t sz, const char *fmt, ...)
@@ -1057,6 +1061,11 @@ USHORT bf2server_get_gameport()
 	return *(USHORT *)addr;
 }
 
+FLOAT bf2server_get_spawnvalue()
+{
+	return spawnValue;
+}
+
 MapStatus bf2server_get_map_status()
 {
 	DWORD addr = moduleBase + OFFSET_MAP_STATUS;
@@ -1085,45 +1094,32 @@ void bf2server_mapfix_tick()
 
 int bf2server_lua_dostring(std::string const &code)
 {
-	auto s = reinterpret_cast<DWORD>(code.c_str());
-	auto l = static_cast<DWORD>(code.size());
+	using LuaLoadBufferFn = int(__cdecl *)(DWORD, const char *, size_t, const char *);
+	using LuaPcallFn = int(__cdecl *)(DWORD, int, int, int);
+	using LuaSetTopFn = void(__cdecl *)(DWORD, int);
+
+	std::lock_guard<std::mutex> lock(commandMutex);
 	auto L = *(reinterpret_cast<DWORD *>(moduleBase + OFFSET_LUA_STATE));
 	if (L == 0) return -1;
-	DWORD luaL_loadbuffer = moduleBase + OFFSET_LUA_LOAD_BUFFER;
-	DWORD lua_pcall = moduleBase + OFFSET_LUA_PCALL;
-	DWORD res;
+	const auto top = *reinterpret_cast<DWORD *>(L + 0x8);
+	const auto base = *reinterpret_cast<DWORD *>(L + 0xC);
+	const int originalTop = static_cast<int>((top - base) / 8);
+	const auto luaLoadBuffer = reinterpret_cast<LuaLoadBufferFn>(moduleBase + OFFSET_LUA_LOAD_BUFFER);
+	const auto luaPcall = reinterpret_cast<LuaPcallFn>(moduleBase + OFFSET_LUA_PCALL);
+	const auto luaSetTop = reinterpret_cast<LuaSetTopFn>(moduleBase + OFFSET_LUA_SET_TOP);
 
-	__asm {
-		push 0
-		push l
-		push s
-		push L
-		call dword ptr [luaL_loadbuffer]
-		add esp, 16
-		mov res, eax
-	}
-
-	if (res == LUA_OK)
-	{
-		__asm {
-			push 0
-			push 0
-			push 0
-			push L
-			call dword ptr [lua_pcall]
-			add esp, 16
-			mov res, eax
-		}
-	}
-	return static_cast<int>(res);
+	int res = luaLoadBuffer(L, code.c_str(), code.size(), nullptr);
+	if (res == LUA_OK) res = luaPcall(L, 0, 0, 0);
+	luaSetTop(L, originalTop);
+	return res;
 }
 
 // Patch installation order.
-void bf2server_init()
+bool bf2server_init()
 {
-	Logger.log(LogLevel_VERBOSE, "Patching BattlefrontII process...");
-
-	moduleBase = (DWORD)GetModuleHandleA("BattlefrontII.exe");
+	moduleBase = reinterpret_cast<DWORD_PTR>(GetModuleHandleA("BattlefrontII.exe"));
+	if (moduleBase == 0) return false;
+	patchWritesSucceeded = true;
 
 	bf2server_patch_norender();
 	bf2server_patch_password();
@@ -1146,5 +1142,5 @@ void bf2server_init()
 	bf2server_patch_pregame_spawn();
 
 	bf2server_set_chat_cc();
-	Logger.log(LogLevel_VERBOSE, "All patches applied.");
+	return patchWritesSucceeded;
 }

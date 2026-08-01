@@ -4,12 +4,10 @@
 #endif
 
 #include <functional>
+#include <string>
 #include <Windows.h>
-#include "Logger.h"
-#include "config.h"
 
-#ifdef GALAXY
-// GoG Version
+// GOG BattlefrontII.exe offsets.
 
 #define OFFSET_NORENDER_FIX	 0x006BB37F - 0x400000
 #define OFFSET_VOTECRASH_FIX 0x005D2282 - 0x400000
@@ -42,8 +40,8 @@
 #define OFFSET_ADMINPW		   0x01E64330 - 0x00400000
 #define OFFSET_LOGGED_IN	   0x01F9C2E2 - 0x00400000
 
-#define OFFSET_GAMEPORT 0x3E9EF4
-#define OFFSET_IDLE		0x01E58EBD - 0x400000;
+#define OFFSET_GAMEPORT	  0x3E9EF4
+#define OFFSET_IDLE		  0x01E58EBD - 0x400000
 #define OFFSET_TEAM_ARRAY 0x007EAAA0 - 0x400000
 
 #define OFFSET_UPS_CLIENT_LIMITER 0x005C9C19 - 0x400000
@@ -51,15 +49,7 @@
 #define OFFSET_LUA_STATE	   0x01E58E50 - 0x400000
 #define OFFSET_LUA_LOAD_BUFFER 0x0069C0C0 - 0x400000
 #define OFFSET_LUA_PCALL	   0x0069CF40 - 0x400000
-#else
-// Steam Version
-#define OFFSET_CHATINPUT	   0x005AF090 - 0x00401000 + 0x1000
-#define OFFSET_CHATSNPRINTF	   0x005B1FC7 - 0x00401000 + 0x1000
-#define OFFSET_RESBUFFER	   0x01FA2518 - 0x00401000 + 0x1000
-#define OFFSET_COMMAND_DETAILS 0x01E57A0C - 0x00401000 + 0x1000
-#define OFFSET_ADMINPW		   0x1A57A10
-#define OFFSET_LOGGED_IN	   0x01F9AE32 - 0x00401000 + 0x1000
-#endif
+#define OFFSET_LUA_SET_TOP	   0x0069D490 - 0x400000
 
 #define LUA_OK 0
 
@@ -79,7 +69,7 @@ enum MapStatus : BYTE
 /**
  *	Initializes server-access
  **/
-void bf2server_init();
+bool bf2server_init();
 
 /**
  *	Fixes the /norender arg which normally crashes with the gog/steam binaries
@@ -166,7 +156,7 @@ void bf2server_patch_pregame_spawn();
 std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t *message, DWORD responseOutput);
 
 /**
- *	Attaches a codecave to swbf2's chat-output
+ *	Installs the server chat-output hook.
  **/
 void bf2server_set_chat_cc();
 
@@ -201,12 +191,17 @@ bool bf2server_pump_chat();
 USHORT bf2server_get_gameport();
 
 /**
+ * Gets the configured respawn-wave delay
+ **/
+FLOAT bf2server_get_spawnvalue();
+
+/**
  *	Gets the current game (map) status
  **/
 MapStatus bf2server_get_map_status();
 
 /**
- * Checks whether the server is busy loading
+ * Reads the native idle flag used to gate RCON commands.
  **/
 bool bf2server_idle();
 

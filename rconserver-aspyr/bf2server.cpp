@@ -13,7 +13,6 @@
 #include <intrin.h>
 #include <memory>
 #include <mutex>
-#include <string_view>
 
 namespace
 {
@@ -29,13 +28,9 @@ std::atomic_uint32_t g_mapHangTicks{};
 std::unique_ptr<PatchEngine> g_patcher;
 
 constexpr std::size_t NET_PLAYER_STRIDE = 0x200;
-constexpr std::size_t NET_PLAYER_PENDING_MAP = 0x8;
 constexpr std::size_t NET_PLAYER_EVENT_CURSOR = 0x3C;
 constexpr std::size_t NET_PLAYER_TEAM = 0x154;
 constexpr std::size_t NET_PLAYER_SPAWN_TICKET = 0x158;
-constexpr std::size_t NET_PLAYER_SRTT = 0x1BC;
-constexpr std::size_t NET_PLAYER_RTTVAR = 0x1C0;
-constexpr std::size_t NETOBJ_MAP_TURN = 0x208;
 constexpr std::size_t ORDINARY_EVENT_STRIDE = 0x70;
 constexpr std::size_t ORDINARY_EVENT_CLASS = 0x50;
 constexpr std::size_t WEAPON_DISPENSER_STRENGTH = 0x184;
@@ -46,16 +41,8 @@ constexpr int MAX_SCOPED_OBJECTS = 64;
 constexpr int MAX_ORDINARY_EVENTS = ORDINARY_EVENT_RING_MASK + 1;
 constexpr int MAX_SELECTED_EVENTS = 64;
 constexpr float ENTITY_MINE_PRIORITY_BASE = 62501.0f;
-constexpr float CREATE_RETRY_FLOOR = 0.1f;
 constexpr std::size_t kChatQueueLimit = 4096;
 constexpr std::size_t kChatPumpLimit = 64;
-
-struct CreateFence
-{
-	void *pendingMap;
-	int pendingTurn;
-	float sentTime;
-};
 
 struct NetEventHeapEntry
 {
@@ -90,16 +77,14 @@ template <typename T> T function(std::uintptr_t rva)
 // Platform compatibility patches.
 namespace
 {
-bool is_valid_platform_code(std::string_view code)
+bool is_valid_platform_code(const char *code)
 {
-	return code == "pc" || code == "ps" || code == "xb" || code == "ns";
+	return code && std::strlen(code) == 2 &&
+		   (std::strcmp(code, "pc") == 0 || std::strcmp(code, "ps") == 0 || std::strcmp(code, "xb") == 0 ||
+			std::strcmp(code, "ns") == 0);
 }
 
 using RconManagerFn = std::uint64_t (*)(int, const wchar_t *, std::uint8_t, std::uint8_t);
-using WriteCreateFn = void (*)(void *, void *);
-using IsSendWindowOpenFn = bool (*)(int);
-using NetObjStateMapAllocFn = void *(*)();
-using NetObjStateMapFreeFn = void (*)(void *);
 using JumpUsingEnergyFn = bool (*)(void *);
 using RollUsingEnergyFn = bool (*)(void *);
 using EndSprintFn = void (*)(void *);
@@ -109,12 +94,10 @@ using VanishAllPlayersFn = void (*)();
 using WeaponDispenserFireFn = void *(*)(void *);
 
 RconManagerFn g_originalRconManager{};
-WriteCreateFn g_originalWriteCreate{};
 JumpUsingEnergyFn g_originalJumpUsingEnergy{};
 DropPlayerFn g_originalDropPlayer{};
 VanishAllPlayersFn g_originalVanishAllPlayers{};
 WeaponDispenserFireFn g_originalWeaponDispenserFire{};
-std::array<CreateFence, 64> g_createFences{};
 
 } // namespace
 
@@ -126,8 +109,7 @@ void bf2server_patch_platform_lobby()
 		Logger.log(LogLevel_INFO, "[platform-lobby] PLATFORM_LOBBY is unset; keeping the embedded lobby");
 		return;
 	}
-	const std::string_view requestedCode(requested);
-	if (!is_valid_platform_code(requestedCode))
+	if (!is_valid_platform_code(requested))
 	{
 		Logger.log(LogLevel_ERROR, "[platform-lobby] invalid PLATFORM_LOBBY '%s'; expected pc, ps, xb, or ns",
 				   requested);
@@ -137,8 +119,7 @@ void bf2server_patch_platform_lobby()
 	auto *lobby = reinterpret_cast<std::uint8_t *>(g_base + OFFSET_PLATFORM_LOBBY);
 	const auto size = *reinterpret_cast<const std::uint64_t *>(lobby + 0x10);
 	const auto capacity = *reinterpret_cast<const std::uint64_t *>(lobby + 0x18);
-	const std::string_view currentCode(reinterpret_cast<const char *>(lobby), 2);
-	if (size != 2 || capacity != 15 || lobby[2] != 0 || !is_valid_platform_code(currentCode))
+	if (size != 2 || capacity != 15 || lobby[2] != 0 || !is_valid_platform_code(reinterpret_cast<const char *>(lobby)))
 	{
 		Logger.log(LogLevel_ERROR, "[platform-lobby] unexpected std::string state at Battlefront2.dll+0x%llX",
 				   static_cast<unsigned long long>(OFFSET_PLATFORM_LOBBY));
@@ -146,8 +127,8 @@ void bf2server_patch_platform_lobby()
 	}
 
 	const std::array<std::uint8_t, 2> current{lobby[0], lobby[1]};
-	const std::array<std::uint8_t, 2> replacement{static_cast<std::uint8_t>(requestedCode[0]),
-												  static_cast<std::uint8_t>(requestedCode[1])};
+	const std::array<std::uint8_t, 2> replacement{static_cast<std::uint8_t>(requested[0]),
+												  static_cast<std::uint8_t>(requested[1])};
 	if (current != replacement &&
 		(memory<std::uint8_t>(OFFSET_PLATFORM_STATE_A) != 0 || memory<std::uint8_t>(OFFSET_PLATFORM_STATE_B) != 0))
 	{
@@ -157,7 +138,7 @@ void bf2server_patch_platform_lobby()
 		return;
 	}
 
-	if (g_patcher->bytes(OFFSET_PLATFORM_LOBBY, replacement))
+	if (g_patcher->bytes(OFFSET_PLATFORM_LOBBY, replacement.data(), replacement.size()))
 	{
 		Logger.log(LogLevel_INFO, "[platform-lobby] selected '%c%c'", replacement[0], replacement[1]);
 	}
@@ -221,7 +202,7 @@ namespace
 // Reorder recurring state and CreateOrdnance candidates without bypassing
 // either native packet budget.
 
-bool is_entity_mine(const std::byte *object)
+bool is_entity_mine(const std::uint8_t *object)
 {
 	return object && *reinterpret_cast<const std::uintptr_t *>(object) == g_base + OFFSET_ENTITY_MINE_VTABLE;
 }
@@ -235,9 +216,9 @@ void prioritize_entity_mine_state(std::uintptr_t *returnAddress)
 	const int count = function<ScopedObjectCountFn>(OFFSET_SCOPED_OBJECT_COUNT)();
 	if (count < 0 || count > MAX_SCOPED_OBJECTS) return;
 
-	auto *callerStack = reinterpret_cast<std::byte *>(returnAddress + 1);
-	auto **objects = reinterpret_cast<std::byte **>(callerStack + WRITE_OBJECT_LIST_STACK_OFFSET);
-	std::array<std::byte *, MAX_SCOPED_OBJECTS> ordered{};
+	auto *callerStack = reinterpret_cast<std::uint8_t *>(returnAddress + 1);
+	auto **objects = reinterpret_cast<std::uint8_t **>(callerStack + WRITE_OBJECT_LIST_STACK_OFFSET);
+	std::array<std::uint8_t *, MAX_SCOPED_OBJECTS> ordered{};
 	int output = 0;
 	for (int index = 0; index < count; ++index)
 	{
@@ -284,7 +265,7 @@ int pop_net_event(NetEventHeap &heap)
 	return result;
 }
 
-bool is_entity_mine_event(const std::byte *event)
+bool is_entity_mine_event(const std::uint8_t *event)
 {
 	// Type zero is CreateOrdnance; native RTTI includes EntityMine subclasses.
 	if (*reinterpret_cast<const std::uint32_t *>(event) != 0) return false;
@@ -308,32 +289,30 @@ void send_net_events_replacement(void *packet)
 	using WritePacketBitFn = void (*)(void *, std::uint8_t);
 
 	NetEventHeap heap{};
-	std::array<NetEventCandidate, MAX_ORDINARY_EVENTS> mines{};
 	std::array<NetEventCandidate, MAX_ORDINARY_EVENTS> ordinary{};
-	int mineCount = 0;
 	int ordinaryCount = 0;
 
 	const int destination = memory<int>(OFFSET_CURRENT_DESTINATION);
 	if (destination >= 0 && destination < 64)
 	{
-		auto *player = reinterpret_cast<std::byte *>(g_base + OFFSET_CURRENT_PLAYERS) +
+		auto *player = reinterpret_cast<std::uint8_t *>(g_base + OFFSET_CURRENT_PLAYERS) +
 					   static_cast<std::size_t>(destination) * NET_PLAYER_STRIDE;
 		const int head = memory<int>(OFFSET_ORDINARY_EVENT_HEAD) & ORDINARY_EVENT_RING_MASK;
 		int index = *reinterpret_cast<int *>(player + NET_PLAYER_EVENT_CURSOR) & ORDINARY_EVENT_RING_MASK;
-		auto *ring = reinterpret_cast<std::byte *>(g_base + OFFSET_ORDINARY_EVENT_RING);
+		auto *ring = reinterpret_cast<std::uint8_t *>(g_base + OFFSET_ORDINARY_EVENT_RING);
 		auto scoreEvent = function<ScoreNetEventFn>(OFFSET_SCORE_NET_EVENT);
 
 		// Scan the pending queue instead of Patch 3's newest-first 64-event subset.
 		for (int scanned = 0; index != head && scanned < MAX_ORDINARY_EVENTS; ++scanned)
 		{
-			const std::byte *event = ring + static_cast<std::size_t>(index) * ORDINARY_EVENT_STRIDE;
+			const std::uint8_t *event = ring + static_cast<std::size_t>(index) * ORDINARY_EVENT_STRIDE;
 			const float score = scoreEvent(event);
 			if (score >= 0.0f)
 			{
 				const NetEventCandidate candidate{index, score};
 				if (is_entity_mine_event(event))
 				{
-					mines[mineCount++] = candidate;
+					insert_net_event(heap, candidate.index, ENTITY_MINE_PRIORITY_BASE - candidate.score);
 				}
 				else
 				{
@@ -343,10 +322,6 @@ void send_net_events_replacement(void *packet)
 			index = (index + 1) & ORDINARY_EVENT_RING_MASK;
 		}
 
-		for (int candidate = 0; candidate < mineCount && heap.count < MAX_SELECTED_EVENTS; ++candidate)
-		{
-			insert_net_event(heap, mines[candidate].index, ENTITY_MINE_PRIORITY_BASE - mines[candidate].score);
-		}
 		for (int candidate = 0; candidate < ordinaryCount && heap.count < MAX_SELECTED_EVENTS; ++candidate)
 		{
 			insert_net_event(heap, ordinary[candidate].index, -ordinary[candidate].score);
@@ -382,7 +357,7 @@ __declspec(noinline) int object_budget_replacement()
 	int pending = 0;
 	if (destination >= 0 && destination < 64)
 	{
-		auto *player = reinterpret_cast<std::byte *>(g_base + OFFSET_CURRENT_PLAYERS) +
+		auto *player = reinterpret_cast<std::uint8_t *>(g_base + OFFSET_CURRENT_PLAYERS) +
 					   static_cast<std::size_t>(destination) * 0x200;
 		const int cursor = *reinterpret_cast<int *>(player + NET_PLAYER_EVENT_CURSOR);
 		pending = (memory<int>(OFFSET_ORDINARY_EVENT_HEAD) - cursor) & ORDINARY_EVENT_RING_MASK;
@@ -408,127 +383,24 @@ void bf2server_patch_object_budget()
 	g_patcher->replace(OFFSET_SEND_NET_EVENTS, 12, reinterpret_cast<void *>(&send_net_events_replacement));
 }
 
-namespace
-{
-// 30 UPS send-scheduling hooks.
-// Track CREATE transactions, guard acknowledgement slots, and gate interim updates.
-
-void clear_create_fence(CreateFence &fence)
-{
-	fence = {};
-}
-
-// Hold a destination while map B still identifies the emitted CREATE turn.
-// Native ACK/NACK handling replaces or resets B; timeout repeats the NACK
-// reset so the CREATE can be regenerated without an intervening update.
-bool create_fence_blocks(int client)
-{
-	if (client < 0 || client >= static_cast<int>(g_createFences.size())) return false;
-
-	auto &fence = g_createFences[client];
-	if (!fence.pendingMap) return false;
-
-	auto *player = reinterpret_cast<std::byte *>(g_base + OFFSET_CURRENT_PLAYERS) +
-				   static_cast<std::size_t>(client) * NET_PLAYER_STRIDE;
-	void *pendingMap = *reinterpret_cast<void **>(player + NET_PLAYER_PENDING_MAP);
-	if (pendingMap != fence.pendingMap ||
-		*reinterpret_cast<int *>(static_cast<std::byte *>(pendingMap) + NETOBJ_MAP_TURN) != fence.pendingTurn)
-	{
-		clear_create_fence(fence);
-		return false;
-	}
-
-	float retryTime =
-		*reinterpret_cast<float *>(player + NET_PLAYER_SRTT) + *reinterpret_cast<float *>(player + NET_PLAYER_RTTVAR);
-	if (!(retryTime >= CREATE_RETRY_FLOOR)) retryTime = CREATE_RETRY_FLOOR;
-
-	using GetTimeFn = float (*)();
-	const float elapsed = function<GetTimeFn>(OFFSET_GET_TIME)() - fence.sentTime;
-	if (!(elapsed > retryTime)) return true;
-
-	// ReadSwitchResponses result 2 frees B and installs a fresh pending map.
-	function<NetObjStateMapFreeFn>(OFFSET_NETOBJ_MAP_FREE)(pendingMap);
-	*reinterpret_cast<void **>(player + NET_PLAYER_PENDING_MAP) =
-		function<NetObjStateMapAllocFn>(OFFSET_NETOBJ_MAP_ALLOC)();
-	clear_create_fence(fence);
-	return false;
-}
-
-bool send_window_gate_hook(int client)
-{
-	// Retain native slot timeout/congestion maintenance, then apply the CREATE fence.
-	function<IsSendWindowOpenFn>(OFFSET_IS_SEND_WINDOW_OPEN)(client);
-	return !create_fence_blocks(client);
-}
-
-void write_create_hook(void *packet, void *object)
-{
-	g_originalWriteCreate(packet, object);
-
-	const int client = memory<int>(OFFSET_CURRENT_DESTINATION);
-	if (client < 0 || client >= static_cast<int>(g_createFences.size())) return;
-
-	auto *player = reinterpret_cast<std::byte *>(g_base + OFFSET_CURRENT_PLAYERS) +
-				   static_cast<std::size_t>(client) * NET_PLAYER_STRIDE;
-	void *pendingMap = *reinterpret_cast<void **>(player + NET_PLAYER_PENDING_MAP);
-	if (pendingMap)
-	{
-		using GetTimeFn = float (*)();
-		g_createFences[client] = {pendingMap,
-								  *reinterpret_cast<int *>(static_cast<std::byte *>(pendingMap) + NETOBJ_MAP_TURN),
-								  function<GetTimeFn>(OFFSET_GET_TIME)()};
-	}
-}
-
-// Install one-turn scheduling with a per-destination CREATE transaction fence.
-// IsPipeFull and native switch-response parsing remain unchanged; only the
-// old interval-only CREATE delay and IsSendWindowOpen branch are replaced.
-void bf2server_patch_send_scheduling()
-{
-	std::fill(g_createFences.begin(), g_createFences.end(), CreateFence{});
-
-	// 0x289C20: record map B after writing a common object CREATE.
-	// The tracked pointer and turn distinguish this transaction from later maps.
-	const bool createInstalled = g_patcher->detour(OFFSET_WRITE_CREATE, 5, reinterpret_cast<void *>(&write_create_hook),
-												   reinterpret_cast<void **>(&g_originalWriteCreate));
-	if (!createInstalled) return;
-
-	// 0x284B7F: JNC unsafe slot write -> JNC native pacing tail.
-	// Prevent SentUpdate from indexing beyond its two acknowledgement slots.
-	const bool slotInstalled = g_patcher->bytes(OFFSET_SEND_UPDATE2_SLOT_BRANCH, {0x73, 0x53});
-	if (!slotInstalled) return;
-
-	// 0x283FB3: CALL IsSendWindowOpen -> CALL send_window_gate_hook.
-	// Preserve native maintenance and block interim updates until CREATE resolves.
-	const bool gateInstalled =
-		g_patcher->call(OFFSET_SEND_WINDOW_CALL, reinterpret_cast<void *>(&send_window_gate_hook));
-	if (!gateInstalled) return;
-
-	// 0x284C6B: ADD ECX,EAX -> INC ECX.
-	// Keep unfenced destinations eligible again on the following server turn.
-	g_patcher->bytes(OFFSET_SEND_UPDATE2_DELAY, {0xFF, 0xC1});
-}
-
-} // namespace
-
 // 30 UPS network-update patch set.
-// Visit all clients and use the CREATE-aware scheduler while retaining the
-// native IsPipeFull capacity check and Classic's render/window pacing.
+// Visit all clients each turn while retaining native send-window, IsPipeFull,
+// and Classic render pacing.
 void bf2server_patch_netupdate()
 {
 	// 0x283E2E: remove signed /2 from the netCurMaxPlayers send budget.
+	// Visit every destination during each host send pass.
 	g_patcher->bytes(OFFSET_UPS_CLIENT_LIMITER, {0x90, 0x90, 0x90, 0x90, 0x90});
 
-	// Apply one-turn scheduling with acknowledgement fencing for CREATE updates.
-	bf2server_patch_send_scheduling();
-
-	// 0x283FA8: retain the stock IsPipeFull skip.
+	// 0x284C6B: ADD ECX,EAX -> INC ECX.
+	// Recheck the destination next turn; native window and pipe gates still apply.
+	g_patcher->bytes(OFFSET_SEND_UPDATE2_DELAY, {0xFF, 0xC1});
 }
 
 // Weapons and movement patches.
 static void *weapon_dispenser_fire_hook(void *weaponPointer)
 {
-	auto *weapon = static_cast<std::byte *>(weaponPointer);
+	auto *weapon = static_cast<std::uint8_t *>(weaponPointer);
 	float &strength = *reinterpret_cast<float *>(weapon + WEAPON_DISPENSER_STRENGTH);
 	if (!std::isfinite(strength) || strength < 0.0f)
 		strength = 0.0f;
@@ -547,8 +419,8 @@ void bf2server_patch_speedpacks()
 
 static bool jump_using_energy_hook(void *soldierPointer)
 {
-	auto *soldier = static_cast<std::byte *>(soldierPointer);
-	auto *soldierClass = *reinterpret_cast<std::byte **>(soldier + 0x668);
+	auto *soldier = static_cast<std::uint8_t *>(soldierPointer);
+	auto *soldierClass = *reinterpret_cast<std::uint8_t **>(soldier + 0x668);
 	if (!soldierClass) return g_originalJumpUsingEnergy(soldierPointer);
 
 	const auto *velocity = reinterpret_cast<const float *>(soldier + 0x738);
@@ -580,7 +452,7 @@ void bf2server_patch_locked_jump()
 
 static bool sprint_roll_hook(void *soldierPointer)
 {
-	auto *soldier = static_cast<std::byte *>(soldierPointer);
+	auto *soldier = static_cast<std::uint8_t *>(soldierPointer);
 	const bool rolled = function<RollUsingEnergyFn>(OFFSET_ROLL_USING_ENERGY)(soldierPointer);
 	if (!rolled && (*reinterpret_cast<std::uint32_t *>(soldier + SOLDIER_ENERGY_FLAGS) & 1U) != 0)
 	{
@@ -622,7 +494,7 @@ static int spawn_gate_replacement(int player) noexcept
 	const std::uint64_t playingMask = memory<std::uint64_t>(OFFSET_PLAYING_MASK);
 	if ((playingMask & (std::uint64_t{1} << player)) == 0) return -1;
 
-	auto *players = reinterpret_cast<std::byte *>(g_base + OFFSET_CURRENT_PLAYERS);
+	auto *players = reinterpret_cast<std::uint8_t *>(g_base + OFFSET_CURRENT_PLAYERS);
 	auto *current = players + static_cast<std::size_t>(player) * NET_PLAYER_STRIDE;
 	const int currentTicket = *reinterpret_cast<int *>(current + NET_PLAYER_SPAWN_TICKET);
 	if (currentTicket <= 0) return currentTicket;
@@ -679,7 +551,7 @@ void bf2server_patch_spawnvalue()
 	{
 		char *end{};
 		const float parsed = std::strtof(envBuffer, &end);
-		if (end != envBuffer && std::isfinite(parsed) && parsed >= 0.0f)
+		if (end != envBuffer && *end == '\0' && std::isfinite(parsed) && parsed >= 0.0f)
 		{
 			g_spawnValue = parsed;
 		}
@@ -697,7 +569,7 @@ void bf2server_patch_spawnvalue()
 static void vanish_all_players_hook()
 {
 	g_originalVanishAllPlayers();
-	auto *manager = static_cast<std::byte *>(memory<void *>(OFFSET_SPAWN_MANAGER));
+	auto *manager = static_cast<std::uint8_t *>(memory<void *>(OFFSET_SPAWN_MANAGER));
 	if (!manager) return;
 
 	for (int team = 0; team < 8; ++team)
@@ -708,13 +580,13 @@ static void vanish_all_players_hook()
 	}
 
 	using IsPlayingFn = bool (*)(int, bool);
-	using FindCharacterFn = std::byte *(*)(int);
+	using FindCharacterFn = std::uint8_t *(*)(int);
 	int maxPlayers = memory<int>(OFFSET_NET_CUR_MAX_PLAYERS);
 	if (maxPlayers > 64) maxPlayers = 64;
 	for (int player = 0; player < maxPlayers; ++player)
 	{
 		if (!function<IsPlayingFn>(OFFSET_IS_PLAYING)(player, false)) continue;
-		std::byte *character = function<FindCharacterFn>(OFFSET_FIND_CHARACTER)(player);
+		std::uint8_t *character = function<FindCharacterFn>(OFFSET_FIND_CHARACTER)(player);
 		if (!character) continue;
 		const int team = *reinterpret_cast<int *>(character + 0x164);
 		if (team < 0 || team >= 8) continue;
@@ -746,7 +618,7 @@ std::string narrow(const wchar_t *text)
 	const int needed = WideCharToMultiByte(CP_ACP, 0, text, -1, nullptr, 0, nullptr, nullptr);
 	if (needed <= 1) return {};
 	std::string result(static_cast<std::size_t>(needed), '\0');
-	if (WideCharToMultiByte(CP_ACP, 0, text, -1, result.data(), needed, nullptr, nullptr) != needed) return {};
+	if (WideCharToMultiByte(CP_ACP, 0, text, -1, &result[0], needed, nullptr, nullptr) != needed) return {};
 	result.pop_back();
 	return result;
 }
@@ -773,7 +645,7 @@ void queue_chat(int player, const wchar_t *message)
 	line.append(name);
 	line.push_back('\t');
 	line.append(body);
-	std::scoped_lock lock(g_chatMutex);
+	std::lock_guard<std::mutex> lock(g_chatMutex);
 	if (!g_chatCallback) return;
 	if (g_chatQueue.size() >= kChatQueueLimit) g_chatQueue.pop_front();
 	g_chatQueue.emplace_back(std::move(line));
@@ -797,7 +669,7 @@ void bf2server_set_chat_cc()
 
 std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t *message, DWORD responseOutput)
 {
-	std::scoped_lock lock(g_commandMutex);
+	std::lock_guard<std::mutex> lock(g_commandMutex);
 	if (!g_originalRconManager) return "RCON bridge unavailable";
 
 	auto &loggedIn = memory<std::uint8_t>(OFFSET_LOGGED_IN);
@@ -830,7 +702,7 @@ std::wstring bf2server_s2ws(std::string const &s)
 
 void bf2server_set_chat_cb(std::function<void(std::string const &msg)> onChat)
 {
-	std::scoped_lock lock(g_chatMutex);
+	std::lock_guard<std::mutex> lock(g_chatMutex);
 	g_chatCallback = std::move(onChat);
 	if (!g_chatCallback) g_chatQueue.clear();
 }
@@ -841,7 +713,7 @@ bool bf2server_pump_chat()
 	std::function<void(std::string const &)> callback;
 	bool empty;
 	{
-		std::scoped_lock lock(g_chatMutex);
+		std::lock_guard<std::mutex> lock(g_chatMutex);
 		if (!g_chatCallback)
 		{
 			g_chatQueue.clear();
@@ -865,6 +737,11 @@ USHORT bf2server_get_gameport()
 	return memory<USHORT>(OFFSET_GAMEPORT);
 }
 
+FLOAT bf2server_get_spawnvalue()
+{
+	return g_spawnValue;
+}
+
 MapStatus bf2server_get_map_status()
 {
 	return static_cast<MapStatus>(memory<std::uint8_t>(OFFSET_MAP_STATUS));
@@ -873,6 +750,12 @@ MapStatus bf2server_get_map_status()
 bool bf2server_idle()
 {
 	return memory<std::uint8_t>(OFFSET_IDLE) == 1;
+}
+
+bool bf2server_status_ready()
+{
+	// Classic's native status handler validates its player and team objects.
+	return true;
 }
 
 void bf2server_mapfix_tick()
@@ -886,19 +769,21 @@ void bf2server_mapfix_tick()
 int bf2server_lua_dostring(std::string const &code)
 {
 	using ExecuteFn = int (*)(void *, const char *, std::size_t, const char *);
+
+	std::lock_guard<std::mutex> lock(g_commandMutex);
 	void *lua = memory<void *>(OFFSET_LUA_STATE);
 	if (!lua) return -1;
 	return function<ExecuteFn>(OFFSET_LUA_EXECUTE)(lua, code.data(), code.size(), "=rcon");
 }
 
 // Patch installation order.
-void bf2server_init()
+bool bf2server_init()
 {
 	g_module = GetModuleHandleW(L"Battlefront2.dll");
 	if (!g_module)
 	{
 		Logger.log(LogLevel_ERROR, "Battlefront2.dll is not loaded");
-		return;
+		return false;
 	}
 	g_base = reinterpret_cast<std::uintptr_t>(g_module);
 
@@ -913,7 +798,7 @@ void bf2server_init()
 	bf2server_patch_distance_lag();
 	bf2server_patch_waitlate_grace();
 	bf2server_patch_object_budget();
-	// bf2server_patch_netupdate();
+	bf2server_patch_netupdate();
 
 	bf2server_patch_speedpacks();
 	bf2server_patch_locked_jump();
@@ -925,5 +810,5 @@ void bf2server_init()
 	bf2server_patch_pregame_spawn();
 
 	bf2server_set_chat_cc();
-	Logger.log(LogLevel_VERBOSE, "All patches applied.");
+	return g_patcher->succeeded();
 }

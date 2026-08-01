@@ -4,8 +4,8 @@
 #endif
 
 #include <functional>
-#include <Windows.h>
 #include <string>
+#include <Windows.h>
 
 // Classic Collection Patch 3 Battlefront2.dll RVAs.
 
@@ -45,11 +45,8 @@
 #define OFFSET_PLATFORM_STATE_B		 0x00F83B41
 
 // Update scheduling patch sites.
-#define OFFSET_UPS_CLIENT_LIMITER		0x00283E2E
-#define OFFSET_SEND_WINDOW_CALL			0x00283FB3
-#define OFFSET_SEND_UPDATE2_SLOT_BRANCH 0x00284B7F
-#define OFFSET_SEND_UPDATE2_DELAY		0x00284C6B
-#define OFFSET_WRITE_CREATE				0x00289C20
+#define OFFSET_UPS_CLIENT_LIMITER 0x00283E2E
+#define OFFSET_SEND_UPDATE2_DELAY 0x00284C6B
 
 // Network globals and per-player storage used by the ports.
 #define OFFSET_NET_ENABLED			   0x00E765CC
@@ -83,9 +80,6 @@
 #define OFFSET_FIND_CHARACTER		 0x00093A00
 #define OFFSET_JUMP_EPSILON			 0x0050448C
 #define OFFSET_ROLL_USING_ENERGY	 0x0017A8E0
-#define OFFSET_IS_SEND_WINDOW_OPEN	 0x00276710
-#define OFFSET_NETOBJ_MAP_ALLOC		 0x002685A0
-#define OFFSET_NETOBJ_MAP_FREE		 0x0026F370
 #define OFFSET_SCOPED_OBJECT_COUNT	 0x00271E10
 #define OFFSET_SCORE_NET_EVENT		 0x00270D30
 #define OFFSET_FIND_ORDNANCE_CLASS	 0x0026E870
@@ -100,6 +94,8 @@
 
 #define MAPFIX_IDLE_TIMEOUT		 0x64
 #define ORDINARY_EVENT_RING_MASK 0x1FF
+
+#define LUA_OK 0
 
 #define MESSAGETYPE_COMMAND 0
 
@@ -117,7 +113,7 @@ enum MapStatus : BYTE
 /**
  *	Initializes server-access
  **/
-void bf2server_init();
+bool bf2server_init();
 
 /**
  *	Selects Classic's Photon lobby from PLATFORM_LOBBY.
@@ -130,7 +126,7 @@ void bf2server_patch_platform_lobby();
 void bf2server_patch_votekick_exploit();
 
 /**
- *	Installs map-hanging monitor codecave
+ *	Installs the map-hang monitor hook.
  **/
 void bf2server_patch_maphang();
 
@@ -150,7 +146,7 @@ void bf2server_patch_waitlate_grace();
 void bf2server_patch_object_budget();
 
 /**
- *	Enables full client selection and CREATE-aware per-turn updates.
+ *	Enables full client selection and native-windowed per-turn updates.
  **/
 void bf2server_patch_netupdate();
 
@@ -199,7 +195,7 @@ void bf2server_patch_pregame_spawn();
 std::string bf2server_command(DWORD messageType, DWORD sender, const wchar_t *message, DWORD responseOutput);
 
 /**
- *	Attaches a codecave to swbf2's chat-output
+ *	Installs the server chat-output hook.
  **/
 void bf2server_set_chat_cc();
 
@@ -229,14 +225,24 @@ bool bf2server_pump_chat();
 USHORT bf2server_get_gameport();
 
 /**
+ * Gets the configured respawn-wave delay
+ **/
+FLOAT bf2server_get_spawnvalue();
+
+/**
  *	Gets the current game (map) status
  **/
 MapStatus bf2server_get_map_status();
 
 /**
- * Checks whether the server is busy loading
+ * Reads the native idle flag used to gate RCON commands.
  **/
 bool bf2server_idle();
+
+/**
+ * Classic validates /status objects in its native handler.
+ **/
+bool bf2server_status_ready();
 
 /**
  *	Resets the map-hang counter while map status is idle

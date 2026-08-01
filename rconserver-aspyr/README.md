@@ -19,7 +19,7 @@ The source layout intentionally mirrors `rconserver-galaxy`:
 - `RconClient.h/.cpp` owns the unchanged SWBF2Admin wire protocol;
 - `RconServer.h/.cpp` owns listening, client fanout, and the chat callback;
 - `md5.h/.cpp` provides the same RCON password digest as Galaxy;
-- `dllmain.cpp`, `config.h`, and `Logger.*` retain the same roles.
+- `dllmain.cpp` and `Logger.*` retain the same roles.
 
 `PatchEngine.*` is the intentional x64-only addition. It provides protected byte
 writes, near relays, and trampolines that Galaxy's x86 inline assembly did not
@@ -52,6 +52,9 @@ Place these files next to the configured Classic Collection server executable:
 - `DllLoader_64.exe`
 
 SWBF2Admin now selects the x64 loader and DLL for `GameserverType.Aspyr`.
+It starts Classic's `Battlefront.exe` bootstrap and injects this DLL into that
+process; the DLL waits for the bootstrap to load `Battlefront2.dll` before it
+installs any game patch.
 The DLL listens on TCP using the numeric `/gameport` value; the game continues to
 use UDP on the same number.
 
@@ -69,11 +72,10 @@ are selected before other ordinary events during a burst. Classic's native
 scoring, 64-event selection cap, packet byte limit, and 512-entry ring semantics
 remain in force.
 
-The update scheduler uses Galaxy's per-client CREATE acknowledgement fence.
-After an object CREATE is serialized, ordinary updates for that destination wait
-until its map-switch ACK/NACK arrives; a native-equivalent timeout reset prevents
-the fence from holding a client indefinitely. Unfenced clients remain eligible
-on every server turn, and the stock `IsPipeFull` capacity check remains active.
+The update scheduler visits every destination during each host send pass and
+makes sent destinations eligible again on the next server turn. Classic's
+native acknowledgement window and `IsPipeFull` capacity check remain active,
+so eligibility does not bypass per-client or shared-pipe backpressure.
 
 The infinite-sprint patch wraps only the sprint handler's roll call. A failed
 roll ends sprint only when the stock Energy state is exhausted; successful rolls

@@ -1,9 +1,18 @@
 #include "RconClient.h"
+#include "Logger.h"
+#include "bf2server.h"
+#include "md5.h"
 
-#include <utility>
+#include <system_error>
+#include <thread>
 
 namespace
 {
+constexpr char kLuaCommand[] = "/lua ";
+constexpr char kInvalidParameters[] = "invalid parameters\n";
+constexpr char kOkay[] = "ok\n";
+constexpr char kLuaError[] = "lua error\n";
+constexpr char kBusy[] = "busy\n";
 
 bool receive_all(SOCKET socket, void *destination, size_t length)
 {
@@ -33,29 +42,42 @@ bool send_all(SOCKET socket, const void *source, size_t length)
 
 } // namespace
 
-RconClient::RconClient(SOCKET &socket, std::function<void(RconClient *c)> disconnectCB)
-{
-	this->socket = socket;
-	this->disconnectCB = std::move(disconnectCB);
-}
+RconClient::RconClient(SOCKET socket) : socket(socket) {}
 
-RconClient::~RconClient() {}
+RconClient::~RconClient()
+{
+	if (workThread.joinable()) workThread.join();
+}
 
 void RconClient::stop()
 {
 	connected = false;
+	std::lock_guard<std::mutex> lock(mtx);
+	if (!finished) shutdown(socket, SD_BOTH);
 }
 
-void RconClient::start()
+bool RconClient::start()
 {
-	workThread = std::make_shared<std::thread>(&RconClient::handleConnection, this);
-	workThread->detach();
+	try
+	{
+		workThread = std::thread(&RconClient::handleConnection, this);
+		return true;
+	}
+	catch (const std::system_error &error)
+	{
+		Logger.log(LogLevel_WARNING, "Unable to start RCON client thread: %s", error.what());
+		return false;
+	}
+}
+
+bool RconClient::isFinished() const
+{
+	return finished;
 }
 
 void RconClient::onChatInput(std::string const &msg)
 {
-	std::vector<std::string> rows = std::vector<std::string>();
-	rows.push_back(msg);
+	std::vector<std::string> rows{msg};
 	send(rows);
 }
 
@@ -72,7 +94,7 @@ bool RconClient::checkLogin()
 
 	if (pwdHash == pwd)
 	{
-		Logger.log(LogLevel_VERBOSE, "Client logged in.", pwd);
+		Logger.log(LogLevel_VERBOSE, "Client logged in.");
 		res = 1;
 	}
 	else
@@ -86,24 +108,24 @@ bool RconClient::checkLogin()
 
 void RconClient::handleCommand(std::string const &command)
 {
+	Logger.log(LogLevel_VERBOSE, "RCON command: %s", command.c_str());
 	std::string res;
-	if (bf2server_idle() && bf2server_get_map_status() == MAP_IDLE)
+	if (bf2server_idle() && bf2server_get_map_status() == MAP_IDLE &&
+		(command != "/status" || bf2server_status_ready()))
 	{
 
 		if (!dispatchInternal(command, res))
 		{
 			res = bf2server_command(MESSAGETYPE_COMMAND, SENDER_REMOTE, bf2server_s2ws(command).c_str(),
 									static_cast<DWORD>(OUTPUT_BUFFER));
-			Logger.log(LogLevel_VERBOSE, "Executed command '%s', result: '%s'", command.c_str(), res.c_str());
 		}
 	}
 	else
 	{
-		Logger.log(LogLevel_VERBOSE, "Server is busy - telling the client...'");
-		res = RETURN_BUSY;
+		res = kBusy;
 	}
 
-	auto rows = std::vector<std::string>();
+	std::vector<std::string> rows;
 	size_t op = 0;
 	size_t np;
 
@@ -119,8 +141,10 @@ void RconClient::handleCommand(std::string const &command)
 	send(rows);
 }
 
-void RconClient::send(std::vector<std::string> &response)
+void RconClient::send(const std::vector<std::string> &response)
 {
+	if (!connected) return;
+
 	unsigned char rowLen = 0;
 	bool oversized = response.size() > 0xFF;
 	for (const std::string &row : response)
@@ -138,25 +162,23 @@ void RconClient::send(std::vector<std::string> &response)
 	static const std::string limitError = "RCON response exceeds protocol limit";
 	auto rows = static_cast<unsigned char>(oversized ? 1 : response.size());
 
+	std::lock_guard<std::mutex> lock(mtx);
+	if (!send_all(socket, &rows, 1))
 	{
-		std::unique_lock<std::mutex> lg(mtx);
-		if (!send_all(socket, &rows, 1))
+		connected = false;
+		shutdown(socket, SD_BOTH);
+		return;
+	}
+
+	for (size_t index = 0; index < rows; ++index)
+	{
+		const std::string &row = oversized ? limitError : response[index];
+		rowLen = static_cast<unsigned char>(row.length() + 1);
+		if (!send_all(socket, &rowLen, 1) || !send_all(socket, row.c_str(), rowLen))
 		{
 			connected = false;
 			shutdown(socket, SD_BOTH);
 			return;
-		}
-
-		for (size_t index = 0; index < rows; ++index)
-		{
-			const std::string &row = oversized ? limitError : response[index];
-			rowLen = static_cast<unsigned char>(row.length() + 1);
-			if (!send_all(socket, &rowLen, 1) || !send_all(socket, row.c_str(), rowLen))
-			{
-				connected = false;
-				shutdown(socket, SD_BOTH);
-				return;
-			}
 		}
 	}
 }
@@ -172,35 +194,37 @@ void RconClient::handleConnection()
 
 	while (connected)
 	{
-		if (!receive_all(socket, &rows, 1)) break;
+		if (!receive_all(socket, &rows, 1) || rows != 1) break;
 		if (!receive_all(socket, &sz, 1) || sz == 0) break;
 
-		auto buffer = std::make_unique<char[]>(sz);
-		if (!receive_all(socket, buffer.get(), sz)) break;
-		buffer.get()[sz - 1] = 0;
+		char buffer[256];
+		if (!receive_all(socket, buffer, sz)) break;
+		if (buffer[sz - 1] != '\0') break;
 
-		Logger.log(LogLevel_VERBOSE, "Received command: %s", buffer.get());
-		handleCommand(std::string(buffer.get()));
+		handleCommand(buffer);
 	}
 
 	Logger.log(LogLevel_VERBOSE, "Closing connection.");
-	closesocket(socket);
-	disconnectCB(this);
+	connected = false;
+	{
+		std::lock_guard<std::mutex> lock(mtx);
+		closesocket(socket);
+		finished = true;
+	}
 }
 
 bool RconClient::dispatchInternal(std::string const &command, std::string &res)
 {
-	if (command.rfind(COMMAND_LUA, 0) == 0)
+	if (command.rfind(kLuaCommand, 0) == 0)
 	{
-		auto ll = strlen(COMMAND_LUA);
-		if (command.size() > ll)
+		constexpr size_t prefixLength = sizeof(kLuaCommand) - 1;
+		if (command.size() > prefixLength)
 		{
-			bf2server_lua_dostring(command.substr(ll));
-			res = RETURN_OK;
+			res = bf2server_lua_dostring(command.substr(prefixLength)) == LUA_OK ? kOkay : kLuaError;
 		}
 		else
 		{
-			res = RETURN_EPARAM;
+			res = kInvalidParameters;
 		}
 		return true;
 	}
@@ -209,7 +233,6 @@ bool RconClient::dispatchInternal(std::string const &command, std::string &res)
 
 void RconClient::reportEndgame()
 {
-	auto v = std::vector<std::string>();
-	v.emplace_back("Game has ended");
-	send(v);
+	const std::vector<std::string> rows{"Game has ended"};
+	send(rows);
 }

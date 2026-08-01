@@ -1,9 +1,13 @@
 #include "RconServer.h"
+#include "Logger.h"
+#include "bf2server.h"
+
+#include <algorithm>
+#include <system_error>
 
 RconServer::RconServer(uint16_t maxClients)
+	: listenSocket(INVALID_SOCKET), port(static_cast<uint16_t>(bf2server_get_gameport())), maxClients(maxClients)
 {
-	this->maxClients = maxClients;
-	this->port = (uint16_t)bf2server_get_gameport();
 }
 
 RconServer::~RconServer()
@@ -13,7 +17,7 @@ RconServer::~RconServer()
 
 bool RconServer::start()
 {
-	WSADATA wsaData;
+	WSADATA wsaData{};
 	int err = NO_ERROR;
 
 	if ((err = WSAStartup(MAKEWORD(2, 2), &wsaData)) != NO_ERROR)
@@ -29,9 +33,9 @@ bool RconServer::start()
 		return false;
 	}
 
-	sockaddr_in service;
+	sockaddr_in service{};
 	service.sin_family = AF_INET;
-	service.sin_addr.s_addr = INADDR_ANY;
+	service.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	service.sin_port = htons(port);
 
 	if ((err = ::bind(listenSocket, (SOCKADDR *)&service, sizeof(service))) == SOCKET_ERROR)
@@ -50,8 +54,20 @@ bool RconServer::start()
 		return false;
 	}
 	running = true;
-	workThread = std::make_shared<std::thread>(&RconServer::listen, this);
-	bf2server_set_chat_cb(std::bind(&RconServer::onChatInput, this, std::placeholders::_1));
+	try
+	{
+		workThread = std::thread(&RconServer::listen, this);
+	}
+	catch (const std::system_error &error)
+	{
+		running = false;
+		closesocket(listenSocket);
+		listenSocket = INVALID_SOCKET;
+		WSACleanup();
+		Logger.log(LogLevel_ERROR, "Unable to start RCON listener thread: %s", error.what());
+		return false;
+	}
+	bf2server_set_chat_cb([this](const std::string &message) { onChatInput(message); });
 	return true;
 }
 
@@ -60,7 +76,16 @@ void RconServer::stop()
 	bf2server_set_chat_cb(nullptr);
 	running = false;
 	closesocket(listenSocket);
-	workThread->join();
+	if (workThread.joinable()) workThread.join();
+
+	std::vector<std::unique_ptr<RconClient>> activeClients;
+	{
+		std::lock_guard<std::mutex> lock(mtx);
+		activeClients.swap(clients);
+	}
+	for (auto &client : activeClients) client->stop();
+	activeClients.clear();
+	WSACleanup();
 }
 
 void RconServer::listen()
@@ -72,77 +97,67 @@ void RconServer::listen()
 		SOCKET clientSocket;
 		if ((clientSocket = accept(listenSocket, nullptr, nullptr)) == INVALID_SOCKET)
 		{
+			if (!running) break;
 			Logger.log(LogLevel_WARNING, "Client connect failed with %ld", WSAGetLastError());
+			Sleep(50);
+			continue;
 		}
-		else
-		{
-			const DWORD sendTimeout = 1000;
-			if (setsockopt(clientSocket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&sendTimeout),
-						   static_cast<int>(sizeof(sendTimeout))) == SOCKET_ERROR)
-			{
-				Logger.log(LogLevel_WARNING, "Unable to set RCON send timeout: %d", WSAGetLastError());
-				closesocket(clientSocket);
-				continue;
-			}
 
-			std::unique_lock<std::mutex> lg(mtx);
+		const DWORD sendTimeout = 1000;
+		if (setsockopt(clientSocket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&sendTimeout),
+					   static_cast<int>(sizeof(sendTimeout))) == SOCKET_ERROR)
+		{
+			Logger.log(LogLevel_WARNING, "Unable to set RCON send timeout: %d", WSAGetLastError());
+			closesocket(clientSocket);
+			continue;
+		}
+
+		size_t clientCount;
+		{
+			std::lock_guard<std::mutex> lock(mtx);
+			removeFinishedClientsLocked();
 			if (clients.size() >= maxClients)
 			{
-				lg.unlock();
 				closesocket(clientSocket);
 				continue;
 			}
 
-			auto client =
-				new RconClient(clientSocket, std::bind(&RconServer::onClientDisconnect, this, std::placeholders::_1));
-			clients.push_back(client);
-			size_t clientCount = clients.size();
-			lg.unlock();
-
-			Logger.log(LogLevel_INFO, "Client connected. %zu clients connected.", clientCount);
-			client->start();
+			auto newClient = std::make_unique<RconClient>(clientSocket);
+			clients.push_back(std::move(newClient));
+			if (!clients.back()->start())
+			{
+				closesocket(clientSocket);
+				clients.pop_back();
+				continue;
+			}
+			clientCount = clients.size();
 		}
-	}
 
-	std::unique_lock<std::mutex> lg(mtx);
-	for (auto c : clients)
-	{
-		c->stop();
+		Logger.log(LogLevel_VERBOSE, "Client connected. %zu clients connected.", clientCount);
 	}
-	lg.unlock();
-
-	if (running)
-	{
-		closesocket(listenSocket);
-		running = false;
-	}
-
-	WSACleanup();
 }
 
-void RconServer::onClientDisconnect(RconClient *client)
+void RconServer::removeFinishedClientsLocked()
 {
-	std::unique_lock<std::mutex> lg(mtx);
-	clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end());
-	client->stop();
-	delete client;
-	Logger.log(LogLevel_INFO, "Client removed. %zu clients connected.", clients.size());
+	clients.erase(std::remove_if(clients.begin(), clients.end(),
+								 [](const std::unique_ptr<RconClient> &client) { return client->isFinished(); }),
+				  clients.end());
 }
 
 void RconServer::onChatInput(std::string const &msg)
 {
-	std::unique_lock<std::mutex> lg(mtx);
-	for (auto &c : clients)
+	std::lock_guard<std::mutex> lock(mtx);
+	for (auto &client : clients)
 	{
-		c->onChatInput(msg);
+		client->onChatInput(msg);
 	}
 }
 
 void RconServer::reportEndgame()
 {
-	std::unique_lock<std::mutex> lg(mtx);
-	for (auto &c : clients)
+	std::lock_guard<std::mutex> lock(mtx);
+	for (auto &client : clients)
 	{
-		c->reportEndgame();
+		client->reportEndgame();
 	}
 }
