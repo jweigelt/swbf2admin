@@ -1,0 +1,3 @@
+[submodule "rconserver-galaxy/external/minhook"]
+	path = rconserver-galaxy/external/minhook
+	url = https://github.com/TsudaKageyu/minhook.git

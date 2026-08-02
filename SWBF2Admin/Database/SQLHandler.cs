@@ -964,6 +964,39 @@ namespace SWBF2Admin.Database
             }, "@game_id", gameID);
         }
 
+        public List<Player> GetMatchPlayerStatsExtra(int gameID)
+        {
+            string sql = "SELECT " +
+                "prefix_stats_extra.id, stat_kills, stat_deaths, stat_points, stat_captures, stat_team_kills, stat_team_id, stat_team, player_last_name, player_keyhash " +
+                "FROM prefix_stats_extra " +
+                "INNER JOIN prefix_players ON player_id = prefix_players.id " +
+                "WHERE game_id = @game_id AND prefix_stats_extra.id IN (" +
+                    "SELECT MAX(id) FROM prefix_stats_extra WHERE game_id = @game_id GROUP BY player_id) " +
+                "ORDER BY prefix_stats_extra.id";
+
+            return Query(sql, reader =>
+            {
+                List<Player> stats = new List<Player>();
+                while (reader.Read())
+                {
+                    stats.Add(new Player(
+                        RI(reader, "id"),
+                        RI(reader, "stat_kills"),
+                        RI(reader, "stat_deaths"),
+                        RI(reader, "stat_points"),
+                        RS(reader, "player_last_name"),
+                        RS(reader, "player_keyhash"),
+                        RS(reader, "stat_team"))
+                    {
+                        Captures = RI(reader, "stat_captures"),
+                        TeamKills = RI(reader, "stat_team_kills"),
+                        TeamId = RI(reader, "stat_team_id")
+                    });
+                }
+                return stats;
+            }, "@game_id", gameID);
+        }
+
         public void DeleteMatch(int id)
         {
             NonQuery("DELETE FROM prefix_stats WHERE game_id = @game_id", "@game_id", id);

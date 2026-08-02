@@ -1,6 +1,8 @@
 #include "RconServer.h"
 #include "Logger.h"
 #include "bf2server.h"
+#include "direct_transport/direct_transport_policy.h"
+#include "direct_transport/direct_transport_server.h"
 #include <Windows.h>
 #include <atomic>
 #include <cstdio>
@@ -8,6 +10,7 @@
 
 namespace
 {
+constexpr UINT kDirectTransportStartupExitCode = 0xD1;
 constexpr std::uint16_t kMaxRconConnections = 8;
 static std::atomic_bool dllmain_running = false;
 } // namespace
@@ -19,7 +22,7 @@ DWORD WINAPI Run(LPVOID module)
 #ifdef _DEBUG
 	Logger.SetMinLevelFile(LogLevel_VERBOSE);
 #else
-	Logger.SetMinLevelFile(LogLevel_INFO);
+	Logger.SetMinLevelFile(LogLevel_WARNING);
 #endif
 	const bool patchesApplied = bf2server_init();
 	if (patchesApplied)
@@ -29,6 +32,33 @@ DWORD WINAPI Run(LPVOID module)
 	{
 		Logger.log(LogLevel_ERROR, "RconServer_32 patch installation failed.");
 		return 0;
+	}
+
+	const auto directPolicy = bf2direct::ReadPolicy();
+	bool directTransportStarted = false;
+	if (!directPolicy.configured)
+	{
+		Logger.log(LogLevel_WARNING, "Direct transport disabled: BF2_DIRECT_POLICY is missing");
+	}
+	else if (!directPolicy.valid)
+	{
+		Logger.log(LogLevel_WARNING, "Direct transport disabled: BF2_DIRECT_POLICY is invalid");
+	}
+	else if (directPolicy.value == bf2direct::Policy::Disabled)
+	{
+		Logger.log(LogLevel_INFO, "Direct transport disabled");
+	}
+	else
+	{
+		std::string directError;
+		if (!bf2direct::GetServerTransport().Initialize(directPolicy.value, directError))
+		{
+			Logger.log(LogLevel_ERROR, "Direct transport startup failed: %s", directError.c_str());
+			TerminateProcess(GetCurrentProcess(), kDirectTransportStartupExitCode);
+			return kDirectTransportStartupExitCode;
+		}
+		directTransportStarted = true;
+		if (!directError.empty()) Logger.log(LogLevel_WARNING, "%s", directError.c_str());
 	}
 
 	RconServer server(kMaxRconConnections);
@@ -48,8 +78,9 @@ DWORD WINAPI Run(LPVOID module)
 			endgamePending = false;
 		}
 		bf2server_mapfix_tick();
+		if (directTransportStarted) bf2direct::GetServerTransport().Tick();
 		Sleep(50);
-#ifdef _DEBUG
+#if defined(_DEBUG)
 		const bool escapeDown = (GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0;
 		const bool backspaceDown = (GetAsyncKeyState(VK_BACK) & 0x8000) != 0;
 		if (escapeDown && backspaceDown)
@@ -61,6 +92,16 @@ DWORD WINAPI Run(LPVOID module)
 	}
 
 	if (rconStarted) server.stop();
+	if (directTransportStarted)
+	{
+		std::string directError;
+		if (!bf2direct::GetServerTransport().Shutdown(directError))
+		{
+			Logger.log(LogLevel_ERROR, "Direct transport shutdown failed: %s", directError.c_str());
+			TerminateProcess(GetCurrentProcess(), kDirectTransportStartupExitCode);
+			return kDirectTransportStartupExitCode;
+		}
+	}
 	if (processExitRequested)
 	{
 		Logger.log(LogLevel_INFO, "Debug shutdown complete; exiting process.");

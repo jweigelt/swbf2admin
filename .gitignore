@@ -16,3 +16,6 @@ packages
 cmake-build-debug
 cmake-build-release
 build_*
+
+# Temporary local link; remove this rule when swbf2-transport-common becomes a submodule.
+/rconserver-galaxy/external/transport-common/

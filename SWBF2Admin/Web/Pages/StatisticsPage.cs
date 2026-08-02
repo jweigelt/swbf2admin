@@ -130,6 +130,9 @@ namespace SWBF2Admin.Web.Pages
                 case "stats_players":
                     WebAdmin.SendHtml(ctx, ToJson(Core.Database.GetMatchPlayerStats(p.DatabaseId)));
                     break;
+                case "stats_players_extra":
+                    WebAdmin.SendHtml(ctx, ToJson(Core.Database.GetMatchPlayerStatsExtra(p.DatabaseId)));
+                    break;
             }
         }
 
